@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.license;
 
-/**
- * Created by ryan on 2/13/2016.
- */
-public class LicenseView {
+import com.airhacks.afterburner.views.FXMLView;
+
+public class LicenseView extends FXMLView {
 }

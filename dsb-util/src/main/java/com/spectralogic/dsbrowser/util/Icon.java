@@ -1,7 +1,12 @@
 package com.spectralogic.dsbrowser.util;
 
-/**
- * Created by ryan on 2/13/2016.
- */
-public class Icon {
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.scene.Node;
+
+public final class Icon {
+    public static Node getIcon(final FontAwesomeIcon name) {
+        return new FontAwesomeIconView(name);
+    }
+
 }

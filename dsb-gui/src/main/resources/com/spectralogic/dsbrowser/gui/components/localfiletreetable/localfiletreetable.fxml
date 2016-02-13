@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.cell.TreeItemPropertyValueFactory?>
+
+<VBox prefHeight="356.0" prefWidth="286.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"  fx:controller="com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter">
+ <children>
+    <ToolBar prefHeight="40.0" prefWidth="200.0">
+      <items>
+        <Button fx:id="homeButton">
+            <tooltip>
+                <Tooltip text="Home" />
+            </tooltip>
+        </Button>
+
+      </items>
+    </ToolBar>
+     <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefHeight="457.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" >
+    <columns>
+        <TreeTableColumn prefWidth="75.0" text="Name">
+            <cellValueFactory>
+                <TreeItemPropertyValueFactory property="name" />
+            </cellValueFactory>
+                </TreeTableColumn>
+      <TreeTableColumn prefWidth="75.0" text="Type">
+
+          <cellValueFactory>
+              <TreeItemPropertyValueFactory property="type" />
+          </cellValueFactory>
+
+              </TreeTableColumn>
+      <TreeTableColumn prefWidth="75.0" text="Size">
+          <cellValueFactory>
+              <TreeItemPropertyValueFactory property="size" />
+          </cellValueFactory>
+              </TreeTableColumn>
+    </columns>
+</TreeTableView>
+
+ </children>
+</VBox>
+
+

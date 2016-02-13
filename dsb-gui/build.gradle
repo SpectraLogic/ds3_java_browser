@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":dsb-api")
+    compile project(":dsb-local")
+    compile project(":dsb-util")
+}

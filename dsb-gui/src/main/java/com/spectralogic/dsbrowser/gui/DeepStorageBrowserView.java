@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui;
 
-/**
- * Created by ryan on 2/12/2016.
- */
-public class DeepStorageBrowserView {
+import com.airhacks.afterburner.views.FXMLView;
+
+public class DeepStorageBrowserView extends FXMLView {
 }

@@ -1,7 +1,10 @@
 package com.spectralogic.dsbrowser.api;
 
-/**
- * Created by ryan on 2/12/2016.
- */
+import com.google.common.collect.ImmutableList;
+
+import java.io.IOException;
+
 public interface FileTreeTableProvider {
+    ImmutableList<FileTreeModel> getRoot();
+    ImmutableList<FileTreeModel> getListForDir(final String dirName) throws IOException;
 }
