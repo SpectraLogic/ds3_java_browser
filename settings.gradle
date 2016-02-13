@@ -1,1 +1,1 @@
-include 'dsb-api', 'dsb-gui', 'dsb-local', 'dsb-util'
+include 'dsb-api', 'dsb-ds3', 'dsb-gui', 'dsb-local', 'dsb-util'
