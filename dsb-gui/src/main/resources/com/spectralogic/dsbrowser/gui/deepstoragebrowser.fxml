@@ -10,24 +10,38 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" text="New Session..." />
+                  <MenuItem mnemonicParsing="false" text="Open Session..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Settings..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Close" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="View">
+               <items>
+                  <CheckMenuItem mnemonicParsing="false" text="Jobs" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" text="About" />
-                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" text="Licenses" />
+                  <MenuItem mnemonicParsing="false" text="Help..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" text="About..." />
+                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" text="Licenses..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Version Check" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
    </top>
    <center>
-   <SplitPane dividerPositions="0.48327759197324416" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+   <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
      <items>
-       <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+       <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
-       <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+       <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
      </items>
    </SplitPane>
