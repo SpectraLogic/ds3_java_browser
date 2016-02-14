@@ -18,7 +18,7 @@ public class Main extends Application {
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
         primaryStage.setTitle("Deep Storage Browser v0.0.1");
 
-        Injector.setLogger(injectorLogger::info);
+        Injector.setLogger(injectorLogger::debug);
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
