@@ -33,22 +33,26 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
 
-        initMenuBar();
+        try {
+            LOG.info("Starting LocalFileTreeTablePresenter");
+            initMenuBar();
 
-        LOG.info("Starting LocalFileTreeTablePresenter");
 
-        final Stream<FileTreeModel> rootItems = provider.getRoot();
+            final Stream<FileTreeModel> rootItems = provider.getRoot();
 
-        final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
-        rootTreeItem.setExpanded(true);
-        treeTable.setShowRoot(false);
+            final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
+            rootTreeItem.setExpanded(true);
+            treeTable.setShowRoot(false);
 
-        rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm);
-            rootTreeItem.getChildren().add(newRootTreeItem);
-        });
+            rootItems.forEach(ftm -> {
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm);
+                rootTreeItem.getChildren().add(newRootTreeItem);
+            });
 
-        treeTable.setRoot(rootTreeItem);
+            treeTable.setRoot(rootTreeItem);
+        } catch (final Throwable e) {
+            LOG.error("Encountered an error when creating LocalFileTreeTablePresenter", e);
+        }
     }
 
     private void initMenuBar() {

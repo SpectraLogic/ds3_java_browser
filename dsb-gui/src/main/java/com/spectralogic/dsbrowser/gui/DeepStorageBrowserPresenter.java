@@ -1,7 +1,10 @@
 package com.spectralogic.dsbrowser.gui;
 
+import com.spectralogic.dsbrowser.gui.components.about.AboutView;
+import com.spectralogic.dsbrowser.gui.components.ds3treetable.Ds3TreeTableView;
 import com.spectralogic.dsbrowser.gui.components.license.LicenseView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
+import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -26,23 +29,26 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        LOG.info("Loading Main view");
-        final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
-
-        localTreeView.getViewAsync(fileSystem.getChildren()::add);
+        try {
+            LOG.info("Loading Main view");
+            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
+            final Ds3TreeTableView ds3TreeTableView = new Ds3TreeTableView();
+            localTreeView.getViewAsync(fileSystem.getChildren()::add);
+            ds3TreeTableView.getViewAsync(blackPearl.getChildren()::add);
+        } catch (final Throwable e) {
+            LOG.error("Encountered an error when creating Main view", e);
+            throw e;
+        }
     }
 
     public void showLicensePopup() {
-        final Stage popup = new Stage();
-        popup.setMaxWidth(1000);
         final LicenseView licenseView = new LicenseView();
-        final Scene popupScene = new Scene(licenseView.getView());
-        popup.setScene(popupScene);
-        popup.setTitle("Licenses");
-        popup.showAndWait();
+        Popup.show(licenseView.getView(), "Licenses");
     }
 
     public void showAboutPopup() {
+        final AboutView aboutView = new AboutView();
+        Popup.show(aboutView.getView(), "About");
 
     }
 

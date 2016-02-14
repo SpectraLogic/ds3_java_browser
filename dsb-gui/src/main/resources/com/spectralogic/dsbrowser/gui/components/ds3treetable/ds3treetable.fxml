@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3treetable.Ds3TreeTablePresenter">
+   <children>
+      <ToolBar prefHeight="40.0" prefWidth="200.0">
+        <items>
+          <Button fx:id="ds3Refresh">
+            <tooltip>
+                <Tooltip text="Refresh" />
+            </tooltip>
+          </Button>
+        </items>
+      </ToolBar>
+      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
+        <tabs>
+          <Tab text="BP - 192.168.56.102">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <TreeTableView prefHeight="171.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <columns>
+                            <TreeTableColumn prefWidth="75.0" text="Name" />
+                              <TreeTableColumn prefWidth="75.0" text="Size" />
+                              <TreeTableColumn prefWidth="75.0" text="Type" />
+                          </columns>
+                        </TreeTableView>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</VBox>
