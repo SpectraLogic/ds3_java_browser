@@ -1,8 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
-import com.google.common.collect.ImmutableList;
-import com.spectralogic.dsbrowser.api.FileTreeModel;
-import com.spectralogic.dsbrowser.local.LocalFileTreeTableProvider;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.fxml.FXML;
@@ -16,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 public class LocalFileTreeTablePresenter implements Initializable {
     private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
@@ -25,6 +23,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     @FXML
     Button homeButton;
+
+    @FXML
+    Button refreshButton;
 
     @Inject
     LocalFileTreeTableProvider provider;
@@ -36,17 +37,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         LOG.info("Starting LocalFileTreeTablePresenter");
 
-        final ImmutableList<FileTreeModel> rootItems = provider.getRoot();
+        final Stream<FileTreeModel> rootItems = provider.getRoot();
 
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
 
-        rootItems.stream().forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new TreeItem<>(ftm);
-            if (ftm.getType() == FileTreeModel.Type.DIRECTORY) {
-                newRootTreeItem.setGraphic(Icon.getIcon(FontAwesomeIcon.HDD_ALT));
-            }
+        rootItems.forEach(ftm -> {
+            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
 
@@ -55,5 +53,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initMenuBar() {
         homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
+        refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
     }
 }
