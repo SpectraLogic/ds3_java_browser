@@ -20,26 +20,11 @@
                 </Button>
             </items>
         </ToolBar>
-        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
+        <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
             <tabs>
-                <Tab text="BP - 192.168.56.102">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <children>
-                                <TreeTableView prefHeight="171.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <columns>
-                                        <TreeTableColumn prefWidth="75.0" text="Name" />
-                                        <TreeTableColumn prefWidth="75.0" text="Size" />
-                                        <TreeTableColumn prefWidth="75.0" text="Type" />
-                                    </columns>
-                                </TreeTableView>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-                <Tab fx:id="addNewTab" closable="false">
+               <Tab fx:id="addNewTab" closable="false">
                     <tooltip>
-                        <Tooltip text="New Session"/>
+                        <Tooltip text="New Session" />
                     </tooltip>
 
                     <content>
@@ -48,7 +33,7 @@
                                 <VBox alignment="CENTER" layoutX="250.0" layoutY="48.0" prefHeight="331.0" prefWidth="600.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
                                         <Label text="Create a New Session to Access a Black Pearl" />
-                                        <Button mnemonicParsing="false" text="New Session" />
+                                        <Button mnemonicParsing="false" onAction="#newSessionDialog" text="New Session" />
                                     </children>
                                 </VBox>
                             </children></AnchorPane>

@@ -2,7 +2,10 @@ package com.spectralogic.dsbrowser.gui.services;
 
 import com.spectralogic.ds3client.Ds3Client;
 
-public class Session {
+import java.io.Closeable;
+import java.io.IOException;
+
+public class Session implements Closeable {
     private final Ds3Client client;
 
     public Session(final Ds3Client client) {
@@ -11,5 +14,10 @@ public class Session {
 
     public Ds3Client getClient() {
         return client;
+    }
+
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 }
