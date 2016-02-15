@@ -11,7 +11,11 @@ subprojects {
   sourceCompatibility = JavaVersion.VERSION_1_8
 
   repositories {
+    maven {
+      url 'http://dl.bintray.com/spectralogic/ds3'
+    }
     mavenCentral()
+
   }
 
   dependencies {
