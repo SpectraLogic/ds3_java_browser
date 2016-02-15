@@ -1,5 +1,6 @@
-package com.spectralogic.dsbrowser.gui.components.ds3treetable;
+package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
+import com.spectralogic.dsbrowser.gui.services.SessionStore;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.fxml.FXML;
@@ -9,11 +10,12 @@ import javafx.scene.control.Tab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Ds3TreeTablePresenter implements Initializable {
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
+public class Ds3PanelPresenter implements Initializable {
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
 
     @FXML
     Button ds3Refresh;
@@ -24,14 +26,17 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     Tab addNewTab;
 
+    @Inject
+    SessionStore store;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            LOG.info("Loading Ds3TreeTablePresenter");
+            LOG.info("Loading Ds3PanelPresenter");
             initMenuItems();
             initTab();
         } catch (final Throwable e) {
-            LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
+            LOG.error("Encountered error when creating Ds3PanelPresenter", e);
             throw e;
         }
     }
@@ -45,3 +50,5 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
     }
 }
+
+

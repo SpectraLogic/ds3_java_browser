@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<TreeTableView prefHeight="171.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter">
+  <columns>
+    <TreeTableColumn prefWidth="75.0" text="Name" />
+      <TreeTableColumn prefWidth="75.0" text="Size" />
+      <TreeTableColumn prefWidth="75.0" text="Type" />
+  </columns>
+</TreeTableView>

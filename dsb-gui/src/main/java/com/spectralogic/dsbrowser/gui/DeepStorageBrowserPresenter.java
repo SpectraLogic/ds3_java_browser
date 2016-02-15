@@ -1,16 +1,14 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
-import com.spectralogic.dsbrowser.gui.components.ds3treetable.Ds3TreeTableView;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
 import com.spectralogic.dsbrowser.gui.components.license.LicenseView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +30,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
         try {
             LOG.info("Loading Main view");
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
-            final Ds3TreeTableView ds3TreeTableView = new Ds3TreeTableView();
+            final Ds3PanelView ds3PanelView = new Ds3PanelView();
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
-            ds3TreeTableView.getViewAsync(blackPearl.getChildren()::add);
+            ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             throw e;
