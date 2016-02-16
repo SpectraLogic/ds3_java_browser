@@ -4,6 +4,7 @@ import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
 import com.spectralogic.dsbrowser.gui.components.license.LicenseView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -47,7 +48,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
     public void showAboutPopup() {
         final AboutView aboutView = new AboutView();
         Popup.show(aboutView.getView(), "About");
+    }
 
+    public void showSessionPopup() {
+        NewSessionPopup.show();
     }
 
     public void closeWindow() {

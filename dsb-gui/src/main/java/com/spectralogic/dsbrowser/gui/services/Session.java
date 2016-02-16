@@ -7,8 +7,12 @@ import java.io.IOException;
 
 public class Session implements Closeable {
     private final Ds3Client client;
+    private final String sessionName;
+    private final String endpoint;
 
-    public Session(final Ds3Client client) {
+    public Session(final String sessionName, final String endpoint, final Ds3Client client) {
+        this.sessionName = sessionName;
+        this.endpoint = endpoint;
         this.client = client;
     }
 
@@ -19,5 +23,13 @@ public class Session implements Closeable {
     @Override
     public void close() throws IOException {
         client.close();
+    }
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
     }
 }

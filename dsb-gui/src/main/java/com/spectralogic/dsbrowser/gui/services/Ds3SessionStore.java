@@ -1,12 +1,16 @@
 package com.spectralogic.dsbrowser.gui.services;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Ds3SessionStore implements SessionStore {
 
-    private final List<Session> sessions = new ArrayList<>();
+    private final List<Session> savedSessions = new ArrayList<>();
+    private final ObservableList<Session> sessions = FXCollections.observableArrayList();
 
     @Override
     public void addSession(final Session session) {
@@ -19,6 +23,11 @@ public class Ds3SessionStore implements SessionStore {
     }
 
     @Override
+    public ObservableList<Session> getObservableList() {
+        return this.sessions;
+    }
+
+    @Override
     public void removeSession(final Session session) {
         sessions.remove(session);
     }
@@ -26,5 +35,19 @@ public class Ds3SessionStore implements SessionStore {
     @Override
     public boolean isEmpty() {
         return sessions.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return sessions.size();
+    }
+
+    @Override
+    public Stream<Session> savedSessions() {
+        return savedSessions.stream();
+    }
+
+    public void addSavedSession(final Session session) {
+        this.savedSessions.add(session);
     }
 }

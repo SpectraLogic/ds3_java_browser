@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.services;
 
+import javafx.collections.ObservableList;
+
 import java.util.stream.Stream;
 
 /**
@@ -10,7 +12,10 @@ public interface SessionStore {
 
     void addSession(final Session session);
     Stream<Session> getSessions();
+    ObservableList<Session> getObservableList();
     void removeSession(final Session session);
     boolean isEmpty();
+    int size();
+    Stream<Session> savedSessions();
 
 }

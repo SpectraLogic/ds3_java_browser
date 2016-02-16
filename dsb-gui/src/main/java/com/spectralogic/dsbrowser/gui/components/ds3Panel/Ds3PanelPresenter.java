@@ -1,15 +1,12 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableView;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.Ds3SessionStore;
-import com.spectralogic.dsbrowser.gui.util.Popup;
+import com.spectralogic.dsbrowser.gui.services.Session;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -20,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Ds3PanelPresenter implements Initializable {
@@ -47,10 +45,39 @@ public class Ds3PanelPresenter implements Initializable {
             initMenuItems();
             initTab();
             initTabPane();
+            initListeners();
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3PanelPresenter", e);
             throw e;
         }
+    }
+
+    private void initListeners() {
+        store.getObservableList().addListener((ListChangeListener<Session>) c -> {
+            if (c.next() && c.wasAdded()) {
+                final List<? extends Session> newItems = c.getAddedSubList();
+                newItems.stream().forEach(newSession -> {
+                    final Ds3TreeTableView newTreeView = new Ds3TreeTableView();
+                    final Tab treeTab = new Tab(newSession.getSessionName(), newTreeView.getView());
+                    final int totalTabs = ds3SessionTabPane.getTabs().size();
+                    ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
+                    ds3SessionTabPane.getSelectionModel().select(treeTab);
+                });
+
+            }
+        });
+
+        ds3SessionTabPane.getTabs().addListener((ListChangeListener<Tab>) c -> {
+            if (c.next() && c.wasRemoved()) {
+                if (ds3SessionTabPane.getTabs().size() == 1) {
+                    ds3Refresh.setDisable(true);
+                    ds3NewFolder.setDisable(true);
+                }
+            } else if(c.wasAdded()) {
+                ds3Refresh.setDisable(false);
+                ds3NewFolder.setDisable(false);
+            }
+        });
     }
 
     private void initTabPane() {
@@ -59,33 +86,19 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3SessionTabPane.getTabs().size() > 1 && newValue == addNewTab) {
                 // popup new session dialog box
-                if (!newSessionDialog()) {
+                final int sessionCount = store.size();
+                newSessionDialog();
+
+                if (sessionCount == store.size()) {
                     // Do not select the new value if NewSessionDialog fails
                     ds3SessionTabPane.getSelectionModel().select(oldValue);
                 }
             }
         });
-
-        final Ds3TreeTableView treeView = new Ds3TreeTableView();
-        final Tab treeTab = new Tab("192.168.56.101", treeView.getView());
-        treeTab.setClosable(true);
-        ds3SessionTabPane.getTabs().add(0, treeTab);
-        ds3SessionTabPane.getSelectionModel().select(0);
     }
 
-    public boolean newSessionDialog() {
-        final NewSessionModel model = NewSessionPopup.show();
-        if (model == null) {
-            return false;
-        }
-
-        final Ds3TreeTableView newTreeView = new Ds3TreeTableView();
-        final Tab treeTab = new Tab(model.getEndpoint(), newTreeView.getView());
-        final int totalTabs = ds3SessionTabPane.getTabs().size();
-        ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
-        ds3SessionTabPane.getSelectionModel().select(treeTab);
-
-        return true;
+    public void newSessionDialog() {
+        NewSessionPopup.show();
     }
 
     private void initTab() {
@@ -95,6 +108,10 @@ public class Ds3PanelPresenter implements Initializable {
     private void initMenuItems() {
         ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
         ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+        if (ds3SessionTabPane.getTabs().size() == 1) {
+            ds3Refresh.setDisable(true);
+            ds3NewFolder.setDisable(true);
+        }
     }
 }
 
