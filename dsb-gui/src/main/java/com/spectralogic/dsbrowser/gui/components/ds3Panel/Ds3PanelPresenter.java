@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableView;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.util.Popup;
@@ -57,7 +59,10 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3SessionTabPane.getTabs().size() > 1 && newValue == addNewTab) {
                 // popup new session dialog box
-                newSessionDialog();
+                if (!newSessionDialog()) {
+                    // Do not select the new value if NewSessionDialog fails
+                    ds3SessionTabPane.getSelectionModel().select(oldValue);
+                }
             }
         });
 
@@ -68,17 +73,19 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getSelectionModel().select(0);
     }
 
-    public void newSessionDialog() {
-        final NewSessionView newSessionView = new NewSessionView();
-        Popup.show(newSessionView.getView(), "New Session");
-        // this will end up returning a new session.
-        // create a new tab
+    public boolean newSessionDialog() {
+        final NewSessionModel model = NewSessionPopup.show();
+        if (model == null) {
+            return false;
+        }
+
         final Ds3TreeTableView newTreeView = new Ds3TreeTableView();
-        final Tab treeTab = new Tab("192.168.56.102", newTreeView.getView());
+        final Tab treeTab = new Tab(model.getEndpoint(), newTreeView.getView());
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
         ds3SessionTabPane.getSelectionModel().select(treeTab);
 
+        return true;
     }
 
     private void initTab() {

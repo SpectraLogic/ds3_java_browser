@@ -21,6 +21,12 @@
             <Menu mnemonicParsing="false" text="View">
                <items>
                   <CheckMenuItem mnemonicParsing="false" text="Jobs" />
+                  <Menu mnemonicParsing="false" text="Theme">
+                    <items>
+                        <CheckMenuItem mnemonicParsing="false" selected="true" text="Light" />
+                        <CheckMenuItem mnemonicParsing="false" text="Dark" />
+                    </items>
+                  </Menu>
                </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">

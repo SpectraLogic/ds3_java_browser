@@ -14,7 +14,7 @@ public final class Popup {
         popup.setScene(popupScene);
         popup.setTitle(title);
         popup.setAlwaysOnTop(true);
+        popup.setResizable(false);
         popup.showAndWait();
-
     }
 }
