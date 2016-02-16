@@ -10,6 +10,11 @@ public class Session implements Closeable {
     private final String sessionName;
     private final String endpoint;
 
+    // Needed for injection
+    public Session() {
+        this(null, null, null);
+    }
+
     public Session(final String sessionName, final String endpoint, final Ds3Client client) {
         this.sessionName = sessionName;
         this.endpoint = endpoint;

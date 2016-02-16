@@ -1,19 +1,24 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.gui.services.Session;
 import javafx.fxml.Initializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Ds3TreeTablePresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
 
+    @Inject
+    Session session;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            LOG.info("Loading Ds3TreeTablePresenter");
+            LOG.info("Loading Ds3TreeTablePresenter with session " + session.getSessionName());
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
             throw e;

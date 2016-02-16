@@ -57,7 +57,7 @@ public class Ds3PanelPresenter implements Initializable {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
                 newItems.stream().forEach(newSession -> {
-                    final Ds3TreeTableView newTreeView = new Ds3TreeTableView();
+                    final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession);
                     final Tab treeTab = new Tab(newSession.getSessionName(), newTreeView.getView());
                     final int totalTabs = ds3SessionTabPane.getTabs().size();
                     ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
@@ -81,8 +81,6 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void initTabPane() {
-        //TODO create a default tab for now.  In the future, get any existing tabs from the session store
-
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3SessionTabPane.getTabs().size() > 1 && newValue == addNewTab) {
                 // popup new session dialog box
@@ -93,6 +91,12 @@ public class Ds3PanelPresenter implements Initializable {
                     // Do not select the new value if NewSessionDialog fails
                     ds3SessionTabPane.getSelectionModel().select(oldValue);
                 }
+            }
+        });
+
+        ds3SessionTabPane.getTabs().addListener((ListChangeListener<? super Tab>) c -> {
+            if (c.next() && c.wasRemoved()) {
+                // TODO prompt the user to save each session that was closed, if it is not already in the saved session store
             }
         });
     }
