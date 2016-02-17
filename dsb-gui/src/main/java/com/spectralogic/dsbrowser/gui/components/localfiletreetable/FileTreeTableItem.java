@@ -32,6 +32,16 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.provider = provider;
 
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
+
+        if (fileTreeModel.getType() == FileTreeModel.Type.DIRECTORY) {
+            this.addEventHandler(TreeItem.branchExpandedEvent(), e -> {
+                e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
+            });
+
+            this.addEventHandler(TreeItem.branchCollapsedEvent(), e -> {
+                e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+            });
+        }
     }
 
     private FontAwesomeIconView getGraphicType(final FileTreeModel fileTreeModel) {
