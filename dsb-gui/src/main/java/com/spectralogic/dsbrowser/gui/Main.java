@@ -1,13 +1,21 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.spectralogic.dsbrowser.gui.services.Workers;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Main extends Application {
+
+    private final static Logger LOG = LoggerFactory.getLogger(Main.class);
+
+    private final Workers workers = new Workers(5);
 
     public static void main(final String[] args) {
         launch(args);
@@ -19,6 +27,8 @@ public class Main extends Application {
         primaryStage.setTitle("Deep Storage Browser v0.0.1");
 
         Injector.setLogger(injectorLogger::debug);
+        Injector.injectMembers(Workers.class, workers);
+
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
@@ -29,6 +39,9 @@ public class Main extends Application {
 
     @Override
     public void stop() {
+        LOG.info("Starting shutdown process...");
         Injector.forgetAll();
+        workers.shutdown();
+        LOG.info("Finished shutting down");
     }
 }

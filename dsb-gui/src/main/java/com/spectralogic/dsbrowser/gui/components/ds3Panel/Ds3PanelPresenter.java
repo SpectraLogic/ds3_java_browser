@@ -30,6 +30,9 @@ public class Ds3PanelPresenter implements Initializable {
     Button ds3NewFolder;
 
     @FXML
+    Button ds3NewBucket;
+
+    @FXML
     Tab addNewTab;
 
     @FXML
@@ -70,12 +73,10 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getTabs().addListener((ListChangeListener<Tab>) c -> {
             if (c.next() && c.wasRemoved()) {
                 if (ds3SessionTabPane.getTabs().size() == 1) {
-                    ds3Refresh.setDisable(true);
-                    ds3NewFolder.setDisable(true);
+                    disableMenu(true);
                 }
             } else if(c.wasAdded()) {
-                ds3Refresh.setDisable(false);
-                ds3NewFolder.setDisable(false);
+                disableMenu(false);
             }
         });
     }
@@ -112,10 +113,17 @@ public class Ds3PanelPresenter implements Initializable {
     private void initMenuItems() {
         ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
         ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+        ds3NewBucket.setGraphic(Icon.getIcon(FontAwesomeIcon.ARCHIVE));
         if (ds3SessionTabPane.getTabs().size() == 1) {
-            ds3Refresh.setDisable(true);
-            ds3NewFolder.setDisable(true);
+            disableMenu(true);
         }
+    }
+
+    private void disableMenu(final boolean disable) {
+        ds3Refresh.setDisable(disable);
+        ds3NewFolder.setDisable(disable);
+        ds3NewBucket.setDisable(disable);
+
     }
 }
 

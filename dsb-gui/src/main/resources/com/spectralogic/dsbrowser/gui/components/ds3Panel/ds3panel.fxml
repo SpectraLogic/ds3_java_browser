@@ -13,6 +13,11 @@
                         <Tooltip text="Refresh" />
                     </tooltip>
                 </Button>
+            <Button fx:id="ds3NewBucket" mnemonicParsing="false">
+               <tooltip>
+                  <Tooltip text="New Bucket" />
+               </tooltip>
+            </Button>
                 <Button fx:id="ds3NewFolder">
                     <tooltip>
                         <Tooltip text="New Folder" />

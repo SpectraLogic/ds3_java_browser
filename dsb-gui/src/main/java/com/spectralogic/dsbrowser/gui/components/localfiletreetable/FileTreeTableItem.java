@@ -31,7 +31,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.leaf = isLeaf(fileTreeModel.getPath());
         this.provider = provider;
 
-        this.setGraphic(getGraphicType(fileTreeModel));
+        this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
     }
 
     private FontAwesomeIconView getGraphicType(final FileTreeModel fileTreeModel) {
@@ -39,7 +39,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
            case MEDIA_DEVICE:
                return Icon.getIcon(FontAwesomeIcon.HDD_ALT);
             case DIRECTORY:
-                return Icon.getIcon(FontAwesomeIcon.FOLDER_ALT);
+                return Icon.getIcon(FontAwesomeIcon.FOLDER);
             default:
                 return null;
         }

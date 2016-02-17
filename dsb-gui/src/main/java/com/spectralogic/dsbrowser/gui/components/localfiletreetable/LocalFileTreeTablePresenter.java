@@ -36,7 +36,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Starting LocalFileTreeTablePresenter");
             initMenuBar();
 
-
             final Stream<FileTreeModel> rootItems = provider.getRoot();
 
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
