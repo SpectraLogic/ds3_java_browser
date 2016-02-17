@@ -8,9 +8,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class Main extends Application {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -27,7 +24,7 @@ public class Main extends Application {
         primaryStage.setTitle("Deep Storage Browser v0.0.1");
 
         Injector.setLogger(injectorLogger::debug);
-        Injector.injectMembers(Workers.class, workers);
+        Injector.setModelOrService(Workers.class, workers);
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
