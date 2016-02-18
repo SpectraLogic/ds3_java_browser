@@ -1,13 +1,18 @@
 package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
-import com.spectralogic.ds3client.models.Credentials;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SavedSession {
+    @JsonProperty("name")
     private final String name;
+    @JsonProperty("endpoint")
     private final String endpoint;
-    private final Credentials credentials;
+    @JsonProperty("credentials")
+    private final SavedCredentials credentials;
 
-    public SavedSession(final String name, final String endpoint, final Credentials credentials) {
+    @JsonCreator
+    public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("credentials") final SavedCredentials credentials) {
         this.name = name;
         this.endpoint = endpoint;
         this.credentials = credentials;
@@ -21,7 +26,7 @@ public class SavedSession {
         return endpoint;
     }
 
-    public Credentials getCredentials() {
+    public SavedCredentials getCredentials() {
         return credentials;
     }
 }

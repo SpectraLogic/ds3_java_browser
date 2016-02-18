@@ -5,6 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
    <children>
       <AnchorPane prefHeight="200.0" prefWidth="200.0">
@@ -12,7 +13,15 @@
             <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
                <children>
                   <Label text="Select Existing" />
-                  <ListView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TableView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <columns>
+                        <TableColumn prefWidth="172.0" text="Name">
+                           <cellValueFactory>
+                              <PropertyValueFactory property="name" />
+                           </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn prefWidth="27.0" />
+                     </columns></TableView>
                </children>
             </VBox>
          </children>
@@ -32,8 +41,19 @@
                   </AnchorPane>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#createSession" text="Create" />
-                        <Button mnemonicParsing="false" onAction="#cancelSession" text="Cancel" />
+                        <Button mnemonicParsing="false" onAction="#saveSession" text="Save">
+                           <tooltip>
+                              <Tooltip text="Save Session Information" />
+                           </tooltip>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#createSession" text="Open">
+                           <tooltip>
+                              <Tooltip text="Opens New Session Without Saving" />
+                           </tooltip></Button>
+                        <Button mnemonicParsing="false" onAction="#cancelSession" text="Cancel">
+                           <tooltip>
+                              <Tooltip text="Do Not Create A New Session" />
+                           </tooltip></Button>
                      </children>
                      <padding>
                         <Insets right="15.0" />
