@@ -15,10 +15,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -39,18 +42,40 @@ public class Ds3TreeTablePresenter implements Initializable {
         try {
             LOG.info("Loading Ds3TreeTablePresenter with session " + session.getSessionName());
 
-            final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-            rootTreeItem.setExpanded(true);
-            ds3TreeTable.setShowRoot(false);
+            initTreeTableView();
 
-            final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
-            ds3TreeTable.setRoot(rootTreeItem);
-            workers.execute(getServiceTask);
 
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
             throw e;
         }
+    }
+
+    private void initTreeTableView() {
+
+        ds3TreeTable.setOnDragOver(event -> {
+            if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
+            }
+            event.consume();
+        });
+
+        ds3TreeTable.setOnDragDropped(event -> {
+            final Dragboard db = event.getDragboard();
+
+            if (db.hasFiles()) {
+                 db.getFiles().stream().map(File::toPath).forEach(path -> LOG.info("Drop Event contains: " + path.toString()));
+            }
+            event.consume();
+        });
+
+        final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
+        rootTreeItem.setExpanded(true);
+        ds3TreeTable.setShowRoot(false);
+
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
+        ds3TreeTable.setRoot(rootTreeItem);
+        workers.execute(getServiceTask);
     }
 
     private class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
