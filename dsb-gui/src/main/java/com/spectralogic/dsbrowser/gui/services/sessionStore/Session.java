@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.services;
+package com.spectralogic.dsbrowser.gui.services.sessionStore;
 
 import com.spectralogic.ds3client.Ds3Client;
 

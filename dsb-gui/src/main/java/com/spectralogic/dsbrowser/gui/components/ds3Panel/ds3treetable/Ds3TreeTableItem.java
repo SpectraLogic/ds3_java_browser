@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.services.Session;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;

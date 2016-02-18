@@ -2,8 +2,8 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableView;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
-import com.spectralogic.dsbrowser.gui.services.Ds3SessionStore;
-import com.spectralogic.dsbrowser.gui.services.Session;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.collections.ListChangeListener;

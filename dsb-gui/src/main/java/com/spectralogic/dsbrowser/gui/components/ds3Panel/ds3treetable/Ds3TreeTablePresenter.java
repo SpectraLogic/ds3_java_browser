@@ -3,7 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketsRequest;
 import com.spectralogic.ds3client.commands.GetBucketsResponse;
-import com.spectralogic.dsbrowser.gui.services.Session;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;

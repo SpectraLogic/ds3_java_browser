@@ -1,7 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
-import com.spectralogic.dsbrowser.gui.services.Ds3SessionStore;
-import com.spectralogic.dsbrowser.gui.services.Session;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
