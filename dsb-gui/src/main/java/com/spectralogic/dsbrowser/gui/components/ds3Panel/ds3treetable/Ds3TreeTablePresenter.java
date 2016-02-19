@@ -14,9 +14,13 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +57,42 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private void initTreeTableView() {
 
-        ds3TreeTable.setOnDragOver(event -> {
-            if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
-                event.acceptTransferModes(TransferMode.COPY);
-            }
-            event.consume();
+        ds3TreeTable.setRowFactory(view -> {
+
+            final TreeTableRow<Ds3TreeTableValue> row = new TreeTableRow<>();
+
+            row.setOnDragOver(event -> {
+                if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+
+                event.consume();
+            });
+
+            row.setOnDragEntered(event -> {
+                final TreeItem<Ds3TreeTableValue> treeItem = row.getTreeItem();
+
+                if(treeItem != null) {
+                    if (!treeItem.isLeaf() && !treeItem.isExpanded()) {
+                        LOG.info("Expanding closed row");
+                        treeItem.setExpanded(true);
+                    }
+
+                    final InnerShadow is = new InnerShadow();
+                    is.setOffsetY(1.0f);
+
+                    row.setEffect(is);
+                }
+                event.consume();
+
+            });
+
+            row.setOnDragExited(event -> {
+                row.setEffect(null);
+                event.consume();
+            });
+
+            return row;
         });
 
         ds3TreeTable.setOnDragDropped(event -> {
