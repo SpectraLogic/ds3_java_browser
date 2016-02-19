@@ -46,6 +46,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }
     }
 
+    public void refresh() {
+        final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
+        list.remove(0, list.size());
+        buildChildren(list);
+    }
+
     @Override
     public ObservableList<TreeItem<Ds3TreeTableValue>> getChildren() {
         if (!accessedChildren) {
@@ -81,7 +87,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
         public GetBucketTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList) {
             partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
-
         }
 
         public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {

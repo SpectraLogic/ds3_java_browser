@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,11 @@ public class JobWorkers {
     public void execute(final Ds3JobTask run) {
         run.setOnCancelled(this::handleStop);
         run.setOnFailed(this::handleStop);
-        run.setOnSucceeded(this::handleStop);
+        final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
+        run.setOnSucceeded(event -> {
+            handleStop(event);
+            onSucceeded.handle(event);
+        });
         LOG.info("Adding to task list");
         tasks.add(run);
     }

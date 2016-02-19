@@ -49,7 +49,6 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             initTreeTableView();
 
-
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
             throw e;
@@ -104,7 +103,21 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String bucket = value.getBucketName();
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-                    jobWorkers.execute(new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir));
+
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir);
+
+                    putJob.setOnSucceeded(e -> {
+                        LOG.info("job completed successfully");
+                        LOG.info("Running refresh of row");
+                        final TreeItem<Ds3TreeTableValue> modifiedTreeItem = row.getTreeItem();
+                        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
+                            LOG.info("Refresh row");
+                            final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
+                            ds3TreeTableItem.refresh();
+                        }
+                    });
+
+                    jobWorkers.execute(putJob);
                 }
                 event.consume();
             });
