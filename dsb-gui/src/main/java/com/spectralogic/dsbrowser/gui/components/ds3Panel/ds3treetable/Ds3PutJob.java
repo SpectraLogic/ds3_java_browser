@@ -42,8 +42,8 @@ public class Ds3PutJob extends Ds3JobTask {
         final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(client);
 
         final ImmutableList<Path> paths = files.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
-        final ImmutableList<Path> directories = paths.stream().filter(path -> !Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-        final ImmutableList<Path> files = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
+        final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
+        final ImmutableList<Path> files = paths.stream().filter(path -> !Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
         final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
 
         files.stream().forEach(path1 -> expandedPaths.put(path1.getParent(), path1));
@@ -66,7 +66,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 LOG.error("Failed to get file size for: " + pair.getValue(), e);
                 return null;
             }
-        }).filter(item -> item == null).collect(GuavaCollectors.immutableList());
+        }).filter(item -> item != null).collect(GuavaCollectors.immutableList());
 
         final ImmutableMap<String, Path> fileMapper = fileMapBuilder.build();
         final long totalJobSize = objects.stream().mapToLong(Ds3Object::getSize).sum();
