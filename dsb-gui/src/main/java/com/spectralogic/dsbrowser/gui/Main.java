@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import javafx.application.Application;
@@ -15,7 +16,8 @@ public class Main extends Application {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private final Workers workers = new Workers(5);
+    private final Workers workers = new Workers();
+    private final JobWorkers jobWorkers = new JobWorkers();
     private SavedSessionStore savedSessionStore = null;
 
     public static void main(final String[] args) {
@@ -31,6 +33,7 @@ public class Main extends Application {
 
         Injector.setLogger(injectorLogger::debug);
         Injector.setModelOrService(Workers.class, workers);
+        Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
@@ -53,6 +56,7 @@ public class Main extends Application {
             }
         }
         workers.shutdown();
+        jobWorkers.shutdown();
         LOG.info("Finished shutting down");
     }
 }

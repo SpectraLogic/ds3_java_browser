@@ -10,7 +10,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" text="Sessions..." onAction="#showSessionPopup" />
+                  <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" text="Sessions..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" text="Settings..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -19,7 +19,7 @@
           </Menu>
             <Menu mnemonicParsing="false" text="View">
                <items>
-                  <CheckMenuItem mnemonicParsing="false" text="Jobs" />
+                  <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" text="Jobs" />
                   <Menu mnemonicParsing="false" text="Theme">
                     <items>
                         <CheckMenuItem mnemonicParsing="false" selected="true" text="Light" />
@@ -42,14 +42,18 @@
       </MenuBar>
    </top>
    <center>
-   <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
-     <items>
-       <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-
-       <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-
-     </items>
-   </SplitPane>
+      <SplitPane fx:id="jobSplitter" orientation="VERTICAL">
+         <items>
+         <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
+           <items>
+             <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      
+                         <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      
+                 </items>
+         </SplitPane>
+         </items>
+      </SplitPane>
    </center>
    <bottom>
       <HBox BorderPane.alignment="CENTER">

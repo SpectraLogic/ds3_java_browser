@@ -114,12 +114,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
                 final ImmutableList<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult()
                         .getCommonPrefixes().stream()
-                        .map(c -> new Ds3TreeTableValue(c, Ds3TreeTableValue.Type.DIRECTORY, 0, ""))
+                        .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.DIRECTORY, 0, ""))
                         .collect(GuavaCollectors.immutableList());
 
                 final ImmutableList<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
                         .getObjects().stream()
-                        .map(f -> new Ds3TreeTableValue(f.getKey(), Ds3TreeTableValue.Type.FILE, f.getSize(), f.getLastModified().toString()))
+                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.FILE, f.getSize(), f.getLastModified().toString()))
                         .collect(GuavaCollectors.immutableList());
 
                 Platform.runLater(() -> directoryValues.forEach(item -> partialResults.get().add(new Ds3TreeTableItem(bucket, session, item, workers))));
