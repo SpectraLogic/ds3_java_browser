@@ -33,6 +33,9 @@ public class Ds3PanelPresenter implements Initializable {
     Button ds3NewBucket;
 
     @FXML
+    Button ds3DeleteButton;
+
+    @FXML
     Tab addNewTab;
 
     @FXML
@@ -102,6 +105,11 @@ public class Ds3PanelPresenter implements Initializable {
         });
     }
 
+    public void deleteDialog() {
+        // TODO get the currently selected tab, get the presenter for that tab, and then launch the delete dialog
+        ds3SessionTabPane.getSelectionModel().getSelectedItem();
+    }
+
     public void newSessionDialog() {
         NewSessionPopup.show();
     }
@@ -114,6 +122,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
         ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
         ds3NewBucket.setGraphic(Icon.getIcon(FontAwesomeIcon.ARCHIVE));
+        ds3DeleteButton.setGraphic(Icon.getIcon(FontAwesomeIcon.TRASH));
         if (ds3SessionTabPane.getTabs().size() == 1) {
             disableMenu(true);
         }
@@ -123,7 +132,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3Refresh.setDisable(disable);
         ds3NewFolder.setDisable(disable);
         ds3NewBucket.setDisable(disable);
-
+        ds3DeleteButton.setDisable(disable);
     }
 }
 

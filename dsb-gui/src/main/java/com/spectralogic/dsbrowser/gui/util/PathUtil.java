@@ -11,12 +11,18 @@ public final class PathUtil {
     }
 
     public static String toDs3Path(final String ds3Dir, final String newPath) {
+        final String path;
         if (ds3Dir.endsWith("/") && newPath.startsWith("/")) {
-            return ds3Dir + newPath.substring(1);
+            path = ds3Dir + newPath.substring(1);
         } else if (!ds3Dir.endsWith("/") && !newPath.startsWith("/")) {
-            return ds3Dir + "/" + newPath;
+            path = ds3Dir + "/" + newPath;
+        } else {
+            path = ds3Dir + newPath;
         }
-        return ds3Dir + newPath;
+        if (path.startsWith("/")) {
+            return path.substring(1);
+        }
+        return path;
     }
 
     public static String toDs3Obj(final Path rootPath, final Path fullObjPath) {

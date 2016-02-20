@@ -13,7 +13,7 @@ public final class Popup {
         final Scene popupScene = new Scene(parent);
         popup.setScene(popupScene);
         popup.setTitle(title);
-        popup.setAlwaysOnTop(true);
+        popup.setAlwaysOnTop(false);
         popup.setResizable(false);
         popup.showAndWait();
     }

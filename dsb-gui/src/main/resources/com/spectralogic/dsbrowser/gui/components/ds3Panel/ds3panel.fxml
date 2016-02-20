@@ -23,6 +23,11 @@
                         <Tooltip text="New Folder" />
                     </tooltip>
                 </Button>
+            <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
+               <tooltip>
+                  <Tooltip text="Delete Objects" />
+               </tooltip>
+            </Button>
             </items>
         </ToolBar>
         <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">

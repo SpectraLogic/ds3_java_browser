@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketsRequest;
 import com.spectralogic.ds3client.commands.GetBucketsResponse;
+import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -14,9 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableRow;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -25,7 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class Ds3TreeTablePresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
@@ -56,7 +57,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void initTreeTableView() {
-
+        ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ds3TreeTable.setRowFactory(view -> {
 
             final TreeTableRow<Ds3TreeTableValue> row = new TreeTableRow<>();
@@ -108,19 +109,20 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                     putJob.setOnSucceeded(e -> {
                         LOG.info("job completed successfully");
-                        LOG.info("Running refresh of row");
-                        final TreeItem<Ds3TreeTableValue> modifiedTreeItem = row.getTreeItem();
-                        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
-                            LOG.info("Refresh row");
-                            final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
-                            ds3TreeTableItem.refresh();
-                        }
+                        refresh(row.getTreeItem());
                     });
 
                     jobWorkers.execute(putJob);
                 }
                 event.consume();
             });
+
+            final ContextMenu contextMenu = new ContextMenu();
+            final MenuItem deleteFile = new MenuItem("Delete...");
+            deleteFile.setOnAction(event -> deletePrompt());
+
+            contextMenu.getItems().addAll(deleteFile);
+            row.setContextMenu(contextMenu);
 
             return row;
         });
@@ -133,6 +135,40 @@ public class Ds3TreeTablePresenter implements Initializable {
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
         ds3TreeTable.setRoot(rootTreeItem);
         workers.execute(getServiceTask);
+    }
+
+    public void deletePrompt() {
+        LOG.info("Got delete event");
+
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        if (values.isEmpty()) {
+            LOG.error("No files selected");
+            // TODO display an error
+        }
+        final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+
+        if (buckets.size() > 1) {
+            LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
+            // TODO show error
+            return;
+        }
+
+        final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+                .stream()
+                .map(TreeItem::getValue)
+                .collect(Collectors.toList())
+        );
+        DeleteFilesPopup.show(session, buckets.get(0), filesToDelete);
+        values.stream().forEach(file -> refresh(file.getParent()));
+    }
+
+    private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+        LOG.info("Running refresh of row");
+        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
+            LOG.info("Refresh row");
+            final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
+            ds3TreeTableItem.refresh();
+        }
     }
 
     private class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
