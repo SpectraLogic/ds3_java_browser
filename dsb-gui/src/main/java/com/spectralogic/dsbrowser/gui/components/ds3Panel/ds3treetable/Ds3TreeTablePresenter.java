@@ -1,9 +1,14 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketsRequest;
 import com.spectralogic.ds3client.commands.GetBucketsResponse;
+import com.spectralogic.ds3client.commands.HeadObjectRequest;
+import com.spectralogic.ds3client.commands.HeadObjectResponse;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
+import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
+import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -121,7 +126,10 @@ public class Ds3TreeTablePresenter implements Initializable {
             final MenuItem deleteFile = new MenuItem("Delete...");
             deleteFile.setOnAction(event -> deletePrompt());
 
-            contextMenu.getItems().addAll(deleteFile);
+            final MenuItem metaData = new MenuItem("Metadata...");
+            metaData.setOnAction(event -> showMetadata());
+
+            contextMenu.getItems().addAll(deleteFile, metaData);
             row.setContextMenu(contextMenu);
 
             return row;
@@ -137,6 +145,38 @@ public class Ds3TreeTablePresenter implements Initializable {
         workers.execute(getServiceTask);
     }
 
+    public void showMetadata() {
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        if (values.isEmpty()) {
+            LOG.error("No files selected");
+            // TODO display an error
+            return;
+        }
+
+        if (values.size() > 1) {
+            LOG.error("Only a single object can be selected to view metadata ");
+            // TODO show error
+            return;
+        }
+
+        final Task<Ds3Metadata> getMetadata = new Task<Ds3Metadata>() {
+            @Override
+            protected Ds3Metadata call() throws Exception {
+                final Ds3Client client = session.getClient();
+
+                final Ds3TreeTableValue value = values.get(0).getValue();
+                final HeadObjectResponse headObjectResponse = client.headObject(new HeadObjectRequest(value.getBucketName(), value.getFullName()));
+
+                return new Ds3Metadata(headObjectResponse.getMetadata(), headObjectResponse.getObjectSize(), value.getFullName());
+            }
+        };
+        workers.execute(getMetadata);
+        getMetadata.setOnSucceeded(event -> Platform.runLater( () -> {
+            LOG.info("Launching metadata popup");
+            MetadataPopup.show(getMetadata.getValue());
+        }));
+    }
+
     public void deletePrompt() {
         LOG.info("Got delete event");
 
@@ -144,6 +184,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (values.isEmpty()) {
             LOG.error("No files selected");
             // TODO display an error
+            return;
         }
         final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
