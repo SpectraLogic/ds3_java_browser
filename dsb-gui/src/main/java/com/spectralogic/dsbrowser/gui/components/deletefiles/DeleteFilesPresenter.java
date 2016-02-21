@@ -59,7 +59,7 @@ public class DeleteFilesPresenter implements Initializable {
             });
 
             deleteField.setOnKeyReleased(event -> {
-                if (!deleteField.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
+                if (!deleteButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     deleteFiles();
                 }
             });
