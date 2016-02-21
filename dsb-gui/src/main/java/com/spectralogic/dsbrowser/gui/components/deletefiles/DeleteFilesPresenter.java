@@ -6,10 +6,13 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.concurrent.Task;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +55,12 @@ public class DeleteFilesPresenter implements Initializable {
                     deleteButton.setDisable(false);
                 } else {
                     deleteButton.setDisable(true);
+                }
+            });
+
+            deleteField.setOnKeyReleased(event -> {
+                if (!deleteField.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
+                    deleteFiles();
                 }
             });
 
