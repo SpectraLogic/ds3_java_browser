@@ -127,8 +127,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                         .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.FILE, f.getSize(), f.getLastModified().toString()))
                         .collect(GuavaCollectors.immutableList());
 
-                Platform.runLater(() -> directoryValues.forEach(item -> partialResults.get().add(new Ds3TreeTableItem(bucket, session, item, workers))));
-                Platform.runLater(() -> files.forEach(item -> partialResults.get().add(new Ds3TreeTableItem(bucket, session, item, workers))));
+                Platform.runLater(() -> {
+                    final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
+                    final ImmutableList<Ds3TreeTableItem> fileItems = files.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
+                    partialResults.get().addAll(directoryItems);
+                    partialResults.get().addAll(fileItems);
+                });
 
                 nextMarker = bucketResponse.getListBucketResult().getNextMarker();
                 if (Guard.isStringNullOrEmpty(nextMarker)) {

@@ -49,7 +49,7 @@ public class Ds3PutJob extends Ds3JobTask {
         files.stream().forEach(path1 -> expandedPaths.put(path1.getParent(), path1));
         directories.stream().forEach(path -> {
             try {
-                expandedPaths.putAll(path, Files.walk(path).collect(GuavaCollectors.immutableList()));
+                expandedPaths.putAll(path, Files.walk(path).filter(child -> !Files.isDirectory(child)).collect(GuavaCollectors.immutableList()));
             } catch (final IOException e) {
                 LOG.error("Failed to list files for directory: " + path.toString(), e);
             }

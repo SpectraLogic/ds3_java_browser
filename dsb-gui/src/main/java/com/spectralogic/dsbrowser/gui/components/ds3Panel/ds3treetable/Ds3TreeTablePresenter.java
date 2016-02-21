@@ -197,7 +197,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                     .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.BUCKET, 0, bucket.getCreationDate().toString()))
                     .collect(GuavaCollectors.immutableList());
 
-            Platform.runLater(() -> buckets.stream().forEach(value -> partialResults.get().add(new Ds3TreeTableItem(value.getName(), session, value, workers))));
+            Platform.runLater(() -> {
+                final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
+                partialResults.get().addAll(treeItems);
+            });
 
             return this.partialResults.get();
         }
