@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.cell.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+
 <HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
    <children>
       <AnchorPane prefHeight="200.0" prefWidth="200.0">
@@ -21,7 +22,10 @@
                            </cellValueFactory>
                         </TableColumn>
                         <TableColumn prefWidth="27.0" />
-                     </columns></TableView>
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy></TableView>
                </children>
             </VBox>
          </children>
