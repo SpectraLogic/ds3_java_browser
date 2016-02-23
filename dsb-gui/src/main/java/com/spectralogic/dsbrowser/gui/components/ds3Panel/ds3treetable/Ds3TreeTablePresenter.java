@@ -2,8 +2,8 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.GetBucketsRequest;
-import com.spectralogic.ds3client.commands.GetBucketsResponse;
+import com.spectralogic.ds3client.commands.GetServiceRequest;
+import com.spectralogic.ds3client.commands.GetServiceResponse;
 import com.spectralogic.ds3client.commands.HeadObjectRequest;
 import com.spectralogic.ds3client.commands.HeadObjectResponse;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
@@ -231,7 +231,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
-            final GetBucketsResponse response = session.getClient().getBuckets(new GetBucketsRequest());
+            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
 
             final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
