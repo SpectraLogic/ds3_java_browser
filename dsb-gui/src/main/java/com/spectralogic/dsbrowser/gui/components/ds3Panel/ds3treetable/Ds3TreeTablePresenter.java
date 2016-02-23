@@ -36,6 +36,12 @@ import java.util.stream.Collectors;
 public class Ds3TreeTablePresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
 
+    private ContextMenu contextMenu;
+
+    private MenuItem deleteFile;
+
+    private MenuItem deleteFolder;
+
     @FXML
     TreeTableView<Ds3TreeTableValue> ds3TreeTable;
 
@@ -52,7 +58,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Loading Ds3TreeTablePresenter with session " + session.getSessionName());
-
+            initContextMenu();
             initTreeTableView();
 
         } catch (final Throwable e) {
@@ -61,11 +67,41 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
+    private void initContextMenu() {
+            contextMenu = new ContextMenu();
+            deleteFile = new MenuItem("Delete...");
+            deleteFile.setOnAction(event -> deletePrompt());
+
+            deleteFolder = new MenuItem("Delete Folder...");
+            deleteFolder.setOnAction(event -> deleteFolderPrompt());
+
+            final MenuItem metaData = new MenuItem("Metadata...");
+            metaData.setOnAction(event -> showMetadata());
+
+            contextMenu.getItems().addAll(metaData, new SeparatorMenuItem(), deleteFile, deleteFolder);
+    }
+
     private void initTreeTableView() {
+
+
         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ds3TreeTable.setRowFactory(view -> {
 
             final TreeTableRow<Ds3TreeTableValue> row = new TreeTableRow<>();
+
+            row.setOnContextMenuRequested(event -> {
+                LOG.info("Context menu requested");
+                // detect which deletes should be enabled
+                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+                if (selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.DIRECTORY) {
+                    deleteFile.setDisable(true);
+                    deleteFolder.setDisable(false);
+                } else {
+                    deleteFile.setDisable(false);
+                    deleteFolder.setDisable(true);
+                }
+
+            });
 
             row.setOnDragOver(event -> {
                 if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
@@ -122,15 +158,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 event.consume();
             });
 
-            final ContextMenu contextMenu = new ContextMenu();
-            final MenuItem deleteFile = new MenuItem("Delete...");
-            deleteFile.setOnAction(event -> deletePrompt());
-
-            final MenuItem metaData = new MenuItem("Metadata...");
-            metaData.setOnAction(event -> showMetadata());
-
-            contextMenu.getItems().addAll(deleteFile, metaData);
-            row.setContextMenu(contextMenu);
+           row.setContextMenu(contextMenu);
 
             return row;
         });
@@ -177,6 +205,10 @@ public class Ds3TreeTablePresenter implements Initializable {
         }));
     }
 
+    private void deleteFolderPrompt() {
+        LOG.info("Got delete folder event");
+    }
+
     public void deletePrompt() {
         LOG.info("Got delete event");
 
@@ -186,6 +218,13 @@ public class Ds3TreeTablePresenter implements Initializable {
             // TODO display an error
             return;
         }
+
+        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
+            LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
+            // TODO display an error
+            return;
+        }
+
         final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
         if (buckets.size() > 1) {
