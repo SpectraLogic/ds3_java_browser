@@ -48,4 +48,11 @@ public class Ds3TreeTableValue_Test {
 
         assertThat(value.getDirectoryName(), is(""));
     }
+
+    @Test
+    public void nestedName() {
+        final Ds3TreeTableValue value = new Ds3TreeTableValue("bucket", "dirA/dirB/hi/", Ds3TreeTableValue.Type.DIRECTORY, 12, "sometime");
+
+        assertThat(value.getName(), is("hi"));
+    }
 }

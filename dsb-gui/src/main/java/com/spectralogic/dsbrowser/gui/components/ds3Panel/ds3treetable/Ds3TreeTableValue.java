@@ -22,7 +22,9 @@ public class Ds3TreeTableValue {
         if (type == Type.BUCKET) {
             return name;
         } else if (type == Type.DIRECTORY) {
-            return name.substring(0, name.length() - 1);
+            final String strippedName = name.substring(0, name.length() - 1);
+            final int index = strippedName.lastIndexOf('/');
+            return strippedName.substring(index + 1);
         }
         final int index = name.lastIndexOf('/');
         return name.substring(index + 1);
