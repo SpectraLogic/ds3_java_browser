@@ -5,13 +5,16 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.paint.Paint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,6 +27,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final FileTreeModel fileTreeModel;
 
     private boolean accessedChildren = false;
+    private boolean error = false;
 
     public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel) {
         super(fileTreeModel);
@@ -35,11 +39,15 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
         if (fileTreeModel.getType() == FileTreeModel.Type.DIRECTORY) {
             this.addEventHandler(TreeItem.branchExpandedEvent(), e -> {
-                e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
+                if (!error) {
+                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
+                }
             });
 
             this.addEventHandler(TreeItem.branchCollapsedEvent(), e -> {
-                e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+                if (!error) {
+                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+                }
             });
         }
     }
@@ -58,8 +66,9 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     @Override
     public ObservableList<TreeItem<FileTreeModel>> getChildren() {
         if (!accessedChildren) {
-            super.getChildren().setAll(buildChildren(provider, this.fileTreeModel));
             accessedChildren = true;
+            final ObservableList<TreeItem<FileTreeModel>> children = super.getChildren();
+            buildChildren(children);
         }
         return super.getChildren();
     }
@@ -69,27 +78,38 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         return leaf;
     }
 
-    private static ObservableList<TreeItem<FileTreeModel>> buildChildren(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel) {
+    private void buildChildren(final ObservableList<TreeItem<FileTreeModel>> children) {
         if (fileTreeModel == null) {
-            return FXCollections.emptyObservableList();
+            return;
         }
 
         final Path path = fileTreeModel.getPath();
 
         if (path != null && !isLeaf(path)) {
             try {
-                final ImmutableList<FileTreeTableItem> children = provider
+                final ImmutableList<FileTreeTableItem> fileChildren = provider
                         .getListForDir(fileTreeModel)
                         .map(ftm -> new FileTreeTableItem(provider, ftm))
                         .collect(GuavaCollectors.immutableList());
 
-                return FXCollections.observableArrayList(children);
-            } catch (final IOException e) {
+                children.setAll(fileChildren);
+            } catch (final AccessDeniedException ae) {
+                LOG.error("Could not access file", ae);
+                setError("Invalid permissions");
+            }
+            catch (final IOException e) {
                 LOG.error("Failed to get children for " + path.toString(), e);
+                setError("Failed to get children");
             }
         }
+    }
 
-        return FXCollections.emptyObservableList();
+    private void setError(final String errorMessage) {
+        this.error = true;
+        final Node node = Icon.getIcon(FontAwesomeIcon.EXCLAMATION_CIRCLE, Paint.valueOf("RED"));
+        final Tooltip errorTip = new Tooltip(errorMessage);
+        Tooltip.install(node, errorTip);
+        this.setGraphic(node);
     }
 
     private static boolean isLeaf(final Path path) {
