@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
@@ -44,22 +45,25 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableList<Path> paths = files.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
         final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
         final ImmutableList<Path> files = paths.stream().filter(path -> !Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
+        final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
         final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
 
         files.stream().forEach(path1 -> expandedPaths.put(path1.getParent(), path1));
         directories.stream().forEach(path -> {
             try {
+                partOfDirBuilder.add(path);
                 expandedPaths.putAll(path, Files.walk(path).filter(child -> !Files.isDirectory(child)).collect(GuavaCollectors.immutableList()));
             } catch (final IOException e) {
                 LOG.error("Failed to list files for directory: " + path.toString(), e);
             }
         });
 
+        final ImmutableSet<Path> partOfDir = partOfDirBuilder.build();
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableList<Ds3Object> objects = expandedPaths.build().entries().stream().map(pair -> {
             try {
                 final long size = Files.size(pair.getValue());
-                final String ds3FileName = PathUtil.toDs3Path(targetDir, PathUtil.toDs3Obj(pair.getKey(), pair.getValue()));
+                final String ds3FileName = PathUtil.toDs3Path(targetDir, PathUtil.toDs3Obj(pair.getKey(), pair.getValue(), partOfDir.contains(pair.getKey())));
                 fileMapBuilder.put(ds3FileName, pair.getValue());
                 return new Ds3Object(ds3FileName, size);
             } catch (final IOException e) {

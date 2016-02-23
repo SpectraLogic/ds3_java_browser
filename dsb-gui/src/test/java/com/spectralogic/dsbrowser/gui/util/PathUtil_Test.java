@@ -10,8 +10,14 @@ import static org.junit.Assert.assertThat;
 public class PathUtil_Test {
     @Test
     public void removeParentFromPath() {
-        final String result = PathUtil.toDs3Obj(Paths.get("/parent/path/"), Paths.get("/parent/path/file.txt"));
+        final String result = PathUtil.toDs3Obj(Paths.get("/parent/path/"), Paths.get("/parent/path/file.txt"), false);
         assertThat(result, is("file.txt"));
+    }
+
+    @Test
+    public void removeParentFromPathExcludingTopMostParent() {
+        final String result = PathUtil.toDs3Obj(Paths.get("/parent/path/"), Paths.get("/parent/path/file.txt"), true);
+        assertThat(result, is("path/file.txt"));
     }
 
     @Test

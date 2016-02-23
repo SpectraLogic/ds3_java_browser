@@ -26,6 +26,13 @@ public final class PathUtil {
     }
 
     public static String toDs3Obj(final Path rootPath, final Path fullObjPath) {
+        return toDs3Obj(rootPath, fullObjPath, false);
+    }
+
+    public static String toDs3Obj(final Path rootPath, final Path fullObjPath, boolean includeParentDir) {
+        if (includeParentDir) {
+            return toDs3Obj(rootPath.getParent(), fullObjPath);
+        }
         return rootPath.relativize(fullObjPath).toString().replace('\\', '/');
     }
 
