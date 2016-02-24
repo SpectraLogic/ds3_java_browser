@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
+import com.spectralogic.ds3client.models.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -118,7 +119,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
 
                 final ImmutableList<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult()
-                        .getCommonPrefixes().stream()
+                        .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
                         .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.DIRECTORY, 0, ""))
                         .collect(GuavaCollectors.immutableList());
 
