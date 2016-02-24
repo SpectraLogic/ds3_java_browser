@@ -25,7 +25,9 @@ subprojects {
     compile 'org.controlsfx:controlsfx:8.40.10'
     compile 'de.jensd:fontawesomefx:8.9'
     compile 'org.slf4j:slf4j-api:1.7.13'
-    compile 'org.slf4j:slf4j-simple:1.7.13'
+    compile 'ch.qos.logback:logback-classic:1.1.5'
+    compile 'ch.qos.logback:logback-core:1.1.5'
+
 
     testCompile ('org.mockito:mockito-core:1.10.19') {
       exclude group: 'org.hamcrest'
