@@ -12,7 +12,7 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" text="Sessions..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Settings..." />
+                  <MenuItem mnemonicParsing="false" onAction="#showSettingsPopup" text="Settings..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Close" />
             </items>

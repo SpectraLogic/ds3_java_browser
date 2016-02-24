@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.spectralogic.dsbrowser.gui.components.settings.SettingsModel;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -10,6 +11,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 public class Main extends Application {
@@ -31,7 +33,10 @@ public class Main extends Application {
 
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
 
+        final SettingsModel settings = new SettingsModel();
+
         Injector.setLogger(injectorLogger::debug);
+        Injector.setModelOrService(SettingsModel.class, settings);
         Injector.setModelOrService(Workers.class, workers);
         Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);

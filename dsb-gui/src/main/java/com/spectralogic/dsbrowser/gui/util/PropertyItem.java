@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.components.newsession;
+package com.spectralogic.dsbrowser.gui.util;
 
 import javafx.beans.property.Property;
 import javafx.beans.value.ObservableValue;
