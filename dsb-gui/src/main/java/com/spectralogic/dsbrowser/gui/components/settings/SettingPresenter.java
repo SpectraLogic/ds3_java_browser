@@ -1,9 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
+import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import javafx.beans.binding.Bindings;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
@@ -21,6 +23,9 @@ public class SettingPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
     @FXML
+    CheckBox debugLogging;
+
+    @FXML
     TextField numRolling;
 
     @FXML
@@ -30,21 +35,34 @@ public class SettingPresenter implements Initializable {
     TextField logSize;
 
     @Inject
-    SettingsModel settings;
+    SettingsStore settings;
+
+    private LogSettings logSettings;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            this.logSettings = settings.getLogSettings();
             initPropertyPane();
         } catch(final Throwable e) {
             LOG.error("Failed to startup settings presenter");
         }
     }
 
+    public void saveLogSettings() {
+
+    }
+
+    public void closeDialog() {
+        final Stage popupStage = (Stage) logSize.getScene().getWindow();
+        popupStage.close();
+    }
+
     private void initPropertyPane() {
-        Bindings.bindBidirectional(logDirectory.textProperty(), settings.logLocationProperty());
-        Bindings.bindBidirectional(logSize.textProperty(), settings.logSizeProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(numRolling.textProperty(), settings.numRolloversProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(logDirectory.textProperty(), logSettings.logLocationProperty());
+        Bindings.bindBidirectional(logSize.textProperty(), logSettings.logSizeProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
     }
 
     public void showFileExplorer(final MouseEvent event) {
@@ -54,7 +72,7 @@ public class SettingPresenter implements Initializable {
         final File selectedDirectory =
                 directoryChooser.showDialog(stage);
         if (selectedDirectory != null) {
-            this.settings.setLogLocation(selectedDirectory.getAbsolutePath());
+            this.logSettings.setLogLocation(selectedDirectory.getAbsolutePath());
         }
     }
 }

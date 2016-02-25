@@ -2,8 +2,8 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -22,7 +22,6 @@ import java.util.List;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
-    private final static ObjectMapper MAPPER = new ObjectMapper();
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
 
     private final ObservableList<SavedSession> sessions;
@@ -33,7 +32,7 @@ public class SavedSessionStore {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
-                final SerializedSessionStore store = MAPPER.readValue(inputStream, SerializedSessionStore.class);
+                final SerializedSessionStore store = JsonMapping.fromJson(inputStream, SerializedSessionStore.class);
                 sessions = store.getSessions();
             }
         } else {
@@ -51,7 +50,7 @@ public class SavedSessionStore {
                 Files.createDirectories(PATH.getParent());
             }
             try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-                MAPPER.writeValue(outputStream, store);
+                JsonMapping.toJson(outputStream, store);
             }
         }
     }
