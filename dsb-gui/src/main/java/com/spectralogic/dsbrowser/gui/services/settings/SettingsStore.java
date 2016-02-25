@@ -35,7 +35,7 @@ public class SettingsStore {
             }
         } else {
             final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT);
-            settingsStore.dirty = true;
+            settingsStore.dirty = true; // set this to true so we will write the settings after the first run
             return settingsStore;
         }
     }

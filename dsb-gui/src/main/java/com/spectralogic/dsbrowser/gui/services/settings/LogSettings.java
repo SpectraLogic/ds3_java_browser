@@ -11,7 +11,7 @@ public class LogSettings {
 
     private static LogSettings createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
-        return new LogSettings(logPath, 10, 3, false);
+        return new LogSettings(logPath, 10, 3, false, false);
     }
 
     @JsonProperty("logLocation")
@@ -22,12 +22,15 @@ public class LogSettings {
     private final IntegerProperty numRollovers = new SimpleIntegerProperty();
     @JsonProperty("debugLogging")
     private final BooleanProperty debugLogging = new SimpleBooleanProperty();
+    @JsonProperty("consoleLogging")
+    private final BooleanProperty consoleLogging = new SimpleBooleanProperty();
 
-    public LogSettings(final String logLocation, final int logSize, final int numRollovers, final boolean debugLogging) {
+    public LogSettings(final String logLocation, final int logSize, final int numRollovers, final boolean debugLogging, final boolean consoleLogging) {
         this.logLocation.set(logLocation);
         this.logSize.set(logSize);
         this.numRollovers.set(numRollovers);
         this.debugLogging.set(debugLogging);
+        this.consoleLogging.set(consoleLogging);
     }
 
     public LogSettings() {
@@ -76,6 +79,7 @@ public class LogSettings {
         settings.setLogSize(this.getLogSize());
         settings.setNumRollovers(this.getNumRollovers());
         settings.setDebugLogging(this.getDebugLogging());
+        settings.setConsoleLogging(this.getConsoleLogging());
         return settings;
     }
 
@@ -84,6 +88,7 @@ public class LogSettings {
         this.setLogSize(settings.getLogSize());
         this.setNumRollovers(settings.getNumRollovers());
         this.setDebugLogging(settings.getDebugLogging());
+        this.setConsoleLogging(settings.getConsoleLogging());
     }
 
     public boolean getDebugLogging() {
@@ -96,5 +101,17 @@ public class LogSettings {
 
     public void setDebugLogging(final boolean debugLogging) {
         this.debugLogging.set(debugLogging);
+    }
+
+    public boolean getConsoleLogging() {
+        return consoleLogging.get();
+    }
+
+    public BooleanProperty consoleLoggingProperty() {
+        return consoleLogging;
+    }
+
+    public void setConsoleLogging(final boolean consoleLogging) {
+        this.consoleLogging.set(consoleLogging);
     }
 }

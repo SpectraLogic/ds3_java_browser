@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
@@ -64,6 +65,13 @@ public class LogService {
         fileAppender.start();
 
         rootLogger.addAppender(fileAppender);
+
+        if (logSettings.getConsoleLogging()) {
+            final ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+            consoleAppender.setContext(context);
+            consoleAppender.setEncoder(layout);
+            consoleAppender.start();
+        }
 
         if (logSettings.getDebugLogging()) {
             rootLogger.setLevel(Level.DEBUG);
