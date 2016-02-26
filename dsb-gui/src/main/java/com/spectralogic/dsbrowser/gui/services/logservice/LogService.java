@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 
 public class LogService {
 
+    final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+
     private LogSettings logSettings;
 
     public LogService(final LogSettings logSettings) {
@@ -59,6 +61,7 @@ public class LogService {
         triggeringPolicy.setMaxFileSize(String.format("%dMB", logSettings.getLogSize()));
         triggeringPolicy.start();
 
+        fileAppender.setName("FILE");
         fileAppender.setEncoder(layout);
         fileAppender.setRollingPolicy(rollingPolicy);
         fileAppender.setTriggeringPolicy(triggeringPolicy);
@@ -68,6 +71,7 @@ public class LogService {
 
         if (logSettings.getConsoleLogging()) {
             final ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+            consoleAppender.setName("STDOUT");
             consoleAppender.setContext(context);
             consoleAppender.setEncoder(layout);
             consoleAppender.start();
@@ -78,5 +82,6 @@ public class LogService {
         } else {
             rootLogger.setLevel(Level.INFO);
         }
+        LOG.info("Finished configuring logging");
     }
 }

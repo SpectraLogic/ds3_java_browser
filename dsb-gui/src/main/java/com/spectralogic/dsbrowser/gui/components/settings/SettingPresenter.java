@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
+import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import javafx.beans.binding.Bindings;
@@ -37,6 +38,9 @@ public class SettingPresenter implements Initializable {
     @Inject
     SettingsStore settings;
 
+    @Inject
+    LogService logService;
+
     private LogSettings logSettings;
 
     @Override
@@ -50,7 +54,10 @@ public class SettingPresenter implements Initializable {
     }
 
     public void saveLogSettings() {
-
+        LOG.info("Updating logging settings");
+        settings.setLogSettings(logSettings);
+        logService.setLogSettings(logSettings);
+        closeDialog();
     }
 
     public void closeDialog() {
