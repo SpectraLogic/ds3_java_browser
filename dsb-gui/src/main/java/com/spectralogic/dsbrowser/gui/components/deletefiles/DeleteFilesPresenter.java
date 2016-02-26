@@ -1,29 +1,20 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
-import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import javafx.concurrent.Task;
+import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.URL;
-import java.security.SignatureException;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class DeleteFilesPresenter implements Initializable {
 
@@ -36,16 +27,10 @@ public class DeleteFilesPresenter implements Initializable {
     Button deleteButton;
 
     @Inject
-    String bucketName;
-
-    @Inject
-    ArrayList<Ds3TreeTableValue> files;
-
-    @Inject
-    Session session;
-
-    @Inject
     Workers workers;
+
+    @Inject
+    Ds3Task deleteTask;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -70,24 +55,11 @@ public class DeleteFilesPresenter implements Initializable {
     }
 
     public void deleteFiles() {
+        deleteTask.setOnCancelled(this::handle);
+        deleteTask.setOnFailed(this::handle);
+        deleteTask.setOnSucceeded(this::handle);
 
-        final Task task = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    session.getClient().deleteObjects(new DeleteObjectsRequest(bucketName, files.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
-                } catch (final IOException | SignatureException e) {
-                    LOG.error("Failed to delete files" + e);
-                }
-                return null;
-            }
-        };
-
-        task.setOnCancelled(this::handle);
-        task.setOnFailed(this::handle);
-        task.setOnSucceeded(this::handle);
-
-        workers.execute(task);
+        workers.execute(deleteTask);
 
     }
 
