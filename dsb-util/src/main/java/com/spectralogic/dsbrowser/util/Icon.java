@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.util;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.scene.Node;
 import javafx.scene.paint.Paint;
 
 public final class Icon {
