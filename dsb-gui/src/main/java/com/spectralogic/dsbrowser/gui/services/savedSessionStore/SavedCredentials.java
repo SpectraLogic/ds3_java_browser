@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spectralogic.ds3client.models.Credentials;
+import com.spectralogic.ds3client.models.common.Credentials;
 
 public class SavedCredentials {
     @JsonProperty("accessId")

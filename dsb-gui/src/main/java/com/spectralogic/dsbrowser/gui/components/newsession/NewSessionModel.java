@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.models.Credentials;
+import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
