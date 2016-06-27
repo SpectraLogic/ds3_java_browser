@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,10 +70,30 @@ public class SavedSessionStore {
     }
 
     public void saveSession(final Session session) {
-        this.sessions.add(
-                new SavedSession(session.getSessionName(),
-                        session.getEndpoint(),
-                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+        if (sessions.size()==0){
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(),
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+        }
+        else if (!containsSessionName(sessions, session.getSessionName())) {
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(),
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+        }
+        else
+        {
+            final Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setTitle("New User Session");
+            alert.setContentText("Session name already in use. Please use a different name.");
+            alert.showAndWait();
+        }
+    }
+
+    public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
+        return list.stream().filter(o -> o.getName().equals(name)).findFirst().isPresent();
+    }
+
+    public boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
+        return list.stream().filter(o -> o.getSessionName().equals(name)).findFirst().isPresent();
     }
 
     public void removeSession(final SavedSession sessionName) {
