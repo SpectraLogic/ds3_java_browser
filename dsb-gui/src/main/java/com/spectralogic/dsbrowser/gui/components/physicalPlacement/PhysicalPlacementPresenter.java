@@ -1,23 +1,24 @@
-package com.spectralogic.dsbrowser.gui.components.physicalPlacement;
+package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
+
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
-
 import com.spectralogic.ds3client.models.Tape;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
 
 
 public class PhysicalPlacementPresenter implements Initializable {
@@ -28,16 +29,15 @@ public class PhysicalPlacementPresenter implements Initializable {
     Ds3PhysicalPlacement ds3PhysicalPlacement;
 
     @FXML
-    TableView<PhysicalPlacementPoolEntry> physicalPlacementdataTable;
+    TableView<PhysicalPlacementPoolEntry> physicalPlacementDataTable;
 
     @FXML
-    TableView<PhysicalPlacementTapeEntry> physicalPlacementdataTableTape;
+    TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
 
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            //initLabels();
             initTable();
         } catch (final Throwable e) {
             LOG.error("Failed to create Physical Placement presenter", e);
@@ -48,7 +48,6 @@ public class PhysicalPlacementPresenter implements Initializable {
         final ImmutableList.Builder<PhysicalPlacementPoolEntry> builder = ImmutableList.builder();
         final ImmutableList.Builder<PhysicalPlacementTapeEntry> builder1 = ImmutableList.builder();
         final PhysicalPlacement physicalPlacement = ds3PhysicalPlacement.getPhysicalPlacement();
-        //physicalPlacement.keys().stream().forEach(key -> physicalPlacement.get(key).stream().forEach(value -> builder.add(new PhysicalPlacementEntry(key, value))));
         List<Pool> listPool = physicalPlacement.getPools();
         for (Pool pool : listPool) {
             String name = pool.getName();
@@ -57,7 +56,7 @@ public class PhysicalPlacementPresenter implements Initializable {
             String partition = pool.getPartitionId().toString();
             builder.add(new PhysicalPlacementPoolEntry(name, health, poolType, partition));
         }
-        physicalPlacementdataTable.setItems(FXCollections.observableList(builder.build()));
+        physicalPlacementDataTable.setItems(FXCollections.observableList(builder.build()));
 
         List<Tape> listTape = physicalPlacement.getTapes();
         for (Tape tape : listTape) {
@@ -73,14 +72,8 @@ public class PhysicalPlacementPresenter implements Initializable {
             String lastModified = tape.getLastModified().toString();
             builder1.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified));
         }
-        physicalPlacementdataTableTape.setItems(FXCollections.observableList(builder1.build()));
+        physicalPlacementDataTableTape.setItems(FXCollections.observableList(builder1.build()));
     }
-
-    /*private void initLabels() {
-        //objectName.setText("Name");
-
-        //objectSize.setText(ByteFormat.humanReadableByteCount(ds3Metadata.getSize(), false));
-    }*/
 
     public static class PhysicalPlacementPoolEntry {
         private final String name;

@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.components.physicalPlacement;
+package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 import com.airhacks.afterburner.views.FXMLView;
 
@@ -11,6 +11,6 @@ public class PhysicalPlacementView extends FXMLView {
                 default: return null;
             }
         });
-        //System.out.println("VVDN LOGS =====> View Class called");
+
     }
 }

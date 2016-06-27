@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import javafx.scene.input.DataFormat;
+
 public class Ds3TreeTableValue {
 
     private final String bucketName;
@@ -9,6 +11,7 @@ public class Ds3TreeTableValue {
     private final long size;
     private final String lastModified;
 
+
     public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified) {
         this.bucketName = bucketName;
         this.fullName = name;
@@ -16,6 +19,7 @@ public class Ds3TreeTableValue {
         this.type = type;
         this.size = size;
         this.lastModified = lastModified;
+
     }
 
     private static String getLastPart(final String name, final Type type) {

@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.components.physicalPlacement;
+package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;

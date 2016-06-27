@@ -8,34 +8,34 @@
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" fx:id="fileMenu">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" text="Sessions..." />
+                  <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" fx:id="sessionsMenuItem"/>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#showSettingsPopup" text="Settings..." />
+                  <MenuItem mnemonicParsing="false" onAction="#showSettingsPopup" fx:id="settingsMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Close" />
+              <MenuItem mnemonicParsing="false" onAction="#closeWindow" fx:id="closeMenuItem" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="View">
+            <Menu mnemonicParsing="false" fx:id="viewMenu">
                <items>
-                  <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" text="Jobs" />
-                  <Menu mnemonicParsing="false" text="Theme">
+                  <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" />
+                  <Menu mnemonicParsing="false" fx:id="themeMenuItem">
                     <items>
-                        <CheckMenuItem mnemonicParsing="false" selected="true" text="Light" />
-                        <CheckMenuItem mnemonicParsing="false" text="Dark" />
+                        <CheckMenuItem mnemonicParsing="false" selected="true" fx:id="lightViewCheckMenuItem" />
+                        <CheckMenuItem mnemonicParsing="false" fx:id="darkViewCheckMenuItem"/>
                     </items>
                   </Menu>
                </items>
             </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu mnemonicParsing="false" fx:id="helpMenu">
             <items>
-                  <MenuItem mnemonicParsing="false" text="Help..." />
+                  <MenuItem mnemonicParsing="false" fx:id="helpMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" text="About..." />
-                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" text="Licenses..." />
+              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" fx:id="aboutMenuItem" />
+                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" fx:id="licenseMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Version Check" />
+                  <MenuItem mnemonicParsing="false" fx:id="versionMenuItem" />
             </items>
           </Menu>
         </menus>

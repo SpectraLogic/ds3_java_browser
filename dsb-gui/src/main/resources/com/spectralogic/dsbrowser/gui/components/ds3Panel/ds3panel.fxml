@@ -10,31 +10,32 @@
             <items>
                 <Button fx:id="ds3Refresh">
                     <tooltip>
-                        <Tooltip text="Refresh" />
+                        <Tooltip fx:id="ds3RefreshToolTip" />
                     </tooltip>
                 </Button>
             <Button fx:id="ds3NewBucket" mnemonicParsing="false">
                <tooltip>
-                  <Tooltip text="New Bucket" />
+                  <Tooltip fx:id="ds3NewBucketToolTip" />
                </tooltip>
             </Button>
                 <Button fx:id="ds3NewFolder">
                     <tooltip>
-                        <Tooltip text="New Folder" />
+                        <Tooltip fx:id="ds3NewFolderToolTip" />
                     </tooltip>
                 </Button>
             <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
                <tooltip>
-                  <Tooltip text="Delete Objects" />
+                  <Tooltip fx:id="ds3DeleteButtonToolTip" />
                </tooltip>
             </Button>
+            <TextField fx:id="ds3PanelSearch" disable="true" promptText="Search" />
             </items>
         </ToolBar>
         <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
             <tabs>
                <Tab fx:id="addNewTab" closable="false">
                     <tooltip>
-                        <Tooltip text="New Session" />
+                        <Tooltip fx:id="newSessionToolTip" />
                     </tooltip>
 
                     <content>
@@ -42,8 +43,8 @@
                             <children>
                                 <VBox alignment="CENTER" layoutX="250.0" layoutY="48.0" prefHeight="331.0" prefWidth="600.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <children>
-                                        <Label text="Create a New Session to Access a Black Pearl" />
-                                        <Button mnemonicParsing="false" onAction="#newSessionDialog" text="New Session" />
+                                        <Label fx:id="createNewSessionLabel" text="Create a New Session to Access a Black Pearl" />
+                                        <Button fx:id="newSessionButton" mnemonicParsing="false" onAction="#newSessionDialog" />
                                     </children>
                                 </VBox>
                             </children></AnchorPane>

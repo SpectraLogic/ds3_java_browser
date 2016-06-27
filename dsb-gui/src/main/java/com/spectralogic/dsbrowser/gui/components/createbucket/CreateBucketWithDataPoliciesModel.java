@@ -28,7 +28,6 @@ public class CreateBucketWithDataPoliciesModel {
     public CreateBucketWithDataPoliciesModel(ImmutableList<CreateBucketModel> dataPolicies, Session session, Workers workers) {
         this.dataPolicies = dataPolicies;
         this.session = session;
-
         this.workers = workers;
     }
 

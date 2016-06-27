@@ -7,6 +7,8 @@ public class CreateBucketModel {
 
     private final String dataPolicy;
 
+    //to be added more
+
     public CreateBucketModel() {
             this("");
     }

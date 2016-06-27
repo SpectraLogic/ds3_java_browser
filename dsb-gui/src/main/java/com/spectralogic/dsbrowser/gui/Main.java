@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class Main extends Application {
 
@@ -33,10 +35,12 @@ public class Main extends Application {
         primaryStage.setTitle("Deep Storage Browser v0.0.1");
 
         this.settings = SettingsStore.loadSettingsStore(); // Do not log when loading the settings store
-        // Create the log service before any logging has started
+        // Create the log service before any logging has started..
         final LogService logService = new LogService(this.settings.getLogSettings());
 
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
+
+        final ResourceBundle resourceBundle= ResourceBundle.getBundle("lang", new Locale("en"));
 
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
 
@@ -47,6 +51,7 @@ public class Main extends Application {
         Injector.setModelOrService(Workers.class, workers);
         Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);
+        Injector.setModelOrService(ResourceBundle.class,resourceBundle);
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 

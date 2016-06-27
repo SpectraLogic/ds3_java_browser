@@ -9,10 +9,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
@@ -34,6 +36,9 @@ public class CreateBucketPresenter implements Initializable{
     ComboBox dataPolicyCombo;
 
     @FXML
+    Label dataPolicyComboLabel,bucketNameFieldLabel;
+
+    @FXML
     Button createBucketButton;
 
     @Inject
@@ -42,12 +47,27 @@ public class CreateBucketPresenter implements Initializable{
     @Inject
     CreateBucketWithDataPoliciesModel createBucketWithDataPoliciesModel;
 
+    @Inject
+    ResourceBundle resourceBundle;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
+
+        initGUIElements();
+
         dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
+
         bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty()) {
+            if (!newValue.isEmpty() && (dataPolicyCombo.getValue())!=null) {
+                createBucketButton.setDisable(false);
+            } else {
+                createBucketButton.setDisable(true);
+            }
+        });
+
+        dataPolicyCombo.setOnAction(event -> {
+            if (!bucketNameField.textProperty().getValue().isEmpty() && ((String)dataPolicyCombo.getValue())!=null) {
                 createBucketButton.setDisable(false);
             } else {
                 createBucketButton.setDisable(true);
@@ -56,10 +76,14 @@ public class CreateBucketPresenter implements Initializable{
 
     }
 
+    private void initGUIElements() {
+        bucketNameFieldLabel.setText(resourceBundle.getString("bucketNameFieldLabel"));
+        dataPolicyComboLabel.setText(resourceBundle.getString("dataPolicyComboLabel"));
+    }
+
     public void createBucket() {
         LOG.info("Create Bucket called");
 
-        LOG.info("session name"+ createBucketWithDataPoliciesModel.getSession().getSessionName());
         final Ds3Task task = new Ds3Task(createBucketWithDataPoliciesModel.getSession().getClient()) {
             @Override
             protected Object call() throws Exception {
@@ -74,7 +98,7 @@ public class CreateBucketPresenter implements Initializable{
         workers.execute(task);
         task.setOnSucceeded(event -> Platform.runLater(() -> {
             LOG.info("succeed");
-
+            closeDialog();
         }));
     }
 

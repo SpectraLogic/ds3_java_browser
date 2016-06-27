@@ -11,8 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.PropertySheet;
@@ -41,14 +40,41 @@ public class NewSessionPresenter implements Initializable {
     @Inject
     SavedSessionStore savedSessionStore;
 
+    @Inject
+    ResourceBundle resourceBundle;
+
+    @FXML
+    Button saveSessionButton,openSessionButton,cancelSessionButton;
+
+    @FXML
+    Label selectExistingLabel, createNewLabel;
+
+    @FXML
+    Tooltip saveSessionButtonTooltip,openSessionButtonTooltip,cancelSessionButtonTooltip;
+
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            alert.setHeaderText(null);
+            initGUIElement();
             initSessionList();
             initPropertySheet();
         } catch (final Exception e) {
              LOG.error("Failed to load NewSessionPresenter", e);
         }
+    }
+
+    private void initGUIElement() {
+        saveSessionButton.setText(resourceBundle.getString("saveSessionButton"));
+        openSessionButton.setText(resourceBundle.getString("openSessionButton"));
+        cancelSessionButton.setText(resourceBundle.getString("cancelSessionButton"));
+        selectExistingLabel.setText(resourceBundle.getString("selectExistingLabel"));
+        createNewLabel.setText(resourceBundle.getString("createNewLabel"));
+        saveSessionButtonTooltip.setText(resourceBundle.getString("saveSessionButtonTooltip"));
+        cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
+        openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
     }
 
     private void initSessionList() {
@@ -57,10 +83,22 @@ public class NewSessionPresenter implements Initializable {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     final SavedSession rowData = row.getItem();
-                    final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint(), rowData.getCredentials().toCredentials()).withHttps(false).build();
-                    final Session session = new Session(rowData.getName(), rowData.getEndpoint(), client);
-                    store.addSession(session);
-                    closeDialog();
+                    if (store.getObservableList().size()==0)
+                    {
+                        store.addSession(createConnection(rowData));
+                        closeDialog();
+                    }
+                    else if (!savedSessionStore.containsNewSessionName(store.getObservableList(),rowData.getName()))
+                    {
+                        store.addSession(createConnection(rowData));
+                        closeDialog();
+                    }
+                    else
+                    {
+                        alert.setTitle("New User Session");
+                        alert.setContentText("Session name already in use. Please use a different name.");
+                        alert.showAndWait();
+                    }
                 }
             });
             return row ;
@@ -70,6 +108,11 @@ public class NewSessionPresenter implements Initializable {
         savedSessions.setItems(savedSessionStore.getSessions());
     }
 
+    private Session createConnection(final SavedSession rowData) {
+        final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint(), rowData.getCredentials().toCredentials()).withHttps(false).build();
+        return new Session(rowData.getName(), rowData.getEndpoint(), client);
+    }
+
     public void cancelSession() {
         LOG.info("Cancelling session");
         closeDialog();
@@ -77,16 +120,24 @@ public class NewSessionPresenter implements Initializable {
 
     public void createSession() {
         LOG.info("Performing session validation");
-        // perform any validation
-        // store in the session store
-        store.addSession(model.toSession());
-        closeDialog();
+        if (store.getObservableList().size() == 0) {
+            store.addSession(model.toSession());
+            closeDialog();
+        }
+        else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
+            store.addSession(model.toSession());
+            closeDialog();
+        }
+        else
+        {
+            alert.setTitle("New User Session");
+            alert.setContentText("Session name already in use. Please use a different name.");
+            alert.showAndWait();
+        }
     }
 
     public void saveSession() {
         LOG.info("Creating new session");
-        // perform validation
-        // store in saved session store
         savedSessionStore.saveSession(model.toSession());
     }
 
@@ -99,10 +150,10 @@ public class NewSessionPresenter implements Initializable {
 
         final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
 
-        items.add(new PropertyItem("Name", model.sessionNameProperty(), "Access Credentials", "The name for the session", String.class));
-        items.add(new PropertyItem("Endpoint", model.endpointProperty(), "Access Credentials", "The Spectra S3 Endpoint", String.class));
-        items.add(new PropertyItem("Access ID", model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Access ID", String.class));
-        items.add(new PropertyItem("Secret Key", model.secretKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Secret Key", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("nameLabel"), model.sessionNameProperty(), "Access Credentials", "The name for the session", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", "The Spectra S3 Endpoint", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Access ID", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("secretIDLabel"), model.secretKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Secret Key", String.class));
 
         final PropertySheet propertySheet = new PropertySheet(items);
         propertySheet.setMode(PropertySheet.Mode.NAME);

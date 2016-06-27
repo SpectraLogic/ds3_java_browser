@@ -13,7 +13,7 @@
          <children>
             <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
                <children>
-                  <Label text="Select Existing" />
+                  <Label fx:id="selectExistingLabel" />
                   <TableView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <columns>
                         <TableColumn prefWidth="172.0" text="Name">
@@ -37,7 +37,7 @@
          <children>
             <VBox spacing="10.0">
                <children>
-                  <Label text="Create New" />
+                  <Label fx:id="createNewLabel" />
                     <AnchorPane fx:id="propertySheetAnchor" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <VBox.margin>
                         <Insets />
@@ -45,19 +45,21 @@
                   </AnchorPane>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#saveSession" text="Save">
+                        <Button mnemonicParsing="false" onAction="#saveSession" fx:id="saveSessionButton">
                            <tooltip>
-                              <Tooltip text="Save Session Information" />
+                              <Tooltip fx:id="saveSessionButtonTooltip"/>
                            </tooltip>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#createSession" text="Open">
+                        <Button mnemonicParsing="false" onAction="#createSession" fx:id="openSessionButton">
                            <tooltip>
-                              <Tooltip text="Opens New Session Without Saving" />
-                           </tooltip></Button>
-                        <Button mnemonicParsing="false" onAction="#cancelSession" text="Cancel">
+                              <Tooltip fx:id="openSessionButtonTooltip"/>
+                           </tooltip>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#cancelSession" fx:id="cancelSessionButton">
                            <tooltip>
-                              <Tooltip text="Do Not Create A New Session" />
-                           </tooltip></Button>
+                              <Tooltip fx:id="cancelSessionButtonTooltip" />
+                           </tooltip>
+                        </Button>
                      </children>
                      <padding>
                         <Insets right="15.0" />
