@@ -14,14 +14,13 @@
         </font>
     </Label>
 
-
-    <Label text="Bucket name"
+    <Label fx:id="bucketNameFieldLabel"
            GridPane.columnIndex="0" GridPane.rowIndex="1"/>
 
     <TextField fx:id="bucketNameField" promptText="e.g. my_bucket"
                GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-    <Label text="Data policy"
+    <Label fx:id="dataPolicyComboLabel"
            GridPane.columnIndex="0" GridPane.rowIndex="2"/>
     <ComboBox fx:id="dataPolicyCombo" prefHeight="25.0" prefWidth="269.0"
               promptText="Select data policy" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
@@ -31,6 +30,5 @@
         <Button fx:id="createBucketButton" disable="true" mnemonicParsing="false" onAction="#createBucket" text="Create" />
         <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelCreateBucket" text="Cancel" />
     </HBox>
-
 
 </GridPane>
