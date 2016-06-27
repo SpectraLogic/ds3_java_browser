@@ -13,6 +13,8 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -38,12 +40,21 @@ public class DeepStorageBrowserPresenter implements Initializable {
     SplitPane jobSplitter;
 
     @FXML
-    CheckMenuItem jobsMenuItem;
+    CheckMenuItem jobsMenuItem, darkViewCheckMenuItem, lightViewCheckMenuItem;
+
+    @FXML
+    MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
+
+    @FXML
+    Menu fileMenu, helpMenu, viewMenu;
 
     @Inject
     JobWorkers jobWorkers;
 
     TaskProgressView<Ds3JobTask> jobProgressView;
+
+    @Inject
+    ResourceBundle resourceBundle;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -52,6 +63,24 @@ public class DeepStorageBrowserPresenter implements Initializable {
             LOG.info("Loading Main view");
             jobProgressView = new TaskProgressView<>();
             Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
+
+            fileMenu.setText(resourceBundle.getString("fileMenu"));
+            sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
+            settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
+            closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
+
+            viewMenu.setText(resourceBundle.getString("viewMenu"));
+            jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
+            themeMenuItem.setText(resourceBundle.getString("themeMenuItem"));
+            darkViewCheckMenuItem.setText(resourceBundle.getString("darkViewCheckMenuItem"));
+            lightViewCheckMenuItem.setText(resourceBundle.getString("lightViewCheckMenuItem"));
+
+            helpMenu.setText(resourceBundle.getString("helpMenu"));
+            helpMenuItem.setText(resourceBundle.getString("helpMenuItem"));
+            licenseMenuItem.setText(resourceBundle.getString("licenseMenuItem"));
+            aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
+            versionMenuItem.setText(resourceBundle.getString("versionMenuItem"));
+
             jobsMenuItem.setOnAction(event -> {
                 if (jobsMenuItem.isSelected()) {
                     jobSplitter.getItems().add(jobProgressView);
