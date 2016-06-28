@@ -63,13 +63,13 @@ public class Ds3PanelPresenter implements Initializable {
     TabPane ds3SessionTabPane;
 
     @Inject
-    Ds3SessionStore store;
+    private Ds3SessionStore store;
 
     @Inject
-    Workers workers;
+    private Workers workers;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
 
@@ -107,49 +107,45 @@ public class Ds3PanelPresenter implements Initializable {
 
         ds3NewBucket.setOnAction(event -> {
             LOG.info("Create Bucket Prompt");
-            store.getSessions().forEach(session -> {
-                if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+            Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
 
-                    TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-                    final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                            .stream().collect(GuavaCollectors.immutableList());
+            TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                    .stream().collect(GuavaCollectors.immutableList());
 
-                    final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
+            final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
 
-                        @Override
-                        protected CreateBucketWithDataPoliciesModel call() throws Exception {
-                            final Ds3Client client = session.getClient();
-                            //final CreateBucketModel value = values.get(0).getValue();
-                            final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                                    getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
-                            final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList=buckets.stream().map(policies ->
-                                    new CreateBucketWithDataPoliciesModel(buckets,session,workers)).collect(GuavaCollectors.immutableList());
-                            return dataPoliciesList.get(0);
-                        }
-                    };
-
-                    workers.execute(getDataPolicies);
-
-                    getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                        LOG.info("Launching create bucket popup"+getDataPolicies.getValue().getDataPolicies().size());
-                        CreateBucketPopup.show(getDataPolicies.getValue());
-                        refreshCompleteTreeTableView();
-                    }));
+                @Override
+                protected CreateBucketWithDataPoliciesModel call() throws Exception {
+                    final Ds3Client client = session.getClient();
+                    //final CreateBucketModel value = values.get(0).getValue();
+                    final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
+                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
+                    final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
+                            new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
+                    return dataPoliciesList.get(0);
                 }
-            });
+            };
 
+            workers.execute(getDataPolicies);
+
+            getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
+                LOG.info("Launching create bucket popup" + getDataPolicies.getValue().getDataPolicies().size());
+                CreateBucketPopup.show(getDataPolicies.getValue());
+                refreshCompleteTreeTableView();
+            }));
         });
-        
+
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
                 newItems.stream().forEach(newSession -> {
                     final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession);
-                    final Tab treeTab = new Tab(newSession.getSessionName()+"-"+newSession.getEndpoint(), newTreeView.getView());
+                    final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
                     treeTab.setOnClosed(event -> {
                         store.removeSession(newSession);
                     });
-                    treeTab.setTooltip(new Tooltip(newSession.getSessionName()+"-"+newSession.getEndpoint()));
+                    treeTab.setTooltip(new Tooltip(newSession.getSessionName() + "-" + newSession.getEndpoint()));
                     final int totalTabs = ds3SessionTabPane.getTabs().size();
                     ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
                     ds3SessionTabPane.getSelectionModel().select(treeTab);
@@ -163,7 +159,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (ds3SessionTabPane.getTabs().size() == 1) {
                     disableMenu(true);
                 }
-            } else if(c.wasAdded()) {
+            } else if (c.wasAdded()) {
                 disableMenu(false);
             }
         });
@@ -171,67 +167,61 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void ds3DeleteObjects() {
+        Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                .stream().collect(GuavaCollectors.immutableList());
 
-        store.getSessions().forEach(session -> {
-            if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
-                TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-                final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                        .stream().collect(GuavaCollectors.immutableList());
+        if (values.isEmpty()) {
+            LOG.error("No files selected");
+            alert.setContentText("No files selected");
+            alert.showAndWait();
+            return;
+        }
 
-                if (values.isEmpty()) {
-                    LOG.error("No files selected");
-                    alert.setContentText("No files selected");
+        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.BUCKET)) {
+            LOG.error("You can't delete a bucket");
+            alert.setContentText("You can't delete buckets for now");
+            alert.showAndWait();
+            return;
+        }
+
+        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
+            LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
+            alert.setContentText("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
+            alert.showAndWait();
+            return;
+        }
+
+        final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+        if (buckets.size() > 1) {
+            LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
+            alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
+            alert.showAndWait();
+            return;
+        }
+        final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+                .stream()
+                .map(TreeItem::getValue)
+                .collect(Collectors.toList())
+        );
+
+        final Ds3Task task = new Ds3Task(session.getClient()) {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
+                } catch (final IOException | SignatureException e) {
+                    LOG.error("Failed to delete files" + e);
+                    alert.setContentText("Failed to delete files" + e);
                     alert.showAndWait();
-                    return;
                 }
-
-                if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.BUCKET)) {
-                    LOG.error("You can't delete a bucket");
-                    alert.setContentText("You can't delete buckets for now");
-                    alert.showAndWait();
-                    return;
-                }
-
-                if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
-                    LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
-                    alert.setContentText("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
-                    alert.showAndWait();
-                    return;
-                }
-
-                final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-
-                if (buckets.size() > 1) {
-                    LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
-                    alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
-                    alert.showAndWait();
-                    return;
-                }
-
-                final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
-                        .stream()
-                        .map(TreeItem::getValue)
-                        .collect(Collectors.toList())
-                );
-
-                final Ds3Task task = new Ds3Task(session.getClient()) {
-                    @Override
-                    protected Object call() throws Exception {
-                        try {
-                            getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
-                        } catch (final IOException | SignatureException e) {
-                            LOG.error("Failed to delete files" + e);
-                            alert.setContentText("Failed to delete files" + e);
-                            alert.showAndWait();
-                        }
-                        return null;
-                    }
-                };
-
-                DeleteFilesPopup.show(task);
-                values.stream().forEach(file -> refresh(file.getParent()));
+                return null;
             }
-        });
+        };
+
+        DeleteFilesPopup.show(task);
+        values.stream().forEach(file -> refresh(file.getParent()));
     }
 
 
@@ -264,15 +254,11 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void refreshCompleteTreeTableView() {
-        LOG.info("session"+ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
-        store.getSessions().forEach(session -> {
-            if((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())){
-                final Session ds3Client=session;
-                TreeTableView<Ds3TreeTableValue> ds3TreeTableView =  ( TreeTableView<Ds3TreeTableValue>)ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-                Ds3TreeTablePresenter ds3TreeTablePresenter=new Ds3TreeTablePresenter();
-                ds3TreeTablePresenter.refreshTreeTableView(ds3TreeTableView,workers,session);
-            }
-        });
+        LOG.info("session" + ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
+        Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+        final Ds3TreeTablePresenter ds3TreeTablePresenter = new Ds3TreeTablePresenter();
+        ds3TreeTablePresenter.refreshTreeTableView(ds3TreeTableView, workers, session);
     }
 
     public void deleteDialog() {
