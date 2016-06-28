@@ -30,7 +30,7 @@ public class Main extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Deep Storage Browser v0.0.1");
+        primaryStage.setTitle("Deep Storage Browser v0.0.1::");
 
         this.settings = SettingsStore.loadSettingsStore(); // Do not log when loading the settings store
         // Create the log service before any logging has started
