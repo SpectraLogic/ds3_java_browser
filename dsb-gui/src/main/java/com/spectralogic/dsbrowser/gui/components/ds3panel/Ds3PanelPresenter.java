@@ -1,15 +1,23 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
+import java.io.IOException;
+import java.net.URL;
+import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.DeleteBucketRequest;
-import com.spectralogic.ds3client.commands.DeleteObjectRequest;
-import com.spectralogic.ds3client.commands.DeleteObjectResponse;
 import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
@@ -25,24 +33,21 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
+
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.URL;
-import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
 
 public class Ds3PanelPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
@@ -70,10 +75,6 @@ public class Ds3PanelPresenter implements Initializable {
 
     @Inject
     private ResourceBundle resourceBundle;
-
-    private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
-
-    private TreeItem<Ds3TreeTableValue> ds3Root;
 
     private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
@@ -167,62 +168,110 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void ds3DeleteObjects() {
-        Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
-        TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
+    	Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+            TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                    .stream().collect(GuavaCollectors.immutableList());
 
-        if (values.isEmpty()) {
-            LOG.error("No files selected");
-            alert.setContentText("No files selected");
-            alert.showAndWait();
-            return;
+            if (values.isEmpty()) {
+                LOG.error("No files selected");
+                alert.setContentText("No files selected");
+                alert.showAndWait();
+                return;
+            }
+
+            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
+                LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
+                alert.setContentText("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
+                alert.showAndWait();
+                return;
+            }
+
+            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.BUCKET)) {
+                LOG.error("You delete a bucket");
+                String bucketName = ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getBucketName();
+                deleteBucket(session,bucketName,values);
+            }
+
+            if(values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.FILE))
+            {
+            	LOG.error("you can delete files.");
+            	deleteFiles(session,values);
+            }
         }
 
-        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.BUCKET)) {
-            LOG.error("You can't delete a bucket");
-            alert.setContentText("You can't delete buckets for now");
-            alert.showAndWait();
-            return;
-        }
+    }
 
-        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
-            LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
-            alert.setContentText("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
-            alert.showAndWait();
-            return;
-        }
+    /**
+     * Delete a Single Selected Spectra S3 bucket
+     * @param session
+     * @param bucketName
+     * @param values
+     */
+    private void deleteBucket(final Session session,final String bucketName,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
 
-        final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+    	final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+
         if (buckets.size() > 1) {
             LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
             alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
             alert.showAndWait();
             return;
         }
-        final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
-                .stream()
-                .map(TreeItem::getValue)
-                .collect(Collectors.toList())
-        );
 
-        final Ds3Task task = new Ds3Task(session.getClient()) {
+    	final Ds3Task deleteBucketTask = new Ds3Task(session.getClient()) {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName));
+                } catch (final IOException | SignatureException e) {
+                    LOG.error("Failed to delte Bucket " + e);
+                    alert.setContentText("Failed to delte Bucket");
+                    alert.showAndWait();
+                }
+                return null;
+            }
+        };
+        DeleteFilesPopup.show(deleteBucketTask);
+        values.stream().forEach(file -> refresh(file.getParent()));
+        refreshCompleteTreeTableView();
+
+	}
+
+    /**
+     * Delete multiple selected files
+     * @param session
+     * @param values
+     */
+	private void deleteFiles(final Session session,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+
+		final Ds3Task delteFilesTask = new Ds3Task(session.getClient()) {
+
+			final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+                    .stream()
+                    .map(TreeItem::getValue)
+                    .collect(Collectors.toList())
+            );
+
+		   final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+
             @Override
             protected Object call() throws Exception {
                 try {
                     getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delete files" + e);
-                    alert.setContentText("Failed to delete files" + e);
+                    alert.setContentText("Failed to delete files");
                     alert.showAndWait();
                 }
                 return null;
             }
         };
-
-        DeleteFilesPopup.show(task);
+        DeleteFilesPopup.show(delteFilesTask);
         values.stream().forEach(file -> refresh(file.getParent()));
-    }
+	}
+
 
 
     private void initTabPane() {
