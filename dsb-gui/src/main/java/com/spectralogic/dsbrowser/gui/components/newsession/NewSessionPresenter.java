@@ -44,13 +44,13 @@ public class NewSessionPresenter implements Initializable {
     ResourceBundle resourceBundle;
 
     @FXML
-    Button saveSessionButton,openSessionButton,cancelSessionButton;
+    Button saveSessionButton, openSessionButton, cancelSessionButton;
 
     @FXML
     Label selectExistingLabel, createNewLabel;
 
     @FXML
-    Tooltip saveSessionButtonTooltip,openSessionButtonTooltip,cancelSessionButtonTooltip;
+    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip;
 
     Alert alert = new Alert(Alert.AlertType.ERROR);
 
@@ -62,7 +62,7 @@ public class NewSessionPresenter implements Initializable {
             initSessionList();
             initPropertySheet();
         } catch (final Exception e) {
-             LOG.error("Failed to load NewSessionPresenter", e);
+            LOG.error("Failed to load NewSessionPresenter", e);
         }
     }
 
@@ -78,30 +78,25 @@ public class NewSessionPresenter implements Initializable {
     }
 
     private void initSessionList() {
-        savedSessions.setRowFactory( tv -> {
+        savedSessions.setRowFactory(tv -> {
             final TableRow<SavedSession> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
-                    if (store.getObservableList().size()==0)
-                    {
+                    if (store.getObservableList().size() == 0) {
                         store.addSession(createConnection(rowData));
                         closeDialog();
-                    }
-                    else if (!savedSessionStore.containsNewSessionName(store.getObservableList(),rowData.getName()))
-                    {
+                    } else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), rowData.getName())) {
                         store.addSession(createConnection(rowData));
                         closeDialog();
-                    }
-                    else
-                    {
+                    } else {
                         alert.setTitle("New User Session");
                         alert.setContentText("Session name already in use. Please use a different name.");
                         alert.showAndWait();
                     }
                 }
             });
-            return row ;
+            return row;
         });
 
         savedSessions.setEditable(false);
@@ -109,8 +104,8 @@ public class NewSessionPresenter implements Initializable {
     }
 
     private Session createConnection(final SavedSession rowData) {
-        final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint(), rowData.getCredentials().toCredentials()).withHttps(false).build();
-        return new Session(rowData.getName(), rowData.getEndpoint(), client);
+        final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint() + ":" + rowData.getPortNo(), rowData.getCredentials().toCredentials()).withHttps(false).build();
+        return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), client);
     }
 
     public void cancelSession() {
@@ -121,15 +116,28 @@ public class NewSessionPresenter implements Initializable {
     public void createSession() {
         LOG.info("Performing session validation");
         if (store.getObservableList().size() == 0) {
-            store.addSession(model.toSession());
-            closeDialog();
-        }
-        else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
-            store.addSession(model.toSession());
-            closeDialog();
-        }
-        else
-        {
+            if ((model.getSessionName() == null) || (model.getEndpoint() == null)
+                    || (model.getPortNo() == null) || (model.getAccessKey() == null)
+                    || (model.getSecretKey() == null)) {
+                alert.setTitle("Information Dialog");
+                alert.setContentText("All field required !!");
+                alert.showAndWait();
+            } else {
+                store.addSession(model.toSession());
+                closeDialog();
+            }
+        } else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
+            if ((model.getSessionName() == null) || (model.getEndpoint() == null)
+                    || (model.getPortNo() == null) || (model.getAccessKey() == null)
+                    || (model.getSecretKey() == null)) {
+                alert.setTitle("Information Dialog");
+                alert.setContentText("All field required !!");
+                alert.showAndWait();
+            } else {
+                store.addSession(model.toSession());
+                closeDialog();
+            }
+        } else {
             alert.setTitle("New User Session");
             alert.setContentText("Session name already in use. Please use a different name.");
             alert.showAndWait();
@@ -138,7 +146,16 @@ public class NewSessionPresenter implements Initializable {
 
     public void saveSession() {
         LOG.info("Creating new session");
-        savedSessionStore.saveSession(model.toSession());
+        if ((model.getSessionName() == null) || (model.getEndpoint() == null)
+                || (model.getPortNo() == null) || (model.getAccessKey() == null)
+                || (model.getSecretKey() == null)) {
+            alert.setTitle("Information Dialog");
+            alert.setContentText("All field required !!");
+            alert.showAndWait();
+        } else {
+            savedSessionStore.saveSession(model.toSession());
+        }
+
     }
 
     private void closeDialog() {
@@ -152,6 +169,7 @@ public class NewSessionPresenter implements Initializable {
 
         items.add(new PropertyItem(resourceBundle.getString("nameLabel"), model.sessionNameProperty(), "Access Credentials", "The name for the session", String.class));
         items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", "The Spectra S3 Endpoint", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("portNo"), model.portNoProperty(), "Access Credentials", "The port number for the session", String.class));
         items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Access ID", String.class));
         items.add(new PropertyItem(resourceBundle.getString("secretIDLabel"), model.secretKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Secret Key", String.class));
 

@@ -13,6 +13,8 @@ public class NewSessionModel {
     private final StringProperty endpoint = new SimpleStringProperty();
     private final StringProperty accessKey = new SimpleStringProperty();
     private final StringProperty secretKey = new SimpleStringProperty();
+    //Added By VVDN Team
+    private final StringProperty portNo = new SimpleStringProperty();
 
     public String getEndpoint() {
         return endpoint.get();
@@ -62,14 +64,26 @@ public class NewSessionModel {
         this.sessionName.set(sessionName);
     }
 
+    public void setPortno(final String portNo) {
+        this.portNo.set(portNo);
+    }
+
+    public StringProperty portNoProperty() {
+        return portNo;
+    }
+
+    public String getPortNo() {
+        return portNo.get();
+    }
+
     public Session toSession() {
         final Ds3Client client = Ds3ClientBuilder
-                .create(this.getEndpoint(),
-                    new Credentials(this.getAccessKey(),
-                            this.getSecretKey()))
+                .create(this.getEndpoint() + ":" + this.getPortNo(),
+                        new Credentials(this.getAccessKey(),
+                                this.getSecretKey()))
                 .withHttps(false)
                 .build();
-        return new Session(this.getSessionName(), this.getEndpoint(), client);
+        return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), client);
     }
 
 }
