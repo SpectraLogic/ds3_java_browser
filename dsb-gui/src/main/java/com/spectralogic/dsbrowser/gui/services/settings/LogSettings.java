@@ -11,7 +11,7 @@ public class LogSettings {
 
     private static LogSettings createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
-        return new LogSettings(logPath, 10, 3, false, false);
+        return new LogSettings(logPath, 10, 3, true, false);
     }
 
     @JsonProperty("logLocation")
