@@ -47,13 +47,13 @@ public class NewSessionPresenter implements Initializable {
     ResourceBundle resourceBundle;
 
     @FXML
-    Button saveSessionButton, openSessionButton, cancelSessionButton,deleteSessionButton;
+    Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
     @FXML
     Label selectExistingLabel, createNewLabel;
 
     @FXML
-    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip,deleteSessionButtonTooltip;
+    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
 
     Alert alert = new Alert(Alert.AlertType.ERROR);
 
@@ -132,9 +132,11 @@ public class NewSessionPresenter implements Initializable {
     public void createSession() {
         LOG.info("Performing session validation");
         if (store.getObservableList().size() == 0) {
-            if ((model.getSessionName() == null) || (model.getEndpoint() == null)
-                    || (model.getPortNo() == null) || (model.getAccessKey() == null)
-                    || (model.getSecretKey() == null)) {
+            if (((model.getSessionName() == null) || (model.getSessionName().equalsIgnoreCase(""))) ||
+                    ((model.getEndpoint() == null) || (model.getEndpoint().equalsIgnoreCase("")))
+                    || ((model.getPortNo() == null) || (model.getPortNo().equalsIgnoreCase(""))) ||
+                    ((model.getAccessKey() == null) || (model.getAccessKey().equalsIgnoreCase("")))
+                    || ((model.getSecretKey() == null) || (model.getSecretKey().equalsIgnoreCase("")))) {
                 alert.setTitle("Information Dialog");
                 alert.setContentText("All field required !!");
                 alert.showAndWait();
@@ -143,9 +145,11 @@ public class NewSessionPresenter implements Initializable {
                 closeDialog();
             }
         } else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
-            if ((model.getSessionName() == null) || (model.getEndpoint() == null)
-                    || (model.getPortNo() == null) || (model.getAccessKey() == null)
-                    || (model.getSecretKey() == null)) {
+            if (((model.getSessionName() == null) || (model.getSessionName().equalsIgnoreCase(""))) ||
+                    ((model.getEndpoint() == null) || (model.getEndpoint().equalsIgnoreCase("")))
+                    || ((model.getPortNo() == null) || (model.getPortNo().equalsIgnoreCase(""))) ||
+                    ((model.getAccessKey() == null) || (model.getAccessKey().equalsIgnoreCase("")))
+                    || ((model.getSecretKey() == null) || (model.getSecretKey().equalsIgnoreCase("")))) {
                 alert.setTitle("Information Dialog");
                 alert.setContentText("All field required !!");
                 alert.showAndWait();
@@ -162,9 +166,11 @@ public class NewSessionPresenter implements Initializable {
 
     public void saveSession() {
         LOG.info("Creating new session");
-        if ((model.getSessionName() == null) || (model.getEndpoint() == null)
-                || (model.getPortNo() == null) || (model.getAccessKey() == null)
-                || (model.getSecretKey() == null)) {
+        if (((model.getSessionName() == null) || (model.getSessionName().equalsIgnoreCase(""))) ||
+                ((model.getEndpoint() == null) || (model.getEndpoint().equalsIgnoreCase("")))
+                || ((model.getPortNo() == null) || (model.getPortNo().equalsIgnoreCase(""))) ||
+                ((model.getAccessKey() == null) || (model.getAccessKey().equalsIgnoreCase("")))
+                || ((model.getSecretKey() == null) || (model.getSecretKey().equalsIgnoreCase("")))) {
             alert.setTitle("Information Dialog");
             alert.setContentText("All field required !!");
             alert.showAndWait();
