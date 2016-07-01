@@ -60,6 +60,11 @@
                               <Tooltip fx:id="cancelSessionButtonTooltip" />
                            </tooltip>
                         </Button>
+                        <Button mnemonicParsing="false" onAction="#deleteSession" fx:id="deleteSessionButton">
+                           <tooltip>
+                              <Tooltip fx:id="deleteSessionButtonTooltip" />
+                           </tooltip>
+                        </Button>
                      </children>
                      <padding>
                         <Insets right="15.0" />

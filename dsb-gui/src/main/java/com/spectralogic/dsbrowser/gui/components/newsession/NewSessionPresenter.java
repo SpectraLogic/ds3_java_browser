@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
@@ -9,9 +10,11 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.PropertyItem;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.PropertySheet;
@@ -44,13 +47,13 @@ public class NewSessionPresenter implements Initializable {
     ResourceBundle resourceBundle;
 
     @FXML
-    Button saveSessionButton, openSessionButton, cancelSessionButton;
+    Button saveSessionButton, openSessionButton, cancelSessionButton,deleteSessionButton;
 
     @FXML
     Label selectExistingLabel, createNewLabel;
 
     @FXML
-    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip;
+    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip,deleteSessionButtonTooltip;
 
     Alert alert = new Alert(Alert.AlertType.ERROR);
 
@@ -70,11 +73,13 @@ public class NewSessionPresenter implements Initializable {
         saveSessionButton.setText(resourceBundle.getString("saveSessionButton"));
         openSessionButton.setText(resourceBundle.getString("openSessionButton"));
         cancelSessionButton.setText(resourceBundle.getString("cancelSessionButton"));
+        deleteSessionButton.setText(resourceBundle.getString("deleteSessionButton"));
         selectExistingLabel.setText(resourceBundle.getString("selectExistingLabel"));
         createNewLabel.setText(resourceBundle.getString("createNewLabel"));
         saveSessionButtonTooltip.setText(resourceBundle.getString("saveSessionButtonTooltip"));
         cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
         openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
+        deleteSessionButtonTooltip.setText(resourceBundle.getString("deleteSessionTooltip"));
     }
 
     private void initSessionList() {
@@ -111,6 +116,17 @@ public class NewSessionPresenter implements Initializable {
     public void cancelSession() {
         LOG.info("Cancelling session");
         closeDialog();
+    }
+
+    public void deleteSession() {
+        LOG.info("Deleting the saved session");
+        if (savedSessions.getSelectionModel().getSelectedItem() == null) {
+            alert.setTitle("Information !!");
+            alert.setContentText("Select saved session to delete !!");
+            alert.showAndWait();
+        } else {
+            savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
+        }
     }
 
     public void createSession() {
