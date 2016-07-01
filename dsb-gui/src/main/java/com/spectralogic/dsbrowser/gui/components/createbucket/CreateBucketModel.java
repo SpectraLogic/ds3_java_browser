@@ -1,23 +1,29 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
-/**
- * Created by Rahul on 6/16/2016.
- */
+import java.util.UUID;
+
 public class CreateBucketModel {
 
     private final String dataPolicy;
 
+    private final UUID id;
+
     //to be added more
 
     public CreateBucketModel() {
-            this("");
+            this("",null);
     }
 
-    public CreateBucketModel(String dataPolicy) {
+    public CreateBucketModel(String dataPolicy, UUID id) {
         this.dataPolicy = dataPolicy;
+        this.id=id;
     }
 
     public String getDataPolicy() {
         return dataPolicy;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

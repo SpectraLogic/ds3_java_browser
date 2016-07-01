@@ -98,17 +98,11 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void initListeners() {
 
-        ds3DeleteButton.setOnAction((event) -> {
-            ds3DeleteObjects();
-        });
+        ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
 
-        ds3Refresh.setOnAction(event -> {
-            refreshCompleteTreeTableView();
-        });
+        ds3Refresh.setOnAction(event -> refreshCompleteTreeTableView());
 
-        ds3NewFolder.setOnAction(event -> {
-        	ds3NewFolder();
-        });
+        ds3NewFolder.setOnAction(event -> ds3NewFolder());
 
         ds3NewBucket.setOnAction(event -> {
             LOG.info("Create Bucket Prompt");
@@ -125,7 +119,7 @@ public class Ds3PanelPresenter implements Initializable {
                     final Ds3Client client = session.getClient();
                     //final CreateBucketModel value = values.get(0).getValue();
                     final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
+                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                     final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                             new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
                     return dataPoliciesList.get(0);
@@ -227,7 +221,7 @@ public class Ds3PanelPresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName));
+                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delte Bucket " + e);
                     alert.setContentText("Failed to delte Bucket");

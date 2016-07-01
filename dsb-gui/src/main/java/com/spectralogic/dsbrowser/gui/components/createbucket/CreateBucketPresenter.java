@@ -22,11 +22,7 @@ import java.security.SignatureException;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-
-/**
- * Created by Rahul on 6/16/2016.
- */
-public class CreateBucketPresenter implements Initializable{
+public class CreateBucketPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
 
     @FXML
@@ -36,19 +32,19 @@ public class CreateBucketPresenter implements Initializable{
     ComboBox dataPolicyCombo;
 
     @FXML
-    Label dataPolicyComboLabel,bucketNameFieldLabel;
+    Label dataPolicyComboLabel, bucketNameFieldLabel;
 
     @FXML
     Button createBucketButton;
 
     @Inject
-    Workers workers;
+    private Workers workers;
 
     @Inject
-    CreateBucketWithDataPoliciesModel createBucketWithDataPoliciesModel;
+    private CreateBucketWithDataPoliciesModel createBucketWithDataPoliciesModel;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -59,7 +55,7 @@ public class CreateBucketPresenter implements Initializable{
         dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
 
         bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty() && (dataPolicyCombo.getValue())!=null) {
+            if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
                 createBucketButton.setDisable(false);
             } else {
                 createBucketButton.setDisable(true);
@@ -67,13 +63,12 @@ public class CreateBucketPresenter implements Initializable{
         });
 
         dataPolicyCombo.setOnAction(event -> {
-            if (!bucketNameField.textProperty().getValue().isEmpty() && ((String)dataPolicyCombo.getValue())!=null) {
+            if (!bucketNameField.textProperty().getValue().isEmpty() && ((String) dataPolicyCombo.getValue()) != null) {
                 createBucketButton.setDisable(false);
             } else {
                 createBucketButton.setDisable(true);
             }
         });
-
     }
 
     private void initGUIElements() {
@@ -81,6 +76,9 @@ public class CreateBucketPresenter implements Initializable{
         dataPolicyComboLabel.setText(resourceBundle.getString("dataPolicyComboLabel"));
     }
 
+    /**
+     * Method to create bucket on blackpearl
+     */
     public void createBucket() {
         LOG.info("Create Bucket called");
 
@@ -88,11 +86,12 @@ public class CreateBucketPresenter implements Initializable{
             @Override
             protected Object call() throws Exception {
                 try {
-                   PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText())) ;
+                    CreateBucketModel dataPolicy= createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
+                    return getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText()).withDataPolicyId(dataPolicy.getId()));
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to create bucket" + e);
+                    return null;
                 }
-                return null;
             }
         };
         workers.execute(task);

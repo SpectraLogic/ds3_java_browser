@@ -455,7 +455,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             protected CreateBucketWithDataPoliciesModel call() throws Exception {
                 final Ds3Client client = session.getClient();
                 final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
+                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                 final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList=buckets.stream().map(policies ->
                         new CreateBucketWithDataPoliciesModel(buckets,session,workers)).collect(GuavaCollectors.immutableList());
                 return dataPoliciesList.get(0);

@@ -14,9 +14,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by Kunal on 27-Jun-16.
- */
 public class CreateBucketWithDataPoliciesModelTest {
     @Test
     public void getInitializedValue() throws Exception {
