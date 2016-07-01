@@ -5,9 +5,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.is;
 
-/**
- * Created by Kunal on 27-Jun-16.
- */
 public class CreateBucketModelTest {
     @Test
     public void getInitializedDataPolicy() throws Exception {
@@ -17,7 +14,7 @@ public class CreateBucketModelTest {
 
     @Test
     public void getDataPolicy() throws Exception {
-        final CreateBucketModel value = new CreateBucketModel("fake");
+        final CreateBucketModel value = new CreateBucketModel("fake",null);
         assertThat(value.getDataPolicy(), is("fake"));
     }
 

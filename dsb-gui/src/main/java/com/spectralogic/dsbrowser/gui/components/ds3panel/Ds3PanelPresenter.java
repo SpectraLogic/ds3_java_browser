@@ -98,19 +98,17 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void initListeners() {
 
-        ds3DeleteButton.setOnAction((event) -> {
-            ds3DeleteObjects();
-        });
+        ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
 
-        ds3Refresh.setOnAction(event -> {
-            refreshCompleteTreeTableView();
-        });
+        ds3Refresh.setOnAction(event -> refreshCompleteTreeTableView());
+
+        ds3NewFolder.setOnAction(event -> ds3NewFolder());
 
         ds3NewBucket.setOnAction(event -> {
             LOG.info("Create Bucket Prompt");
             Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
 
-            TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
 
@@ -121,7 +119,7 @@ public class Ds3PanelPresenter implements Initializable {
                     final Ds3Client client = session.getClient();
                     //final CreateBucketModel value = values.get(0).getValue();
                     final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
+                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                     final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                             new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
                     return dataPoliciesList.get(0);
@@ -167,10 +165,10 @@ public class Ds3PanelPresenter implements Initializable {
 
     }
 
-    private void ds3DeleteObjects() {
+	private void ds3DeleteObjects() {
     	Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
         if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
-            TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
 
@@ -189,14 +187,12 @@ public class Ds3PanelPresenter implements Initializable {
             }
 
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.BUCKET)) {
-                LOG.error("You delete a bucket");
                 String bucketName = ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getBucketName();
                 deleteBucket(session,bucketName,values);
             }
 
             if(values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.FILE))
             {
-            	LOG.error("you can delete files.");
             	deleteFiles(session,values);
             }
         }
@@ -210,6 +206,7 @@ public class Ds3PanelPresenter implements Initializable {
      * @param values
      */
     private void deleteBucket(final Session session,final String bucketName,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    	 LOG.info("Got delete bucket event");
 
     	final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
@@ -224,7 +221,7 @@ public class Ds3PanelPresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName));
+                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delte Bucket " + e);
                     alert.setContentText("Failed to delte Bucket");
@@ -245,6 +242,7 @@ public class Ds3PanelPresenter implements Initializable {
      * @param values
      */
 	private void deleteFiles(final Session session,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+		 LOG.info("Got delete files event");
 
 		final Ds3Task delteFilesTask = new Ds3Task(session.getClient()) {
 
@@ -272,7 +270,17 @@ public class Ds3PanelPresenter implements Initializable {
         values.stream().forEach(file -> refresh(file.getParent()));
 	}
 
+	 private void ds3NewFolder() {
+		 LOG.info("Create New Folder Prompt");
 
+		 final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+	       if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+	           final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+	           final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+	                    .stream().collect(GuavaCollectors.immutableList());
+
+	    	}
+		}
 
     private void initTabPane() {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {

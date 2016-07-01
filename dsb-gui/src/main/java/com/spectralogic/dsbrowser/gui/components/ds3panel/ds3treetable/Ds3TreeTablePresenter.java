@@ -1,8 +1,26 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import java.io.IOException;
+import java.net.URL;
+import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.*;
+import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
+import com.spectralogic.ds3client.commands.GetServiceRequest;
+import com.spectralogic.ds3client.commands.GetServiceResponse;
+import com.spectralogic.ds3client.commands.HeadObjectRequest;
+import com.spectralogic.ds3client.commands.HeadObjectResponse;
+import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Request;
@@ -17,10 +35,11 @@ import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPopup;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.Ds3PhysicalPlacement;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -28,22 +47,18 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.URL;
-import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class Ds3TreeTablePresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
@@ -65,7 +80,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Inject
     ResourceBundle resourceBundle;
 
-    private MenuItem createBucket, physicalPlacement, metaData, deleteFile, deleteFolder;
+    private MenuItem createBucket, physicalPlacement, metaData, deleteFile, deleteFolder, deleteBucket;
 
     private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
@@ -92,6 +107,9 @@ public class Ds3TreeTablePresenter implements Initializable {
             deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
             deleteFolder.setOnAction(event -> deleteFolderPrompt());
 
+            deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
+            deleteBucket.setOnAction(event -> deleteBucketPrompt());
+
             metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
             metaData.setOnAction(event -> showMetadata());
 
@@ -101,51 +119,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
             createBucket.setOnAction(event -> createBucketPrompt());
 
-            contextMenu.getItems().addAll(metaData, physicalPlacement, createBucket, new SeparatorMenuItem(), deleteFile, deleteFolder);
-    }
-
-    public void showPhysicalPlacement() {
-
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
-        if (values.isEmpty()) {
-            LOG.error("Nothing selected");
-            alert.setContentText("Nothing selected !!");
-            alert.showAndWait();
-            return;
-        }
-
-        if (values.size() > 1) {
-            LOG.error("Only a single object can be selected to view physical placement ");
-            alert.setContentText("Only a single object can be selected to view physical placement");
-            alert.showAndWait();
-            return;
-        }
-
-        final Task<Ds3PhysicalPlacement> getPhysicalPlacement = new Task<Ds3PhysicalPlacement>() {
-            @Override
-            protected Ds3PhysicalPlacement call() throws Exception {
-
-                final Ds3Client client = session.getClient();
-                final Ds3TreeTableValue value = values.get(0).getValue();
-
-                List<Ds3Object> list = values.stream().map(item -> new Ds3Object(item.getValue().getName(), 12))
-                        .collect(Collectors.toList());
-
-                GetPhysicalPlacementForObjectsSpectraS3Response response = client
-                        .getPhysicalPlacementForObjectsSpectraS3(
-                                new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
-                return new Ds3PhysicalPlacement(response.getPhysicalPlacementResult(),
-                        response.getPhysicalPlacementResult().getTapes(),
-                        response.getPhysicalPlacementResult().getPools());
-
-            }
-        };
-        workers.execute(getPhysicalPlacement);
-        getPhysicalPlacement.setOnSucceeded(event -> Platform.runLater(() -> {
-            LOG.info("Launching PhysicalPlacement popup");
-            PhysicalPlacementPopup.show(getPhysicalPlacement.getValue());
-        }));
+            contextMenu.getItems().addAll(metaData, physicalPlacement, createBucket, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket);
     }
 
     private void initTreeTableView() {
@@ -162,13 +136,16 @@ public class Ds3TreeTablePresenter implements Initializable {
                 if(selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.BUCKET) {
                     deleteFile.setDisable(true);
                     deleteFolder.setDisable(true);
+                    deleteBucket.setDisable(false);
                 }
                 else if (selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.DIRECTORY) {
                     deleteFile.setDisable(true);
                     deleteFolder.setDisable(false);
+                    deleteBucket.setDisable(true);
                 } else {
                     deleteFile.setDisable(false);
                     deleteFolder.setDisable(true);
+                    deleteBucket.setDisable(true);
                 }
 
                 if (selectedItems.size() >= 1) {
@@ -254,7 +231,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             return row;
         });
 
-
         final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         ds3TreeTable.setShowRoot(false);
@@ -264,9 +240,54 @@ public class Ds3TreeTablePresenter implements Initializable {
         workers.execute(getServiceTask);
     }
 
-    public void showMetadata() {
+    private void showPhysicalPlacement() {
+
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
+                .stream().collect(GuavaCollectors.immutableList());
+        if (values.isEmpty()) {
+            LOG.error("Nothing selected");
+            alert.setContentText("Nothing selected !!");
+            alert.showAndWait();
+            return;
+        }
+
+        if (values.size() > 1) {
+            LOG.error("Only a single object can be selected to view physical placement ");
+            alert.setContentText("Only a single object can be selected to view physical placement");
+            alert.showAndWait();
+            return;
+        }
+
+        final Task<Ds3PhysicalPlacement> getPhysicalPlacement = new Task<Ds3PhysicalPlacement>() {
+            @Override
+            protected Ds3PhysicalPlacement call() throws Exception {
+
+                final Ds3Client client = session.getClient();
+                final Ds3TreeTableValue value = values.get(0).getValue();
+
+                List<Ds3Object> list = values.stream().map(item -> new Ds3Object(item.getValue().getName(), 12))
+                        .collect(Collectors.toList());
+
+                GetPhysicalPlacementForObjectsSpectraS3Response response = client
+                        .getPhysicalPlacementForObjectsSpectraS3(
+                                new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
+                return new Ds3PhysicalPlacement(response.getPhysicalPlacementResult(),
+                        response.getPhysicalPlacementResult().getTapes(),
+                        response.getPhysicalPlacementResult().getPools());
+
+            }
+        };
+        workers.execute(getPhysicalPlacement);
+        getPhysicalPlacement.setOnSucceeded(event -> Platform.runLater(() -> {
+            LOG.info("Launching PhysicalPlacement popup");
+            PhysicalPlacementPopup.show(getPhysicalPlacement.getValue());
+        }));
+    }
+
+	public void showMetadata() {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
+        	// TODO display an error
             LOG.error("No files selected");
             alert.setContentText("No files selected !!");
             alert.showAndWait();
@@ -274,6 +295,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
 
         if (values.size() > 1) {
+        	// TODO display an error
             LOG.error("Only a single object can be selected to view metadata ");
             alert.setContentText("Only a single object can be selected to view metadata ");
             alert.showAndWait();
@@ -336,9 +358,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         DeleteFilesPopup.show(task);
         values.stream().forEach(file -> refresh(file.getParent()));
 
-
-       // DeleteFilesPopup.show( );
-
     }
 
     public void deletePrompt() {
@@ -386,7 +405,48 @@ public class Ds3TreeTablePresenter implements Initializable {
         values.stream().forEach(file -> refresh(file.getParent()));
     }
 
-    public void createBucketPrompt() {
+    private void deleteBucketPrompt() {
+        LOG.info("Got delete bucket event");
+
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> buckets = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+
+        if (buckets.size() > 1) {
+        	// TODO display an error
+            LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
+            alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
+            alert.showAndWait();
+            return;
+        }
+
+        final Ds3TreeTableValue value = buckets.get(0).getValue();
+
+        if (value.getType() != Ds3TreeTableValue.Type.BUCKET) {
+            LOG.error("You can only delete a bucket with this command");
+            // TODO display an error
+            alert.setContentText("You can only delete a bucket with this command");
+            alert.showAndWait();
+            return;
+        }
+
+        final Ds3Task task = new Ds3Task(session.getClient()) {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                	getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getBucketName()));
+                } catch (final IOException | SignatureException e) {
+                    LOG.error("Failed to delete Bucket" + e);
+                    alert.setContentText("Failed to delete a bucket");
+                    alert.showAndWait();
+                }
+                return null;
+            }
+        };
+        DeleteFilesPopup.show(task);
+        refreshTreeTableView(ds3TreeTable, workers, session);
+
+   }
+
+    private void createBucketPrompt() {
         LOG.info("Create Bucket Prompt");
 
         final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
@@ -395,7 +455,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             protected CreateBucketWithDataPoliciesModel call() throws Exception {
                 final Ds3Client client = session.getClient();
                 final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName())).collect(GuavaCollectors.immutableList());
+                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                 final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList=buckets.stream().map(policies ->
                         new CreateBucketWithDataPoliciesModel(buckets,session,workers)).collect(GuavaCollectors.immutableList());
                 return dataPoliciesList.get(0);

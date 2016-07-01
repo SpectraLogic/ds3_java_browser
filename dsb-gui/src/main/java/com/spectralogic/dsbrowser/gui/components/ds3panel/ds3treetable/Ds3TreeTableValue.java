@@ -1,7 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
-import javafx.scene.input.DataFormat;
-
 public class Ds3TreeTableValue {
 
     private final String bucketName;

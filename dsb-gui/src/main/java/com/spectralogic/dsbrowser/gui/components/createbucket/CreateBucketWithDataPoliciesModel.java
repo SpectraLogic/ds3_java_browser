@@ -4,9 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 
-/**
- * Created by Rahul on 6/17/2016.
- */
 public class CreateBucketWithDataPoliciesModel {
 
     private final ImmutableList<CreateBucketModel> dataPolicies;
