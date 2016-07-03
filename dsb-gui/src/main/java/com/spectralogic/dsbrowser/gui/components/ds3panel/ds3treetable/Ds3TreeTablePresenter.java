@@ -432,7 +432,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                	getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getBucketName()));
+                	getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getBucketName()).withForce(true));
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delete Bucket" + e);
                     alert.setContentText("Failed to delete a bucket");
