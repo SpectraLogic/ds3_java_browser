@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +41,6 @@ import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableView;
 
 public class Ds3PanelPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
@@ -57,6 +50,9 @@ public class Ds3PanelPresenter implements Initializable {
 
     @FXML
     Tooltip ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip;
+
+    @FXML
+    Label ds3PathIndicator;
 
     @FXML
     TextField ds3PanelSearch;
@@ -141,9 +137,7 @@ public class Ds3PanelPresenter implements Initializable {
                 newItems.stream().forEach(newSession -> {
                     final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession);
                     final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
-                    treeTab.setOnClosed(event -> {
-                        store.removeSession(newSession);
-                    });
+                    treeTab.setOnClosed(event -> store.removeSession(newSession));
                     treeTab.setTooltip(new Tooltip(newSession.getSessionName() + "-" + newSession.getEndpoint()));
                     final int totalTabs = ds3SessionTabPane.getTabs().size();
                     ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
@@ -334,16 +328,16 @@ public class Ds3PanelPresenter implements Initializable {
     private void initMenuItems() {
 
         ds3RefreshToolTip.setText(resourceBundle.getString("ds3RefreshToolTip"));
-        ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
+        //ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
 
         ds3NewFolderToolTip.setText(resourceBundle.getString("ds3NewFolderToolTip"));
-        ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+        //ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
 
         ds3NewBucketToolTip.setText(resourceBundle.getString("ds3NewBucketToolTip"));
-        ds3NewBucket.setGraphic(Icon.getIcon(FontAwesomeIcon.ARCHIVE));
+        //ds3NewBucket.setGraphic(Icon.getIcon(FontAwesomeIcon.ARCHIVE));
 
         ds3DeleteButtonToolTip.setText(resourceBundle.getString("ds3DeleteButtonToolTip"));
-        ds3DeleteButton.setGraphic(Icon.getIcon(FontAwesomeIcon.TRASH));
+        //ds3DeleteButton.setGraphic(Icon.getIcon(FontAwesomeIcon.TRASH));
         if (ds3SessionTabPane.getTabs().size() == 1) {
             disableMenu(true);
         }

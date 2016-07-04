@@ -7,6 +7,10 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.*;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +20,6 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableRow;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -38,6 +37,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @FXML
     Button refreshButton;
 
+    @FXML
+    Label localPathIndicator;
+
     @Inject
     LocalFileTreeTableProvider provider;
 
@@ -54,6 +56,20 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initTableView() {
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        treeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+
+            @Override
+            public void changed(ObservableValue observable, Object oldValue,
+                                Object newValue) {
+
+                TreeItem<FileTreeModel> selectedItem = (TreeItem<FileTreeModel>) newValue;
+                System.out.println("Selected Text : " + selectedItem.getValue().getPath());
+                localPathIndicator.setText(selectedItem.getValue().getPath().toString());
+
+            }
+
+        });
 
         treeTable.setRowFactory(view -> {
             TreeTableRow<FileTreeModel> row =new TreeTableRow<FileTreeModel>();
@@ -139,7 +155,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initMenuBar() {
-        homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
-        refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
+      // homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
+       // refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
     }
 }

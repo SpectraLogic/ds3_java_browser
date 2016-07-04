@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import javafx.scene.image.ImageView;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -42,8 +43,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch(type) {
-            case Bucket: return Icon.getIcon(FontAwesomeIcon.ARCHIVE);
-            case Directory: return Icon.getIcon(FontAwesomeIcon.FOLDER);
+
+            case Bucket: return  (new ImageView("/images/bucket.png"));
+            case Directory: return (new ImageView("/images/folder.png"));
+            case File: return (new ImageView("/images/file.png"));
             default: return null;
         }
     }

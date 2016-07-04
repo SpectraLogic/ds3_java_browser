@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +51,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableRow;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -70,16 +65,16 @@ public class Ds3TreeTablePresenter implements Initializable {
     TreeTableView<Ds3TreeTableValue> ds3TreeTable;
 
     @Inject
-    Workers workers;
+    private Workers workers;
 
     @Inject
-    JobWorkers jobWorkers;
+    private JobWorkers jobWorkers;
 
     @Inject
-    Session session;
+    private Session session;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     private MenuItem createBucket, physicalPlacement, metaData, deleteFile, deleteFolder, deleteBucket;
 
@@ -126,6 +121,16 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initTreeTableView() {
 
         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        ds3TreeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue,
+                                Object newValue) {
+                TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
+//                LOG.info("Path"+selectedItem.getValue().getFullName());
+            }
+        });
+
         ds3TreeTable.setRowFactory(view -> {
 
             final TreeTableRow<Ds3TreeTableValue> row = new TreeTableRow<>();
@@ -285,19 +290,17 @@ public class Ds3TreeTablePresenter implements Initializable {
         }));
     }
 
-	public void showMetadata() {
+	private void showMetadata() {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
-        	// TODO display an error
-            LOG.error("No files selected");
+        	LOG.error("No files selected");
             alert.setContentText("No files selected !!");
             alert.showAndWait();
             return;
         }
 
         if (values.size() > 1) {
-        	// TODO display an error
-            LOG.error("Only a single object can be selected to view metadata ");
+        	LOG.error("Only a single object can be selected to view metadata ");
             alert.setContentText("Only a single object can be selected to view metadata ");
             alert.showAndWait();
             return;
