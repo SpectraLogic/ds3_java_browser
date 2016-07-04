@@ -41,12 +41,11 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @FXML
     private CheckMenuItem jobsMenuItem, darkViewCheckMenuItem, lightViewCheckMenuItem;
 
-    TabPane jobSelector;
+    @FXML
+    private TabPane jobSelector;
 
     @FXML
     Rectangle rectangle;
-
-
 
     @FXML
     private MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
