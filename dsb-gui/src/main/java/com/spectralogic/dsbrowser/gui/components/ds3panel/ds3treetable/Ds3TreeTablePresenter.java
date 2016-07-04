@@ -134,12 +134,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                 LOG.info("Context menu requested");
                 // detect which deletes should be enabled
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
-                if(selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.BUCKET) {
+                if(selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
                     deleteFile.setDisable(true);
                     deleteFolder.setDisable(true);
                     deleteBucket.setDisable(false);
                 }
-                else if (selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.DIRECTORY) {
+                else if (selectedItems.size() == 1 && selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.Directory) {
                     deleteFile.setDisable(true);
                     deleteFolder.setDisable(false);
                     deleteBucket.setDisable(true);
@@ -339,7 +339,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         final Ds3TreeTableValue value = values.get(0).getValue();
 
-        if (value.getType() != Ds3TreeTableValue.Type.DIRECTORY) {
+        if (value.getType() != Ds3TreeTableValue.Type.Directory) {
             LOG.error("You can only delete a folder with this command");
             // TODO display an error
             return;
@@ -371,7 +371,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             return;
         }
 
-        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.DIRECTORY)) {
+        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select 'Delete Folder...'");
             // TODO display an error
             return;
@@ -421,7 +421,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         final Ds3TreeTableValue value = buckets.get(0).getValue();
 
-        if (value.getType() != Ds3TreeTableValue.Type.BUCKET) {
+        if (value.getType() != Ds3TreeTableValue.Type.Bucket) {
             LOG.error("You can only delete a bucket with this command");
             // TODO display an error
             alert.setContentText("You can only delete a bucket with this command");
@@ -517,7 +517,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
-                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.BUCKET, FileSizeFormat.getFileSizeType(0), bucket.getCreationDate().toString()))
+                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, FileSizeFormat.getFileSizeType(0), bucket.getCreationDate().toString()))
                     .collect(GuavaCollectors.immutableList());
 
             Platform.runLater(() -> {

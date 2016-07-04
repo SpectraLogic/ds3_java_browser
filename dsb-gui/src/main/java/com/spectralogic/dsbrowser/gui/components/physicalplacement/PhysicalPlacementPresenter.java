@@ -45,8 +45,8 @@ public class PhysicalPlacementPresenter implements Initializable {
     }
 
     private void initTable() {
-        final ImmutableList.Builder<PhysicalPlacementPoolEntry> builder = ImmutableList.builder();
-        final ImmutableList.Builder<PhysicalPlacementTapeEntry> builder1 = ImmutableList.builder();
+        final ImmutableList.Builder<PhysicalPlacementPoolEntry> physicalPlacementPoolEntryBuilder = ImmutableList.builder();
+        final ImmutableList.Builder<PhysicalPlacementTapeEntry> physicalPlacementTapeEntryBuilder  = ImmutableList.builder();
         final PhysicalPlacement physicalPlacement = ds3PhysicalPlacement.getPhysicalPlacement();
         List<Pool> listPool = physicalPlacement.getPools();
         for (Pool pool : listPool) {
@@ -54,9 +54,9 @@ public class PhysicalPlacementPresenter implements Initializable {
             String health = pool.getHealth().toString();
             String poolType = pool.getType().toString();
             String partition = pool.getPartitionId().toString();
-            builder.add(new PhysicalPlacementPoolEntry(name, health, poolType, partition));
+            physicalPlacementPoolEntryBuilder.add(new PhysicalPlacementPoolEntry(name, health, poolType, partition));
         }
-        physicalPlacementDataTable.setItems(FXCollections.observableList(builder.build()));
+        physicalPlacementDataTable.setItems(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
 
         List<Tape> listTape = physicalPlacement.getTapes();
         for (Tape tape : listTape) {
@@ -70,9 +70,9 @@ public class PhysicalPlacementPresenter implements Initializable {
             long used = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
             String tapePartition = tape.getPartitionId().toString();
             String lastModified = tape.getLastModified().toString();
-            builder1.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified));
+            physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified));
         }
-        physicalPlacementDataTableTape.setItems(FXCollections.observableList(builder1.build()));
+        physicalPlacementDataTableTape.setItems(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
     }
 
     public static class PhysicalPlacementPoolEntry {

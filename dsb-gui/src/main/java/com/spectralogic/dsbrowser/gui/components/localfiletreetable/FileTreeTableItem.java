@@ -37,7 +37,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
 
-        if (fileTreeModel.getType() == FileTreeModel.Type.DIRECTORY) {
+        if (fileTreeModel.getType() == FileTreeModel.Type.Directory) {
             this.addEventHandler(TreeItem.branchExpandedEvent(), e -> {
                 if (!error) {
                     e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
@@ -56,7 +56,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         switch (fileTreeModel.getType()) {
            case MEDIA_DEVICE:
                return Icon.getIcon(FontAwesomeIcon.HDD_ALT);
-            case DIRECTORY:
+            case Directory:
                 return Icon.getIcon(FontAwesomeIcon.FOLDER);
             default:
                 return null;

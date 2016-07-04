@@ -41,9 +41,9 @@ public class LocalFileTreeTableProvider {
         if (Platform.isWin()) {
             return FileTreeModel.Type.MEDIA_DEVICE;
         } else if (file.isFile()) {
-            return FileTreeModel.Type.FILE;
+            return FileTreeModel.Type.File;
         } else {
-            return FileTreeModel.Type.DIRECTORY;
+            return FileTreeModel.Type.Directory;
         }
     }
 
@@ -67,9 +67,9 @@ public class LocalFileTreeTableProvider {
 
     private static FileTreeModel.Type getPathType(final Path path) {
         if (Files.isDirectory(path)) {
-            return FileTreeModel.Type.DIRECTORY;
+            return FileTreeModel.Type.Directory;
         } else {
-            return FileTreeModel.Type.FILE;
+            return FileTreeModel.Type.File;
         }
     }
 

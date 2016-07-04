@@ -21,9 +21,9 @@ public class Ds3TreeTableValue {
     }
 
     private static String getLastPart(final String name, final Type type) {
-        if (type == Type.BUCKET) {
+        if (type == Type.Bucket) {
             return name;
-        } else if (type == Type.DIRECTORY) {
+        } else if (type == Type.Directory) {
             final String strippedName = name.substring(0, name.length() - 1);
             final int index = strippedName.lastIndexOf('/');
             return strippedName.substring(index + 1);
@@ -58,8 +58,8 @@ public class Ds3TreeTableValue {
 
     public String getDirectoryName() {
         switch (type) {
-            case DIRECTORY: return getFullName();
-            case BUCKET: return "";
+            case Directory: return getFullName();
+            case Bucket: return "";
             default: return getParentDir(this.getFullName());
         }
     }
@@ -73,6 +73,6 @@ public class Ds3TreeTableValue {
     }
 
     public enum Type {
-        FILE, DIRECTORY, BUCKET
+        File, Directory, Bucket
     }
 }
