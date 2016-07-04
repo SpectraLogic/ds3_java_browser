@@ -53,19 +53,19 @@ public class Ds3PanelPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
 
     @FXML
-    Button ds3Refresh, ds3NewFolder, ds3NewBucket, ds3DeleteButton, newSessionButton;
+    private Button ds3Refresh, ds3NewFolder, ds3NewBucket, ds3DeleteButton, newSessionButton;
 
     @FXML
-    Tooltip ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip;
+    private Tooltip ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip;
 
     @FXML
-    TextField ds3PanelSearch;
+    private TextField ds3PanelSearch;
 
     @FXML
-    Tab addNewTab;
+    private Tab addNewTab;
 
     @FXML
-    TabPane ds3SessionTabPane;
+    private TabPane ds3SessionTabPane;
 
     @Inject
     private Ds3SessionStore store;

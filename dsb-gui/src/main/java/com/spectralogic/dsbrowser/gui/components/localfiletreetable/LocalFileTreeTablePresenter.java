@@ -30,16 +30,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
     @FXML
-    TreeTableView<FileTreeModel> treeTable;
+    private TreeTableView<FileTreeModel> treeTable;
 
     @FXML
-    Button homeButton;
+    private Button homeButton;
 
     @FXML
-    Button refreshButton;
+    private Button refreshButton;
 
     @Inject
-    LocalFileTreeTableProvider provider;
+    private LocalFileTreeTableProvider provider;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

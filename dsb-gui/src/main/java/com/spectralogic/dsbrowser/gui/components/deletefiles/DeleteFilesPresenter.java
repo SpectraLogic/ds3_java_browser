@@ -21,16 +21,16 @@ public class DeleteFilesPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
 
     @FXML
-    TextField deleteField;
+    private TextField deleteField;
 
     @FXML
-    Button deleteButton;
+    private Button deleteButton;
 
     @Inject
-    Workers workers;
+    private Workers workers;
 
     @Inject
-    Ds3Task deleteTask;
+    private Ds3Task deleteTask;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

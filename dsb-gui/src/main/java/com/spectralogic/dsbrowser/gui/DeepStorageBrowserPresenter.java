@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
-import com.spectralogic.dsbrowser.gui.components.license.LicenseView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
@@ -33,30 +32,30 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
 
     @FXML
-    AnchorPane fileSystem;
+    private AnchorPane fileSystem;
 
     @FXML
-    AnchorPane blackPearl;
+    private AnchorPane blackPearl;
 
     @FXML
-    SplitPane jobSplitter;
+    private SplitPane jobSplitter;
 
     @FXML
-    CheckMenuItem jobsMenuItem, darkViewCheckMenuItem, lightViewCheckMenuItem;
+    private CheckMenuItem jobsMenuItem, darkViewCheckMenuItem, lightViewCheckMenuItem;
 
     @FXML
-    MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
+    private MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
 
     @FXML
-    Menu fileMenu, helpMenu, viewMenu;
+    private Menu fileMenu, helpMenu, viewMenu;
 
     @Inject
-    JobWorkers jobWorkers;
+    private JobWorkers jobWorkers;
 
-    TaskProgressView<Ds3JobTask> jobProgressView;
+    private TaskProgressView<Ds3JobTask> jobProgressView;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

@@ -67,19 +67,19 @@ public class Ds3TreeTablePresenter implements Initializable {
     private ContextMenu contextMenu;
 
     @FXML
-    TreeTableView<Ds3TreeTableValue> ds3TreeTable;
+    private TreeTableView<Ds3TreeTableValue> ds3TreeTable;
 
     @Inject
-    Workers workers;
+    private Workers workers;
 
     @Inject
-    JobWorkers jobWorkers;
+    private JobWorkers jobWorkers;
 
     @Inject
-    Session session;
+    private Session session;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     private MenuItem createBucket, physicalPlacement, metaData, deleteFile, deleteFolder, deleteBucket;
 

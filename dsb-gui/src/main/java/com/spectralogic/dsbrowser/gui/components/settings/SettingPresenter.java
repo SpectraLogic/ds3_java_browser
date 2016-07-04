@@ -24,22 +24,22 @@ public class SettingPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
     @FXML
-    CheckBox debugLogging;
+    private CheckBox debugLogging;
 
     @FXML
-    TextField numRolling;
+    private TextField numRolling;
 
     @FXML
-    TextField logDirectory;
+    private TextField logDirectory;
 
     @FXML
-    TextField logSize;
+    private TextField logSize;
 
     @Inject
-    SettingsStore settings;
+    private SettingsStore settings;
 
     @Inject
-    LogService logService;
+    private LogService logService;
 
     private LogSettings logSettings;
 

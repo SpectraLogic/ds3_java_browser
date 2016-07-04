@@ -20,16 +20,16 @@ public class MetadataPresenter implements Initializable {
     private final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
 
     @FXML
-    Label objectName;
+    private Label objectName;
 
     @FXML
-    Label objectSize;
+    private Label objectSize;
 
     @FXML
-    TableView<MetadataEntry> metadataTable;
+    private TableView<MetadataEntry> metadataTable;
 
     @Inject
-    Ds3Metadata ds3Metadata;
+    private Ds3Metadata ds3Metadata;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
