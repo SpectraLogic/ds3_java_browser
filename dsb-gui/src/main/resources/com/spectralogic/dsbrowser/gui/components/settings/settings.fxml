@@ -20,9 +20,9 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label alignment="TOP_LEFT" text="Log Directory:" />
-            <Label text="Log Size:" GridPane.rowIndex="1" />
-            <Label text="Number of Rolling Logs:" GridPane.rowIndex="2" />
+            <Label alignment="TOP_LEFT" text="Location:" />
+            <Label text="Maximum Log Size (MB):" GridPane.rowIndex="1" />
+            <Label text="Maximum Number of Saved Logs:" GridPane.rowIndex="2" />
             <TextField fx:id="logSize" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets />
@@ -39,7 +39,7 @@
                   <Insets top="10.0" />
                </GridPane.margin>
             </HBox>
-            <Label text="Debug Logging:" GridPane.rowIndex="3" />
+            <Label text="Enable Logging:" GridPane.rowIndex="3" />
             <CheckBox fx:id="debugLogging" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>
          <padding>

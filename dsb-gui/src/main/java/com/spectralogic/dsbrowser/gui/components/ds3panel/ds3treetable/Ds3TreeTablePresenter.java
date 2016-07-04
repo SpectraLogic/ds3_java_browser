@@ -38,6 +38,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 
 import javafx.application.Platform;
@@ -516,7 +517,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
-                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.BUCKET, 0, bucket.getCreationDate().toString()))
+                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.BUCKET, FileSizeFormat.getFileSizeType(0), bucket.getCreationDate().toString()))
                     .collect(GuavaCollectors.immutableList());
 
             Platform.runLater(() -> {

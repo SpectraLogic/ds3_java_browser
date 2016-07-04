@@ -6,14 +6,16 @@ public class FileTreeModel {
     final private Path path;
     final private String name;
     final private Type type;
-    final private long size;
+    final private String size;
     final private int depth;
+    private final String lastModified;
 
-    public FileTreeModel(final Path path, final Type type, final long size, final int depth) {
+    public FileTreeModel(final Path path, final Type type, final String size, final int depth, final String lastModified) {
         this.path = path;
         this.type = type;
         this.size = size;
         this.depth = depth;
+        this.lastModified = lastModified;
         this.name = getNamePart(path, depth);
     }
 
@@ -29,7 +31,7 @@ public class FileTreeModel {
         return type;
     }
 
-    public long getSize() {
+    public String getSize() {
         return size;
     }
 
@@ -37,7 +39,11 @@ public class FileTreeModel {
         return depth;
     }
 
-    public String getNamePart(final Path path, final int depth) {
+    public String getLastModified() {
+		return lastModified;
+	}
+
+	public String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
             return path.toString();
         } else {

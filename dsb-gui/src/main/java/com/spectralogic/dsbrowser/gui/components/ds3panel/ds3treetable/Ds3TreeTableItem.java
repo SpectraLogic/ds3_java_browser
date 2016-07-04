@@ -6,6 +6,7 @@ import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
@@ -120,12 +121,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
                 final ImmutableList<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult()
                         .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
-                        .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.DIRECTORY, 0, ""))
+                        .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.DIRECTORY, FileSizeFormat.getFileSizeType(0), ""))
                         .collect(GuavaCollectors.immutableList());
 
                 final ImmutableList<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
                         .getObjects().stream()
-                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.FILE, f.getSize(), f.getLastModified().toString()))
+                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.FILE, FileSizeFormat.getFileSizeType(f.getSize()), f.getLastModified().toString()))
                         .collect(GuavaCollectors.immutableList());
 
                 Platform.runLater(() -> {

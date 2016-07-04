@@ -1,11 +1,9 @@
 package com.spectralogic.dsbrowser.gui.services.sessionStore;
 
+import java.util.stream.Stream;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
 public class Ds3SessionStore implements SessionStore {
     private final ObservableList<Session> sessions = FXCollections.observableArrayList();

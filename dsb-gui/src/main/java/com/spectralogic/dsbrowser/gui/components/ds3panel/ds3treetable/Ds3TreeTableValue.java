@@ -6,11 +6,11 @@ public class Ds3TreeTableValue {
     private final String name;
     private final String fullName;
     private final Type type;
-    private final long size;
+    private final String size;
     private final String lastModified;
 
 
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified) {
+    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final String size, final String lastModified) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -40,7 +40,7 @@ public class Ds3TreeTableValue {
         return type;
     }
 
-    public long getSize() {
+    public String getSize() {
         return size;
     }
 

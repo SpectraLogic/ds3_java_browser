@@ -20,22 +20,28 @@
             <Menu mnemonicParsing="false" fx:id="viewMenu">
                <items>
                   <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" />
+                  <!--
                   <Menu mnemonicParsing="false" fx:id="themeMenuItem">
                     <items>
                         <CheckMenuItem mnemonicParsing="false" selected="true" fx:id="lightViewCheckMenuItem" />
                         <CheckMenuItem mnemonicParsing="false" fx:id="darkViewCheckMenuItem"/>
                     </items>
                   </Menu>
+                  -->
                </items>
             </Menu>
           <Menu mnemonicParsing="false" fx:id="helpMenu">
             <items>
+            <!--
                   <MenuItem mnemonicParsing="false" fx:id="helpMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
+                  -->
               <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" fx:id="aboutMenuItem" />
+              <!--
                 <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" fx:id="licenseMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" fx:id="versionMenuItem" />
+                  -->
             </items>
           </Menu>
         </menus>
@@ -47,9 +53,9 @@
          <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
            <items>
              <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      
+
                          <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      
+
                  </items>
          </SplitPane>
          </items>

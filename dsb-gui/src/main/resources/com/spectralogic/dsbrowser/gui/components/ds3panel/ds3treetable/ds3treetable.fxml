@@ -23,6 +23,11 @@
           <TreeItemPropertyValueFactory property="type" />
         </cellValueFactory>
       </TreeTableColumn>
+      <TreeTableColumn prefWidth="75.0" text="Date Modified">
+        <cellValueFactory>
+          <TreeItemPropertyValueFactory property="lastModified" />
+        </cellValueFactory>
+      </TreeTableColumn>
   </columns>
    <columnResizePolicy>
       <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
