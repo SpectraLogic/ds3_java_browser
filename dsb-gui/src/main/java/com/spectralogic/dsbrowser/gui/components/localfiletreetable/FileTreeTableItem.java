@@ -1,22 +1,29 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
-import com.google.common.collect.ImmutableList;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import com.spectralogic.dsbrowser.util.Icon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
-import javafx.scene.paint.Paint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import javax.swing.filechooser.FileSystemView;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import com.spectralogic.dsbrowser.util.Icon;
+
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Paint;
 
 public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
@@ -36,31 +43,34 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.provider = provider;
 
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
-
-        if (fileTreeModel.getType() == FileTreeModel.Type.Directory) {
-            this.addEventHandler(TreeItem.branchExpandedEvent(), e -> {
-                if (!error) {
-                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
-                }
-            });
-
-            this.addEventHandler(TreeItem.branchCollapsedEvent(), e -> {
-                if (!error) {
-                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
-                }
-            });
-        }
+//
+//        if (fileTreeModel.getType() == FileTreeModel.Type.Directory) {
+//            this.addEventHandler(TreeItem.branchExpandedEvent(), e -> {
+//                if (!error) {
+//                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER_OPEN));
+//                }
+//            });
+//
+//            this.addEventHandler(TreeItem.branchCollapsedEvent(), e -> {
+//                if (!error) {
+//                    e.getSource().setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
+//                }
+//            });
+//        }
     }
 
-    private FontAwesomeIconView getGraphicType(final FileTreeModel fileTreeModel) {
-        switch (fileTreeModel.getType()) {
-           case MEDIA_DEVICE:
-               return Icon.getIcon(FontAwesomeIcon.HDD_ALT);
-            case Directory:
-                return Icon.getIcon(FontAwesomeIcon.FOLDER);
-            default:
-                return null;
-        }
+    private ImageView getGraphicType(final FileTreeModel fileTreeModel) {
+        FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+        javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
+        BufferedImage bufferedImage = new BufferedImage(
+                icon.getIconWidth(),
+                icon.getIconHeight(),
+                BufferedImage.TYPE_INT_ARGB
+        );
+        icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
+
+        ImageView imageView = new ImageView(SwingFXUtils.toFXImage(bufferedImage,null));
+        return   imageView;
     }
 
     @Override

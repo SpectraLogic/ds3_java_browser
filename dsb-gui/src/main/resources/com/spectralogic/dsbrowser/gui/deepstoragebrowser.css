@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'Open Sans ExtraBold';
+    src: url('fonts/OpenSans-ExtraBold.ttf');
+}
+@font-face {
+    font-family: 'Open Sans Semibold';
+    src: url('fonts/OpenSans-Semibold.ttf');
+}
+.menu-bar {
+    -fx-background-color: black;
+}
+
+.tool-bar {
+    -fx-background-color: aliceblue;
+}
+
+.menu .label {
+    -fx-font-family: 'Open Sans ExtraBold';
+    -fx-text-fill: white;
+    -fx-opacity: 1;
+}
+
+.menu-item .label {
+-fx-text-fill: black;
+-fx-font-family: 'Open Sans Semibold';
+}
+
+.label{
+ -fx-font-family: 'Open Sans Semibold';
+}
+
+#homeButton,#refreshButton,#localButton,#transferButton,#ds3Refresh,#ds3NewBucket,#ds3NewFolder,#ds3DeleteButton,#ds3TransferLeft
+{
+    -fx-background-color: transparent;
+}
+

@@ -5,6 +5,8 @@ import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
+import javafx.scene.control.*;
+import javafx.scene.shape.Rectangle;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 
 public class DeepStorageBrowserPresenter implements Initializable {
@@ -42,6 +40,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     @FXML
     private CheckMenuItem jobsMenuItem, darkViewCheckMenuItem, lightViewCheckMenuItem;
+
+    TabPane jobSelector;
+
+    @FXML
+    Rectangle rectangle;
+
+
 
     @FXML
     private MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
@@ -69,28 +74,27 @@ public class DeepStorageBrowserPresenter implements Initializable {
             sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
             settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
             closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
-
             viewMenu.setText(resourceBundle.getString("viewMenu"));
             jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
-//            themeMenuItem.setText(resourceBundle.getString("themeMenuItem"));
-//            darkViewCheckMenuItem.setText(resourceBundle.getString("darkViewCheckMenuItem"));
-//            lightViewCheckMenuItem.setText(resourceBundle.getString("lightViewCheckMenuItem"));
-
             helpMenu.setText(resourceBundle.getString("helpMenu"));
-//            helpMenuItem.setText(resourceBundle.getString("helpMenuItem"));
-//            licenseMenuItem.setText(resourceBundle.getString("licenseMenuItem"));
             aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
-//            versionMenuItem.setText(resourceBundle.getString("versionMenuItem"));
 
             jobsMenuItem.setOnAction(event -> {
                 if (jobsMenuItem.isSelected()) {
-                    jobSplitter.getItems().add(jobProgressView);
+                    // jobSelector.setMinHeight(250);
+                    jobSplitter.getItems().add(jobSelector);
+                    jobSelector.getSelectionModel().selectLast();
+                    jobSelector.getSelectionModel().getSelectedItem().setContent(rectangle);
+                    rectangle.setHeight(700);
+                    jobSelector.getSelectionModel().selectFirst();
+                    jobSelector.getSelectionModel().getSelectedItem().setContent(jobProgressView);
                     jobSplitter.setDividerPositions(0.75);
+
                 } else {
+                    jobSplitter.getItems().remove(jobSelector);
                     jobSplitter.setDividerPositions(1.0);
-                    jobSplitter.getItems().remove(jobProgressView);
                 }
-            });
+            }) ;
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
             final Ds3PanelView ds3PanelView = new Ds3PanelView();
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
@@ -105,11 +109,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
         final SettingsView settingsView = new SettingsView();
         Popup.show(settingsView.getView(), "Logging Settings");
     }
-
-//    public void showLicensePopup() {
-//        final LicenseView licenseView = new LicenseView();
-//        Popup.show(licenseView.getView(), "Licenses");
-//    }
 
     public void showAboutPopup() {
         final AboutView aboutView = new AboutView();
