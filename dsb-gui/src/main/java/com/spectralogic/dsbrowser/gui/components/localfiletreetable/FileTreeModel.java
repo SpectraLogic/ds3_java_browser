@@ -52,6 +52,6 @@ public class FileTreeModel {
     }
 
     public static enum Type {
-        File, Directory, MEDIA_DEVICE, FILE_SYSTEM, ERROR
+        File, Directory, Media_Device, File_System, Error
     }
 }

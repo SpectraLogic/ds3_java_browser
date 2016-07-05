@@ -71,10 +71,10 @@ public class SavedSessionStore {
 
     public void saveSession(final Session session) {
         if (sessions.size() == 0) {
-            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
         } else if (!containsSessionName(sessions, session.getSessionName())) {
-            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
         } else {
             final Alert alert = new Alert(Alert.AlertType.ERROR);

@@ -54,7 +54,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
     private FontAwesomeIconView getGraphicType(final FileTreeModel fileTreeModel) {
         switch (fileTreeModel.getType()) {
-           case MEDIA_DEVICE:
+            case Media_Device:
                return Icon.getIcon(FontAwesomeIcon.HDD_ALT);
             case Directory:
                 return Icon.getIcon(FontAwesomeIcon.FOLDER);

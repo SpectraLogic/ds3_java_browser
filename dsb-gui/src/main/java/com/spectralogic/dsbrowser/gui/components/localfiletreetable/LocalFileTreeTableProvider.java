@@ -39,7 +39,7 @@ public class LocalFileTreeTableProvider {
 
     private FileTreeModel.Type getRootType(final File file) {
         if (Platform.isWin()) {
-            return FileTreeModel.Type.MEDIA_DEVICE;
+            return FileTreeModel.Type.Media_Device;
         } else if (file.isFile()) {
             return FileTreeModel.Type.File;
         } else {
@@ -60,7 +60,7 @@ public class LocalFileTreeTableProvider {
                 return new FileTreeModel(filePath, type, size, newDepth, lastModified);
             } catch (final IOException e) {
                 LOG.error("Failed to get file size for: " + filePath.toString(), e);
-                return new FileTreeModel(filePath, FileTreeModel.Type.ERROR, "", newDepth , "");
+                return new FileTreeModel(filePath, FileTreeModel.Type.Error, "", newDepth , "");
             }
         });
     }

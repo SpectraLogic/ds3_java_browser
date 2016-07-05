@@ -15,6 +15,7 @@ public class NewSessionModel {
     private final StringProperty secretKey = new SimpleStringProperty();
     //Added By VVDN Team
     private final StringProperty portNo = new SimpleStringProperty();
+    private final StringProperty proxyServer = new SimpleStringProperty();
 
     public String getEndpoint() {
         return endpoint.get();
@@ -76,14 +77,26 @@ public class NewSessionModel {
         return portNo.get();
     }
 
+    public String getProxyServer() {
+        return proxyServer.get();
+    }
+
+    public void setProxyServer(String proxyServer) {
+        this.proxyServer.set(proxyServer);
+    }
+
+    public StringProperty proxyServerProperty() {
+        return proxyServer;
+    }
+
     public Session toSession() {
         final Ds3Client client = Ds3ClientBuilder
                 .create(this.getEndpoint() + ":" + this.getPortNo(),
                         new Credentials(this.getAccessKey(),
                                 this.getSecretKey()))
-                .withHttps(false)
+                .withHttps(false).withProxy(this.getProxyServer())
                 .build();
-        return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), client);
+        return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
     }
 
 }

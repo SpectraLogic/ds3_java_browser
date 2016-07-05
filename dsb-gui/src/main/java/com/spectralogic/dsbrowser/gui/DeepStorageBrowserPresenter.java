@@ -82,7 +82,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 //            licenseMenuItem.setText(resourceBundle.getString("licenseMenuItem"));
             aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
 //            versionMenuItem.setText(resourceBundle.getString("versionMenuItem"));
-
+            jobsMenuItem.selectedProperty().setValue(true);
+            jobSplitter.getItems().add(jobProgressView);
+            jobSplitter.setDividerPositions(0.75);
             jobsMenuItem.setOnAction(event -> {
                 if (jobsMenuItem.isSelected()) {
                     jobSplitter.getItems().add(jobProgressView);

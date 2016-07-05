@@ -13,12 +13,15 @@ public class SavedSession {
     //ADDED BY VVDN TEAM
     @JsonProperty("portNo")
     private final String portNo;
+    @JsonProperty
+    private final String proxyServer;
 
     @JsonCreator
-    public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("portNo") final String portNo, @JsonProperty("credentials") final SavedCredentials credentials) {
+    public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("portNo") final String portNo, @JsonProperty("proxyServer") final String proxyServer, @JsonProperty("credentials") final SavedCredentials credentials) {
         this.name = name;
         this.endpoint = endpoint;
         this.portNo = portNo;
+        this.proxyServer = proxyServer;
         this.credentials = credentials;
     }
 
@@ -32,6 +35,10 @@ public class SavedSession {
 
     public String getPortNo() {
         return portNo;
+    }
+
+    public String getProxyServer() {
+        return proxyServer;
     }
 
     public SavedCredentials getCredentials() {
