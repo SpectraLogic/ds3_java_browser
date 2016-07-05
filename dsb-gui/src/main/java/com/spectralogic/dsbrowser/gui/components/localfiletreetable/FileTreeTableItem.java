@@ -9,7 +9,6 @@ import java.nio.file.Path;
 
 import javax.swing.filechooser.FileSystemView;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
