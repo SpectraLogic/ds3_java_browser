@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Rectangle?>
 
-<VBox prefWidth="286.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter">
+<VBox prefWidth="286.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter">
  <children>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
       <items>
@@ -13,15 +19,62 @@
             <tooltip>
                 <Tooltip text="Home" />
             </tooltip>
+            <graphic>
+                <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image requestedHeight="20" requestedWidth="20" url="@/images/home.png" />
+                    </image>
+                </ImageView>
+            </graphic>
         </Button>
           <Button fx:id="refreshButton">
               <tooltip>
                   <Tooltip text="Refresh" />
               </tooltip>
+              <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                          <Image requestedHeight="20" requestedWidth="20" url="@/images/refresh.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
+          </Button>
+          <Button fx:id="localButton">
+              <tooltip>
+                  <Tooltip text="Local" />
+              </tooltip>
+              <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                          <Image requestedHeight="20" requestedWidth="20" url="@/images/local.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
+          </Button>
+          <Button fx:id="transferButton">
+              <tooltip>
+                  <Tooltip text="Transfer" />
+              </tooltip>
+              <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                      <image>
+                          <Image requestedHeight="20" requestedWidth="20" url="@/images/transfer.png" />
+                      </image>
+                  </ImageView>
+              </graphic>
           </Button>
 
       </items>
     </ToolBar>
+     <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
+        <children>
+               <Label fx:id="localPathIndicator" alignment="CENTER" contentDisplay="CENTER" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
+                  <font>
+                     <Font name="System Bold" size="14.0" />
+                  </font>
+               </Label>
+        </children>
+      </Pane>
      <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
     <columns>
         <TreeTableColumn minWidth="100.0" prefWidth="200.0" text="Name">

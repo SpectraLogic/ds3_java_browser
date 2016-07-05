@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" fx:id="fileMenu">
+          <Menu fx:id="fileMenu" mnemonicParsing="false">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" fx:id="sessionsMenuItem"/>
+                  <MenuItem fx:id="sessionsMenuItem" mnemonicParsing="false" onAction="#showSessionPopup" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#showSettingsPopup" fx:id="settingsMenuItem" />
+                  <MenuItem fx:id="settingsMenuItem" mnemonicParsing="false" onAction="#showSettingsPopup" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#closeWindow" fx:id="closeMenuItem" />
+              <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeWindow" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" fx:id="viewMenu">
+            <Menu fx:id="viewMenu" mnemonicParsing="false">
                <items>
                   <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" />
                   <!--
@@ -30,13 +32,13 @@
                   -->
                </items>
             </Menu>
-          <Menu mnemonicParsing="false" fx:id="helpMenu">
+          <Menu fx:id="helpMenu" mnemonicParsing="false">
             <items>
             <!--
                   <MenuItem mnemonicParsing="false" fx:id="helpMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   -->
-              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" fx:id="aboutMenuItem" />
+              <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#showAboutPopup" />
               <!--
                 <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" fx:id="licenseMenuItem" />
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -61,11 +63,25 @@
          </items>
       </SplitPane>
    </center>
-   <bottom>
-      <HBox BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Label" />
-         </children>
-      </HBox>
-   </bottom>
+    <bottom>
+        <HBox BorderPane.alignment="CENTER">
+            <children>
+                <TabPane fx:id="jobSelector" prefHeight="0" prefWidth="433.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab text="Jobs">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="200.0" />
+                            </content>
+                        </Tab>
+                        <Tab text="Logs">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="200.0" />
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+                <Rectangle fx:id="rectangle" arcHeight="5.0" arcWidth="5.0" fill="white" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="1370" />
+            </children>
+        </HBox>
+    </bottom>
 </BorderPane>

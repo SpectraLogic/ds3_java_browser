@@ -10,13 +10,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spectralogic.dsbrowser.util.Icon;
-
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableRow;
@@ -30,16 +30,19 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
     @FXML
-    TreeTableView<FileTreeModel> treeTable;
+    private TreeTableView<FileTreeModel> treeTable;
 
     @FXML
-    Button homeButton;
+    private Button homeButton;
 
     @FXML
-    Button refreshButton;
+    private Button refreshButton;
+
+    @FXML
+    Label localPathIndicator;
 
     @Inject
-    LocalFileTreeTableProvider provider;
+    private LocalFileTreeTableProvider provider;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -54,6 +57,20 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initTableView() {
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        treeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+
+            @Override
+            public void changed(ObservableValue observable, Object oldValue,
+                                Object newValue) {
+
+                TreeItem<FileTreeModel> selectedItem = (TreeItem<FileTreeModel>) newValue;
+                System.out.println("Selected Text : " + selectedItem.getValue().getPath());
+                localPathIndicator.setText(selectedItem.getValue().getPath().toString());
+
+            }
+
+        });
 
         treeTable.setRowFactory(view -> {
             TreeTableRow<FileTreeModel> row =new TreeTableRow<FileTreeModel>();
@@ -139,7 +156,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initMenuBar() {
-        homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
-        refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
+      // homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
+       // refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
     }
 }

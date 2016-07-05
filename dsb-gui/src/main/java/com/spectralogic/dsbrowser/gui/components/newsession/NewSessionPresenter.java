@@ -39,30 +39,30 @@ public class NewSessionPresenter implements Initializable {
     private final NewSessionModel model = new NewSessionModel();
 
     @FXML
-    AnchorPane propertySheetAnchor;
+    private AnchorPane propertySheetAnchor;
 
     @FXML
-    TableView<SavedSession> savedSessions;
+    private TableView<SavedSession> savedSessions;
 
     @Inject
-    Ds3SessionStore store;
+    private Ds3SessionStore store;
 
     @Inject
-    SavedSessionStore savedSessionStore;
+    private SavedSessionStore savedSessionStore;
 
     @Inject
-    ResourceBundle resourceBundle;
+    private ResourceBundle resourceBundle;
 
     @FXML
-    Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
+    private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
     @FXML
-    Label selectExistingLabel, createNewLabel;
+    private Label selectExistingLabel, createNewLabel;
 
     @FXML
-    Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
+    private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
 
-    Alert alert = new Alert(Alert.AlertType.ERROR);
+    private Alert alert = new Alert(Alert.AlertType.ERROR);
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

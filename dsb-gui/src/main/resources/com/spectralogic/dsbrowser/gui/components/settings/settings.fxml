@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane prefHeight="215.0" prefWidth="356.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
+<Pane stylesheets="@../../common.css" prefHeight="215.0" prefWidth="356.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
    <children>
       <GridPane alignment="CENTER" prefHeight="215.0" prefWidth="357.0" vgap="10.0">
         <columnConstraints>

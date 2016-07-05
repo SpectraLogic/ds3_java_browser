@@ -5,12 +5,11 @@ import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import com.spectralogic.dsbrowser.util.Icon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -18,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import javafx.scene.image.ImageView;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -42,8 +42,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch(type) {
-            case Bucket: return Icon.getIcon(FontAwesomeIcon.ARCHIVE);
-            case Directory: return Icon.getIcon(FontAwesomeIcon.FOLDER);
+
+            case Bucket: return  (new ImageView("/images/bucket.png"));
+            case Directory: return (new ImageView("/images/folder.png"));
+            case File: return (new ImageView("/images/file.png"));
             default: return null;
         }
     }

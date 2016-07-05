@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
+<HBox stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
    <children>
       <AnchorPane prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -45,22 +45,22 @@
                   </AnchorPane>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#saveSession" fx:id="saveSessionButton">
+                        <Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">
                            <tooltip>
-                              <Tooltip fx:id="saveSessionButtonTooltip"/>
+                              <Tooltip fx:id="saveSessionButtonTooltip" />
                            </tooltip>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#createSession" fx:id="openSessionButton">
+                        <Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#createSession">
                            <tooltip>
-                              <Tooltip fx:id="openSessionButtonTooltip"/>
+                              <Tooltip fx:id="openSessionButtonTooltip" />
                            </tooltip>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#cancelSession" fx:id="cancelSessionButton">
+                        <Button fx:id="cancelSessionButton" mnemonicParsing="false" onAction="#cancelSession">
                            <tooltip>
                               <Tooltip fx:id="cancelSessionButtonTooltip" />
                            </tooltip>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#deleteSession" fx:id="deleteSessionButton">
+                        <Button fx:id="deleteSessionButton" mnemonicParsing="false" onAction="#deleteSession">
                            <tooltip>
                               <Tooltip fx:id="deleteSessionButtonTooltip" />
                            </tooltip>

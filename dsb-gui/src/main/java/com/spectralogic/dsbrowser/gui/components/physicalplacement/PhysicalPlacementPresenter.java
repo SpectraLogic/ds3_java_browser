@@ -26,13 +26,13 @@ public class PhysicalPlacementPresenter implements Initializable {
     private final Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
 
     @Inject
-    Ds3PhysicalPlacement ds3PhysicalPlacement;
+    private Ds3PhysicalPlacement ds3PhysicalPlacement;
 
     @FXML
-    TableView<PhysicalPlacementPoolEntry> physicalPlacementDataTable;
+    private TableView<PhysicalPlacementPoolEntry> physicalPlacementDataTable;
 
     @FXML
-    TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
+    private TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
 
 
     @Override
