@@ -4,6 +4,14 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.spectrads3.GetObjectsSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetObjectsSpectraS3Response;
+import com.spectralogic.ds3client.models.BucketDetails;
+import com.spectralogic.ds3client.models.S3Object;
+import com.spectralogic.ds3client.models.common.Credentials;
+import javafx.scene.input.DataFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +34,7 @@ public class Main extends Application {
     private final JobWorkers jobWorkers = new JobWorkers();
     private SavedSessionStore savedSessionStore = null;
     private SettingsStore settings = null;
+    private DataFormat dataFormat = null;
 
     public static void main(final String[] args) {
         launch(args);
@@ -45,6 +54,8 @@ public class Main extends Application {
 
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
 
+        this.dataFormat=new DataFormat("Ds3TreeTableView");
+
         LOG.info("Starting Deep Storage Browser v0.0.1");
         Injector.setLogger(injectorLogger::debug);
         Injector.setModelOrService(LogService.class, logService);
@@ -53,6 +64,7 @@ public class Main extends Application {
         Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);
         Injector.setModelOrService(ResourceBundle.class,resourceBundle);
+        Injector.setModelOrService(DataFormat.class,dataFormat);
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
@@ -60,6 +72,7 @@ public class Main extends Application {
         primaryStage.setScene(mainScene);
 
         primaryStage.show();
+
     }
 
     @Override

@@ -1,70 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.TextFlow?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter">
-   <top>
-      <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-          <Menu fx:id="fileMenu" mnemonicParsing="false">
-            <items>
-                  <MenuItem fx:id="sessionsMenuItem" mnemonicParsing="false" onAction="#showSessionPopup" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="settingsMenuItem" mnemonicParsing="false" onAction="#showSettingsPopup" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeWindow" />
-            </items>
-          </Menu>
-            <Menu fx:id="viewMenu" mnemonicParsing="false">
-               <items>
-                  <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" />
-                  <!--
-                  <Menu mnemonicParsing="false" fx:id="themeMenuItem">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu fx:id="fileMenu" mnemonicParsing="false">
                     <items>
-                        <CheckMenuItem mnemonicParsing="false" selected="true" fx:id="lightViewCheckMenuItem" />
-                        <CheckMenuItem mnemonicParsing="false" fx:id="darkViewCheckMenuItem"/>
+                        <MenuItem fx:id="sessionsMenuItem" mnemonicParsing="false" onAction="#showSessionPopup" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="settingsMenuItem" mnemonicParsing="false" onAction="#showSettingsPopup" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeWindow" />
                     </items>
-                  </Menu>
-                  -->
-               </items>
-            </Menu>
-          <Menu fx:id="helpMenu" mnemonicParsing="false">
+                </Menu>
+                <Menu fx:id="viewMenu" mnemonicParsing="false">
+                    <items>
+                        <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" />
+                        <!--
+                        <Menu mnemonicParsing="false" fx:id="themeMenuItem">
+                          <items>
+                              <CheckMenuItem mnemonicParsing="false" selected="true" fx:id="lightViewCheckMenuItem" />
+                              <CheckMenuItem mnemonicParsing="false" fx:id="darkViewCheckMenuItem"/>
+                          </items>
+                        </Menu>
+                        -->
+                    </items>
+                </Menu>
+                <Menu fx:id="helpMenu" mnemonicParsing="false">
+                    <items>
+                        <!--
+                              <MenuItem mnemonicParsing="false" fx:id="helpMenuItem" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              -->
+                        <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#showAboutPopup" />
+                        <!--
+                          <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" fx:id="licenseMenuItem" />
+                            <SeparatorMenuItem mnemonicParsing="false" />
+                            <MenuItem mnemonicParsing="false" fx:id="versionMenuItem" />
+                            -->
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <SplitPane fx:id="jobSplitter" orientation="VERTICAL">
             <items>
-            <!--
-                  <MenuItem mnemonicParsing="false" fx:id="helpMenuItem" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  -->
-              <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#showAboutPopup" />
-              <!--
-                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" fx:id="licenseMenuItem" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" fx:id="versionMenuItem" />
-                  -->
+                <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
+                    <items>
+                        <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+                        <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+                    </items>
+                </SplitPane>
             </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-   </top>
-   <center>
-      <SplitPane fx:id="jobSplitter" orientation="VERTICAL">
-         <items>
-         <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
-           <items>
-             <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-
-                         <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-
-                 </items>
-         </SplitPane>
-         </items>
-      </SplitPane>
-   </center>
+        </SplitPane>
+    </center>
     <bottom>
-        <HBox BorderPane.alignment="CENTER">
+        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
             <children>
                 <TabPane fx:id="jobSelector" prefHeight="0" prefWidth="433.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
@@ -74,13 +76,20 @@
                             </content>
                         </Tab>
                         <Tab text="Logs">
-                            <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="200.0" />
-                            </content>
+                           <content>
+   
+                               <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true"  pannable="true" vbarPolicy="AS_NEEDED">
+                                  <content>
+                                       <TextFlow fx:id="logTextFlow" >
+                                               </TextFlow>
+                                  </content>
+                               </ScrollPane>
+                           </content>
+
                         </Tab>
                     </tabs>
                 </TabPane>
-                <Rectangle fx:id="rectangle" arcHeight="5.0" arcWidth="5.0" fill="white" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="1370" />
+
             </children>
         </HBox>
     </bottom>

@@ -8,7 +8,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
-<VBox stylesheets="@../../common.css" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
+<VBox stylesheets="@../../common.css"  prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
@@ -78,9 +78,9 @@
             </items>
         </ToolBar>
         <Pane prefHeight="30.0" prefWidth="200.0" minHeight="30.0" style="-fx-background-color: #94b7db;">
-            <Label fx:id="ds3PathIndicator" alignment="CENTER" contentDisplay="CENTER" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
+            <Label fx:id="ds3PathIndicator" prefWidth="200" prefHeight="30" textOverrun="CENTER_ELLIPSIS" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
                 <font>
-                    <Font size="14.0" />
+                    <Font size="12.0" />
                 </font>
             </Label>
         </Pane>

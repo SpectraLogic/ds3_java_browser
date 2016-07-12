@@ -31,6 +31,9 @@
 
 #homeButton,#refreshButton,#localButton,#transferButton,#ds3Refresh,#ds3NewBucket,#ds3NewFolder,#ds3DeleteButton,#ds3TransferLeft
 {
-    -fx-background-color: transparent;
+
+   -fx-background-insets: 0,1,2;
+   -fx-background-radius: 3,2,1;
+
 }
 

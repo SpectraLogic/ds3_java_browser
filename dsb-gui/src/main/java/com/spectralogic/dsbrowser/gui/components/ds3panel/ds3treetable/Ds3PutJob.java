@@ -8,8 +8,10 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.scene.control.ProgressIndicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,8 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,6 +34,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final List<File> files;
     private final String bucket;
     private final String targetDir;
+    private double NUM_ITERATIONS = 100;
 
     public Ds3PutJob(final Ds3Client client, final List<File> files, final String bucket, final String targetDir) {
         this.client = client;
@@ -40,6 +45,11 @@ public class Ds3PutJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        String date = sdf.format(new Date());
+        updateTitle("PUT "+client.getConnectionDetails().getEndpoint()+" "+date);
+
         final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(client);
 
         final ImmutableList<Path> paths = files.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
@@ -75,8 +85,17 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap<String, Path> fileMapper = fileMapBuilder.build();
         final long totalJobSize = objects.stream().mapToLong(Ds3Object::getSize).sum();
         final Ds3ClientHelpers.Job job = helpers.startWriteJob(bucket, objects);
+
         final AtomicLong totalSent = new AtomicLong(0L);
-        job.attachDataTransferredListener(l -> updateProgress(totalSent.addAndGet(l), totalJobSize));
+
+        job.attachDataTransferredListener(l ->{
+            updateProgress(totalSent.addAndGet(l), totalJobSize);
+            updateMessage("Transferring "+ FileSizeFormat.getFileSizeType(totalSent.addAndGet(l))+" of "+FileSizeFormat.getFileSizeType(totalJobSize)+" \n in "+bucket+"\\"+targetDir);
+        });
+
+
         job.transfer(s -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(s)), StandardOpenOption.READ));
+
+
     }
 }

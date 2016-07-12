@@ -7,7 +7,10 @@ import javax.inject.Inject;
 
 import javafx.scene.control.*;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.controlsfx.control.TaskProgressView;
+import org.controlsfx.control.spreadsheet.SpreadsheetCellEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +48,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private TabPane jobSelector;
 
     @FXML
-    Rectangle rectangle;
+    public TextFlow logTextFlow;
+
+    @FXML
+    ScrollPane scrollPane;
 
     @FXML
     private MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
@@ -78,12 +84,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
             helpMenu.setText(resourceBundle.getString("helpMenu"));
             aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
 
-//            versionMenuItem.setText(resourceBundle.getString("versionMenuItem"));
             jobsMenuItem.selectedProperty().setValue(true);
             jobSplitter.getItems().add(jobSelector);
             jobSelector.getSelectionModel().selectLast();
-            jobSelector.getSelectionModel().getSelectedItem().setContent(rectangle);
-            rectangle.setHeight(700);
+            jobSelector.getSelectionModel().getSelectedItem().setContent(scrollPane);
             jobSelector.getSelectionModel().selectFirst();
             jobSelector.getSelectionModel().getSelectedItem().setContent(jobProgressView);
             jobSplitter.setDividerPositions(0.75);
@@ -91,11 +95,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
             jobsMenuItem.setOnAction(event -> {
                 if (jobsMenuItem.isSelected()) {
-                    // jobSelector.setMinHeight(250);
                     jobSplitter.getItems().add(jobSelector);
                     jobSelector.getSelectionModel().selectLast();
-                    jobSelector.getSelectionModel().getSelectedItem().setContent(rectangle);
-                    rectangle.setHeight(700);
+                    jobSelector.getSelectionModel().getSelectedItem().setContent(scrollPane);
                     jobSelector.getSelectionModel().selectFirst();
                     jobSelector.getSelectionModel().getSelectedItem().setContent(jobProgressView);
                     jobSplitter.setDividerPositions(0.75);
@@ -104,9 +106,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     jobSplitter.getItems().remove(jobSelector);
                     jobSplitter.setDividerPositions(1.0);
                 }
-            }) ;
-            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
-            final Ds3PanelView ds3PanelView = new Ds3PanelView();
+            });
+
+            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);
+            final Ds3PanelView ds3PanelView = new Ds3PanelView(this);
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
             ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
         } catch (final Throwable e) {
@@ -133,4 +136,30 @@ public class DeepStorageBrowserPresenter implements Initializable {
         Platform.exit();
     }
 
+    public void logText(String log) {
+        log = ">> " + log + "\n";
+        Text t = new Text();
+        t.setStyle("-fx-background-color: #DFF2BF;-fx-text-fill: #4F8A10;-fx-font-weight:bold;");
+        t.setText(log);
+        logTextFlow.getChildren().add(t);
+
+    }
+
+    public void logErrorText(String log) {
+        log = ">> " + log + "\n";
+        Text t = new Text();
+        t.setStyle("-fx-fill: RED;-fx-font-weight:bold;");
+        t.setText(log);
+        logTextFlow.getChildren().add(t);
+
+    }
+
+    public void logNewSessionText(String log) {
+        log = ">> " + log + "\n";
+        Text t = new Text();
+        t.setStyle("-fx-fill: GREEN;-fx-font-weight:bold;");
+        t.setText(log);
+        logTextFlow.getChildren().add(t);
+
+    }
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 
 import javax.swing.filechooser.FileSystemView;
 
@@ -102,7 +103,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                         .getListForDir(fileTreeModel)
                         .map(ftm -> new FileTreeTableItem(provider, ftm))
                         .collect(GuavaCollectors.immutableList());
-
                 children.setAll(fileChildren);
             } catch (final AccessDeniedException ae) {
                 LOG.error("Could not access file", ae);

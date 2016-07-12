@@ -139,7 +139,17 @@ public class NewSessionPresenter implements Initializable {
             alert.showAndWait();
         } else {
             savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
+            clearFields();
         }
+    }
+
+    public void clearFields() {
+        model.setEndpoint(null);
+        model.setSecretKey(null);
+        model.setAccessKey(null);
+        model.setPortno(null);
+        model.setProxyServer(null);
+        model.setSessionName(null);
     }
 
     public void createSession() {

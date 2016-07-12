@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
-public class Ds3TreeTableValue {
+import java.io.Serializable;
+
+public class Ds3TreeTableValue implements Serializable{
 
     private final String bucketName;
     private final String name;

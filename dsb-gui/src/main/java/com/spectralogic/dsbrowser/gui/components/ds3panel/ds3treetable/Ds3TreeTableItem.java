@@ -9,7 +9,6 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -19,12 +18,15 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     private final String bucket;
     private final Session session;
-    private final Ds3TreeTableValue value;
+    private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
 
@@ -34,19 +36,24 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         super(value);
         this.bucket = bucket;
         this.session = session;
-        this.value = value;
+        this.ds3Value = value;
+
         this.leaf = isLeaf(value);
         this.workers = workers;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
-        switch(type) {
+        switch (type) {
 
-            case Bucket: return  (new ImageView("/images/bucket.png"));
-            case Directory: return (new ImageView("/images/folder.png"));
-            case File: return (new ImageView("/images/file.png"));
-            default: return null;
+            case Bucket:
+                return (new ImageView("/images/bucket.png"));
+            case Directory:
+                return (new ImageView("/images/folder.png"));
+            case File:
+                return (new ImageView("/images/file.png"));
+            default:
+                return null;
         }
     }
 
@@ -70,10 +77,9 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         if (isLeaf()) {
             return;
         }
+
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
-
         workers.execute(getBucketTask);
-
     }
 
     @Override
@@ -83,6 +89,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     private static boolean isLeaf(final Ds3TreeTableValue value) {
         return value.getType() == Ds3TreeTableValue.Type.File;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public Ds3TreeTableValue getDs3Value() {
+        return ds3Value;
     }
 
     private class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
@@ -111,8 +125,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter("/");
 
                 // Don't include the prefix if the item we are looking up from is the base bucket
-                if (value.getType() != Ds3TreeTableValue.Type.Bucket) {
-                   request.withPrefix(value.getFullName());
+                if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
+                    request.withPrefix(ds3Value.getFullName());
                 }
 
                 if (nextMarker != null) {
@@ -126,14 +140,15 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                         .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(0), ""))
                         .collect(GuavaCollectors.immutableList());
 
-                final ImmutableList<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
+                List<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
                         .getObjects().stream()
-                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), f.getLastModified().toString()))
-                        .collect(GuavaCollectors.immutableList());
+                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), "")).collect(Collectors.toList());
+
+                final ImmutableList<Ds3TreeTableValue> filteredFiles = files.stream().filter(i -> !i.getName().equals("")).collect(GuavaCollectors.immutableList());
 
                 Platform.runLater(() -> {
                     final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
-                    final ImmutableList<Ds3TreeTableItem> fileItems = files.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
+                    final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
                     partialResults.get().addAll(directoryItems);
                     partialResults.get().addAll(fileItems);
                 });

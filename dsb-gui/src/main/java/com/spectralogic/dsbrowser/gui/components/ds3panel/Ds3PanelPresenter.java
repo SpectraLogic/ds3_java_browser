@@ -1,27 +1,16 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import javafx.scene.control.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
+import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
+import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderPopup;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
@@ -34,13 +23,24 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
-
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URL;
+import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class Ds3PanelPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
@@ -54,7 +54,8 @@ public class Ds3PanelPresenter implements Initializable {
     @FXML
     private TextField ds3PanelSearch;
 
-    private Label ds3PathIndicator;
+    @FXML
+    public Label ds3PathIndicator;
 
     @FXML
     private Tab addNewTab;
@@ -71,11 +72,15 @@ public class Ds3PanelPresenter implements Initializable {
     @Inject
     private ResourceBundle resourceBundle;
 
+    @Inject
+    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+
     private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+
             LOG.info("Loading Ds3PanelPresenter");
             alert.setTitle("Error");
             alert.setHeaderText(null);
@@ -103,6 +108,7 @@ public class Ds3PanelPresenter implements Initializable {
             LOG.info("Create Bucket Prompt");
             Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
 
+            @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
@@ -134,13 +140,17 @@ public class Ds3PanelPresenter implements Initializable {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
                 newItems.stream().forEach(newSession -> {
-                    final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession);
+                    final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, deepStorageBrowserPresenter, this);
                     final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
-                    treeTab.setOnClosed(event -> store.removeSession(newSession));
+                    treeTab.setOnClosed(event -> {
+                        store.removeSession(newSession);
+                        deepStorageBrowserPresenter.logErrorText(newSession.getSessionName() + "-" + newSession.getEndpoint() + " closed.");
+                    });
                     treeTab.setTooltip(new Tooltip(newSession.getSessionName() + "-" + newSession.getEndpoint()));
                     final int totalTabs = ds3SessionTabPane.getTabs().size();
                     ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
                     ds3SessionTabPane.getSelectionModel().select(treeTab);
+                    deepStorageBrowserPresenter.logNewSessionText("Starting " + newSession.getSessionName() + "-" + newSession.getEndpoint() + " session");
                 });
 
             }
@@ -158,9 +168,9 @@ public class Ds3PanelPresenter implements Initializable {
 
     }
 
-	private void ds3DeleteObjects() {
-    	Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
-        if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+    private void ds3DeleteObjects() {
+        Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        if ((session.getSessionName() + "-" + session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
@@ -181,12 +191,11 @@ public class Ds3PanelPresenter implements Initializable {
 
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
                 String bucketName = ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getBucketName();
-                deleteBucket(session,bucketName,values);
+                deleteBucket(session, bucketName, values);
             }
 
-            if(values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File))
-            {
-            	deleteFiles(session,values);
+            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
+                deleteFiles(session, values);
             }
         }
 
@@ -194,23 +203,25 @@ public class Ds3PanelPresenter implements Initializable {
 
     /**
      * Delete a Single Selected Spectra S3 bucket
+     *
      * @param session
      * @param bucketName
      * @param values
      */
-    private void deleteBucket(final Session session,final String bucketName,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
-    	 LOG.info("Got delete bucket event");
+    private void deleteBucket(final Session session, final String bucketName, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+        LOG.info("Got delete bucket event");
 
-    	final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+        final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
         if (buckets.size() > 1) {
+            deepStorageBrowserPresenter.logErrorText("The user selected objects from multiple buckets.  This is not allowed.");
             LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
             alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
             alert.showAndWait();
             return;
         }
 
-    	final Ds3Task deleteBucketTask = new Ds3Task(session.getClient()) {
+        final Ds3Task deleteBucketTask = new Ds3Task(session.getClient()) {
             @Override
             protected Object call() throws Exception {
                 try {
@@ -227,31 +238,33 @@ public class Ds3PanelPresenter implements Initializable {
         values.stream().forEach(file -> refresh(file.getParent()));
         refreshCompleteTreeTableView();
 
-	}
+    }
 
     /**
      * Delete multiple selected files
+     *
      * @param session
      * @param values
      */
-	private void deleteFiles(final Session session,final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
-		 LOG.info("Got delete files event");
+    private void deleteFiles(final Session session, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+        LOG.info("Got delete files event");
 
-		final Ds3Task delteFilesTask = new Ds3Task(session.getClient()) {
+        final Ds3Task delteFilesTask = new Ds3Task(session.getClient()) {
 
-			final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+            final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
                     .stream()
                     .map(TreeItem::getValue)
                     .collect(Collectors.toList())
             );
 
-		   final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+            final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
             @Override
             protected Object call() throws Exception {
                 try {
                     getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
                 } catch (final IOException | SignatureException e) {
+                    deepStorageBrowserPresenter.logErrorText("Failed to delete files" + e);
                     LOG.error("Failed to delete files" + e);
                     alert.setContentText("Failed to delete files");
                     alert.showAndWait();
@@ -261,19 +274,41 @@ public class Ds3PanelPresenter implements Initializable {
         };
         DeleteFilesPopup.show(delteFilesTask);
         values.stream().forEach(file -> refresh(file.getParent()));
-	}
+    }
 
-	 private void ds3NewFolder() {
-		 LOG.info("Create New Folder Prompt");
+    private void ds3NewFolder() {
+        LOG.info("Create New Folder Prompt");
 
-		 final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
-	       if ((session.getSessionName()+"-"+session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
-	           final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-	           final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-	                    .stream().collect(GuavaCollectors.immutableList());
+        final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        if ((session.getSessionName() + "-" + session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                    .stream().collect(GuavaCollectors.immutableList());
+            if (values.isEmpty()) {
+                deepStorageBrowserPresenter.logErrorText("Select bucket/folder where you want to create an empty folder.");
+                alert.setContentText("Location is not selected");
+                alert.showAndWait();
+                return;
+            }
 
-	    	}
-		}
+            if (values.size() > 1) {
+                LOG.error("Only a single location can be selected to create empty folder");
+                alert.setContentText("Only a single location can be selected to create empty folder");
+                alert.showAndWait();
+                return;
+            }
+
+            String location = values.get(0).getValue().getFullName();
+            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
+                location = values.get(0).getParent().getValue().getFullName();
+            }
+            final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+
+            CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)));
+            refresh(values.get(0));
+
+        }
+    }
 
     private void initTabPane() {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -296,6 +331,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
         LOG.info("Running refresh of row");
+        deepStorageBrowserPresenter.logText("Running refresh of row");
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
@@ -304,6 +340,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void refreshCompleteTreeTableView() {
+        deepStorageBrowserPresenter.logText("Refreshing session " + ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
         LOG.info("session" + ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
         Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();

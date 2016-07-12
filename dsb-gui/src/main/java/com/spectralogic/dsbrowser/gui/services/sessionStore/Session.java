@@ -9,8 +9,6 @@ public class Session implements Closeable {
     private final Ds3Client client;
     private final String sessionName;
     private final String endpoint;
-
-    //ADDED BY VVDN TEAM
     private final String portNo;
     private final String proxyServer;
 

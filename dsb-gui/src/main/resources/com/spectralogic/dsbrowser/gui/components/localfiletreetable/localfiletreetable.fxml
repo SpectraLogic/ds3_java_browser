@@ -39,9 +39,9 @@
                   </ImageView>
               </graphic>
           </Button>
-          <Button fx:id="localButton">
+          <Button fx:id="toMyComputer">
               <tooltip>
-                  <Tooltip text="Local" />
+                  <Tooltip text="Computer" />
               </tooltip>
               <graphic>
                   <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -68,9 +68,9 @@
     </ToolBar>
      <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
         <children>
-               <Label fx:id="localPathIndicator" alignment="CENTER" contentDisplay="CENTER" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
+               <Label fx:id="localPathIndicator" contentDisplay="CENTER" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true" prefWidth="200" prefHeight="30" textOverrun="CENTER_ELLIPSIS">
                   <font>
-                     <Font name="System Bold" size="14.0" />
+                     <Font name="System Bold" size="12.0" />
                   </font>
                </Label>
         </children>
