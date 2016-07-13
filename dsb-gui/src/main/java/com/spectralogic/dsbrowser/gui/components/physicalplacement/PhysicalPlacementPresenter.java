@@ -1,24 +1,21 @@
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
 import com.spectralogic.ds3client.models.Tape;
-
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
 
 public class PhysicalPlacementPresenter implements Initializable {
@@ -34,7 +31,6 @@ public class PhysicalPlacementPresenter implements Initializable {
     @FXML
     private TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
 
-
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -46,7 +42,7 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     private void initTable() {
         final ImmutableList.Builder<PhysicalPlacementPoolEntry> physicalPlacementPoolEntryBuilder = ImmutableList.builder();
-        final ImmutableList.Builder<PhysicalPlacementTapeEntry> physicalPlacementTapeEntryBuilder  = ImmutableList.builder();
+        final ImmutableList.Builder<PhysicalPlacementTapeEntry> physicalPlacementTapeEntryBuilder = ImmutableList.builder();
         final PhysicalPlacement physicalPlacement = ds3PhysicalPlacement.getPhysicalPlacement();
         List<Pool> listPool = physicalPlacement.getPools();
         for (Pool pool : listPool) {

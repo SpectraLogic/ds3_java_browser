@@ -22,7 +22,7 @@ public class CreateBucketWithDataPoliciesModel {
         return workers;
     }
 
-    public CreateBucketWithDataPoliciesModel(ImmutableList<CreateBucketModel> dataPolicies, Session session, Workers workers) {
+    public CreateBucketWithDataPoliciesModel(final ImmutableList<CreateBucketModel> dataPolicies, final Session session, final Workers workers) {
         this.dataPolicies = dataPolicies;
         this.session = session;
         this.workers = workers;

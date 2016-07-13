@@ -48,10 +48,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private TabPane jobSelector;
 
     @FXML
-    public TextFlow logTextFlow;
+    private TextFlow logTextFlow;
 
     @FXML
-    ScrollPane scrollPane;
+    private ScrollPane scrollPane;
 
     @FXML
     private MenuItem versionMenuItem, licenseMenuItem, aboutMenuItem, helpMenuItem, themeMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
@@ -136,30 +136,31 @@ public class DeepStorageBrowserPresenter implements Initializable {
         Platform.exit();
     }
 
-    public void logText(String log) {
-        log = ">> " + log + "\n";
+    public void logText(final String log) {
         Text t = new Text();
         t.setStyle("-fx-background-color: #DFF2BF;-fx-text-fill: #4F8A10;-fx-font-weight:bold;");
-        t.setText(log);
+        t.setText(formattedString(log));
         logTextFlow.getChildren().add(t);
 
     }
 
-    public void logErrorText(String log) {
-        log = ">> " + log + "\n";
+    public void logErrorText(final String log) {
         Text t = new Text();
         t.setStyle("-fx-fill: RED;-fx-font-weight:bold;");
-        t.setText(log);
+        t.setText(formattedString(log));
         logTextFlow.getChildren().add(t);
 
     }
 
-    public void logNewSessionText(String log) {
-        log = ">> " + log + "\n";
+    public void logNewSessionText(final String log) {
         Text t = new Text();
         t.setStyle("-fx-fill: GREEN;-fx-font-weight:bold;");
-        t.setText(log);
+        t.setText(formattedString(log));
         logTextFlow.getChildren().add(t);
 
+    }
+
+    private String formattedString(final String log) {
+        return ">> " + log + "\n";
     }
 }

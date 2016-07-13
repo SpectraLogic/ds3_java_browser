@@ -13,7 +13,6 @@ public class NewSessionModel {
     private final StringProperty endpoint = new SimpleStringProperty();
     private final StringProperty accessKey = new SimpleStringProperty();
     private final StringProperty secretKey = new SimpleStringProperty();
-    //Added By VVDN Team
     private final StringProperty portNo = new SimpleStringProperty();
     private final StringProperty proxyServer = new SimpleStringProperty();
 

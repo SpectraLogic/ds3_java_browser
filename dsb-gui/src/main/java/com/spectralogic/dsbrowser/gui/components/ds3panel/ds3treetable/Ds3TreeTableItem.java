@@ -91,14 +91,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return value.getType() == Ds3TreeTableValue.Type.File;
     }
 
-    public Session getSession() {
-        return session;
-    }
-
-    public Ds3TreeTableValue getDs3Value() {
-        return ds3Value;
-    }
-
     private class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
 
         private final ReadOnlyObjectWrapper<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResults;
@@ -140,7 +132,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                         .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(0), ""))
                         .collect(GuavaCollectors.immutableList());
 
-                List<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
+                final List<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
                         .getObjects().stream()
                         .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), "")).collect(Collectors.toList());
 

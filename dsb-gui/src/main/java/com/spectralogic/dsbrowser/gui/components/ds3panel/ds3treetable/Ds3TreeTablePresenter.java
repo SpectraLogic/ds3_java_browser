@@ -83,8 +83,6 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private ArrayList<TreeItem<Ds3TreeTableValue>> nodes;
 
-    public int PagingNumber = 10;
-
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -549,7 +547,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     .collect(GuavaCollectors.immutableList());
 
             Platform.runLater(() -> {
-                if(deepStorageBrowserPresenter!=null)
+                if (deepStorageBrowserPresenter != null)
                     deepStorageBrowserPresenter.logText("Received bucket list");
                 final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
                 partialResults.get().addAll(treeItems);

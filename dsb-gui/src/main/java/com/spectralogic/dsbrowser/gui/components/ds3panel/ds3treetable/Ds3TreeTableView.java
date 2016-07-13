@@ -6,15 +6,18 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 
 public class Ds3TreeTableView extends FXMLView {
-    public Ds3TreeTableView(final Session session, DeepStorageBrowserPresenter deepStorageBrowserPresenter, Ds3PanelPresenter ds3PanelPresenter) {
+    public Ds3TreeTableView(final Session session, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final Ds3PanelPresenter ds3PanelPresenter) {
         super(name -> {
-            if (name.equals("session")) {
-                return session;
-            } else if(name.equals("deepStorageBrowserPresenter"))
-                return deepStorageBrowserPresenter;
-            else if(name.equals("ds3PanelPresenter"))
-                return ds3PanelPresenter;
-            return null;
+            switch (name) {
+                case "session":
+                    return session;
+                case "deepStorageBrowserPresenter":
+                    return deepStorageBrowserPresenter;
+                case "ds3PanelPresenter":
+                    return ds3PanelPresenter;
+                default:
+                    return null;
+            }
         });
     }
 }

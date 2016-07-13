@@ -40,10 +40,10 @@ public class FileTreeModel {
     }
 
     public String getLastModified() {
-		return lastModified;
-	}
+        return lastModified;
+    }
 
-	public String getNamePart(final Path path, final int depth) {
+    public String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
             return path.toString();
         } else {

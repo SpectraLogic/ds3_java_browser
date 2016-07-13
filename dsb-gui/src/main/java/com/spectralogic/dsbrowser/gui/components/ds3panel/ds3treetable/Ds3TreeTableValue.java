@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import java.io.Serializable;
 
-public class Ds3TreeTableValue implements Serializable{
+public class Ds3TreeTableValue implements Serializable {
 
     private final String bucketName;
     private final String name;
@@ -60,9 +60,12 @@ public class Ds3TreeTableValue implements Serializable{
 
     public String getDirectoryName() {
         switch (type) {
-            case Directory: return getFullName();
-            case Bucket: return "";
-            default: return getParentDir(this.getFullName());
+            case Directory:
+                return getFullName();
+            case Bucket:
+                return "";
+            default:
+                return getParentDir(this.getFullName());
         }
     }
 

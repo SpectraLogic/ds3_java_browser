@@ -11,12 +11,12 @@ public class CreateBucketModel {
     //to be added more
 
     public CreateBucketModel() {
-            this("",null);
+        this("", null);
     }
 
-    public CreateBucketModel(String dataPolicy, UUID id) {
+    public CreateBucketModel(final String dataPolicy, final UUID id) {
         this.dataPolicy = dataPolicy;
-        this.id=id;
+        this.id = id;
     }
 
     public String getDataPolicy() {

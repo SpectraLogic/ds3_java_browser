@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
@@ -42,11 +41,11 @@ class Ds3GetJob extends Ds3JobTask {
     private final FileTreeModel fileTreeModel;
     private final Ds3Client ds3Client;
     private String bucket;
-    private ArrayList<Ds3TreeTableValue> nodes;
+    private final ArrayList<Ds3TreeTableValue> nodes;
     final ImmutableSet.Builder<String> partOfDirBuilder;
 
 
-    public Ds3GetJob(List<Ds3TreeTableValue> list, FileTreeModel fileTreeModel, Ds3Client client) {
+    public Ds3GetJob(final List<Ds3TreeTableValue> list, final FileTreeModel fileTreeModel, final Ds3Client client) {
         this.list = list;
         this.fileTreeModel = fileTreeModel;
         this.ds3Client = client;
@@ -61,7 +60,7 @@ class Ds3GetJob extends Ds3JobTask {
 
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             String date = sdf.format(new Date());
-            updateTitle("GET "+ds3Client.getConnectionDetails().getEndpoint()+" "+date);
+            updateTitle("GET " + ds3Client.getConnectionDetails().getEndpoint() + " " + date);
             updateMessage("Transferring..");
 
             Path localDirPath = fileTreeModel.getPath();
@@ -84,21 +83,18 @@ class Ds3GetJob extends Ds3JobTask {
                         bucket = pair.getBucketName();
                     }
                     if (partOfDirBuilder.build().size() == 0)
-//                        if(pair.getDirectoryName()!=null)
-//                            return new Ds3Object(pair.getFullName(), Long.parseLong(pair.getSize().replaceAll("\\D+", "")));
-//                        else
                         return new Ds3Object(pair.getFullName(), Long.parseLong(pair.getSize().replaceAll("\\D+", "")));
                     else {
                         Path dirPath = fileTreeModel.getPath();
                         if (fileTreeModel.getType().equals(FileTreeModel.Type.File)) {
                             dirPath = dirPath.getParent();
                         }
-                        File f = new File(dirPath.toString() + "\\" + pair.getFullName());
+                        final File f = new File(dirPath.toString() + "\\" + pair.getFullName());
                         f.getParentFile().mkdirs();
                         return new Ds3Object(pair.getFullName(), Long.parseLong(pair.getSize().replaceAll("\\D+", "")));
                     }
-                } catch (final Exception e) {
-                    LOG.error("Failed to get file size for: " + pair.getName(), e);
+                } catch (final SecurityException e) {
+                    LOG.error("Exception while creation directories ", e);
                     return null;
                 }
             }).filter(item -> item != null).collect(GuavaCollectors.immutableList());
@@ -140,11 +136,9 @@ class Ds3GetJob extends Ds3JobTask {
             }
 
 
-
         } catch (final Exception e) {
             //Could be permission issue. Need to handle
-            System.out.println("Exception" + e.toString());
-            LOG.info("Execption" + e.toString());
+            LOG.info("Exception" + e.toString());
         }
     }
 

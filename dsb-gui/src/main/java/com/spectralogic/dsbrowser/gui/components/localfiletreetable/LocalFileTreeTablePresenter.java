@@ -5,7 +5,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -39,7 +38,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private Button homeButton, refreshButton, toMyComputer;
 
     @FXML
-    Label localPathIndicator;
+    private Label localPathIndicator;
 
     @Inject
     private LocalFileTreeTableProvider provider;
@@ -64,7 +63,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Starting LocalFileTreeTablePresenter");
             alert.setTitle("Error");
             alert.setHeaderText(null);
-            initMenuBar();
             initTableView();
             initListeners();
         } catch (final Throwable e) {
@@ -74,27 +72,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initListeners() {
         refreshButton.setOnAction(event -> refreshFileTreeView());
-        homeButton.setOnAction(event -> navigateToHomeUserDirectory());
-        toMyComputer.setOnAction(event -> toMyComputer());
+        homeButton.setOnAction(event -> changeRootDir(System.getProperty("user.home")));
+        toMyComputer.setOnAction(event -> changeRootDir("My Computer"));
     }
 
-    private void toMyComputer() {
-        localPathIndicator.setText("My Computer");
-        TreeItem<FileTreeModel> currentSelection = treeTable.getSelectionModel().getSelectedItem();
-        final Stream<FileTreeModel> rootItems = provider.getRoot();
-        final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
-        rootTreeItem.setExpanded(true);
-        treeTable.setShowRoot(false);
-        rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm);
-            rootTreeItem.getChildren().add(newRootTreeItem);
-        });
-        treeTable.setRoot(rootTreeItem);
-    }
-
-    private void navigateToHomeUserDirectory() {
-        localPathIndicator.setText(System.getProperty("user.home"));
-        final Stream<FileTreeModel> rootItems = provider.getHomeDirs();
+    private void changeRootDir(final String rootDir) {
+        localPathIndicator.setText(rootDir);
+        final Stream<FileTreeModel> rootItems = provider.getRoot(rootDir);
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
@@ -106,15 +90,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void refreshFileTreeView() {
-        TreeItem<FileTreeModel> currentSelection = treeTable.getSelectionModel().getSelectedItem();
+        final TreeItem<FileTreeModel> currentSelection = treeTable.getSelectionModel().getSelectedItem();
         if (currentSelection == null) {
             alert.setContentText("Select folder to refresh");
             alert.showAndWait();
         } else {
-            if(currentSelection.getValue().getType().equals(FileTreeModel.Type.File))
-                deepStorageBrowserPresenter.logText("Refreshing "+currentSelection.getParent().getValue().getName());
+            if (currentSelection.getValue().getType().equals(FileTreeModel.Type.File))
+                deepStorageBrowserPresenter.logText("Refreshing " + currentSelection.getParent().getValue().getName());
             else
-                deepStorageBrowserPresenter.logText("Refreshing "+currentSelection.getValue().getName());
+                deepStorageBrowserPresenter.logText("Refreshing " + currentSelection.getValue().getName());
             refresh(currentSelection);
         }
 
@@ -130,7 +114,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             public void changed(ObservableValue observable, Object oldValue,
                                 Object newValue) {
                 //noinspection unchecked
-                TreeItem<FileTreeModel> selectedItem = (TreeItem<FileTreeModel>) newValue;
+                final TreeItem<FileTreeModel> selectedItem = (TreeItem<FileTreeModel>) newValue;
                 if (selectedItem != null) {
                     localPathIndicator.setText(selectedItem.getValue().getPath().toString());
                 }
@@ -220,7 +204,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             return row;
         });
 
-        final Stream<FileTreeModel> rootItems = provider.getRoot();
+        final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer");
 
         localPathIndicator.setText("My Computer");
 
@@ -245,8 +229,4 @@ public class LocalFileTreeTablePresenter implements Initializable {
         newRootTreeItem.setExpanded(true);
     }
 
-    private void initMenuBar() {
-        // homeButton.setGraphic(Icon.getIcon(FontAwesomeIcon.HOME));
-        // refreshButton.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
-    }
 }

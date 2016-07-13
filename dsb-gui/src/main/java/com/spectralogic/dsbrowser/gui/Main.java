@@ -1,30 +1,21 @@
 package com.spectralogic.dsbrowser.gui;
 
-import java.io.IOException;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsSpectraS3Response;
-import com.spectralogic.ds3client.models.BucketDetails;
-import com.spectralogic.ds3client.models.S3Object;
-import com.spectralogic.ds3client.models.common.Credentials;
-import javafx.scene.input.DataFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.input.DataFormat;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class Main extends Application {
 
@@ -50,11 +41,11 @@ public class Main extends Application {
 
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
 
-        final ResourceBundle resourceBundle= ResourceBundle.getBundle("lang", new Locale("en"));
+        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
 
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
 
-        this.dataFormat=new DataFormat("Ds3TreeTableView");
+        this.dataFormat = new DataFormat("Ds3TreeTableView");
 
         LOG.info("Starting Deep Storage Browser v0.0.1");
         Injector.setLogger(injectorLogger::debug);
@@ -63,8 +54,8 @@ public class Main extends Application {
         Injector.setModelOrService(Workers.class, workers);
         Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);
-        Injector.setModelOrService(ResourceBundle.class,resourceBundle);
-        Injector.setModelOrService(DataFormat.class,dataFormat);
+        Injector.setModelOrService(ResourceBundle.class, resourceBundle);
+        Injector.setModelOrService(DataFormat.class, dataFormat);
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 

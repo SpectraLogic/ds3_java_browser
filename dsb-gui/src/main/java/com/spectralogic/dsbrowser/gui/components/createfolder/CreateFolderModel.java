@@ -10,6 +10,17 @@ public class CreateFolderModel {
 
     private final String bucketName;
 
+    public CreateFolderModel() {
+        this(null, "", "");
+
+    }
+
+    public CreateFolderModel(final Ds3Client client, final String location, final String bucketName) {
+        this.client = client;
+        this.location = location;
+        this.bucketName = bucketName;
+    }
+
     public String getBucketName() {
         return bucketName;
     }
@@ -20,16 +31,5 @@ public class CreateFolderModel {
 
     public Ds3Client getClient() {
         return client;
-    }
-
-    public CreateFolderModel() {
-        this(null,"","");
-
-    }
-
-    public CreateFolderModel(Ds3Client client, String location, String bucketName) {
-        this.client=client;
-        this.location=location;
-        this.bucketName=bucketName;
     }
 }

@@ -66,6 +66,7 @@ public class DeleteFilesPresenter implements Initializable {
     private void handle(final Event event) {
         closeDialog();
     }
+
     public void cancelDelete() {
         LOG.info("Cancelling delete files");
         closeDialog();

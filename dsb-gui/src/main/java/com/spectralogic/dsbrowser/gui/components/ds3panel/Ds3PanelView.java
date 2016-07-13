@@ -4,7 +4,7 @@ import com.airhacks.afterburner.views.FXMLView;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 
 public class Ds3PanelView extends FXMLView {
-    public Ds3PanelView(DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+    public Ds3PanelView(final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         super(name -> {
             switch (name) {
                 case "deepStorageBrowserPresenter":

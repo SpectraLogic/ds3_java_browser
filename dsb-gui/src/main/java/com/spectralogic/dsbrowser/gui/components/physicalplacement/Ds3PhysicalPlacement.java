@@ -16,10 +16,10 @@ public class Ds3PhysicalPlacement {
     }
 
     public Ds3PhysicalPlacement() {
-        this(null, null,null);
+        this(null, null, null);
     }
 
-    public Ds3PhysicalPlacement(final PhysicalPlacement physicalPlacement,List<Tape> listTapes, List<Pool> listPools) {
+    public Ds3PhysicalPlacement(final PhysicalPlacement physicalPlacement, final List<Tape> listTapes, final List<Pool> listPools) {
         this.physicalPlacement = physicalPlacement;
         this.listPools = listPools;
         this.listTapes = listTapes;

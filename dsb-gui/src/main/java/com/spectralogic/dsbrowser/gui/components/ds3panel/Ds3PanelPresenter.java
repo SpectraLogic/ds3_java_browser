@@ -281,6 +281,7 @@ public class Ds3PanelPresenter implements Initializable {
 
         final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
         if ((session.getSessionName() + "-" + session.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())) {
+            @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
@@ -343,6 +344,7 @@ public class Ds3PanelPresenter implements Initializable {
         deepStorageBrowserPresenter.logText("Refreshing session " + ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
         LOG.info("session" + ds3SessionTabPane.getSelectionModel().getSelectedItem().getText());
         Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(ds3SessionTabPane.getSelectionModel().getSelectedItem().getText())).findFirst().get();
+        @SuppressWarnings("unchecked")
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
         final Ds3TreeTablePresenter ds3TreeTablePresenter = new Ds3TreeTablePresenter();
         ds3TreeTablePresenter.refreshTreeTableView(ds3TreeTableView, workers, session);
@@ -364,16 +366,13 @@ public class Ds3PanelPresenter implements Initializable {
     private void initMenuItems() {
 
         ds3RefreshToolTip.setText(resourceBundle.getString("ds3RefreshToolTip"));
-        //ds3Refresh.setGraphic(Icon.getIcon(FontAwesomeIcon.REFRESH));
 
         ds3NewFolderToolTip.setText(resourceBundle.getString("ds3NewFolderToolTip"));
-        //ds3NewFolder.setGraphic(Icon.getIcon(FontAwesomeIcon.FOLDER));
 
         ds3NewBucketToolTip.setText(resourceBundle.getString("ds3NewBucketToolTip"));
-        //ds3NewBucket.setGraphic(Icon.getIcon(FontAwesomeIcon.ARCHIVE));
 
         ds3DeleteButtonToolTip.setText(resourceBundle.getString("ds3DeleteButtonToolTip"));
-        //ds3DeleteButton.setGraphic(Icon.getIcon(FontAwesomeIcon.TRASH));
+        
         if (ds3SessionTabPane.getTabs().size() == 1) {
             disableMenu(true);
         }

@@ -1,15 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-import javax.inject.Inject;
-
-import javafx.beans.property.StringProperty;
-import org.controlsfx.control.PropertySheet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
@@ -18,19 +8,20 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.PropertyItem;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.controlsfx.control.PropertySheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class NewSessionPresenter implements Initializable {
 
@@ -62,7 +53,7 @@ public class NewSessionPresenter implements Initializable {
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
 
-    private Alert alert = new Alert(Alert.AlertType.ERROR);
+    private final Alert alert = new Alert(Alert.AlertType.ERROR);
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
