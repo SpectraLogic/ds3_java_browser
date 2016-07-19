@@ -14,18 +14,18 @@ public class CreateBucketWithDataPoliciesModel {
         this(null, null, null);
     }
 
+    public CreateBucketWithDataPoliciesModel(final ImmutableList<CreateBucketModel> dataPolicies, final Session session, final Workers workers) {
+        this.dataPolicies = dataPolicies;
+        this.session = session;
+        this.workers = workers;
+    }
+
     public Session getSession() {
         return session;
     }
 
     public Workers getWorkers() {
         return workers;
-    }
-
-    public CreateBucketWithDataPoliciesModel(final ImmutableList<CreateBucketModel> dataPolicies, final Session session, final Workers workers) {
-        this.dataPolicies = dataPolicies;
-        this.session = session;
-        this.workers = workers;
     }
 
     public ImmutableList<CreateBucketModel> getDataPolicies() {

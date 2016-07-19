@@ -1,16 +1,15 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
-import java.util.ArrayList;
-
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class CreateBucketWithDataPoliciesModelTest {
     @Test

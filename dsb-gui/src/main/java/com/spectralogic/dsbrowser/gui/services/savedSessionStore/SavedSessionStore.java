@@ -29,6 +29,15 @@ public class SavedSessionStore {
 
     private boolean dirty = false;
 
+    private SavedSessionStore(final List<SavedSession> sessionList) {
+        this.sessions = FXCollections.observableArrayList(sessionList);
+        this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
+            if (c.next() && (c.wasAdded() || c.wasRemoved())) {
+                dirty = true;
+            }
+        });
+    }
+
     public static SavedSessionStore loadSavedSessionStore() throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
@@ -56,25 +65,16 @@ public class SavedSessionStore {
         }
     }
 
-    private SavedSessionStore(final List<SavedSession> sessionList) {
-        this.sessions = FXCollections.observableArrayList(sessionList);
-        this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
-            if (c.next() && (c.wasAdded() || c.wasRemoved())) {
-                dirty = true;
-            }
-        });
-    }
-
     public ObservableList<SavedSession> getSessions() {
         return sessions;
     }
 
     public void saveSession(final Session session) {
         if (sessions.size() == 0) {
-            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),session.getProxyServer(),
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
         } else if (!containsSessionName(sessions, session.getSessionName())) {
-            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(),session.getProxyServer(),
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
         } else {
             final Alert alert = new Alert(Alert.AlertType.ERROR);

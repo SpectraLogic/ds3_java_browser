@@ -14,14 +14,14 @@ public class Session implements Closeable {
 
     // Needed for injection
     public Session() {
-        this(null, null, null, null,null);
+        this(null, null, null, null, null);
     }
 
     public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client) {
         this.sessionName = sessionName;
         this.endpoint = endpoint;
         this.portNo = portNo;
-        this.proxyServer=proxyServer;
+        this.proxyServer = proxyServer;
         this.client = client;
     }
 

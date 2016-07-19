@@ -37,3 +37,19 @@
 
 }
 
+.successText {
+    -fx-fill: GREEN;
+    -fx-font-weight: bold;
+}
+
+.errorText {
+    -fx-fill: RED;
+    -fx-font-weight: bold;
+}
+
+.logText {
+    -fx-background-color: #DFF2BF;
+    -fx-text-fill: #4F8A10;
+    -fx-font-weight: bold;
+}
+

@@ -8,7 +8,7 @@ public class Workers {
     private final ExecutorService workers;
 
     public Workers() {
-        this(5);
+        this(10);
     }
 
     public Workers(final int num) {

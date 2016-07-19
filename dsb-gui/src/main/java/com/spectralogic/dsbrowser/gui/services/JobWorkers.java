@@ -20,7 +20,7 @@ public class JobWorkers {
     private final ObservableList<Ds3JobTask> tasks;
 
     public JobWorkers() {
-        this(5);
+        this(10);
     }
 
     public JobWorkers(final int num) {

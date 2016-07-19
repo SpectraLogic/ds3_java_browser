@@ -44,28 +44,24 @@ public class PhysicalPlacementPresenter implements Initializable {
         final ImmutableList.Builder<PhysicalPlacementPoolEntry> physicalPlacementPoolEntryBuilder = ImmutableList.builder();
         final ImmutableList.Builder<PhysicalPlacementTapeEntry> physicalPlacementTapeEntryBuilder = ImmutableList.builder();
         final PhysicalPlacement physicalPlacement = ds3PhysicalPlacement.getPhysicalPlacement();
-        List<Pool> listPool = physicalPlacement.getPools();
+        final List<Pool> listPool = physicalPlacement.getPools();
         for (Pool pool : listPool) {
-            String name = pool.getName();
-            String health = pool.getHealth().toString();
-            String poolType = pool.getType().toString();
-            String partition = pool.getPartitionId().toString();
-            physicalPlacementPoolEntryBuilder.add(new PhysicalPlacementPoolEntry(name, health, poolType, partition));
+            physicalPlacementPoolEntryBuilder.add(new PhysicalPlacementPoolEntry(pool.getName(), pool.getHealth().toString(), pool.getType().toString(), pool.getPartitionId().toString()));
         }
         physicalPlacementDataTable.setItems(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
 
-        List<Tape> listTape = physicalPlacement.getTapes();
+        final List<Tape> listTape = physicalPlacement.getTapes();
         for (Tape tape : listTape) {
-            String barcode = tape.getBarCode();
-            String serialNo = tape.getSerialNumber();
-            String type = tape.getType().toString();
-            String state = tape.getState().toString();
-            String lastTapeError = tape.getLastVerified().toString();
-            boolean writeProtected = tape.getWriteProtected();
-            boolean available = tape.getAssignedToStorageDomain();
-            long used = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
-            String tapePartition = tape.getPartitionId().toString();
-            String lastModified = tape.getLastModified().toString();
+            final String barcode = tape.getBarCode();
+            final String serialNo = tape.getSerialNumber();
+            final String type = tape.getType().toString();
+            final String state = tape.getState().toString();
+            final String lastTapeError = tape.getLastVerified().toString();
+            final boolean writeProtected = tape.getWriteProtected();
+            final boolean available = tape.getAssignedToStorageDomain();
+            final long used = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
+            final String tapePartition = tape.getPartitionId().toString();
+            final String lastModified = tape.getLastModified().toString();
             physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified));
         }
         physicalPlacementDataTableTape.setItems(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));

@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import java.lang.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
-<VBox stylesheets="@../../common.css"  prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
+
+<VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
@@ -24,18 +23,18 @@
                         </ImageView>
                     </graphic>
                 </Button>
-            <Button fx:id="ds3NewBucket" mnemonicParsing="false">
-               <tooltip>
-                  <Tooltip fx:id="ds3NewBucketToolTip" />
-               </tooltip>
-                <graphic>
-                    <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@/images/bucket_add.png" requestedHeight="20" requestedWidth="20"/>
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
+                <Button fx:id="ds3NewBucket" mnemonicParsing="false">
+                    <tooltip>
+                        <Tooltip fx:id="ds3NewBucketToolTip" />
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/bucket_add.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
                 <Button fx:id="ds3NewFolder">
                     <tooltip>
                         <Tooltip fx:id="ds3NewFolderToolTip" />
@@ -43,50 +42,59 @@
                     <graphic>
                         <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@/images/folder.png" requestedHeight="20" requestedWidth="20"/>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/folder.png" />
                             </image>
                         </ImageView>
                     </graphic>
                 </Button>
-            <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
-               <tooltip>
-                  <Tooltip fx:id="ds3DeleteButtonToolTip" />
-               </tooltip>
-                <graphic>
-                    <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@/images/delete.png" requestedHeight="20" requestedWidth="20" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
+                <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
+                    <tooltip>
+                        <Tooltip fx:id="ds3DeleteButtonToolTip" />
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/delete.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
 
-            <Button fx:id="ds3TransferLeft" mnemonicParsing="false">
-                <tooltip>
-                    <Tooltip fx:id="ds3TransferLeftToolTip" />
-                </tooltip>
-                <graphic>
-                    <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@/images/transfer-left.png" requestedHeight="20" requestedWidth="20"/>
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
+                <Button fx:id="ds3TransferLeft" mnemonicParsing="false">
+                    <tooltip>
+                        <Tooltip fx:id="ds3TransferLeftToolTip" />
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/transfer-left.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
 
-            <TextField fx:id="ds3PanelSearch" disable="true" promptText="Search" />
+                <TextField fx:id="ds3PanelSearch" disable="true" prefHeight="25.0" prefWidth="200.0" promptText="Type object name to search.." />
+
+                <ImageView fx:id="imageViewForTooltip" fitHeight="10.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@/images/questionMark.png" />
+                    </image>
+                </ImageView>
+
             </items>
         </ToolBar>
-        <Pane prefHeight="30.0" prefWidth="200.0" minHeight="30.0" style="-fx-background-color: #94b7db;">
-            <Label fx:id="ds3PathIndicator" prefWidth="200" prefHeight="30" textOverrun="CENTER_ELLIPSIS" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
-                <font>
-                    <Font size="12.0" />
-                </font>
-            </Label>
+        <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
+           <children>
+               <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;" text="" textAlignment="JUSTIFY" textFill="#000" wrapText="true">
+                   <font>
+                       <Font size="12.0" />
+                   </font>
+               </Label>
+           </children>
         </Pane>
         <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB" VBox.vgrow="ALWAYS">
             <tabs>
-               <Tab fx:id="addNewTab" closable="false">
+                <Tab fx:id="addNewTab" closable="false">
                     <tooltip>
                         <Tooltip fx:id="newSessionToolTip" />
                     </tooltip>
@@ -100,7 +108,8 @@
                                         <Button fx:id="newSessionButton" mnemonicParsing="false" onAction="#newSessionDialog" />
                                     </children>
                                 </VBox>
-                            </children></AnchorPane>
+                            </children>
+                        </AnchorPane>
                     </content>
                 </Tab>
             </tabs>

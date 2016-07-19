@@ -1,15 +1,15 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Response;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.LogType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,10 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class CreateBucketPresenter implements Initializable {
+
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
+
+    private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TextField bucketNameField;
@@ -45,9 +48,15 @@ public class CreateBucketPresenter implements Initializable {
     @Inject
     private ResourceBundle resourceBundle;
 
+    @Inject
+    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
+
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
 
         initGUIElements();
 
@@ -85,17 +94,24 @@ public class CreateBucketPresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
-                    return getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText()).withDataPolicyId(dataPolicy.getId()));
+                    final CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
+                    final PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText()).withDataPolicyId(dataPolicy.getId()));
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Create bucket status code: " + response.getResponse().getStatusCode(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("Bucket is created.", LogType.SUCCESS);
+                    });
+                    return response;
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to create bucket" + e);
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Failed to create bucket" + e.toString(), LogType.ERROR);
+                    });
                     return null;
                 }
             }
         };
         workers.execute(task);
         task.setOnSucceeded(event -> Platform.runLater(() -> {
-            LOG.info("succeed");
             closeDialog();
         }));
     }

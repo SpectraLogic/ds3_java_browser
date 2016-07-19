@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
@@ -24,6 +25,7 @@ public class Main extends Application {
     private final Workers workers = new Workers();
     private final JobWorkers jobWorkers = new JobWorkers();
     private SavedSessionStore savedSessionStore = null;
+    private SavedJobPrioritiesStore savedJobPrioritiesStore = null;
     private SettingsStore settings = null;
     private DataFormat dataFormat = null;
 
@@ -38,6 +40,8 @@ public class Main extends Application {
         this.settings = SettingsStore.loadSettingsStore(); // Do not log when loading the settings store
         // Create the log service before any logging has started..
         final LogService logService = new LogService(this.settings.getLogSettings());
+
+        this.savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
 
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
 
@@ -54,6 +58,7 @@ public class Main extends Application {
         Injector.setModelOrService(Workers.class, workers);
         Injector.setModelOrService(JobWorkers.class, jobWorkers);
         Injector.setModelOrService(SavedSessionStore.class, this.savedSessionStore);
+        Injector.setModelOrService(SavedJobPrioritiesStore.class, this.savedJobPrioritiesStore);
         Injector.setModelOrService(ResourceBundle.class, resourceBundle);
         Injector.setModelOrService(DataFormat.class, dataFormat);
 
@@ -75,6 +80,13 @@ public class Main extends Application {
                 SavedSessionStore.saveSavedSessionStore(savedSessionStore);
             } catch (final IOException e) {
                 LOG.error("Failed to save session information to the local filesystem", e);
+            }
+        }
+        if (savedJobPrioritiesStore != null) {
+            try {
+                SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
+            } catch (final IOException e) {
+                LOG.error("Failed to save job settings information to the local filesystem", e);
             }
         }
         if (settings != null) {

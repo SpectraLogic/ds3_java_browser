@@ -1,16 +1,15 @@
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
-import java.util.ArrayList;
-
-import org.junit.Test;
-
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
 import com.spectralogic.ds3client.models.Tape;
+import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class Ds3PhysicalPlacementTest {
 

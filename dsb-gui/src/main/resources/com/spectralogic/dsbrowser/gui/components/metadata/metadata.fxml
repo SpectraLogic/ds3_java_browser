@@ -1,50 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
-
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<VBox stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="216.0" prefWidth="448.0" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
-   <children>
-      <HBox spacing="10.0">
-         <children>
-            <Label text="Name:">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Label>
-            <Label fx:id="objectName" />
-         </children>
-      </HBox>
-      <HBox spacing="10.0">
-         <children>
-            <Label text="Size:">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font></Label>
-            <Label fx:id="objectSize" />
-         </children>
-      </HBox>
-      <TableView fx:id="metadataTable" prefHeight="201.0" prefWidth="448.0">
-        <columns>
-          <TableColumn prefWidth="166.0" text="Metadata Name">
-            <cellValueFactory><PropertyValueFactory property="key"/></cellValueFactory>
-          </TableColumn>
-          <TableColumn prefWidth="260.0" text="Metadata Value">
-            <cellValueFactory><PropertyValueFactory property="value"/></cellValueFactory>
-          </TableColumn>
-        </columns>
-         <columnResizePolicy>
-            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-         </columnResizePolicy>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-      </TableView>
-   </children>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="216.0" prefWidth="448.0" spacing="10.0"
+      xmlns="http://javafx.com/javafx/8"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
+    <children>
+        <HBox spacing="10.0">
+            <children>
+                <Label text="Name:">
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="objectName"/>
+            </children>
+        </HBox>
+        <HBox spacing="10.0">
+            <children>
+                <Label text="Size:">
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="objectSize"/>
+            </children>
+        </HBox>
+        <TableView fx:id="metadataTable" prefHeight="201.0" prefWidth="448.0">
+            <columns>
+                <TableColumn prefWidth="166.0" text="Metadata Name">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="key"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="260.0" text="Metadata Value">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="value"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </TableView>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
 </VBox>

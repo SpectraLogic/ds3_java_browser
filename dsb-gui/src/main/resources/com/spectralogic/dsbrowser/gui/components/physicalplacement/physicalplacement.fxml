@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
-
-<VBox stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="896.0" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="896.0" spacing="10.0"
+      xmlns="http://javafx.com/javafx/8"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
     <children>
         <HBox prefHeight="100.0" prefWidth="200.0">
             <children>
                 <Label text="Storage Pools" textAlignment="JUSTIFY">
                     <font>
-                        <Font name="System Bold" size="16" />
+                        <Font name="System Bold" size="16"/>
                     </font>
                     <HBox.margin>
-                        <Insets left="30.0" />
+                        <Insets left="30.0"/>
                     </HBox.margin>
                 </Label>
             </children>
@@ -27,40 +27,40 @@
             <columns>
                 <TableColumn prefWidth="166.0" text="Name">
                     <cellValueFactory>
-                        <PropertyValueFactory property="Name" />
+                        <PropertyValueFactory property="Name"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="260.0" text="Health">
                     <cellValueFactory>
-                        <PropertyValueFactory property="health" />
+                        <PropertyValueFactory property="health"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="75.0" text="S3 Pool Type">
                     <cellValueFactory>
-                        <PropertyValueFactory property="S3poolType" />
+                        <PropertyValueFactory property="S3poolType"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="62.0" text="Partition">
                     <cellValueFactory>
-                        <PropertyValueFactory property="partition" />
+                        <PropertyValueFactory property="partition"/>
                     </cellValueFactory>
                 </TableColumn>
             </columns>
             <VBox.margin>
-                <Insets left="30.0" right="30.0" />
+                <Insets left="30.0" right="30.0"/>
             </VBox.margin>
             <columnResizePolicy>
-                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
             </columnResizePolicy>
         </TableView>
         <HBox prefHeight="100.0" prefWidth="200.0">
             <children>
                 <Label text="Tapes" textAlignment="JUSTIFY">
                     <font>
-                        <Font name="System Bold" size="16" />
+                        <Font name="System Bold" size="16"/>
                     </font>
                     <HBox.margin>
-                        <Insets left="30.0" />
+                        <Insets left="30.0"/>
                     </HBox.margin>
                 </Label>
             </children>
@@ -70,58 +70,58 @@
             <columns>
                 <TableColumn prefWidth="62.0" text="Barcode">
                     <cellValueFactory>
-                        <PropertyValueFactory property="barcode" />
+                        <PropertyValueFactory property="barcode"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="92.0" text="Serial Number">
                     <cellValueFactory>
-                        <PropertyValueFactory property="serialNO" />
+                        <PropertyValueFactory property="serialNO"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="53.0" text="Type">
                     <cellValueFactory>
-                        <PropertyValueFactory property="type" />
+                        <PropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="52.0" text="State">
                     <cellValueFactory>
-                        <PropertyValueFactory property="state" />
+                        <PropertyValueFactory property="state"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="105.0" text="Last Tape Error">
                     <cellValueFactory>
-                        <PropertyValueFactory property="lastTapeError" />
+                        <PropertyValueFactory property="lastTapeError"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="110.0" text="WriteProtected">
                     <cellValueFactory>
-                        <PropertyValueFactory property="writeProtected" />
+                        <PropertyValueFactory property="writeProtected"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn minWidth="0.0" prefWidth="70.0" text="Available">
                     <cellValueFactory>
-                        <PropertyValueFactory property="available" />
+                        <PropertyValueFactory property="available"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="52.0" text="Used">
                     <cellValueFactory>
-                        <PropertyValueFactory property="used" />
+                        <PropertyValueFactory property="used"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn minWidth="0.0" prefWidth="139.0"
                              text="Tape Library Partition">
                     <cellValueFactory>
-                        <PropertyValueFactory property="tapePartition" />
+                        <PropertyValueFactory property="tapePartition"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="95.0" text="Last Modified">
                     <cellValueFactory>
-                        <PropertyValueFactory property="lastModified" />
+                        <PropertyValueFactory property="lastModified"/>
                     </cellValueFactory>
                 </TableColumn>
             </columns>
             <VBox.margin>
-                <Insets bottom="30.0" left="30.0" right="30.0" />
+                <Insets bottom="30.0" left="30.0" right="30.0"/>
             </VBox.margin>
         </TableView>
     </children>

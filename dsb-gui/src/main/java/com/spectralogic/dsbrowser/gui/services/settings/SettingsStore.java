@@ -20,12 +20,15 @@ public class SettingsStore {
     private final static Logger LOG = LoggerFactory.getLogger(SettingsStore.class);
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "settings.json");
-
-    private boolean dirty = false;
-
     @JsonProperty("logSettings")
     private final LogSettings logSettings;
+    private boolean dirty = false;
 
+
+    @JsonCreator
+    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings) {
+        this.logSettings = logSettings;
+    }
 
     public static SettingsStore loadSettingsStore() throws IOException {
         // Do not log when loading the settings store since the logger has not been configured
@@ -50,11 +53,6 @@ public class SettingsStore {
                 JsonMapping.toJson(outputStream, settingsStore);
             }
         }
-    }
-
-    @JsonCreator
-    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings) {
-        this.logSettings = logSettings;
     }
 
     public LogSettings getLogSettings() {

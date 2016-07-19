@@ -11,10 +11,6 @@ public class Ds3PhysicalPlacement {
     private final List<Tape> listTapes;
     private final List<Pool> listPools;
 
-    public PhysicalPlacement getPhysicalPlacement() {
-        return physicalPlacement;
-    }
-
     public Ds3PhysicalPlacement() {
         this(null, null, null);
     }
@@ -23,6 +19,10 @@ public class Ds3PhysicalPlacement {
         this.physicalPlacement = physicalPlacement;
         this.listPools = listPools;
         this.listTapes = listTapes;
+    }
+
+    public PhysicalPlacement getPhysicalPlacement() {
+        return physicalPlacement;
     }
 
     public List<Pool> getListPools() {

@@ -18,8 +18,10 @@ import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlace
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
+import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -49,12 +51,18 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class Ds3TreeTablePresenter implements Initializable {
+
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
+
+    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+
+    @Inject
+    protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     private ContextMenu contextMenu;
 
     @FXML
-    private TreeTableView<Ds3TreeTableValue> ds3TreeTable;
+    public TreeTableView<Ds3TreeTableValue> ds3TreeTable;
 
     @Inject
     private Workers workers;
@@ -69,9 +77,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private ResourceBundle resourceBundle;
 
     @Inject
-    protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
     private Ds3PanelPresenter ds3PanelPresenter;
 
     @Inject
@@ -79,20 +84,14 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private MenuItem createBucket, physicalPlacement, metaData, deleteFile, deleteFolder, deleteBucket;
 
-    private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
-
-    private ArrayList<TreeItem<Ds3TreeTableValue>> nodes;
-
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName());
-            LOG.info("Loading Ds3TreeTablePresenter with session " + session.getSessionName());
-            alert.setTitle("Information Dialog");
-            alert.setHeaderText(null);
+            deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName(), LogType.INFO);
+            ALERT.setTitle("Information Dialog");
+            ALERT.setHeaderText(null);
             initContextMenu();
             initTreeTableView();
-
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
             throw e;
@@ -132,7 +131,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             public void changed(ObservableValue observable, Object oldValue,
                                 Object newValue) {
                 //noinspection unchecked
-                TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
+                final TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
 
                 if (selectedItem != null) {
                     String path = selectedItem.getValue().getFullName();
@@ -180,7 +179,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
                 final List<Ds3TreeTableValue> selectedI = selectedItems.stream().map(v -> v.getValue()).collect(Collectors.toList());
 
-                if (!selectedItems.isEmpty()) {
+                if (!selectedI.isEmpty()) {
                     LOG.info("Starting drag and drop event");
                     final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
 
@@ -239,7 +238,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir);
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, deepStorageBrowserPresenter);
 
                     putJob.setOnSucceeded(e -> {
                         LOG.info("job completed successfully");
@@ -251,13 +250,21 @@ public class Ds3TreeTablePresenter implements Initializable {
                 event.consume();
             });
 
+            row.setOnMouseClicked(event -> {
+                final TreeItem<Ds3TreeTableValue> selectedTreeItem = row.getTreeItem();
+                if (selectedTreeItem.getValue().getType() == Ds3TreeTableValue.Type.Bucket || selectedTreeItem.getValue().getType() == Ds3TreeTableValue.Type.Directory) {
+                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
+                    event.consume();
+                }
+            });
+
             row.setContextMenu(contextMenu);
 
             return row;
         });
 
-        final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
 
+        final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         ds3TreeTable.setShowRoot(false);
 
@@ -272,15 +279,15 @@ public class Ds3TreeTablePresenter implements Initializable {
                 .stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.error("Nothing selected");
-            alert.setContentText("Nothing selected !!");
-            alert.showAndWait();
+            ALERT.setContentText("Nothing selected !!");
+            ALERT.showAndWait();
             return;
         }
 
         if (values.size() > 1) {
             LOG.error("Only a single object can be selected to view physical placement ");
-            alert.setContentText("Only a single object can be selected to view physical placement");
-            alert.showAndWait();
+            ALERT.setContentText("Only a single object can be selected to view physical placement");
+            ALERT.showAndWait();
             return;
         }
 
@@ -291,10 +298,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
 
-                List<Ds3Object> list = values.stream().map(item -> new Ds3Object(item.getValue().getName(), 12))
+                final List<Ds3Object> list = values.stream().map(item -> new Ds3Object(item.getValue().getName(), 12))
                         .collect(Collectors.toList());
 
-                GetPhysicalPlacementForObjectsSpectraS3Response response = client
+                final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                         .getPhysicalPlacementForObjectsSpectraS3(
                                 new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
                 return new Ds3PhysicalPlacement(response.getPhysicalPlacementResult(),
@@ -314,15 +321,15 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.error("No files selected");
-            alert.setContentText("No files selected !!");
-            alert.showAndWait();
+            ALERT.setContentText("No files selected !!");
+            ALERT.showAndWait();
             return;
         }
 
         if (values.size() > 1) {
             LOG.error("Only a single object can be selected to view metadata ");
-            alert.setContentText("Only a single object can be selected to view metadata ");
-            alert.showAndWait();
+            ALERT.setContentText("Only a single object can be selected to view metadata ");
+            ALERT.showAndWait();
             return;
         }
 
@@ -370,14 +377,23 @@ public class Ds3TreeTablePresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    getClient().deleteFolderRecursivelySpectraS3(new DeleteFolderRecursivelySpectraS3Request(value.getBucketName(), value.getFullName()));
+                    final DeleteFolderRecursivelySpectraS3Response deleteFolderRecursivelySpectraS3Response = getClient().deleteFolderRecursivelySpectraS3(new DeleteFolderRecursivelySpectraS3Request(value.getBucketName(), value.getFullName()));
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Delete response code: " + deleteFolderRecursivelySpectraS3Response.getStatusCode(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("Successfully deleted folder", LogType.SUCCESS);
+                    });
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delete files" + e);
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Failed to delete folder", LogType.ERROR);
+                    });
+                    ALERT.setContentText("Failed to delete a folder");
+                    ALERT.showAndWait();
                 }
                 return null;
             }
         };
-        DeleteFilesPopup.show(task);
+        DeleteFilesPopup.show(task, null, this);
         values.stream().forEach(file -> refresh(file.getParent()));
 
     }
@@ -416,15 +432,25 @@ public class Ds3TreeTablePresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
+                    final DeleteObjectsResponse deleteObjectsResponse = getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Delete response code: " + deleteObjectsResponse.getStatusCode(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
+                    });
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delete files" + e);
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Failed to delete files", LogType.ERROR);
+                    });
+                    ALERT.setContentText("Failed to delete a files");
+                    ALERT.showAndWait();
                 }
                 return null;
             }
         };
-        DeleteFilesPopup.show(task);
+        DeleteFilesPopup.show(task, null, this);
         values.stream().forEach(file -> refresh(file.getParent()));
+        ds3TreeTable.getSelectionModel().clearSelection();
     }
 
     private void deleteBucketPrompt() {
@@ -435,8 +461,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (buckets.size() > 1) {
             // TODO display an error
             LOG.error("The user selected objects from multiple buckets.  This is not allowed.");
-            alert.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
-            alert.showAndWait();
+            ALERT.setContentText("The user selected objects from multiple buckets.  This is not allowed.");
+            ALERT.showAndWait();
             return;
         }
 
@@ -445,8 +471,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (value.getType() != Ds3TreeTableValue.Type.Bucket) {
             LOG.error("You can only delete a bucket with this command");
             // TODO display an error
-            alert.setContentText("You can only delete a bucket with this command");
-            alert.showAndWait();
+            ALERT.setContentText("You can only delete a bucket with this command");
+            ALERT.showAndWait();
             return;
         }
 
@@ -454,16 +480,23 @@ public class Ds3TreeTablePresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getBucketName()).withForce(true));
+                    final DeleteBucketSpectraS3Response deleteBucketSpectraS3Response = getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getBucketName()).withForce(true));
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);
+                    });
                 } catch (final IOException | SignatureException e) {
                     LOG.error("Failed to delete Bucket" + e);
-                    alert.setContentText("Failed to delete a bucket");
-                    alert.showAndWait();
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("Failed to delete Bucket.", LogType.ERROR);
+                    });
+                    ALERT.setContentText("Failed to delete a bucket");
+                    ALERT.showAndWait();
                 }
                 return null;
             }
         };
-        DeleteFilesPopup.show(task);
+        DeleteFilesPopup.show(task, null, this);
         refreshTreeTableView(ds3TreeTable, workers, session);
 
     }
@@ -471,13 +504,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void createBucketPrompt() {
         LOG.info("Create Bucket Prompt");
 
-        deepStorageBrowserPresenter.logText("Retrieving data policies..");
+        deepStorageBrowserPresenter.logText("Retrieving data policies..", LogType.SUCCESS);
         final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
 
             @Override
             protected CreateBucketWithDataPoliciesModel call() throws Exception {
                 final Ds3Client client = session.getClient();
-                GetDataPoliciesSpectraS3Response response = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request());
+                final GetDataPoliciesSpectraS3Response response = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request());
 
                 final ImmutableList<CreateBucketModel> buckets = response.getDataPolicyListResult().
                         getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
@@ -490,9 +523,9 @@ public class Ds3TreeTablePresenter implements Initializable {
         workers.execute(getDataPolicies);
 
         getDataPolicies.setOnSucceeded(event -> Platform.runLater(() -> {
-            Ds3TreeTablePresenter.this.deepStorageBrowserPresenter.logText("Data policies retrieved");
+            Ds3TreeTablePresenter.this.deepStorageBrowserPresenter.logText("Data policies retrieved", LogType.SUCCESS);
             LOG.info("Launching create bucket popup" + getDataPolicies.getValue().getDataPolicies().size());
-            CreateBucketPopup.show(getDataPolicies.getValue());
+            CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
             refreshTreeTableView(ds3TreeTable, workers, session);
         }));
 
@@ -507,7 +540,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    public void refreshTreeTableView(TreeTableView<Ds3TreeTableValue> ds3TreeTableView, Workers workers, Session session) {
+    public void refreshTreeTableView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Workers workers, final Session session) {
         LOG.info("Running refresh of row");
         final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -543,12 +576,12 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
-                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, FileSizeFormat.getFileSizeType(0), bucket.getCreationDate().toString()))
+                    .map(bucket -> new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, FileSizeFormat.getFileSizeType(0), DateFormat.formatDate(bucket.getCreationDate())))
                     .collect(GuavaCollectors.immutableList());
 
             Platform.runLater(() -> {
                 if (deepStorageBrowserPresenter != null)
-                    deepStorageBrowserPresenter.logText("Received bucket list");
+                    deepStorageBrowserPresenter.logText("Received bucket list", LogType.SUCCESS);
                 final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
                 partialResults.get().addAll(treeItems);
             });

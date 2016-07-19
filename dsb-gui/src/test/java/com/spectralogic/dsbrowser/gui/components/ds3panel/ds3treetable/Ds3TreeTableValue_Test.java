@@ -1,8 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
-import org.junit.Test;
-
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -53,7 +52,7 @@ public class Ds3TreeTableValue_Test {
 
     @Test
     public void nestedName() {
-        final Ds3TreeTableValue value = new Ds3TreeTableValue("bucket", "dirA/dirB/hi/", Ds3TreeTableValue.Type.Directory,FileSizeFormat.getFileSizeType(12), "sometime");
+        final Ds3TreeTableValue value = new Ds3TreeTableValue("bucket", "dirA/dirB/hi/", Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(12), "sometime");
 
         assertThat(value.getName(), is("hi"));
     }

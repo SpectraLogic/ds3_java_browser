@@ -22,35 +22,35 @@ public class SettingsModel {
         return logLocation.get();
     }
 
-    public StringProperty logLocationProperty() {
-        return logLocation;
-    }
-
     public void setLogLocation(final String logLocation) {
         this.logLocation.set(logLocation);
+    }
+
+    public StringProperty logLocationProperty() {
+        return logLocation;
     }
 
     public int getLogSize() {
         return logSize.get();
     }
 
-    public IntegerProperty logSizeProperty() {
-        return logSize;
-    }
-
     public void setLogSize(final int logSize) {
         this.logSize.set(logSize);
+    }
+
+    public IntegerProperty logSizeProperty() {
+        return logSize;
     }
 
     public int getNumRollovers() {
         return numRollovers.get();
     }
 
-    public IntegerProperty numRolloversProperty() {
-        return numRollovers;
-    }
-
     public void setNumRollovers(final int numRollovers) {
         this.numRollovers.set(numRollovers);
+    }
+
+    public IntegerProperty numRolloversProperty() {
+        return numRollovers;
     }
 }

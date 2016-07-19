@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 
 public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
@@ -41,12 +42,17 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
     }
 
+    private static boolean isLeaf(final Path path) {
+        return !Files.isDirectory(path);
+    }
+
     private ImageView getGraphicType(final FileTreeModel fileTreeModel) {
         final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
         final javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
+
         final BufferedImage bufferedImage = new BufferedImage(
-                icon.getIconWidth(),
-                icon.getIconHeight(),
+                16,
+                16,
                 BufferedImage.TYPE_INT_ARGB
         );
         icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
@@ -82,6 +88,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                         .map(ftm -> new FileTreeTableItem(provider, ftm))
                         .collect(GuavaCollectors.immutableList());
                 children.setAll(fileChildren);
+                children.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
             } catch (final AccessDeniedException ae) {
                 LOG.error("Could not access file", ae);
                 setError("Invalid permissions");
@@ -98,9 +105,5 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         final Tooltip errorTip = new Tooltip(errorMessage);
         Tooltip.install(node, errorTip);
         this.setGraphic(node);
-    }
-
-    private static boolean isLeaf(final Path path) {
-        return !Files.isDirectory(path);
     }
 }

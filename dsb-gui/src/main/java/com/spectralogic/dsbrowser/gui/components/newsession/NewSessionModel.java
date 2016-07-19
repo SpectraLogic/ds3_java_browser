@@ -20,48 +20,48 @@ public class NewSessionModel {
         return endpoint.get();
     }
 
-    public StringProperty endpointProperty() {
-        return endpoint;
-    }
-
     public void setEndpoint(final String endpoint) {
         this.endpoint.set(endpoint);
+    }
+
+    public StringProperty endpointProperty() {
+        return endpoint;
     }
 
     public String getAccessKey() {
         return accessKey.get();
     }
 
-    public StringProperty accessKeyProperty() {
-        return accessKey;
-    }
-
     public void setAccessKey(final String accessKey) {
         this.accessKey.set(accessKey);
+    }
+
+    public StringProperty accessKeyProperty() {
+        return accessKey;
     }
 
     public String getSecretKey() {
         return secretKey.get();
     }
 
-    public StringProperty secretKeyProperty() {
-        return secretKey;
-    }
-
     public void setSecretKey(final String secretKey) {
         this.secretKey.set(secretKey);
+    }
+
+    public StringProperty secretKeyProperty() {
+        return secretKey;
     }
 
     public String getSessionName() {
         return sessionName.get();
     }
 
-    public StringProperty sessionNameProperty() {
-        return sessionName;
-    }
-
     public void setSessionName(final String sessionName) {
         this.sessionName.set(sessionName);
+    }
+
+    public StringProperty sessionNameProperty() {
+        return sessionName;
     }
 
     public void setPortno(final String portNo) {

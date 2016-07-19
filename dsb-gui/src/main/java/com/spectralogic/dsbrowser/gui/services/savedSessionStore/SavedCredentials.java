@@ -16,16 +16,16 @@ public class SavedCredentials {
         this.secretKey = secretKey;
     }
 
+    public static SavedCredentials fromCredentials(final Credentials credentials) {
+        return new SavedCredentials(credentials.getClientId(), credentials.getKey());
+    }
+
     public String getAccessId() {
         return accessId;
     }
 
     public String getSecretKey() {
         return secretKey;
-    }
-
-    public static SavedCredentials fromCredentials(final Credentials credentials) {
-        return new SavedCredentials(credentials.getClientId(), credentials.getKey());
     }
 
     public Credentials toCredentials() {

@@ -17,6 +17,14 @@ import java.util.stream.Stream;
 public class LocalFileTreeTableProvider {
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTableProvider.class);
 
+    private static FileTreeModel.Type getPathType(final Path path) {
+        if (Files.isDirectory(path)) {
+            return FileTreeModel.Type.Directory;
+        } else {
+            return FileTreeModel.Type.File;
+        }
+    }
+
     public Stream<FileTreeModel> getRoot(final String rootDir) {
         File[] files = null;
         if (rootDir == System.getProperty("user.home")) {
@@ -32,7 +40,7 @@ public class LocalFileTreeTableProvider {
             try {
                 size = FileSizeFormat.getFileSizeType(Files.size(path));
                 FileTime modifiedTime = Files.getLastModifiedTime(path);
-                final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
                 lastModified = sdf.format(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
@@ -58,7 +66,7 @@ public class LocalFileTreeTableProvider {
                 final String size = FileSizeFormat.getFileSizeType(Files.size(filePath));
                 final FileTreeModel.Type type = getPathType(filePath);
                 final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
                 final String lastModified = sdf.format(fileModifiedTime.toMillis());
                 return new FileTreeModel(filePath, type, size, newDepth, lastModified);
             } catch (final IOException e) {
@@ -66,14 +74,6 @@ public class LocalFileTreeTableProvider {
                 return new FileTreeModel(filePath, FileTreeModel.Type.Error, "", newDepth, "");
             }
         });
-    }
-
-    private static FileTreeModel.Type getPathType(final Path path) {
-        if (Files.isDirectory(path)) {
-            return FileTreeModel.Type.Directory;
-        } else {
-            return FileTreeModel.Type.File;
-        }
     }
 
 }

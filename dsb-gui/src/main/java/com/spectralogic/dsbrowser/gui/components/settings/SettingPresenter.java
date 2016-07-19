@@ -48,7 +48,7 @@ public class SettingPresenter implements Initializable {
         try {
             this.logSettings = settings.getLogSettings();
             initPropertyPane();
-        } catch(final Throwable e) {
+        } catch (final Throwable e) {
             LOG.error("Failed to startup settings presenter");
         }
     }

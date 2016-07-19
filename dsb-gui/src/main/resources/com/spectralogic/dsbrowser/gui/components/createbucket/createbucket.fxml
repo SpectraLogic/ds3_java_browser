@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<GridPane stylesheets="@../../common.css" fx:controller="com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPresenter"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-    <padding><Insets top="25" right="25" bottom="10" left="25"/></padding>
+<?import javafx.scene.text.Font?>
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          stylesheets="@../../common.css"
+          fx:controller="com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPresenter" alignment="center" hgap="10" vgap="10">
+    <padding>
+        <Insets top="25" right="25" bottom="10" left="25"/>
+    </padding>
     <Label text="New Bucket">
         <font>
-            <Font name="System Bold" size="18.0" />
+            <Font name="System Bold" size="18.0"/>
         </font>
     </Label>
 
@@ -27,8 +29,9 @@
 
     <HBox spacing="10" alignment="bottom_right"
           GridPane.columnIndex="1" GridPane.rowIndex="4">
-        <Button fx:id="createBucketButton" disable="true" mnemonicParsing="false" onAction="#createBucket" text="Create" />
-        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelCreateBucket" text="Cancel" />
+        <Button fx:id="createBucketButton" disable="true" mnemonicParsing="false" onAction="#createBucket"
+                text="Create"/>
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelCreateBucket" text="Cancel"/>
     </HBox>
 
 </GridPane>

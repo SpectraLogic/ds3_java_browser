@@ -53,12 +53,12 @@ public class NewSessionPresenter implements Initializable {
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
 
-    private final Alert alert = new Alert(Alert.AlertType.ERROR);
+    private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            alert.setHeaderText(null);
+            ALERT.setHeaderText(null);
             initGUIElement();
             initSessionList();
             initPropertySheet();
@@ -81,16 +81,24 @@ public class NewSessionPresenter implements Initializable {
     }
 
     private void initSessionList() {
+        model.setPortno("80");
+        savedSessions.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                model.setSessionName(newSelection.getName());
+                model.setEndpoint(newSelection.getEndpoint());
+                model.setAccessKey(newSelection.getCredentials().getAccessId());
+                model.setPortno(newSelection.getPortNo());
+                model.setSecretKey(newSelection.getCredentials().getSecretKey());
+            } else {
+                clearFields();
+            }
+        });
+
         savedSessions.setRowFactory(tv -> {
             final TableRow<SavedSession> row = new TableRow<>();
+
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 1 && (!row.isEmpty())) {
-                    model.setSessionName(savedSessions.getSelectionModel().getSelectedItem().getName());
-                    model.setEndpoint(savedSessions.getSelectionModel().getSelectedItem().getEndpoint());
-                    model.setPortno(savedSessions.getSelectionModel().getSelectedItem().getPortNo());
-                    model.setAccessKey(savedSessions.getSelectionModel().getSelectedItem().getCredentials().getAccessId());
-                    model.setSecretKey(savedSessions.getSelectionModel().getSelectedItem().getCredentials().getSecretKey());
-                } else if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
                     if (store.getObservableList().size() == 0) {
                         store.addSession(createConnection(rowData));
@@ -99,9 +107,9 @@ public class NewSessionPresenter implements Initializable {
                         store.addSession(createConnection(rowData));
                         closeDialog();
                     } else {
-                        alert.setTitle("New User Session");
-                        alert.setContentText("Session name already in use. Please use a different name.");
-                        alert.showAndWait();
+                        ALERT.setTitle("New User Session");
+                        ALERT.setContentText("Session name already in use. Please use a different name.");
+                        ALERT.showAndWait();
                     }
                 }
             });
@@ -125,12 +133,12 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            alert.setTitle("Information !!");
-            alert.setContentText("Select saved session to delete !!");
-            alert.showAndWait();
+            ALERT.setTitle("Information !!");
+            ALERT.setContentText("Select saved session to delete !!");
+            ALERT.showAndWait();
         } else {
             savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-            clearFields();
+            //clearFields();
         }
     }
 
@@ -145,73 +153,73 @@ public class NewSessionPresenter implements Initializable {
 
     public void createSession() {
         LOG.info("Performing session validation");
-        alert.setTitle("New User Session");
+        ALERT.setTitle("New User Session");
 
         if (store.getObservableList().size() == 0) {
             if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-                alert.setContentText("Please Enter name for the session.");
-                alert.showAndWait();
-            } else if (!SessionValidation.validateIPAddress(model.getEndpoint())) {
-                alert.setContentText("Please Enter valid IP address.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter name for the session.");
+                ALERT.showAndWait();
+            } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
+                ALERT.setContentText("Please Enter valid IP address.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.validatePort(model.getPortNo())) {
-                alert.setContentText("Please Enter valid port number for the session.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter valid port number for the session.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-                alert.setContentText("Please Enter Spectra S3 Endpoint Access Key.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter Spectra S3 Endpoint Access Key.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-                alert.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
+                ALERT.showAndWait();
             } else {
                 store.addSession(model.toSession());
                 closeDialog();
             }
         } else if (!savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
             if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-                alert.setContentText("Please Enter name for the session.");
-                alert.showAndWait();
-            } else if (!SessionValidation.validateIPAddress(model.getEndpoint())) {
-                alert.setContentText("Please Enter valid IP address.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter name for the session.");
+                ALERT.showAndWait();
+            } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
+                ALERT.setContentText("Please Enter IP address.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.validatePort(model.getPortNo())) {
-                alert.setContentText("Please Enter valid port number for the session.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter valid port number for the session.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-                alert.setContentText("Please Enter Spectra S3 Endpoint Access Key.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter Spectra S3 Endpoint Access Key.");
+                ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-                alert.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
-                alert.showAndWait();
+                ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
+                ALERT.showAndWait();
             } else {
                 store.addSession(model.toSession());
                 closeDialog();
             }
         } else {
-            alert.setContentText("Session name already in use. Please use a different name.");
-            alert.showAndWait();
+            ALERT.setContentText("Session name already in use. Please use a different name.");
+            ALERT.showAndWait();
         }
     }
 
     public void saveSession() {
         LOG.info("Creating new session");
-        alert.setTitle("New User Session");
+        ALERT.setTitle("New User Session");
 
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.setContentText("Please Enter name for the session. !!");
-            alert.showAndWait();
-        } else if (!SessionValidation.validateIPAddress(model.getEndpoint())) {
-            alert.setContentText("Please Enter valid IP address. !!");
-            alert.showAndWait();
+            ALERT.setContentText("Please Enter name for the session. !!");
+            ALERT.showAndWait();
+        } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
+            ALERT.setContentText("Please Enter the IP address. !!");
+            ALERT.showAndWait();
         } else if (!SessionValidation.validatePort(model.getPortNo())) {
-            alert.setContentText("Please Enter valid port number for the session. !!");
-            alert.showAndWait();
+            ALERT.setContentText("Please Enter valid port number for the session. !!");
+            ALERT.showAndWait();
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.setContentText("Please Enter Spectra S3 Endpoint Access Key. !!");
-            alert.showAndWait();
+            ALERT.setContentText("Please Enter Spectra S3 Endpoint Access Key. !!");
+            ALERT.showAndWait();
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.setContentText("Please Enter Spectra S3 Endpoint Secret Key. !!");
-            alert.showAndWait();
+            ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key. !!");
+            ALERT.showAndWait();
         } else
             savedSessionStore.saveSession(model.toSession());
     }
@@ -236,6 +244,7 @@ public class NewSessionPresenter implements Initializable {
         propertySheet.setMode(PropertySheet.Mode.NAME);
         propertySheet.setModeSwitcherVisible(false);
         propertySheet.setSearchBoxVisible(false);
+
         propertySheetAnchor.getChildren().add(propertySheet);
     }
 
