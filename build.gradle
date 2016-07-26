@@ -20,7 +20,7 @@ subprojects {
 
     dependencies {
         compile 'com.google.guava:guava:19.0'
-        compile 'com.spectralogic.ds3:ds3-sdk:3.0.1'
+        compile 'com.spectralogic.ds3:ds3-sdk:3.0.5'
         compile 'com.airhacks:afterburner.fx:1.6.2'
         compile 'org.controlsfx:controlsfx:8.40.10'
         compile 'de.jensd:fontawesomefx:8.9'

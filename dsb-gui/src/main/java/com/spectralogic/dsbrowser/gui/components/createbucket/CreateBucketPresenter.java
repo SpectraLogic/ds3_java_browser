@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.security.SignatureException;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
 
-    private final Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TextField bucketNameField;
@@ -52,11 +51,11 @@ public class CreateBucketPresenter implements Initializable {
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(final URL location, final ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
 
-        alert.setTitle("Information Dialog");
-        alert.setHeaderText(null);
+        ALERT.setTitle("Error while creating bucket");
+        ALERT.setHeaderText(null);
 
         initGUIElements();
 
@@ -95,16 +94,18 @@ public class CreateBucketPresenter implements Initializable {
             protected Object call() throws Exception {
                 try {
                     final CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
-                    final PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText()).withDataPolicyId(dataPolicy.getId()));
+                    final PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText().trim()).withDataPolicyId(dataPolicy.getId()));
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Create bucket status code: " + response.getResponse().getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Bucket is created.", LogType.SUCCESS);
                     });
                     return response;
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     LOG.error("Failed to create bucket" + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to create bucket" + e.toString(), LogType.ERROR);
+                        ALERT.setContentText("Failed to create bucket. Check Logs");
+                        ALERT.showAndWait();
                     });
                     return null;
                 }

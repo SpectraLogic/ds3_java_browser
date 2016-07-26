@@ -171,6 +171,9 @@ public class NewSessionPresenter implements Initializable {
             } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
                 ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
                 ALERT.showAndWait();
+            } else if (SessionValidation.checkStringEmptyNull(model.getProxyServer())) {
+                ALERT.setContentText("ProxyServer TextField should be Empty.");
+                ALERT.showAndWait();
             } else {
                 store.addSession(model.toSession());
                 closeDialog();
@@ -190,6 +193,9 @@ public class NewSessionPresenter implements Initializable {
                 ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
                 ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key.");
+                ALERT.showAndWait();
+            } else if (SessionValidation.checkStringEmptyNull(model.getProxyServer())) {
+                ALERT.setContentText("ProxyServer TextField should be Empty.");
                 ALERT.showAndWait();
             } else {
                 store.addSession(model.toSession());
@@ -219,6 +225,9 @@ public class NewSessionPresenter implements Initializable {
             ALERT.showAndWait();
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
             ALERT.setContentText("Please Enter Spectra S3 Endpoint Secret Key. !!");
+            ALERT.showAndWait();
+        } else if (SessionValidation.checkStringEmptyNull(model.getProxyServer())) {
+            ALERT.setContentText("ProxyServer TextField should be Empty.");
             ALERT.showAndWait();
         } else
             savedSessionStore.saveSession(model.toSession());

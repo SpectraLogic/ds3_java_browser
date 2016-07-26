@@ -8,6 +8,7 @@ import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.application.Platform;
@@ -71,11 +72,14 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     public SavedJobPrioritiesStore savedJobPrioritiesStore;
 
+    @Inject
+    private SettingsStore settingsStore;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
 
         try {
-            LOG.info("Loading Main view");
+            LOG.info("Loading Main view" + settingsStore.getProcessSettings());
             jobProgressView = new TaskProgressView<>();
             Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
 

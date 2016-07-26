@@ -27,8 +27,10 @@ public class LocalFileTreeTableProvider {
 
     public Stream<FileTreeModel> getRoot(final String rootDir) {
         File[] files = null;
+
         if (rootDir == System.getProperty("user.home")) {
             files = new File(System.getProperty("user.home")).listFiles();
+
         } else {
             files = File.listRoots();
         }
@@ -38,12 +40,19 @@ public class LocalFileTreeTableProvider {
             String size = "";
             String lastModified = "";
             try {
-                size = FileSizeFormat.getFileSizeType(Files.size(path));
-                FileTime modifiedTime = Files.getLastModifiedTime(path);
+                if ((type == FileTreeModel.Type.Media_Device) || (type == FileTreeModel.Type.Directory)) {
+                    size = FileSizeFormat.getFileSizeType(0);
+                } else {
+                    size = FileSizeFormat.getFileSizeType(Files.size(path));
+                }
+                final FileTime modifiedTime = Files.getLastModifiedTime(path);
                 final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
                 lastModified = sdf.format(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
+            }
+            if (rootDir == System.getProperty("user.home")) {
+                return new FileTreeModel(file.toPath(), type, size, 2, lastModified);
             }
             return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
         }).filter(p -> p != null);
@@ -51,7 +60,13 @@ public class LocalFileTreeTableProvider {
 
     private FileTreeModel.Type getRootType(final File file) {
         if (Platform.isWin()) {
-            return FileTreeModel.Type.Media_Device;
+            if (file.isDirectory()) {
+                return FileTreeModel.Type.Directory;
+            } else if (file.isFile()) {
+                return FileTreeModel.Type.File;
+            } else {
+                return FileTreeModel.Type.Media_Device;
+            }
         } else if (file.isFile()) {
             return FileTreeModel.Type.File;
         } else {
@@ -63,12 +78,20 @@ public class LocalFileTreeTableProvider {
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
             try {
-                final String size = FileSizeFormat.getFileSizeType(Files.size(filePath));
                 final FileTreeModel.Type type = getPathType(filePath);
-                final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
-                final String lastModified = sdf.format(fileModifiedTime.toMillis());
-                return new FileTreeModel(filePath, type, size, newDepth, lastModified);
+                if (type == FileTreeModel.Type.Directory) {
+                    final String size = FileSizeFormat.getFileSizeType(0);
+                    final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
+                    final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
+                    final String lastModified = sdf.format(fileModifiedTime.toMillis());
+                    return new FileTreeModel(filePath, type, size, newDepth, lastModified);
+                } else {
+                    final String size = FileSizeFormat.getFileSizeType(Files.size(filePath));
+                    final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
+                    final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
+                    final String lastModified = sdf.format(fileModifiedTime.toMillis());
+                    return new FileTreeModel(filePath, type, size, newDepth, lastModified);
+                }
             } catch (final IOException e) {
                 LOG.error("Failed to get file size for: " + filePath.toString(), e);
                 return new FileTreeModel(filePath, FileTreeModel.Type.Error, "", newDepth, "");

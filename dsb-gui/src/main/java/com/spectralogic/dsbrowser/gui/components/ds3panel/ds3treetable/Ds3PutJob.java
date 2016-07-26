@@ -65,7 +65,13 @@ public class Ds3PutJob extends Ds3JobTask {
             final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
             final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
 
-            files.stream().forEach(path1 -> expandedPaths.put(path1.getParent(), path1));
+            files.stream().forEach(path1 -> {
+                if (directories.size() != 0) {
+                    final Path pathNew = path1.getParent();
+                    partOfDirBuilder.add(pathNew);
+                }
+                expandedPaths.put(path1.getParent(), path1);
+            });
             directories.stream().forEach(path -> {
                 try {
                     partOfDirBuilder.add(path);
@@ -80,10 +86,21 @@ public class Ds3PutJob extends Ds3JobTask {
             final ImmutableList<Ds3Object> objects = expandedPaths.build().entries().stream().map(pair -> {
                 try {
                     final long size = Files.size(pair.getValue());
-                    final String ds3FileName = PathUtil.toDs3Path(targetDir, PathUtil.toDs3Obj(pair.getKey(), pair.getValue(), partOfDir.contains(pair.getKey())));
+                    String ds3ObjPath = null;
+                    if (files.size() == 0) {
+                        ds3ObjPath = PathUtil.toDs3Obj(pair.getKey(), pair.getValue(), partOfDir.contains(pair.getKey()));
+                    } else {
+                        if (directories.size() == 0) {
+                            ds3ObjPath = PathUtil.toDs3Obj(pair.getKey(), pair.getValue(), partOfDir.contains(pair.getKey()));
+                        } else {
+                            ds3ObjPath = PathUtil.toDs3ObjWithFiles(pair.getKey().getRoot(), pair.getValue());
+                        }
+                    }
+                    final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                     fileMapBuilder.put(ds3FileName, pair.getValue());
                     return new Ds3Object(ds3FileName, size);
                 } catch (final IOException e) {
+                    deepStorageBrowserPresenter.logText("Failed to get size for " + pair.getValue(), LogType.ERROR);
                     LOG.error("Failed to get file size for: " + pair.getValue(), e);
                     return null;
                 }

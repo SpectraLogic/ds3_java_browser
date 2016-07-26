@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -28,6 +29,8 @@ import java.util.ResourceBundle;
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
+
+    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TextField folderNameField;
@@ -51,9 +54,13 @@ public class CreateFolderPresenter implements Initializable {
     DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(final URL location, final ResourceBundle resources) {
 
         try {
+
+            ALERT.setTitle("Error while creating folder");
+            ALERT.setHeaderText(null);
+
             initGUIElements();
             folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.equals("")) {
@@ -95,7 +102,7 @@ public class CreateFolderPresenter implements Initializable {
                     final List<Ds3Object> ds3ObjectList = new ArrayList<>();
                     final Ds3Object object = new Ds3Object(location + folderNameField.textProperty().getValue() + "/", 0);
                     ds3ObjectList.add(object);
-                    final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName(), ds3ObjectList));
+                    final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName().trim(), ds3ObjectList));
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Folder is created", LogType.SUCCESS);
@@ -105,6 +112,8 @@ public class CreateFolderPresenter implements Initializable {
                     LOG.error("Failed to delete files" + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to create folder. Reason: " + e.toString(), LogType.ERROR);
+                        ALERT.setContentText("Failed to create folder. Check logs.");
+                        ALERT.showAndWait();
                     });
                     return null;
                 }

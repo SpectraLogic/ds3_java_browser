@@ -130,6 +130,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
 
             final TreeItem<Ds3TreeTableValue> treeItem = values.get(0);
+            if (!treeItem.isExpanded()) {
+                treeItem.setExpanded(true);
+            }
             final Ds3TreeTableValue value = treeItem.getValue();
             final String bucket = value.getBucketName();
             final String targetDir = value.getDirectoryName();
@@ -192,7 +195,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         //noinspection unchecked
         treeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
-            public void changed(ObservableValue observable, Object oldValue,
+            public void changed(final ObservableValue observable, final Object oldValue,
                                 Object newValue) {
                 //noinspection unchecked
                 final TreeItem<FileTreeModel> selectedItem = (TreeItem<FileTreeModel>) newValue;

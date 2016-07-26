@@ -4,7 +4,7 @@ import com.airhacks.afterburner.views.FXMLView;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 
 public class CreateBucketView extends FXMLView {
-    public CreateBucketView(CreateBucketWithDataPoliciesModel createBucketTask, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+    public CreateBucketView(final CreateBucketWithDataPoliciesModel createBucketTask, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         super(name -> {
             switch (name) {
                 case "createBucketWithDataPoliciesModel":

@@ -77,8 +77,18 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     // query black pearl in the background and then update the main thread after
     private void buildChildren(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList) {
+        final Node previousGraphics = super.getGraphic();
+
+        final ImageView processImage = new ImageView("/images/loading.gif");
+        processImage.setFitHeight(20);
+        processImage.setFitWidth(20);
+        super.setGraphic(processImage);
+
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
+        getBucketTask.setOnSucceeded(event -> {
+            super.setGraphic(previousGraphics);
+        });
     }
 
     @Override

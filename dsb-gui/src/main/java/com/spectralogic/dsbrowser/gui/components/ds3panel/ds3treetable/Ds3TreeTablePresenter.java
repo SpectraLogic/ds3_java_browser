@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
+import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
@@ -13,7 +14,6 @@ import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPopup;
-import com.spectralogic.dsbrowser.gui.components.physicalplacement.Ds3PhysicalPlacement;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -32,19 +32,20 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -128,7 +129,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         //noinspection unchecked
         ds3TreeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
-            public void changed(ObservableValue observable, Object oldValue,
+            public void changed(final ObservableValue observable, final Object oldValue,
                                 Object newValue) {
                 //noinspection unchecked
                 final TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
@@ -250,14 +251,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                 event.consume();
             });
 
-            row.setOnMouseClicked(event -> {
-                final TreeItem<Ds3TreeTableValue> selectedTreeItem = row.getTreeItem();
-                if (selectedTreeItem.getValue().getType() == Ds3TreeTableValue.Type.Bucket || selectedTreeItem.getValue().getType() == Ds3TreeTableValue.Type.Directory) {
-                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    event.consume();
-                }
-            });
-
             row.setContextMenu(contextMenu);
 
             return row;
@@ -268,15 +261,28 @@ public class Ds3TreeTablePresenter implements Initializable {
         rootTreeItem.setExpanded(true);
         ds3TreeTable.setShowRoot(false);
 
+        final Node oldPlaceHolder = ds3TreeTable.getPlaceholder();
+
+        final ProgressIndicator progress = new ProgressIndicator();
+        progress.setMaxSize(90, 90);
+        ds3TreeTable.setPlaceholder(new StackPane(progress));
+
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
         ds3TreeTable.setRoot(rootTreeItem);
         workers.execute(getServiceTask);
+
+        progress.progressProperty().bind(getServiceTask.progressProperty());
+
+        getServiceTask.setOnSucceeded(event -> {
+            ds3TreeTable.setPlaceholder(oldPlaceHolder);
+        });
     }
 
     private void showPhysicalPlacement() {
 
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
+
         if (values.isEmpty()) {
             LOG.error("Nothing selected");
             ALERT.setContentText("Nothing selected !!");
@@ -291,9 +297,9 @@ public class Ds3TreeTablePresenter implements Initializable {
             return;
         }
 
-        final Task<Ds3PhysicalPlacement> getPhysicalPlacement = new Task<Ds3PhysicalPlacement>() {
+        final Task<PhysicalPlacement> getPhysicalPlacement = new Task<PhysicalPlacement>() {
             @Override
-            protected Ds3PhysicalPlacement call() throws Exception {
+            protected PhysicalPlacement call() throws Exception {
 
                 final Ds3Client client = session.getClient();
                 final Ds3TreeTableValue value = values.get(0).getValue();
@@ -304,9 +310,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                         .getPhysicalPlacementForObjectsSpectraS3(
                                 new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
-                return new Ds3PhysicalPlacement(response.getPhysicalPlacementResult(),
-                        response.getPhysicalPlacementResult().getTapes(),
-                        response.getPhysicalPlacementResult().getPools());
+                return response.getPhysicalPlacementResult();
 
             }
         };
@@ -382,7 +386,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         deepStorageBrowserPresenter.logText("Delete response code: " + deleteFolderRecursivelySpectraS3Response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted folder", LogType.SUCCESS);
                     });
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     LOG.error("Failed to delete files" + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to delete folder", LogType.ERROR);
@@ -395,6 +399,9 @@ public class Ds3TreeTablePresenter implements Initializable {
         };
         DeleteFilesPopup.show(task, null, this);
         values.stream().forEach(file -> refresh(file.getParent()));
+        Platform.runLater(() -> {
+            ds3TreeTable.getSelectionModel().clearSelection();
+        });
 
     }
 
@@ -437,7 +444,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         deepStorageBrowserPresenter.logText("Delete response code: " + deleteObjectsResponse.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
                     });
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     LOG.error("Failed to delete files" + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to delete files", LogType.ERROR);
@@ -485,7 +492,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);
                     });
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     LOG.error("Failed to delete Bucket" + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to delete Bucket.", LogType.ERROR);
@@ -513,7 +520,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final GetDataPoliciesSpectraS3Response response = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request());
 
                 final ImmutableList<CreateBucketModel> buckets = response.getDataPolicyListResult().
-                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
+                        getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName().trim(), bucket.getId())).collect(GuavaCollectors.immutableList());
                 final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                         new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
                 return dataPoliciesList.get(0);
@@ -546,11 +553,23 @@ public class Ds3TreeTablePresenter implements Initializable {
         rootTreeItem.setExpanded(true);
         ds3TreeTableView.setShowRoot(false);
 
+        final Node oldPlaceHolder = ds3TreeTableView.getPlaceholder();
+
+        final ProgressIndicator progress = new ProgressIndicator();
+        progress.setMaxSize(90, 90);
+        ds3TreeTableView.setPlaceholder(new StackPane(progress));
+
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
         ds3TreeTableView.setRoot(rootTreeItem);
         this.workers = workers;
         this.session = session;
         this.workers.execute(getServiceTask);
+
+        progress.progressProperty().bind(getServiceTask.progressProperty());
+
+        getServiceTask.setOnSucceeded(event -> {
+            ds3TreeTableView.setPlaceholder(oldPlaceHolder);
+        });
     }
 
     private class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {

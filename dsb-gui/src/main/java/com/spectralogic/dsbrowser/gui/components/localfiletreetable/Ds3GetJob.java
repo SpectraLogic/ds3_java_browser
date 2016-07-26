@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -34,11 +35,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.SignatureException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Ds3GetJob extends Ds3JobTask {
 
@@ -50,7 +50,6 @@ public class Ds3GetJob extends Ds3JobTask {
     private final Ds3Client ds3Client;
     private final ArrayList<Ds3TreeTableValue> nodes;
     private String bucket;
-
 
     public Ds3GetJob(final List<Ds3TreeTableValue> list, final FileTreeModel fileTreeModel, final Ds3Client client, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.list = list;
@@ -65,16 +64,14 @@ public class Ds3GetJob extends Ds3JobTask {
     @Override
     public void executeJob() throws Exception {
         try {
-
-            final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
-            final String date = sdf.format(new Date());
-            updateTitle("GET Job" + ds3Client.getConnectionDetails().getEndpoint() + " " + date);
+            updateTitle("GET Job" + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()));
             Platform.runLater(() -> {
                 deepStorageBrowserPresenter.logText("Get Job initiated " + ds3Client.getConnectionDetails().getEndpoint(), LogType.INFO);
             });
 
             updateMessage("Transferring..");
 
+            //assigning value in next step hence no final
             Path localDirPath = fileTreeModel.getPath();
             if (fileTreeModel.getType().equals(FileTreeModel.Type.File)) {
                 localDirPath = localDirPath.getParent();
@@ -83,13 +80,20 @@ public class Ds3GetJob extends Ds3JobTask {
             final ImmutableList<Ds3TreeTableValue> directories = list.stream().filter(value -> !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
             final ImmutableList<Ds3TreeTableValue> files = list.stream().filter(value -> value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
 
-            files.stream().forEach(value -> nodes.add(value));
-            directories.stream().forEach(value -> {
-                addAllDescendents(value, nodes);
-                LOG.info("" + partOfDirBuilder.build().size());
+
+            files.stream().forEach(value -> {
+                nodes.add(value);
             });
 
-            final ImmutableList<Ds3Object> objects = nodes.stream().map(pair -> {
+            directories.stream().forEach(value -> {
+                addAllDescendents(value, nodes);
+
+            });
+
+
+            final List<Ds3TreeTableValue> filteredNode = nodes.stream().filter(i -> !i.getSize().equals("--")).collect(Collectors.toList());
+
+            final ImmutableList<Ds3Object> objects = filteredNode.stream().map(pair -> {
                 try {
                     if (bucket == null) {
                         bucket = pair.getBucketName();
@@ -97,21 +101,28 @@ public class Ds3GetJob extends Ds3JobTask {
                     if (partOfDirBuilder.build().size() == 0)
                         return new Ds3Object(pair.getFullName(), Long.parseLong(pair.getSize().replaceAll("\\D+", "")));
                     else {
+                        //can not assign final
                         Path dirPath = fileTreeModel.getPath();
                         if (fileTreeModel.getType().equals(FileTreeModel.Type.File)) {
                             dirPath = dirPath.getParent();
                         }
 
+                        long size = 0;
+                        try {
+                            size = Long.parseLong(pair.getSize().replaceAll("\\D+", ""));
+                        } catch (final Exception e) {
+                            return null;
+                        }
+
                         final Path pathToFile = Paths.get(dirPath.toString(), pair.getFullName());
                         Files.createDirectories(pathToFile.getParent());
+                        return new Ds3Object(pair.getFullName(), size);
 
-                        //f.getParentFile().mkdirs();
-                        return new Ds3Object(pair.getFullName(), Long.parseLong(pair.getSize().replaceAll("\\D+", "")));
                     }
                 } catch (final SecurityException | IOException e) {
                     LOG.error("Exception while creation directories ", e);
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("GET Job failed: " + ds3Client.getConnectionDetails().getEndpoint() + " " + date + " " + e.toString(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("GET Job failed: " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()) + " " + e.toString(), LogType.SUCCESS);
                     });
 
                     return null;
@@ -151,16 +162,13 @@ public class Ds3GetJob extends Ds3JobTask {
                     break;
             }
 
-            // Prime DS3 with the BulkGet command so that it can start to get objects off of tape.
-
-            // The bulk response returns a list of lists which is designed to optimize data transmission from DS3.
-
             long workDone = 0;
             final MasterObjectList list = bulkResponse.getResult();
             for (final Objects objects1 : list.getObjects()) {
                 long totalSize = objects1.getObjects().stream().mapToLong(BulkObject::getLength).sum();
                 for (final BulkObject obj : objects1.getObjects()) {
                     final File file = new File(obj.getName());
+                    //can not assign final
                     String path = file.getPath();
                     bucket = bulkResponse.getResult().getBucketName();
                     if (partOfDirBuilder.build().size() == 0) {
@@ -192,7 +200,7 @@ public class Ds3GetJob extends Ds3JobTask {
             }
 
             Platform.runLater(() -> {
-                deepStorageBrowserPresenter.logText("GET Job completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + date, LogType.SUCCESS);
+                deepStorageBrowserPresenter.logText("GET Job completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS);
             });
 
 
@@ -232,7 +240,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 addAllDescendents(i, nodes);
             });
 
-        } catch (final IOException | SignatureException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 

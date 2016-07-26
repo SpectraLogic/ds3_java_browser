@@ -23,7 +23,7 @@ public class Main extends Application {
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private final Workers workers = new Workers();
-    private final JobWorkers jobWorkers = new JobWorkers();
+    private JobWorkers jobWorkers = null;
     private SavedSessionStore savedSessionStore = null;
     private SavedJobPrioritiesStore savedJobPrioritiesStore = null;
     private SettingsStore settings = null;
@@ -35,7 +35,7 @@ public class Main extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Deep Storage Browser v0.0.1");
+
 
         this.settings = SettingsStore.loadSettingsStore(); // Do not log when loading the settings store
         // Create the log service before any logging has started..
@@ -46,6 +46,8 @@ public class Main extends Application {
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
 
         final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
+
+        jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
 
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
 
@@ -61,6 +63,8 @@ public class Main extends Application {
         Injector.setModelOrService(SavedJobPrioritiesStore.class, this.savedJobPrioritiesStore);
         Injector.setModelOrService(ResourceBundle.class, resourceBundle);
         Injector.setModelOrService(DataFormat.class, dataFormat);
+
+        primaryStage.setTitle(resourceBundle.getString("title"));
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 

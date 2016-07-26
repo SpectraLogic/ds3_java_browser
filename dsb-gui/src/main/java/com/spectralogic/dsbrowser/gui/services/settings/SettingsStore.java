@@ -20,14 +20,20 @@ public class SettingsStore {
     private final static Logger LOG = LoggerFactory.getLogger(SettingsStore.class);
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "settings.json");
+
     @JsonProperty("logSettings")
     private final LogSettings logSettings;
+
+    @JsonProperty("processSettings")
+    private final ProcessSettings processSettings;
+
     private boolean dirty = false;
 
 
     @JsonCreator
-    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings) {
+    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings, @JsonProperty("processSettings") final ProcessSettings processSettings) {
         this.logSettings = logSettings;
+        this.processSettings = processSettings;
     }
 
     public static SettingsStore loadSettingsStore() throws IOException {
@@ -37,7 +43,7 @@ public class SettingsStore {
                 return JsonMapping.fromJson(inputStream, SettingsStore.class);
             }
         } else {
-            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT);
+            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT);
             settingsStore.dirty = true; // set this to true so we will write the settings after the first run
             return settingsStore;
         }
@@ -62,6 +68,15 @@ public class SettingsStore {
     public void setLogSettings(final LogSettings settings) {
         dirty = true;
         logSettings.overwrite(settings);
+    }
+
+    public ProcessSettings getProcessSettings() {
+        return processSettings;
+    }
+
+    public void setProcessSettings(final ProcessSettings settings) {
+        dirty = true;
+        processSettings.overwrite(settings);
     }
 
 }

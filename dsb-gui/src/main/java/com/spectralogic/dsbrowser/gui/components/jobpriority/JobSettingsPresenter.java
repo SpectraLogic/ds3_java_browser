@@ -37,7 +37,7 @@ public class JobSettingsPresenter implements Initializable {
 
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(final URL location, final ResourceBundle resources) {
         try {
             this.jobSettings = jobPrioritiesStore.getJobSettings();
             initComboBox();

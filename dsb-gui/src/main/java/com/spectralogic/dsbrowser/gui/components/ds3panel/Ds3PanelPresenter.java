@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -72,7 +71,7 @@ public class Ds3PanelPresenter implements Initializable {
     private Button ds3Refresh, ds3NewFolder, ds3NewBucket, ds3DeleteButton, newSessionButton, ds3TransferLeft;
 
     @FXML
-    private Tooltip ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip, ds3TransferLeftToolTip;
+    private Tooltip ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip, ds3TransferLeftToolTip, newSessionToolTip;
 
     @FXML
     private TextField ds3PanelSearch;
@@ -245,6 +244,7 @@ public class Ds3PanelPresenter implements Initializable {
                 jobWorkers.execute(getJob);
 
                 getJob.setOnSucceeded(e -> {
+                    //can not assign final modifier as assigning value again in next step
                     TreeItem<FileTreeModel> selectedItem = selectedItemsAtDestination.get(0);
                     if (selectedItemsAtDestination.get(0).getValue().getType().equals(FileTreeModel.Type.File)) {
                         selectedItem = selectedItemsAtDestination.get(0).getParent();
@@ -292,7 +292,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
 
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
-                String bucketName = ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getBucketName();
+                final String bucketName = ds3TreeTableView.getSelectionModel().getSelectedItem().getValue().getBucketName();
                 deleteBucket(session, bucketName, values);
             }
 
@@ -331,7 +331,7 @@ public class Ds3PanelPresenter implements Initializable {
             protected Object call() throws Exception {
                 try {
                     getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     LOG.error("Failed to delte Bucket " + e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to delete bucket", LogType.ERROR);
@@ -375,7 +375,7 @@ public class Ds3PanelPresenter implements Initializable {
                         deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
                     });
-                } catch (final IOException | SignatureException e) {
+                } catch (final IOException e) {
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to delete files" + e.toString(), LogType.ERROR);
                     });
@@ -417,6 +417,7 @@ public class Ds3PanelPresenter implements Initializable {
                 return;
             }
 
+            //Can not assign final as assigning value again in next step
             String location = values.get(0).getValue().getFullName();
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
                 location = values.get(0).getParent().getValue().getFullName();
@@ -425,7 +426,11 @@ public class Ds3PanelPresenter implements Initializable {
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
 
             CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)), deepStorageBrowserPresenter);
-            refresh(values.get(0));
+            final TreeItem item = values.get(0);
+            if (item.isExpanded())
+                refresh(values.get(0));
+            else
+                item.setExpanded(true);
 
         } else {
             ALERT.setContentText("Invalid Session!");
@@ -569,6 +574,7 @@ public class Ds3PanelPresenter implements Initializable {
         newSessionButton.setText(resourceBundle.getString("newSessionButton"));
         ds3TransferLeft.setText(resourceBundle.getString("ds3TransferLeft"));
         ds3TransferLeftToolTip.setText(resourceBundle.getString("ds3TransferLeftToolTip"));
+        newSessionToolTip.setText(resourceBundle.getString("newSessionToolTip"));
 
         final Tooltip imageToolTip = new Tooltip(resourceBundle.getString("imageViewForTooltip"));
         imageToolTip.setMaxWidth(150);

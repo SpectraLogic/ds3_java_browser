@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.cell.TreeItemPropertyValueFactory?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
-
-<TreeTableView fx:id="ds3TreeTable" prefHeight="171.0" prefWidth="600.0" stylesheets="@../../../common.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter">
+<TreeTableView fx:id="ds3TreeTable" prefHeight="171.0" prefWidth="600.0" stylesheets="@../../../common.css"
+               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+               AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+               fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter">
     <columns>
-        <TreeTableColumn minWidth="-Infinity" prefWidth="125.0" text="Name">
+        <TreeTableColumn minWidth="-Infinity" prefWidth="125.0" text="Name" >
             <cellValueFactory>
                 <TreeItemPropertyValueFactory property="name" />
             </cellValueFactory>
         </TreeTableColumn>
         <TreeTableColumn minWidth="-Infinity" prefWidth="50.0" text="Size">
             <cellValueFactory>
-                <TreeItemPropertyValueFactory property="size" />
+                <TreeItemPropertyValueFactory property="size"/>
             </cellValueFactory>
         </TreeTableColumn>
         <TreeTableColumn minWidth="-Infinity" prefWidth="50.0" text="Type">
             <cellValueFactory>
-                <TreeItemPropertyValueFactory property="type" />
+                <TreeItemPropertyValueFactory property="type"/>
             </cellValueFactory>
         </TreeTableColumn>
         <TreeTableColumn minWidth="-Infinity" prefWidth="75.0" text="Date Modified">
             <cellValueFactory>
-                <TreeItemPropertyValueFactory property="lastModified" />
+                <TreeItemPropertyValueFactory property="lastModified"/>
             </cellValueFactory>
         </TreeTableColumn>
     </columns>
     <columnResizePolicy>
-        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
     </columnResizePolicy>
 </TreeTableView>

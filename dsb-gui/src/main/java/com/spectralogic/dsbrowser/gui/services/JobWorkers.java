@@ -16,11 +16,19 @@ public class JobWorkers {
 
     private final static Logger LOG = LoggerFactory.getLogger(JobWorkers.class);
 
-    private final ExecutorService workers;
+    private ExecutorService workers;
     private final ObservableList<Ds3JobTask> tasks;
+
+    public void setWorkers(ExecutorService workers) {
+        this.workers = workers;
+    }
 
     public JobWorkers() {
         this(10);
+    }
+
+    public ExecutorService getWorkers() {
+        return workers;
     }
 
     public JobWorkers(final int num) {
