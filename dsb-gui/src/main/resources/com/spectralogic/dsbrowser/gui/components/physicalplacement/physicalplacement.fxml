@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="896.0" spacing="10.0"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="985.0" spacing="10.0"
       xmlns="http://javafx.com/javafx/8"
       fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
     <children>
@@ -66,57 +66,67 @@
             </children>
         </HBox>
         <TableView fx:id="physicalPlacementDataTableTape" editable="true"
-                   prefHeight="175.0" prefWidth="780.0">
+                   prefHeight="175.0" prefWidth="850.0">
             <columns>
-                <TableColumn prefWidth="62.0" text="Barcode">
+                <TableColumn prefWidth="55.0" text="Barcode">
                     <cellValueFactory>
                         <PropertyValueFactory property="barcode"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="92.0" text="Serial Number">
+                <TableColumn prefWidth="88.0" text="Serial Number">
                     <cellValueFactory>
                         <PropertyValueFactory property="serialNO"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="53.0" text="Type">
+                <TableColumn prefWidth="46.0" text="Type">
                     <cellValueFactory>
                         <PropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="52.0" text="State">
+                <TableColumn prefWidth="50.0" text="State">
                     <cellValueFactory>
                         <PropertyValueFactory property="state"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="105.0" text="Last Tape Error">
+                <TableColumn prefWidth="98.0" text="Last Tape Error">
                     <cellValueFactory>
                         <PropertyValueFactory property="lastTapeError"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="110.0" text="WriteProtected">
+                <TableColumn prefWidth="100.0" text="WriteProtected">
                     <cellValueFactory>
                         <PropertyValueFactory property="writeProtected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn minWidth="0.0" prefWidth="70.0" text="Available">
+                <TableColumn minWidth="0.0" prefWidth="60.0" text="Available">
                     <cellValueFactory>
                         <PropertyValueFactory property="available"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="52.0" text="Used">
+                <TableColumn prefWidth="45.0" text="Used">
                     <cellValueFactory>
                         <PropertyValueFactory property="used"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn minWidth="0.0" prefWidth="139.0"
+                <TableColumn minWidth="0.0" prefWidth="138.0"
                              text="Tape Library Partition">
                     <cellValueFactory>
                         <PropertyValueFactory property="tapePartition"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="95.0" text="Last Modified">
+                <TableColumn prefWidth="85.0" text="Last Modified">
                     <cellValueFactory>
                         <PropertyValueFactory property="lastModified"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="75.0" text="Eject Label">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="ejectLabel"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="95.0" text="Eject Location">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="ejectLocation"/>
                     </cellValueFactory>
                 </TableColumn>
             </columns>

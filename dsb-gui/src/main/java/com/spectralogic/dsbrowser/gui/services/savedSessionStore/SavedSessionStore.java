@@ -7,7 +7,6 @@ import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,20 +68,51 @@ public class SavedSessionStore {
         return sessions;
     }
 
-    public void saveSession(final Session session) {
+    public int saveSession(final Session session) {
+        int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            index = 1;
+        } else if (containsSessionName(sessions, session.getSessionName())) {
+            final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
+            if (isNewValuePresent(savedSession, session)) {
+                index = sessions.indexOf(savedSession);
+                this.sessions.remove(savedSession);
+                this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
+                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            } else {
+                return -1;
+            }
+
         } else if (!containsSessionName(sessions, session.getSessionName())) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            index = sessions.size();
         } else {
-            final Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText(null);
-            alert.setTitle("New User Session");
-            alert.setContentText("Session name already in use. Please use a different name.");
-            alert.showAndWait();
+            index = -2;
         }
+        return index;
+    }
+
+    private boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
+        if (!savedSession.getName().equals(session.getSessionName()))
+            return true;
+        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
+            return true;
+        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey()))
+            return true;
+        if (!savedSession.getEndpoint().equals(session.getEndpoint()))
+            return true;
+        if (!savedSession.getPortNo().equals(session.getPortNo()))
+            return true;
+        if (savedSession.getProxyServer() != null && savedSession.getProxyServer().equals(session.getProxyServer()))
+            return true;
+        if (session.getProxyServer() != null) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {

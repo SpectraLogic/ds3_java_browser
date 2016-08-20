@@ -1,26 +1,44 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.LogType;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class Main extends Application {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
+    final Alert CLOSECONFIRMATIONALERT = new Alert(
+            Alert.AlertType.CONFIRMATION,
+            "Are you sure you want to exit?"
+    );
 
     private final Workers workers = new Workers();
     private JobWorkers jobWorkers = null;
@@ -28,6 +46,8 @@ public class Main extends Application {
     private SavedJobPrioritiesStore savedJobPrioritiesStore = null;
     private SettingsStore settings = null;
     private DataFormat dataFormat = null;
+    private ResourceBundle resourceBundle = null;
+    private Stage primaryStage = null;
 
     public static void main(final String[] args) {
         launch(args);
@@ -36,24 +56,18 @@ public class Main extends Application {
     @Override
     public void start(final Stage primaryStage) throws Exception {
 
-
+        this.primaryStage = primaryStage;
         this.settings = SettingsStore.loadSettingsStore(); // Do not log when loading the settings store
         // Create the log service before any logging has started..
         final LogService logService = new LogService(this.settings.getLogSettings());
-
         this.savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
-
         this.savedSessionStore = SavedSessionStore.loadSavedSessionStore();
-
-        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
-
-        jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
+        this.dataFormat = new DataFormat("Ds3TreeTableView");
+        this.resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
+        this.jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
 
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
-
-        this.dataFormat = new DataFormat("Ds3TreeTableView");
-
-        LOG.info("Starting Deep Storage Browser v0.0.1");
+        LOG.info("Starting Deep Storage Browser v2.0");
         Injector.setLogger(injectorLogger::debug);
         Injector.setModelOrService(LogService.class, logService);
         Injector.setModelOrService(SettingsStore.class, settings);
@@ -63,21 +77,57 @@ public class Main extends Application {
         Injector.setModelOrService(SavedJobPrioritiesStore.class, this.savedJobPrioritiesStore);
         Injector.setModelOrService(ResourceBundle.class, resourceBundle);
         Injector.setModelOrService(DataFormat.class, dataFormat);
-
-        primaryStage.setTitle(resourceBundle.getString("title"));
-
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
+        primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
-
+        primaryStage.setMaximized(true);
         primaryStage.show();
+        primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
     }
 
-    @Override
-    public void stop() {
-        LOG.info("Starting shutdown process...");
+    private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
+
+        if (jobWorkers.getTasks().isEmpty()) {
+            closeApplication();
+            event.consume();
+
+        } else {
+
+            final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                    ButtonType.OK
+            );
+            final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                    ButtonType.CANCEL
+            );
+            exitButton.setText("Exit");
+            cancelButton.setText("Cancel");
+
+            if (jobWorkers.getTasks().size() == 1) {
+                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
+            } else {
+                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
+            }
+
+            CLOSECONFIRMATIONALERT.initModality(Modality.APPLICATION_MODAL);
+            CLOSECONFIRMATIONALERT.initOwner(primaryStage);
+
+            Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
+
+            if (closeResponse.get().equals(ButtonType.OK)) {
+                closeApplication();
+                event.consume();
+            }
+
+            if (closeResponse.get().equals(ButtonType.CANCEL)) {
+                event.consume();
+            }
+        }
+    };
+
+    private void closeApplication() {
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {
@@ -100,8 +150,30 @@ public class Main extends Application {
                 LOG.error("Failed to save settings information to the local filesystem", e);
             }
         }
+        if (jobWorkers.getTasks().size() != 0) {
+
+            jobWorkers.getTasks().stream().forEach(i -> {
+                try {
+                    if (i instanceof Ds3PutJob) {
+                        final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
+                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3PutJob.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3PutJob.getJobId()).withForce(true));
+                        LOG.info("Cancelled job. Status code: " + cancelJobSpectraS3Response.getResponse().getStatusCode());
+                    } else if (i instanceof Ds3GetJob) {
+                        final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
+                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3GetJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3GetJob.getJobId()).withForce(true));
+                        LOG.info("Cancelled job. Status code: " + cancelJobSpectraS3Response.getResponse().getStatusCode());
+                    }
+                } catch (final Exception e1) {
+                    LOG.info("Failed to cancel job", LogType.ERROR);
+                }
+            });
+        }
         workers.shutdown();
         jobWorkers.shutdown();
+        jobWorkers.shutdownNow();
         LOG.info("Finished shutting down");
+        Platform.exit();
+        System.exit(0);
     }
+
 }

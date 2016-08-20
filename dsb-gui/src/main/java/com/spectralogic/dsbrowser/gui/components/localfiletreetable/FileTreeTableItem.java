@@ -1,10 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
-import com.google.common.collect.ImmutableList;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -22,6 +23,8 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
@@ -30,33 +33,50 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final LocalFileTreeTableProvider provider;
     private final boolean leaf;
     private final FileTreeModel fileTreeModel;
-
     private boolean accessedChildren = false;
     private boolean error = false;
+    private final Workers workers;
 
-    public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel) {
+    public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = isLeaf(fileTreeModel.getPath());
         this.provider = provider;
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
+        this.workers = workers;
     }
 
     private static boolean isLeaf(final Path path) {
         return !Files.isDirectory(path);
     }
 
-    private ImageView getGraphicType(final FileTreeModel fileTreeModel) {
+    private Node getGraphicType(final FileTreeModel fileTreeModel) {
         final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
-        final javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
+        try {
+            final javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
 
-        final BufferedImage bufferedImage = new BufferedImage(
-                16,
-                16,
-                BufferedImage.TYPE_INT_ARGB
-        );
-        icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
-        return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
+            final BufferedImage bufferedImage = new BufferedImage(
+                    16,
+                    16,
+                    BufferedImage.TYPE_INT_ARGB
+            );
+            icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
+            return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
+        } catch (final Exception e) {
+            return getGraphicFont(fileTreeModel);
+        }
+
+    }
+
+    private FontAwesomeIconView getGraphicFont(final FileTreeModel fileTreeModel) {
+        switch (fileTreeModel.getType()) {
+            case File_System:
+                return Icon.getIcon(FontAwesomeIcon.FILE);
+            case Directory:
+                return Icon.getIcon(FontAwesomeIcon.FOLDER);
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -64,7 +84,26 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         if (!accessedChildren) {
             accessedChildren = true;
             final ObservableList<TreeItem<FileTreeModel>> children = super.getChildren();
-            buildChildren(children);
+            final Node previousGraphics = super.getGraphic();
+
+            final ImageView processImage = new ImageView("/images/loading.gif");
+            processImage.setFitHeight(20);
+            processImage.setFitWidth(20);
+            super.setGraphic(processImage);
+            final Task buildChildren = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    buildChildren(children);
+                    return null;
+                }
+            };
+
+            workers.execute(buildChildren);
+            buildChildren.setOnSucceeded(event -> {
+                LOG.info("Success");
+                super.setGraphic(previousGraphics);
+
+            });
         }
         return super.getChildren();
     }
@@ -74,6 +113,12 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         return leaf;
     }
 
+    public void refresh() {
+        final ObservableList<TreeItem<FileTreeModel>> list = super.getChildren();
+        list.remove(0, list.size());
+        buildChildren(list);
+    }
+
     private void buildChildren(final ObservableList<TreeItem<FileTreeModel>> children) {
         if (fileTreeModel == null) {
             return;
@@ -81,21 +126,20 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
         final Path path = fileTreeModel.getPath();
 
-        if (path != null && !isLeaf(path)) {
-            try {
-                final ImmutableList<FileTreeTableItem> fileChildren = provider
-                        .getListForDir(fileTreeModel)
-                        .map(ftm -> new FileTreeTableItem(provider, ftm))
-                        .collect(GuavaCollectors.immutableList());
-                children.setAll(fileChildren);
-                children.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-            } catch (final AccessDeniedException ae) {
-                LOG.error("Could not access file", ae);
-                setError("Invalid permissions");
-            } catch (final IOException e) {
-                LOG.error("Failed to get children for " + path.toString(), e);
-                setError("Failed to get children");
-            }
+        if (path != null && !isLeaf(path)) try {
+            final List<FileTreeTableItem> fileChildren = provider
+                    .getListForDir(fileTreeModel)
+                    .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
+                    .collect(Collectors.toList());
+            fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
+            children.setAll(fileChildren);
+
+        } catch (final AccessDeniedException ae) {
+            LOG.error("Could not access file", ae);
+            setError("Invalid permissions");
+        } catch (final IOException e) {
+            LOG.error("Failed to get children for " + path.toString(), e);
+            setError("Failed to get children");
         }
     }
 

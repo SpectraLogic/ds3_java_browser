@@ -41,6 +41,12 @@ public class SettingsStore {
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
                 return JsonMapping.fromJson(inputStream, SettingsStore.class);
+            } catch (final Exception e) {
+                Files.delete(PATH);
+                LOG.info("Creating new empty saved setting store");
+                final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT);
+                settingsStore.dirty = true; // set this to true so we will write the settings after the first run
+                return settingsStore;
             }
         } else {
             final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT);

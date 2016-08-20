@@ -7,7 +7,7 @@ import java.util.Locale;
 public class DateFormat {
 
     public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss", Locale.US);
+        final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss", Locale.US);
         if (date == null)
             return "";
         return sdf.format(date);

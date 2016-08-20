@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
-import com.spectralogic.dsbrowser.gui.components.jobpriority.JobSettingsView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
@@ -17,13 +16,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -32,10 +35,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
 
     @FXML
-    public AnchorPane fileSystem;
-
-    @FXML
-    public AnchorPane blackPearl;
+    private AnchorPane fileSystem, blackPearl;
 
     @FXML
     private SplitPane jobSplitter;
@@ -56,10 +56,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private ScrollPane scrollPane;
 
     @FXML
-    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, jobSettingsItem;
+    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem;
 
     @FXML
     private Menu fileMenu, helpMenu, viewMenu;
+
+    @FXML
+    private BorderPane borderPane;
 
     @Inject
     private JobWorkers jobWorkers;
@@ -79,28 +82,22 @@ public class DeepStorageBrowserPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
 
         try {
-            LOG.info("Loading Main view" + settingsStore.getProcessSettings());
-            jobProgressView = new TaskProgressView<>();
-            Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
 
-            //Setting up labels from resource file
-            fileMenu.setText(resourceBundle.getString("fileMenu"));
-            sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
-            settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
-            jobSettingsItem.setText(resourceBundle.getString("jobSettingsItem"));
-            closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
-            viewMenu.setText(resourceBundle.getString("viewMenu"));
-            jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
-            logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
-            helpMenu.setText(resourceBundle.getString("helpMenu"));
-            aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
+            setToolTilBehavior(200, 5000, 0); //To set the time interval of tooltip
+            initGUIElement(); //Setting up labels from resource file
+
+            LOG.info("Loading Main view" + settingsStore.getProcessSettings());
+
+            jobProgressView = new TaskProgressView<>();
+
+            Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
 
             jobsMenuItem.selectedProperty().setValue(true);
             logsMenuItem.selectedProperty().setValue(true);
             jobsTab.setContent(jobProgressView);
             logsTab.setContent(scrollPane);
             jobSplitter.getItems().add(bottomTabPane);
-            jobSplitter.setDividerPositions(0.75);
+            jobSplitter.setDividerPositions(0.95);
 
             jobsMenuItem.setOnAction(event -> {
                 if (jobsMenuItem.isSelected()) {
@@ -138,20 +135,68 @@ public class DeepStorageBrowserPresenter implements Initializable {
             final Ds3PanelView ds3PanelView = new Ds3PanelView(this);
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
             ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
+
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
-            throw e;
+            logText("Encountered an error when creating Main view", LogType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    private void initGUIElement() {
+        fileMenu.setText(resourceBundle.getString("fileMenu"));
+        sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
+        settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
+        closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
+        viewMenu.setText(resourceBundle.getString("viewMenu"));
+        jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
+        logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
+        helpMenu.setText(resourceBundle.getString("helpMenu"));
+        aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
+    }
+
+    public AnchorPane getFileSystem() {
+        return fileSystem;
+    }
+
+    public AnchorPane getBlackPearl() {
+        return blackPearl;
+    }
+
+    public TaskProgressView<Ds3JobTask> getJobProgressView() {
+        return jobProgressView;
+    }
+
+    /**
+     * This function is to set tje tooltip behaviour. You can set initial delay, duration of the tooltip and close delay.
+     *
+     * @param openDelay  delay in displaying toltip
+     * @param duration   tooltip display time
+     * @param closeDelay tooltip closing time
+     */
+    private void setToolTilBehavior(final int openDelay, final int duration, final int closeDelay) {
+        try {
+            final Field field = Tooltip.class.getDeclaredField("BEHAVIOR");
+            field.setAccessible(true);
+
+            final Class[] classes = Tooltip.class.getDeclaredClasses();
+            for (Class clazz : classes) {
+                if (clazz.getName().equals("javafx.scene.control.Tooltip$TooltipBehavior")) {
+                    Constructor ctor = clazz.getDeclaredConstructor(Duration.class, Duration.class, Duration.class, boolean.class);
+                    ctor.setAccessible(true);
+                    Object tooltipBehavior = ctor.newInstance(new Duration(openDelay), new Duration(duration), new Duration(closeDelay), false);
+                    field.set(null, tooltipBehavior);
+                    break;
+                }
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void showSettingsPopup() {
         final SettingsView settingsView = new SettingsView();
-        Popup.show(settingsView.getView(), "Logging Settings");
-    }
-
-    public void showJobSettingsPopup() {
-        final JobSettingsView jobSettingsView = new JobSettingsView();
-        Popup.show(jobSettingsView.getView(), "Job Settings");
+        Popup.show(settingsView.getView(), "Settings");
     }
 
     public void showAboutPopup() {
@@ -167,21 +212,21 @@ public class DeepStorageBrowserPresenter implements Initializable {
         Platform.exit();
     }
 
-
     public void logText(final String log, final LogType type) {
-        final Text t = new Text();
+        final Text text = new Text();
+
         switch (type) {
             case SUCCESS:
-                t.getStyleClass().add("successText");
+                text.getStyleClass().add("successText");
                 break;
             case ERROR:
-                t.getStyleClass().add("errorText");
+                text.getStyleClass().add("errorText");
                 break;
             default:
-                t.getStyleClass().add("logText");
+                text.getStyleClass().add("logText");
         }
-        t.setText(formattedString(log));
-        logTextFlow.getChildren().add(t);
+        text.setText(formattedString(log));
+        logTextFlow.getChildren().add(text);
         scrollPane.setVvalue(1.0);
     }
 

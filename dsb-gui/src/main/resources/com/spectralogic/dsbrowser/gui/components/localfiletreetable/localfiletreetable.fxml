@@ -5,13 +5,26 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="286.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0"
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="286.0" stylesheets="@../../common.css"
+      AnchorPane.bottomAnchor="0.0"
       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
       xmlns="http://javafx.com/javafx/8"
       fx:controller="com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter">
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
+                <Button fx:id="parentDirectoryButton">
+                    <tooltip>
+                        <Tooltip fx:id="parentDirectoryButtonTooltip"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/parent_directory.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
                 <Button fx:id="homeButton">
                     <tooltip>
                         <Tooltip fx:id="homeButtonTooltip"/>
@@ -66,15 +79,14 @@
         <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
             <children>
                 <Label fx:id="localPathIndicator" contentDisplay="CENTER" style="-fx-padding: 5px;" text=""
-                       textAlignment="JUSTIFY" textFill="#000" wrapText="true" prefWidth="200" prefHeight="30"
-                       textOverrun="CENTER_ELLIPSIS">
+                       textAlignment="JUSTIFY" textFill="#000" wrapText="true" prefWidth="296.0" prefHeight="30">
                     <font>
                         <Font name="System Bold" size="12.0"/>
                     </font>
                 </Label>
             </children>
         </Pane>
-        <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0"
+        <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefWidth="296.0" prefHeight="500.0" AnchorPane.bottomAnchor="0.0"
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                        VBox.vgrow="ALWAYS">
             <columns>

@@ -1,10 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.commands.GetBucketRequest;
-import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.models.common.CommonPrefixes;
-import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
+import com.spectralogic.ds3client.models.BulkObject;
+import com.spectralogic.ds3client.models.DetailedS3Object;
+import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
@@ -15,12 +16,17 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.*;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -30,7 +36,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
-
     private boolean accessedChildren = false;
 
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers workers) {
@@ -78,7 +83,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     // query black pearl in the background and then update the main thread after
     private void buildChildren(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList) {
         final Node previousGraphics = super.getGraphic();
-
         final ImageView processImage = new ImageView("/images/loading.gif");
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
@@ -86,9 +90,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> {
-            super.setGraphic(previousGraphics);
-        });
+        getBucketTask.setOnSucceeded(event -> super.setGraphic(previousGraphics));
     }
 
     @Override
@@ -115,47 +117,69 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
 
-            String nextMarker = null;
+            final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket).withIncludePhysicalPlacement(true);
 
-            while (true) {
-
-                final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter("/");
-
-                // Don't include the prefix if the item we are looking up from is the base bucket
-                if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
-                    request.withPrefix(ds3Value.getFullName());
-                }
-
-                if (nextMarker != null) {
-                    request.withMarker(nextMarker);
-                }
-
-                final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
-
-                final ImmutableList<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult()
-                        .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
-                        .map(c -> new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(0), "--"))
-                        .collect(GuavaCollectors.immutableList());
-
-
-                final List<Ds3TreeTableValue> files = bucketResponse.getListBucketResult()
-                        .getObjects().stream()
-                        .map(f -> new Ds3TreeTableValue(bucket, f.getKey(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), DateFormat.formatDate(f.getLastModified()))).collect(Collectors.toList());
-
-                final ImmutableList<Ds3TreeTableValue> filteredFiles = files.stream().filter(i -> !i.getName().equals("")).collect(GuavaCollectors.immutableList());
-
-                Platform.runLater(() -> {
-                    final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
-                    final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
-                    partialResults.get().addAll(directoryItems);
-                    partialResults.get().addAll(fileItems);
-                });
-
-                nextMarker = bucketResponse.getListBucketResult().getNextMarker();
-                if (Guard.isStringNullOrEmpty(nextMarker)) {
-                    break;
-                }
+            if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
+                request.withName("%").withFolder("/");
+            } else {
+                request.withName(ds3Value.getFullName() + "%").withFolder(ds3Value.getFullName());
             }
+
+            final GetObjectsWithFullDetailsSpectraS3Response objectsWithFullDetailsSpectraS3 = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
+
+            final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();
+
+            final List<Ds3TreeTableValue> files = new ArrayList<>();
+
+            final ImmutableList<Ds3TreeTableValue> directoryValues = detailedS3Objects.stream().map(i -> {
+
+                if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
+                    try {
+                        if (i.getName().equals(ds3Value.getFullName()))
+                            return null;
+
+                        if (i.getType().equals(S3ObjectType.FOLDER)) {
+                            return i.getName();
+                        } else {
+                            final List<BulkObject> objects = i.getBlobs().getObjects();
+                            objects.stream().forEach(obj -> {
+                                final HBox iconsAndTooltip = addPlacementIconsandTooltip(obj);
+                                files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(i.getSize()), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
+                            });
+                            return null;
+                        }
+                    } catch (final Exception e) {
+                        return null;
+                    }
+
+                } else {
+                    String splitReg = "/";
+                    if (i.getName().contains("/")) {
+                        return i.getName().split(splitReg)[0] + "/";
+                    } else {
+                        final List<BulkObject> objects = i.getBlobs().getObjects();
+                        if (objects.stream().findFirst().isPresent()) {
+                            final HBox iconsAndTooltip = addPlacementIconsandTooltip(objects.stream().findFirst().get());
+                            files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(i.getSize()), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
+                        }
+                        return null;
+                    }
+                }
+            }).distinct().filter(i -> i != null).map(c -> {
+                final HBox hbox = new HBox();
+                hbox.getChildren().add(new Label("----"));
+                hbox.setAlignment(Pos.CENTER);
+                return new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(0), "--", "--", false, hbox);
+            }).collect(GuavaCollectors.immutableList());
+            final ImmutableList<Ds3TreeTableValue> filteredFiles = files.stream().filter(i -> !i.getName().equals("")).collect(GuavaCollectors.immutableList());
+
+            Platform.runLater(() -> {
+                final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
+                final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
+                partialResults.get().addAll(directoryItems);
+                partialResults.get().addAll(fileItems);
+            });
+
             return partialResults.get();
         }
     }

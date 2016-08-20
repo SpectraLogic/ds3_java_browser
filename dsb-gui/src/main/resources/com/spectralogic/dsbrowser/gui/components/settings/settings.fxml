@@ -72,12 +72,91 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <Label fx:id="performanceLabel" layoutX="37.0" layoutY="62.0"/>
-                                <TextField fx:id="performanceFieldValue" layoutX="280.0" layoutY="59.0"/>
-                                <Button fx:id="saveSettingsPerforanceButton" layoutX="275.0" layoutY="129.0"
-                                        mnemonicParsing="false" onAction="#saveLogSettings"/>
-                                <Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" layoutX="347.0"
-                                        layoutY="129.0" mnemonicParsing="false" onAction="#closeDialog"/>
+                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0" vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="201.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="204.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <children>
+                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" />
+                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" />
+                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#saveLogSettings" />
+                                                <Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
+                                            </children>
+                                            <GridPane.margin>
+                                                <Insets top="10.0" />
+                                            </GridPane.margin>
+                                        </HBox>
+                                    </children>
+                                </GridPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="jobPriority" text="Job Priority">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <GridPane alignment="CENTER" layoutY="-1.0" prefHeight="216.0" prefWidth="515.0"
+                                          vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0"
+                                                           prefWidth="227.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="386.0" minWidth="10.0"
+                                                           prefWidth="225.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                        <RowConstraints/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Label alignment="TOP_LEFT" text="Put Job Priority:" GridPane.rowIndex="1"/>
+                                        <Label text="Get Job Priority:" GridPane.rowIndex="3"/>
+                                        <ComboBox fx:id="putJobPriority" prefHeight="25.0" prefWidth="200.0"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <GridPane.margin>
+                                                <Insets/>
+                                            </GridPane.margin>
+                                        </ComboBox>
+                                        <ComboBox fx:id="getJobPriority" prefHeight="25.0" prefWidth="200.0"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <GridPane.margin>
+                                                <Insets/>
+                                            </GridPane.margin>
+                                        </ComboBox>
+                                        <!--<TextField fx:id="getJobPriority" GridPane.columnIndex="1" GridPane.rowIndex="3"/>-->
+                                        <!--<TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" GridPane.columnIndex="1" />-->
+                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0"
+                                              spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                                            <children>
+                                                <Button fx:id="saveSettingsJobButton" mnemonicParsing="false"
+                                                        text="Save" onAction="#saveJobSettings"/>
+                                                <Button fx:id="cancelSettingsJobButton" cancelButton="true"
+                                                        mnemonicParsing="false" onAction="#closeDialog" text="Cancel"/>
+                                            </children>
+                                            <GridPane.margin>
+                                                <Insets top="10.0"/>
+                                            </GridPane.margin>
+                                        </HBox>
+                                        <!--<Label text="Enable Logging:" GridPane.rowIndex="3" />
+                                        <CheckBox fx:id="debugLogging" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/>
+                                    </padding>
+                                </GridPane>
                             </children>
                         </AnchorPane>
                     </content>

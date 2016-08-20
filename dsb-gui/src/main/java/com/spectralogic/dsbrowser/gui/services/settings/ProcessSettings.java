@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class ProcessSettings {
+public class  ProcessSettings {
 
     public static final ProcessSettings DEFAULT = createDefault();
 

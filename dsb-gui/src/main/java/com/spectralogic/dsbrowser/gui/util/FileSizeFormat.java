@@ -4,16 +4,17 @@ import java.text.DecimalFormat;
 
 public class FileSizeFormat {
 
-    public static String getFileSizeType(final long size) {
-        final DecimalFormat df = new DecimalFormat("0.00");
-        final DecimalFormat dfbytes = new DecimalFormat("0");
+    final static DecimalFormat df = new DecimalFormat("0.00");
+    final static DecimalFormat dfbytes = new DecimalFormat("0");
 
-        final double sizeKb = 1024.00;
-        final double sizeMo = sizeKb * sizeKb;
-        final double sizeGo = sizeMo * sizeKb;
-        final double sizeTerra = sizeGo * sizeKb;
-        final double sizePeta = sizeTerra * sizeKb;
-        final double sizeExa = sizePeta * sizeKb;
+    final static double sizeKb = 1024.00;
+    final static double sizeMo = sizeKb * sizeKb;
+    final static double sizeGo = sizeMo * sizeKb;
+    final static double sizeTerra = sizeGo * sizeKb;
+    final static double sizePeta = sizeTerra * sizeKb;
+    final static double sizeExa = sizePeta * sizeKb;
+
+    public static String getFileSizeType(final long size) {
 
         if (size == 0) {
             return "--";
@@ -32,4 +33,24 @@ public class FileSizeFormat {
         else
             return "";
     }
+
+    public static long convertSizeToByte(final String size) {
+
+        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", ""));
+
+        if (size.contains("KB")) {
+            return new Double(aFloat * sizeKb).longValue();
+        } else if (size.contains("MB")) {
+            return new Double(aFloat * sizeMo).longValue();
+        } else if (size.contains("GB")) {
+            return new Double(aFloat * sizeGo).longValue();
+        } else if (size.contains("TB")) {
+            return new Double(aFloat * sizeTerra).longValue();
+        } else if (size.contains("PB")) {
+            return new Double(aFloat * sizePeta).longValue();
+        } else {
+            return new Double(aFloat).longValue();
+        }
+    }
+
 }

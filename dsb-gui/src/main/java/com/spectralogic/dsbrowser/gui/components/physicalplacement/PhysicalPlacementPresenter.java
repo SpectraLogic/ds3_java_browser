@@ -23,14 +23,14 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
 
-    @Inject
-    private PhysicalPlacement ds3PhysicalPlacement;
-
     @FXML
     private TableView<PhysicalPlacementPoolEntry> physicalPlacementDataTable;
 
     @FXML
     private TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
+
+    @Inject
+    private PhysicalPlacement ds3PhysicalPlacement;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -66,7 +66,9 @@ public class PhysicalPlacementPresenter implements Initializable {
                     final long used = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
                     final String tapePartition = tape.getPartitionId().toString();
                     final String lastModified = tape.getLastModified().toString();
-                    physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified));
+                    final String ejectLabel = tape.getEjectLabel();
+                    final String ejectLocation = tape.getEjectLocation();
+                    physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified, ejectLabel, ejectLocation));
                 }
                 physicalPlacementDataTableTape.setItems(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
             }
@@ -105,7 +107,7 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     public static class PhysicalPlacementTapeEntry {
         private final String barcode;
-        private final String seriolNO;
+        private final String serialNO;
         private final String type;
         private final String state;
         private final Date lastTapeError;
@@ -114,11 +116,13 @@ public class PhysicalPlacementPresenter implements Initializable {
         private final long used;
         private final String tapePartition;
         private final String lastModified;
+        private final String ejectLabel;
+        private final String ejectLocation;
 
-        private PhysicalPlacementTapeEntry(final String barcode, final String seriolNO, final String type, final String state, final Date lastTapeError, final boolean writeProtected,
-                                           final boolean available, final long used, final String tapePartition, final String lastModified) {
+        private PhysicalPlacementTapeEntry(final String barcode, final String serialNO, final String type, final String state, final Date lastTapeError, final boolean writeProtected,
+                                           final boolean available, final long used, final String tapePartition, final String lastModified, final String ejectLabel, final String ejectLocation) {
             this.barcode = barcode;
-            this.seriolNO = seriolNO;
+            this.serialNO = serialNO;
             this.type = type;
             this.state = state;
             this.lastTapeError = lastTapeError;
@@ -127,6 +131,8 @@ public class PhysicalPlacementPresenter implements Initializable {
             this.used = used;
             this.tapePartition = tapePartition;
             this.lastModified = lastModified;
+            this.ejectLabel = ejectLabel;
+            this.ejectLocation = ejectLocation;
 
         }
 
@@ -146,8 +152,8 @@ public class PhysicalPlacementPresenter implements Initializable {
             return lastTapeError;
         }
 
-        public String getSeriolNO() {
-            return seriolNO;
+        public String getSerialNO() {
+            return serialNO;
         }
 
         public String getState() {
@@ -168,6 +174,14 @@ public class PhysicalPlacementPresenter implements Initializable {
 
         public String getTapePartition() {
             return tapePartition;
+        }
+
+        public String getEjectLabel() {
+            return ejectLabel;
+        }
+
+        public String getEjectLocation() {
+            return ejectLocation;
         }
     }
 }

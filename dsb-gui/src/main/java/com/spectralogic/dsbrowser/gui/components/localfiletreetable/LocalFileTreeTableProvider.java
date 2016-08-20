@@ -9,12 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class LocalFileTreeTableProvider {
+
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTableProvider.class);
 
     private static FileTreeModel.Type getPathType(final Path path) {
@@ -28,12 +30,15 @@ public class LocalFileTreeTableProvider {
     public Stream<FileTreeModel> getRoot(final String rootDir) {
         File[] files = null;
 
-        if (rootDir == System.getProperty("user.home")) {
-            files = new File(System.getProperty("user.home")).listFiles();
-
-        } else {
+        if (rootDir.equals("My Computer")) {
             files = File.listRoots();
+        } else {
+            files = new File(rootDir).listFiles();
         }
+
+        if (files == null)
+            return null;
+
         return Arrays.stream(files).map(file -> {
             final FileTreeModel.Type type = getRootType(file);
             final Path path = file.toPath();
@@ -51,10 +56,10 @@ public class LocalFileTreeTableProvider {
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
             }
-            if (rootDir == System.getProperty("user.home")) {
-                return new FileTreeModel(file.toPath(), type, size, 2, lastModified);
+            if (rootDir.equals("My Computer")) {
+                return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
             }
-            return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
+            return new FileTreeModel(file.toPath(), type, size, Paths.get(rootDir).getNameCount(), lastModified);
         }).filter(p -> p != null);
     }
 

@@ -10,37 +10,22 @@ public class JobSettings {
 
     private static JobSettings createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
-        return new JobSettings("default", "default", "NORMAL", "NORMAL");
+        return new JobSettings("Data Policy Default (no change)", "Data Policy Default (no change)", false);
     }
 
-
-    @JsonProperty("sessionName")
-    private String sessionName;
-    @JsonProperty("endpoint")
-    private String endpoint;
     @JsonProperty("getJobPriority")
     private String getJobPriority;
     @JsonProperty("putJobPriority")
     private String putJobPriority;
 
 
-    public JobSettings(final String sessionName, final String endpoint, final String getJobPriority, final String putJobPriority) {
-        this.endpoint = endpoint;
-        this.sessionName = sessionName;
+    public JobSettings(final String getJobPriority, final String putJobPriority, final boolean isDefaultForAll) {
         this.putJobPriority = putJobPriority;
         this.getJobPriority = getJobPriority;
     }
 
     public JobSettings() {
-        this(null, null, null, null);
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+        this(null, null, false);
     }
 
     public void setGetJobPriority(String getJobPriority) {
@@ -51,10 +36,6 @@ public class JobSettings {
         this.putJobPriority = putJobPriority;
     }
 
-    public void setSessionName(String sessionName) {
-        this.sessionName = sessionName;
-    }
-
     public String getGetJobPriority() {
         return getJobPriority;
     }
@@ -63,15 +44,8 @@ public class JobSettings {
         return putJobPriority;
     }
 
-    public String getSessionName() {
-        return sessionName;
-    }
-
     public void overwrite(final JobSettings settings) {
-        this.setEndpoint(settings.getEndpoint());
-        this.setSessionName(settings.getSessionName());
         this.setPutJobPriority(settings.getPutJobPriority());
         this.setGetJobPriority(settings.getGetJobPriority());
     }
-
 }

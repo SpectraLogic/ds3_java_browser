@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import javafx.scene.layout.HBox;
+
 import java.io.Serializable;
 
 public class Ds3TreeTableValue implements Serializable {
@@ -10,16 +12,28 @@ public class Ds3TreeTableValue implements Serializable {
     private final Type type;
     private final String size;
     private final String lastModified;
+    private final HBox physicalPlacementHBox;
+    private final String owner;
+    private final boolean searchOn;
 
-
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final String size, final String lastModified) {
+    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final String size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
         this.type = type;
         this.size = size;
         this.lastModified = lastModified;
+        this.physicalPlacementHBox = physicalPlacementHBox;
+        this.owner = owner;
+        this.searchOn = searchOn;
+    }
 
+    public boolean isSearchOn() {
+        return searchOn;
+    }
+
+    public HBox getPhysicalPlacementHBox() {
+        return physicalPlacementHBox;
     }
 
     private static String getLastPart(final String name, final Type type) {
@@ -75,6 +89,10 @@ public class Ds3TreeTableValue implements Serializable {
             return "";
         }
         return fullName.substring(0, index);
+    }
+
+    public String getOwner() {
+        return owner;
     }
 
     public enum Type {

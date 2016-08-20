@@ -1,10 +1,14 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
+import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,8 +28,12 @@ import java.util.concurrent.Executors;
 public class SettingPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
+
     @FXML
-    private CheckBox debugLogging;
+    private ComboBox<String> getJobPriority, putJobPriority;
+
+    @FXML
+    private CheckBox isDefaultCheckBox, debugLogging;
 
     @FXML
     private TextField numRolling;
@@ -82,11 +90,17 @@ public class SettingPresenter implements Initializable {
     @Inject
     private JobWorkers jobWorkers;
 
+    @Inject
+    private SavedJobPrioritiesStore jobPrioritiesStore;
+
+    private JobSettings jobSettings;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             this.logSettings = settings.getLogSettings();
             this.processSettings = settings.getProcessSettings();
+            this.jobSettings = jobPrioritiesStore.getJobSettings();
             initGUIElements();
             initPropertyPane();
         } catch (final Throwable e) {
@@ -100,6 +114,19 @@ public class SettingPresenter implements Initializable {
         settings.setProcessSettings(processSettings);
         logService.setLogSettings(logSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
+        closeDialog();
+    }
+
+    public void saveJobSettings() {
+
+        LOG.info("Updating jobs settings");
+        try {
+            jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
+            jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
+            jobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         closeDialog();
     }
 
@@ -130,6 +157,16 @@ public class SettingPresenter implements Initializable {
         cancelSettingsPerforanceButton.setText(resourceBundle.getString("cancelSettingsPerforanceButton"));
         performanceTab.setText(resourceBundle.getString("performanceTab"));
         loggingTab.setText(resourceBundle.getString("loggingTab"));
+
+        putJobPriority.getItems().add(resourceBundle.getString("defaultPolicyText"));
+        getJobPriority.getItems().add(resourceBundle.getString("defaultPolicyText"));
+        Priority[] priorities = PriorityFilter.filterPriorities(Priority.values());
+        for (final Priority priority : priorities) {
+            putJobPriority.getItems().add(priority.toString());
+            getJobPriority.getItems().add(priority.toString());
+        }
+        putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority().toString());
+        getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority().toString());
 
         performanceFieldValue.setText("" + processSettings.getMaximumNumberOfParallelThreads());
     }

@@ -40,16 +40,29 @@
 .successText {
     -fx-fill: GREEN;
     -fx-font-weight: bold;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+     -fx-padding: 0;
+
 }
 
 .errorText {
     -fx-fill: RED;
     -fx-font-weight: bold;
+    -fx-background-color: transparent;
+        -fx-background-insets: 0;
+        -fx-background-radius: 0;
+         -fx-padding: 0;
 }
 
 .logText {
     -fx-background-color: #DFF2BF;
     -fx-text-fill: #4F8A10;
     -fx-font-weight: bold;
+    -fx-background-color: transparent;
+        -fx-background-insets: 0;
+        -fx-background-radius: 0;
+         -fx-padding: 0;
 }
 

@@ -69,4 +69,9 @@ public class JobWorkers {
     public void shutdown() {
         workers.shutdown();
     }
+
+    public void shutdownNow() {
+        workers.shutdownNow();
+    }
+
 }

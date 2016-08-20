@@ -2,6 +2,8 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Response;
 import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.beans.property.SimpleStringProperty;
@@ -89,13 +91,22 @@ public class NewSessionModel {
     }
 
     public Session toSession() {
-        final Ds3Client client = Ds3ClientBuilder
-                .create(this.getEndpoint() + ":" + this.getPortNo(),
-                        new Credentials(this.getAccessKey(),
-                                this.getSecretKey()))
-                .withHttps(false).withProxy(this.getProxyServer())
-                .build();
-        return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
+        try {
+            if (this.getProxyServer() != null && this.getProxyServer().equals("")) {
+                this.setProxyServer(null);
+            }
+            final Ds3Client client = Ds3ClientBuilder
+                    .create(this.getEndpoint() + ":" + this.getPortNo(),
+                            new Credentials(this.getAccessKey(),
+                                    this.getSecretKey()))
+                    .withHttps(false).withProxy(this.getProxyServer())
+                    .build();
+            final GetUserSpectraS3Response userSpectraS3 = client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId())); //will throw exception is user is not authentic
+            return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
+        } catch (final Exception e) {
+            return null;
+        }
+
     }
 
 }

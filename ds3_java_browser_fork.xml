@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ds3_java_browser_fork" default="all">
+  
+  
+  <property file="ds3_java_browser_fork.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*.yarb/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.swc"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.ear"/>
+    <include name="*.egg"/>
+    <include name="*.ane"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+    <exclude name="**/?*.aj"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
+  <path id="jdk.classpath.1.8">
+    <fileset dir="${jdk.home.1.8}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/ext/access-bridge-64.jar"/>
+      <include name="jre/lib/ext/cldrdata.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/jaccess.jar"/>
+      <include name="jre/lib/ext/jfxrt.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/nashorn.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunmscapi.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jfr.jar"/>
+      <include name="jre/lib/jfxswt.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.1.5/92353eb144695bba80b31f7bec4f36d871f230ac/logback-classic-1.1.5.jar"/>
+  </path>
+  
+  <path id="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.1.5/16722afde74444716e299bee1f60aec9f6d1f0dc/logback-core-1.1.5.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.airhacks/afterburner.fx/1.6.2/dcb13aab44e61f0d744c2aee7d52fc4a4abe8f72/afterburner.fx-1.6.2.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.7.0/19f42c154ffc689f40a77613bc32caeb17d744e3/jackson-annotations-2.7.0.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.7.1/4127b62db028f981e81caa248953c0899d720f98/jackson-core-2.7.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.7.1/14d88822bca655de7aa6ed3e4c498d115505710a/jackson-databind-2.7.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.7.1/4f52cc13e0950799089aaa16314a93191bf20d12/jackson-dataformat-xml-2.7.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-jaxb-annotations/2.7.1/c89866ce8365d941f2606cffc8b97fbf5f6045d2/jackson-module-jaxb-annotations-2.7.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/3.0.1/fc019a2216218990d64dfe756e7aa20f0069dea2/annotations-3.0.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.google.guava:guava:19.0.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/19.0/6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9/guava-19.0.jar"/>
+  </path>
+  
+  <path id="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.spectralogic.ds3/ds3-sdk/3.0.5/cbea31bae6cd3b3ce6a7b1cffb7113dd02676b3c/ds3-sdk-3.0.5.jar"/>
+  </path>
+  
+  <path id="library.gradle:_commons-codec:commons-codec:1.10.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/4b95f4897fa13f2cd904aee711aeafc0c5295cd8/commons-codec-1.10.jar"/>
+  </path>
+  
+  <path id="library.gradle:_commons-io:commons-io:2.4.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.4/b1b6ea3b7e4aa4f492509a4952029cd8e48019ad/commons-io-2.4.jar"/>
+  </path>
+  
+  <path id="library.gradle:_commons-logging:commons-logging:1.2.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/4bfc12adfe4842bf07b657f0369c4cb522955686/commons-logging-1.2.jar"/>
+  </path>
+  
+  <path id="library.gradle:_de.jensd:fontawesomefx:8.9.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/de.jensd/fontawesomefx/8.9/84f2b42df0faaf553c847e58100840aaf4507a61/fontawesomefx-8.9.jar"/>
+  </path>
+  
+  <path id="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/javax.xml.stream/stax-api/1.0-2/d6337b0de8b25e53e81b922352fbea9f9f57ba0b/stax-api-1.0-2.jar"/>
+  </path>
+  
+  <path id="library.gradle:_junit:junit:4.12.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar"/>
+  </path>
+  
+  <path id="library.gradle:_net.jcip:jcip-annotations:1.0.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/net.jcip/jcip-annotations/1.0/afba4942caaeaf46aab0b976afd57cc7c181467e/jcip-annotations-1.0.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.1/7e3cecc566df91338c6c67883b89ddd05a17db43/httpclient-4.5.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.3/e876a79d561e5c6207b78d347e198c8c4531a5e5/httpcore-4.4.3.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.codehaus.woodstox/stax2-api/3.1.4/ac19014b1e6a7c08aad07fe114af792676b685b7/stax2-api-3.1.4.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.codehaus.woodstox/woodstox-core-asl/4.4.1/84fee5eb1a4a1cefe65b6883c73b3fa83be3c1a1/woodstox-core-asl-4.4.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.controlsfx/controlsfx/8.40.10/fe12544570095b334d45c61e8c9a26f30ffc1675/controlsfx-8.40.10.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.mockito:mockito-core:1.10.19.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-core/1.10.19/e8546f5bef4e061d8dd73895b4e8f40e3fe6effe/mockito-core-1.10.19.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.objenesis:objenesis:2.1.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.1/87c0ea803b69252868d09308b4618f766f135a96/objenesis-2.1.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.slf4j/jcl-over-slf4j/1.7.16/34e48073884704ac987d3d1a1ab9b60e62028a9/jcl-over-slf4j-1.7.16.jar"/>
+  </path>
+  
+  <path id="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath">
+    <pathelement location="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.16/3a6274f658487d5bfff9af3862beff6da1e7fd52/slf4j-api-1.7.16.jar"/>
+  </path>
+  <!-- Register Custom Compiler Taskdefs -->
+  <property name="javac2.home" value="${idea.home}/lib"/>
+  <path id="javac2.classpath">
+    <pathelement location="${javac2.home}/javac2.jar"/>
+    <pathelement location="${javac2.home}/jdom.jar"/>
+    <pathelement location="${javac2.home}/asm-all.jar"/>
+    <pathelement location="${javac2.home}/jgoodies-forms.jar"/>
+  </path>
+  <target name="register.custom.compilers">
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
+    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
+  </target>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module ds3_java_browser_fork -->
+  
+  <dirname property="module.ds3_java_browser_fork.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.ds3_java_browser_fork" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ds3_java_browser_fork" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ds3_java_browser_fork" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ds3_java_browser_fork" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="ds3_java_browser_fork.output.dir" value="${module.ds3_java_browser_fork.basedir}/build/classes/main"/>
+  <property name="ds3_java_browser_fork.testoutput.dir" value="${module.ds3_java_browser_fork.basedir}/build/classes/test"/>
+  
+  <path id="ds3_java_browser_fork.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ds3_java_browser_fork.module.production.classpath">
+    <path refid="${module.jdk.classpath.ds3_java_browser_fork}"/>
+  </path>
+  
+  <path id="ds3_java_browser_fork.runtime.production.module.classpath">
+    <pathelement location="${ds3_java_browser_fork.output.dir}"/>
+  </path>
+  
+  <path id="ds3_java_browser_fork.module.classpath">
+    <path refid="${module.jdk.classpath.ds3_java_browser_fork}"/>
+    <pathelement location="${ds3_java_browser_fork.output.dir}"/>
+  </path>
+  
+  <path id="ds3_java_browser_fork.runtime.module.classpath">
+    <pathelement location="${ds3_java_browser_fork.testoutput.dir}"/>
+    <pathelement location="${ds3_java_browser_fork.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ds3_java_browser_fork">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ds3_java_browser_fork">
+    <patternset refid="excluded.from.module.ds3_java_browser_fork"/>
+  </patternset>
+  
+  
+  <target name="compile.module.ds3_java_browser_fork" depends="compile.module.ds3_java_browser_fork.production,compile.module.ds3_java_browser_fork.tests" description="Compile module ds3_java_browser_fork"/>
+  
+  <target name="compile.module.ds3_java_browser_fork.production" depends="register.custom.compilers" description="Compile module ds3_java_browser_fork; production classes"/>
+  
+  <target name="compile.module.ds3_java_browser_fork.tests" depends="register.custom.compilers,compile.module.ds3_java_browser_fork.production" description="compile module ds3_java_browser_fork; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ds3_java_browser_fork" description="cleanup module">
+    <delete dir="${ds3_java_browser_fork.output.dir}"/>
+    <delete dir="${ds3_java_browser_fork.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module dsb-api -->
+  
+  <dirname property="module.dsb-api.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.dsb-api" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.dsb-api" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.dsb-api" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.dsb-api" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="dsb-api.output.dir" value="${module.dsb-api.basedir}/dsb-api/build/classes/main"/>
+  <property name="dsb-api.testoutput.dir" value="${module.dsb-api.basedir}/dsb-api/build/classes/test"/>
+  
+  <path id="dsb-api.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="dsb-api.module.production.classpath">
+    <path refid="${module.jdk.classpath.dsb-api}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-api.runtime.production.module.classpath">
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-api.module.classpath">
+    <path refid="${module.jdk.classpath.dsb-api}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-api.runtime.module.classpath">
+    <pathelement location="${dsb-api.testoutput.dir}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.dsb-api">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.dsb-api">
+    <patternset refid="excluded.from.module.dsb-api"/>
+  </patternset>
+  
+  
+  <target name="compile.module.dsb-api" depends="compile.module.dsb-api.production,compile.module.dsb-api.tests" description="Compile module dsb-api"/>
+  
+  <target name="compile.module.dsb-api.production" depends="register.custom.compilers" description="Compile module dsb-api; production classes"/>
+  
+  <target name="compile.module.dsb-api.tests" depends="register.custom.compilers,compile.module.dsb-api.production" description="compile module dsb-api; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.dsb-api" description="cleanup module">
+    <delete dir="${dsb-api.output.dir}"/>
+    <delete dir="${dsb-api.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module dsb-ds3 -->
+  
+  <dirname property="module.dsb-ds3.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.dsb-ds3" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.dsb-ds3" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.dsb-ds3" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.dsb-ds3" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="dsb-ds3.output.dir" value="${module.dsb-ds3.basedir}/dsb-ds3/build/classes/main"/>
+  <property name="dsb-ds3.testoutput.dir" value="${module.dsb-ds3.basedir}/dsb-ds3/build/classes/test"/>
+  
+  <path id="dsb-ds3.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="dsb-ds3.module.production.classpath">
+    <path refid="${module.jdk.classpath.dsb-ds3}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-ds3.runtime.production.module.classpath">
+    <pathelement location="${dsb-ds3.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-ds3.module.classpath">
+    <path refid="${module.jdk.classpath.dsb-ds3}"/>
+    <pathelement location="${dsb-ds3.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-ds3.runtime.module.classpath">
+    <pathelement location="${dsb-ds3.testoutput.dir}"/>
+    <pathelement location="${dsb-ds3.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.dsb-ds3">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.dsb-ds3">
+    <patternset refid="excluded.from.module.dsb-ds3"/>
+  </patternset>
+  
+  
+  <target name="compile.module.dsb-ds3" depends="compile.module.dsb-ds3.production,compile.module.dsb-ds3.tests" description="Compile module dsb-ds3"/>
+  
+  <target name="compile.module.dsb-ds3.production" depends="register.custom.compilers" description="Compile module dsb-ds3; production classes"/>
+  
+  <target name="compile.module.dsb-ds3.tests" depends="register.custom.compilers,compile.module.dsb-ds3.production" description="compile module dsb-ds3; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.dsb-ds3" description="cleanup module">
+    <delete dir="${dsb-ds3.output.dir}"/>
+    <delete dir="${dsb-ds3.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module dsb-util -->
+  
+  <dirname property="module.dsb-util.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.dsb-util" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.dsb-util" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.dsb-util" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.dsb-util" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="dsb-util.output.dir" value="${module.dsb-util.basedir}/dsb-util/build/classes/main"/>
+  <property name="dsb-util.testoutput.dir" value="${module.dsb-util.basedir}/dsb-util/build/classes/test"/>
+  
+  <path id="dsb-util.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="dsb-util.module.production.classpath">
+    <path refid="${module.jdk.classpath.dsb-util}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-util.runtime.production.module.classpath">
+    <pathelement location="${dsb-util.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-util.module.classpath">
+    <path refid="${module.jdk.classpath.dsb-util}"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  <path id="dsb-util.runtime.module.classpath">
+    <pathelement location="${dsb-util.testoutput.dir}"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.dsb-util">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.dsb-util">
+    <patternset refid="excluded.from.module.dsb-util"/>
+  </patternset>
+  
+  <path id="dsb-util.module.sourcepath">
+    <dirset dir="${module.dsb-util.basedir}/dsb-util">
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.dsb-util" depends="compile.module.dsb-util.production,compile.module.dsb-util.tests" description="Compile module dsb-util"/>
+  
+  <target name="compile.module.dsb-util.production" depends="register.custom.compilers" description="Compile module dsb-util; production classes">
+    <mkdir dir="${dsb-util.output.dir}"/>
+    <javac2 destdir="${dsb-util.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.dsb-util}/javac">
+      <compilerarg line="${compiler.args.dsb-util}"/>
+      <bootclasspath refid="dsb-util.module.bootclasspath"/>
+      <classpath refid="dsb-util.module.production.classpath"/>
+      <src refid="dsb-util.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.dsb-util"/>
+    </javac2>
+    
+    <copy todir="${dsb-util.output.dir}">
+      <fileset dir="${module.dsb-util.basedir}/dsb-util/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.dsb-util.tests" depends="register.custom.compilers,compile.module.dsb-util.production" description="compile module dsb-util; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.dsb-util" description="cleanup module">
+    <delete dir="${dsb-util.output.dir}"/>
+    <delete dir="${dsb-util.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module dsb-local -->
+  
+  <dirname property="module.dsb-local.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.dsb-local" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.dsb-local" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.dsb-local" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.dsb-local" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="dsb-local.output.dir" value="${module.dsb-local.basedir}/dsb-local/build/classes/main"/>
+  <property name="dsb-local.testoutput.dir" value="${module.dsb-local.basedir}/dsb-local/build/classes/test"/>
+  
+  <path id="dsb-local.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="dsb-local.module.production.classpath">
+    <path refid="${module.jdk.classpath.dsb-local}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+  </path>
+  
+  <path id="dsb-local.runtime.production.module.classpath">
+    <pathelement location="${dsb-local.output.dir}"/>
+    <path refid="dsb-api.runtime.production.module.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="dsb-util.runtime.production.module.classpath"/>
+  </path>
+  
+  <path id="dsb-local.module.classpath">
+    <path refid="${module.jdk.classpath.dsb-local}"/>
+    <pathelement location="${dsb-local.output.dir}"/>
+    <pathelement location="${dsb-api.testoutput.dir}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <pathelement location="${dsb-util.testoutput.dir}"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+  </path>
+  
+  <path id="dsb-local.runtime.module.classpath">
+    <pathelement location="${dsb-local.testoutput.dir}"/>
+    <pathelement location="${dsb-local.output.dir}"/>
+    <path refid="dsb-api.runtime.module.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="dsb-util.runtime.module.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.dsb-local">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.dsb-local">
+    <patternset refid="excluded.from.module.dsb-local"/>
+  </patternset>
+  
+  
+  <target name="compile.module.dsb-local" depends="compile.module.dsb-local.production,compile.module.dsb-local.tests" description="Compile module dsb-local"/>
+  
+  <target name="compile.module.dsb-local.production" depends="register.custom.compilers,compile.module.dsb-api,compile.module.dsb-util" description="Compile module dsb-local; production classes"/>
+  
+  <target name="compile.module.dsb-local.tests" depends="register.custom.compilers,compile.module.dsb-local.production" description="compile module dsb-local; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.dsb-local" description="cleanup module">
+    <delete dir="${dsb-local.output.dir}"/>
+    <delete dir="${dsb-local.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module dsb-gui -->
+  
+  <dirname property="module.dsb-gui.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.dsb-gui" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.dsb-gui" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.dsb-gui" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.dsb-gui" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="dsb-gui.output.dir" value="${module.dsb-gui.basedir}/dsb-gui/build/classes/main"/>
+  <property name="dsb-gui.testoutput.dir" value="${module.dsb-gui.basedir}/dsb-gui/build/classes/test"/>
+  
+  <path id="dsb-gui.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="dsb-gui.module.production.classpath">
+    <path refid="${module.jdk.classpath.dsb-gui}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+    <pathelement location="${dsb-local.output.dir}"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+  </path>
+  
+  <path id="dsb-gui.runtime.production.module.classpath">
+    <pathelement location="${dsb-gui.output.dir}"/>
+    <path refid="dsb-api.runtime.production.module.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="dsb-util.runtime.production.module.classpath"/>
+    <path refid="dsb-local.runtime.production.module.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+  </path>
+  
+  <path id="dsb-gui.module.classpath">
+    <path refid="${module.jdk.classpath.dsb-gui}"/>
+    <pathelement location="${dsb-gui.output.dir}"/>
+    <pathelement location="${dsb-api.testoutput.dir}"/>
+    <pathelement location="${dsb-api.output.dir}"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <pathelement location="${dsb-util.testoutput.dir}"/>
+    <pathelement location="${dsb-util.output.dir}"/>
+    <pathelement location="${dsb-local.testoutput.dir}"/>
+    <pathelement location="${dsb-local.output.dir}"/>
+  </path>
+  
+  <path id="dsb-gui.runtime.module.classpath">
+    <pathelement location="${dsb-gui.testoutput.dir}"/>
+    <pathelement location="${dsb-gui.output.dir}"/>
+    <path refid="dsb-api.runtime.module.classpath"/>
+    <path refid="library.gradle:_com.spectralogic.ds3:ds3-sdk:3.0.5.classpath"/>
+    <path refid="library.gradle:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.gradle:_org.objenesis:objenesis:2.1.classpath"/>
+    <path refid="library.gradle:_junit:junit:4.12.classpath"/>
+    <path refid="library.gradle:_org.mockito:mockito-core:1.10.19.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-databind:2.7.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-annotations:2.7.0.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.core:jackson-core:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.slf4j:slf4j-api:1.7.16.classpath"/>
+    <path refid="library.gradle:_javax.xml.stream:stax-api:1.0-2.classpath"/>
+    <path refid="library.gradle:_commons-logging:commons-logging:1.2.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpcore:4.4.3.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:jsr305:3.0.1.classpath"/>
+    <path refid="library.gradle:_net.jcip:jcip-annotations:1.0.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:stax2-api:3.1.4.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.1.classpath"/>
+    <path refid="library.gradle:_org.codehaus.woodstox:woodstox-core-asl:4.4.1.classpath"/>
+    <path refid="library.gradle:_commons-io:commons-io:2.4.classpath"/>
+    <path refid="library.gradle:_org.slf4j:jcl-over-slf4j:1.7.16.classpath"/>
+    <path refid="library.gradle:_commons-codec:commons-codec:1.10.classpath"/>
+    <path refid="library.gradle:_org.apache.httpcomponents:httpclient:4.5.1.classpath"/>
+    <path refid="library.gradle:_com.google.code.findbugs:annotations:3.0.1.classpath"/>
+    <path refid="library.gradle:_com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.7.1.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-core:1.1.5.classpath"/>
+    <path refid="library.gradle:_ch.qos.logback:logback-classic:1.1.5.classpath"/>
+    <path refid="library.gradle:_de.jensd:fontawesomefx:8.9.classpath"/>
+    <path refid="library.gradle:_org.controlsfx:controlsfx:8.40.10.classpath"/>
+    <path refid="library.gradle:_com.airhacks:afterburner.fx:1.6.2.classpath"/>
+    <path refid="library.gradle:_com.google.guava:guava:19.0.classpath"/>
+    <path refid="dsb-util.runtime.module.classpath"/>
+    <path refid="dsb-local.runtime.module.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.dsb-gui">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.dsb-gui">
+    <patternset refid="excluded.from.module.dsb-gui"/>
+  </patternset>
+  
+  <path id="dsb-gui.module.sourcepath">
+    <dirset dir="${module.dsb-gui.basedir}/dsb-gui">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="dsb-gui.module.test.sourcepath">
+    <dirset dir="${module.dsb-gui.basedir}/dsb-gui">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.dsb-gui" depends="compile.module.dsb-gui.production,compile.module.dsb-gui.tests" description="Compile module dsb-gui"/>
+  
+  <target name="compile.module.dsb-gui.production" depends="register.custom.compilers,compile.module.dsb-api,compile.module.dsb-util,compile.module.dsb-local" description="Compile module dsb-gui; production classes">
+    <mkdir dir="${dsb-gui.output.dir}"/>
+    <javac2 destdir="${dsb-gui.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.dsb-gui}/javac">
+      <compilerarg line="${compiler.args.dsb-gui}"/>
+      <bootclasspath refid="dsb-gui.module.bootclasspath"/>
+      <classpath refid="dsb-gui.module.production.classpath"/>
+      <src refid="dsb-gui.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.dsb-gui"/>
+    </javac2>
+    
+    <copy todir="${dsb-gui.output.dir}">
+      <fileset dir="${module.dsb-gui.basedir}/dsb-gui/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.dsb-gui.basedir}/dsb-gui/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.dsb-gui.tests" depends="register.custom.compilers,compile.module.dsb-gui.production" description="compile module dsb-gui; test classes" unless="skip.tests">
+    <mkdir dir="${dsb-gui.testoutput.dir}"/>
+    <javac2 destdir="${dsb-gui.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.dsb-gui}/javac">
+      <compilerarg line="${compiler.args.dsb-gui}"/>
+      <bootclasspath refid="dsb-gui.module.bootclasspath"/>
+      <classpath refid="dsb-gui.module.classpath"/>
+      <src refid="dsb-gui.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.dsb-gui"/>
+    </javac2>
+    
+    <copy todir="${dsb-gui.testoutput.dir}">
+      <fileset dir="${module.dsb-gui.basedir}/dsb-gui/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.dsb-gui" description="cleanup module">
+    <delete dir="${dsb-gui.output.dir}"/>
+    <delete dir="${dsb-gui.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.ds3_java_browser_fork, clean.module.dsb-api, clean.module.dsb-ds3, clean.module.dsb-util, clean.module.dsb-local, clean.module.dsb-gui" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.ds3_java_browser_fork, compile.module.dsb-api, compile.module.dsb-ds3, compile.module.dsb-util, compile.module.dsb-local, compile.module.dsb-gui" description="build all modules"/>
+  
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.ds3_java_browser_fork:jar" value="${basedir}/out/artifacts/ds3_java_browser_fork_jar"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.ds3_java_browser_fork.jar" value="${artifacts.temp.dir}/ds3_java_browser_fork.jar"/>
+  </target>
+  
+  <target name="artifact.ds3_java_browser_fork:jar" depends="init.artifacts, compile.module.dsb-api, compile.module.dsb-ds3, compile.module.dsb-gui, compile.module.dsb-util, compile.module.dsb-local" description="Build &#39;ds3_java_browser_fork:jar&#39; artifact">
+    <property name="artifact.temp.output.ds3_java_browser_fork:jar" value="${artifacts.temp.dir}/ds3_java_browser_fork_jar"/>
+    <mkdir dir="${artifact.temp.output.ds3_java_browser_fork:jar}"/>
+    <jar destfile="${temp.jar.path.ds3_java_browser_fork.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset file="${basedir}/out/artifacts/META-INF/MANIFEST.MF" prefix="META-INF"/>
+      <zipfileset dir="${dsb-api.output.dir}"/>
+      <zipfileset dir="${dsb-ds3.output.dir}"/>
+      <zipfileset dir="${dsb-gui.output.dir}"/>
+      <zipfileset dir="${dsb-util.output.dir}"/>
+      <zipfileset dir="${dsb-local.output.dir}"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.codehaus.woodstox/stax2-api/3.1.4/ac19014b1e6a7c08aad07fe114af792676b685b7/stax2-api-3.1.4.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.7.1/14d88822bca655de7aa6ed3e4c498d115505710a/jackson-databind-2.7.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.airhacks/afterburner.fx/1.6.2/dcb13aab44e61f0d744c2aee7d52fc4a4abe8f72/afterburner.fx-1.6.2.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/3.0.1/fc019a2216218990d64dfe756e7aa20f0069dea2/annotations-3.0.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.controlsfx/controlsfx/8.40.10/fe12544570095b334d45c61e8c9a26f30ffc1675/controlsfx-8.40.10.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.slf4j/jcl-over-slf4j/1.7.16/34e48073884704ac987d3d1a1ab9b60e62028a9/jcl-over-slf4j-1.7.16.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/4b95f4897fa13f2cd904aee711aeafc0c5295cd8/commons-codec-1.10.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.1.5/16722afde74444716e299bee1f60aec9f6d1f0dc/logback-core-1.1.5.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/javax.xml.stream/stax-api/1.0-2/d6337b0de8b25e53e81b922352fbea9f9f57ba0b/stax-api-1.0-2.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-jaxb-annotations/2.7.1/c89866ce8365d941f2606cffc8b97fbf5f6045d2/jackson-module-jaxb-annotations-2.7.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.7.1/4f52cc13e0950799089aaa16314a93191bf20d12/jackson-dataformat-xml-2.7.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.4/b1b6ea3b7e4aa4f492509a4952029cd8e48019ad/commons-io-2.4.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.spectralogic.ds3/ds3-sdk/3.0.5/cbea31bae6cd3b3ce6a7b1cffb7113dd02676b3c/ds3-sdk-3.0.5.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/net.jcip/jcip-annotations/1.0/afba4942caaeaf46aab0b976afd57cc7c181467e/jcip-annotations-1.0.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/4bfc12adfe4842bf07b657f0369c4cb522955686/commons-logging-1.2.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.16/3a6274f658487d5bfff9af3862beff6da1e7fd52/slf4j-api-1.7.16.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.7.1/4127b62db028f981e81caa248953c0899d720f98/jackson-core-2.7.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/de.jensd/fontawesomefx/8.9/84f2b42df0faaf553c847e58100840aaf4507a61/fontawesomefx-8.9.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.1.5/92353eb144695bba80b31f7bec4f36d871f230ac/logback-classic-1.1.5.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.3/e876a79d561e5c6207b78d347e198c8c4531a5e5/httpcore-4.4.3.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/19.0/6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9/guava-19.0.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.codehaus.woodstox/woodstox-core-asl/4.4.1/84fee5eb1a4a1cefe65b6883c73b3fa83be3c1a1/woodstox-core-asl-4.4.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.1/7e3cecc566df91338c6c67883b89ddd05a17db43/httpclient-4.5.1.jar"/>
+      <zipfileset src="C:/Users/Rahul/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.7.0/19f42c154ffc689f40a77613bc32caeb17d744e3/jackson-annotations-2.7.0.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.ds3_java_browser_fork.jar}" tofile="${artifact.temp.output.ds3_java_browser_fork:jar}/ds3_java_browser_fork.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.ds3_java_browser_fork:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.ds3_java_browser_fork:jar}"/>
+    <copy todir="${artifact.output.ds3_java_browser_fork:jar}">
+      <fileset dir="${artifact.temp.output.ds3_java_browser_fork:jar}"/>
+    </copy>
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>

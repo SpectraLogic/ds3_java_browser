@@ -10,7 +10,6 @@ public class SavedSession {
     private final String endpoint;
     @JsonProperty("credentials")
     private final SavedCredentials credentials;
-    //ADDED BY VVDN TEAM
     @JsonProperty("portNo")
     private final String portNo;
     @JsonProperty
