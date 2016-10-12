@@ -10,13 +10,13 @@ public class Ds3TreeTableValue implements Serializable {
     private final String name;
     private final String fullName;
     private final Type type;
-    private final String size;
+    private final long size;
     private final String lastModified;
     private final HBox physicalPlacementHBox;
     private final String owner;
     private final boolean searchOn;
 
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final String size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
+    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -56,7 +56,7 @@ public class Ds3TreeTableValue implements Serializable {
         return type;
     }
 
-    public String getSize() {
+    public long getSize() {
         return size;
     }
 

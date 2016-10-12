@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -186,7 +187,7 @@ public class NewSessionPresenter implements Initializable {
                 ALERT.setContentText("Please Enter name for the session.");
                 ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-                ALERT.setContentText("Please Enter valid IP address.");
+                ALERT.setContentText("Please Enter valid Data Path address.");
                 ALERT.showAndWait();
             } else if (!SessionValidation.validatePort(model.getPortNo())) {
                 ALERT.setContentText("Please Enter valid port number for the session.");
@@ -212,7 +213,7 @@ public class NewSessionPresenter implements Initializable {
                 ALERT.setContentText("Please Enter name for the session.");
                 ALERT.showAndWait();
             } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-                ALERT.setContentText("Please Enter IP address.");
+                ALERT.setContentText("Please Enter Data Path address.");
                 ALERT.showAndWait();
             } else if (!SessionValidation.validatePort(model.getPortNo())) {
                 ALERT.setContentText("Please Enter valid port number for the session.");
@@ -271,6 +272,11 @@ public class NewSessionPresenter implements Initializable {
                     ALERT.showAndWait();
                 } else {
                     savedSessions.getSelectionModel().select(i);
+                    try {
+                        SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     if (i <= previousSize) {
                         ALERTINFO.setContentText("Session updated successfully.");
                     } else {
@@ -295,7 +301,7 @@ public class NewSessionPresenter implements Initializable {
         final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
 
         items.add(new PropertyItem(resourceBundle.getString("nameLabel"), model.sessionNameProperty(), "Access Credentials", "The name for the session", String.class));
-        items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", "The Spectra S3 Endpoint", String.class));
+        items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", "The Spectra S3 BlackPearl data path address. Can be a DNS entry or IP address", String.class));
         items.add(new PropertyItem(resourceBundle.getString("portNo"), model.portNoProperty(), "Access Credentials", "The port number for the session", String.class));
         items.add(new PropertyItem(resourceBundle.getString("proxyServer"), model.proxyServerProperty(), "Access Credentials", "Provide in format http(s)://server:port, e.g. \"http://localhost:8080\"", String.class));
         items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", "The Spectra S3 Endpoint Access ID", String.class));
@@ -308,5 +314,4 @@ public class NewSessionPresenter implements Initializable {
 
         propertySheetAnchor.getChildren().add(propertySheet);
     }
-
 }

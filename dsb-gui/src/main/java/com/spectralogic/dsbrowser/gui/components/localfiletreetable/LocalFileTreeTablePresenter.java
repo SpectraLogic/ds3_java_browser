@@ -4,18 +4,26 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -29,6 +37,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +47,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -53,6 +64,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, Number> sizeColumn;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, String> nameColumn;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, String> typeColumn;
 
     @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton;
@@ -88,11 +108,19 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
 
     @Inject
+    private JobInterruptionStore jobInterruptionStore;
+
+    @Inject
     private SettingsStore settingsStore;
+
+    @Inject
+    private Ds3Common ds3Common;
 
     private String fileRootItem = ROOT_LOCATION;
 
     private TreeItem<FileTreeModel> currentRootTreeItem;
+
+    private TreeItem<FileTreeModel> lastExpandedNode;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -174,6 +202,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
 
             final TreeItem<Ds3TreeTableValue> treeItem = values.get(0);
+
             if (!treeItem.isExpanded()) {
                 treeItem.setExpanded(true);
             }
@@ -191,9 +220,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
 
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads());
-
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
             jobWorkers.execute(putJob);
+
             putJob.setOnSucceeded(event -> {
                 LOG.info("Succeed");
                 refreshBlackPearlSideItem(treeItem);
@@ -207,14 +236,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
             putJob.setOnCancelled(e -> {
                 LOG.info("Get Job cancelled");
                 try {
-                    final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()).withForce(true));
-                    deepStorageBrowserPresenter.logText("PUT Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS);
-                    refreshBlackPearlSideItem(treeItem);
+                    if (putJob.getJobId() != null) {
+                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                        deepStorageBrowserPresenter.logText("PUT Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS);
+                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                        refreshBlackPearlSideItem(treeItem);
+                    }
                 } catch (IOException e1) {
-                    deepStorageBrowserPresenter.logText("Failed to cancel job", LogType.ERROR);
+                    LOG.info("Failed to cancel job", LogType.ERROR);
                 }
             });
-
         } catch (final Exception e) {
             deepStorageBrowserPresenter.logText("Something went wrong. Reason: " + e.toString(), LogType.ERROR);
         }
@@ -264,6 +295,38 @@ public class LocalFileTreeTablePresenter implements Initializable {
         });
 
         treeTable.setRoot(rootTreeItem);
+
+        setExpandBehaviour(treeTable);
+
+        if (lastExpandedNode != null) {
+
+            if (treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().isPresent()) {
+                final TreeItem<FileTreeModel> ds3TreeTableValueTreeItem = treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().get();
+                ds3TreeTableValueTreeItem.setExpanded(false);
+                if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
+                    LOG.info("Expanding closed row");
+                    ds3TreeTableValueTreeItem.setExpanded(true);
+                    treeTable.getSelectionModel().select(ds3TreeTableValueTreeItem);
+                }
+            }
+        }
+
+
+    }
+
+    private void setExpandBehaviour(TreeTableView<FileTreeModel> treeTable) {
+        final ObservableList<TreeItem<FileTreeModel>> children = treeTable.getRoot().getChildren();
+
+        children.stream().forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                final BooleanProperty bb = (BooleanProperty) observable;
+                final TreeItem<FileTreeModel> bean = (TreeItem<FileTreeModel>) bb.getBean();
+                if (newValue) {
+                    lastExpandedNode = bean;
+                }
+            }
+        }));
     }
 
     public LocalFileTreeTablePresenter() {
@@ -277,6 +340,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void initTableView() {
 
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        final TreeItem<FileTreeModel> node1 = new TreeItem<FileTreeModel>();
 
         treeTable.setOnDragEntered(event -> {
             event.acceptTransferModes(TransferMode.COPY);
@@ -285,7 +349,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         treeTable.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.COPY);
-
         });
 
         treeTable.setOnDragDropped(event -> {
@@ -311,7 +374,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
 
                 final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads());
+                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
 
                 jobWorkers.execute(getJob);
 
@@ -321,12 +384,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 });
 
                 getJob.setOnCancelled(e -> {
-                    try {
-                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()).withForce(true));
-                        deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
-                        refreshFileTreeView();
-                    } catch (IOException e1) {
-                        deepStorageBrowserPresenter.logText(" Failed to cancel job. ", LogType.ERROR);
+                    if (getJob.getJobId() != null) {
+                        try {
+                            final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
+                            deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+
+                        } catch (IOException e1) {
+                            LOG.info("Failed to cancel job", LogType.ERROR);
+                        }
                     }
                 });
             }
@@ -336,17 +402,26 @@ public class LocalFileTreeTablePresenter implements Initializable {
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<FileTreeModel>();
 
+                    final List<String> rowNameList = new ArrayList<String>();
+
                     row.setOnMouseClicked(event -> {
 
-                        if (event.isControlDown()) {
-                            if (!row.isSelected()) {
+                        if (event.isControlDown() || event.isShiftDown()) {
+                            if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
+                                rowNameList.add(row.getTreeItem().getValue().getName());
+                                treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                                treeTable.getSelectionModel().select(row.getIndex());
+                            } else {
                                 treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                                 treeTable.getSelectionModel().clearSelection(row.getIndex());
+                                rowNameList.remove(row.getTreeItem().getValue().getName());
                             }
                         } else if (event.getClickCount() == 2) {
                             if (!row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
                                 changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
                             }
+                        } else {
+                            treeTable.getSelectionModel().clearAndSelect(row.getIndex());
                         }
                     });
 
@@ -386,7 +461,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
 
                             final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                                    deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads());
+                                    deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
 
                             jobWorkers.execute(getJob);
 
@@ -409,7 +484,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             getJob.setOnCancelled(e -> {
                                 LOG.info("Get Job cancelled");
                                 try {
-                                    final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()).withForce(true));
+                                    final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
+                                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                                     deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
                                     if (fileTreeItem != null)
                                         refresh(fileTreeItem);
@@ -513,16 +589,87 @@ public class LocalFileTreeTablePresenter implements Initializable {
         getMediaDevices.setOnSucceeded(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
+            setExpandBehaviour(treeTable);
+            sizeColumn.setCellFactory(c -> new TreeTableCell<FileTreeModel, Number>() {
+
+                @Override
+                protected void updateItem(Number item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(FileSizeFormat.getFileSizeType(item.longValue()));
+                    }
+                }
+
+            });
+
+            treeTable.sortPolicyProperty().
+                    set(
+                            new Callback<TreeTableView<FileTreeModel>, Boolean>() {
+                                @Override
+                                public Boolean call(TreeTableView<FileTreeModel> param) {
+                                    Comparator<TreeItem<FileTreeModel>> comparator = new Comparator<TreeItem<FileTreeModel>>() {
+                                        @Override
+                                        public int compare(TreeItem<FileTreeModel> o1, TreeItem<FileTreeModel> o2) {
+                                            if (param.getComparator() == null) {
+                                                return 0;
+                                            } else {
+                                                return param.getComparator()
+                                                        .compare(o1, o2);
+                                            }
+                                        }
+
+
+                                    };
+                                    if (treeTable.getRoot() != null) {
+                                        FXCollections.sort(treeTable.getRoot().getChildren(), comparator);
+                                        treeTable.getRoot().getChildren().forEach(i -> {
+                                            if (i.isExpanded()) {
+                                                if (param.getSortOrder().stream().findFirst().isPresent())
+                                                    sortChild(i, comparator, param.getSortOrder().stream().findFirst().get().getText());
+                                                else
+                                                    sortChild(i, comparator, "");
+                                            }
+                                        });
+
+                                        if (param.getSortOrder().stream().findFirst().isPresent()) {
+                                            if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
+                                                FXCollections.sort(treeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                }
+
+                                private void sortChild(final TreeItem<FileTreeModel> o1, final Comparator<TreeItem<FileTreeModel>> comparator, final String type) {
+                                    try {
+                                        if (comparator != null) {
+                                            o1.getChildren().forEach(i -> {
+                                                if (i.isExpanded())
+                                                    sortChild(i, comparator, type);
+                                            });
+                                            FXCollections.sort(o1.getChildren(), comparator);
+                                            if (!type.equals("Type")) {
+                                                FXCollections.sort(o1.getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
+                                            }
+
+                                        }
+                                    } catch (final Exception e) {
+                                        LOG.info("Unable to sort", e.toString());
+                                    }
+                                }
+                            }
+                    );
         });
 
     }
 
-    private Session getSession(String sessionName) {
-        return store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(sessionName)).findFirst().get();
+    private Session getSession(final String sessionName) {
+        return store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(sessionName)).findFirst().orElse(null);
     }
 
     private void refresh(TreeItem<FileTreeModel> selectedItem) {
-
         if (selectedItem.getValue().getType().equals(FileTreeModel.Type.File)) {
             if (selectedItem.getParent().getValue() != null) {
                 deepStorageBrowserPresenter.logText("Refreshing " + selectedItem.getParent().getValue().getName(), LogType.SUCCESS);
@@ -540,5 +687,4 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
 
     }
-
 }

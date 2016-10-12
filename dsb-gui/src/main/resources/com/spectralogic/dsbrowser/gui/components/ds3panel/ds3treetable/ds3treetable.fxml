@@ -20,7 +20,7 @@
                         <TreeItemPropertyValueFactory property="physicalPlacementHBox"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="43.0" text="Size">
+                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="43.0" text="Size" fx:id="sizeColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="size"/>
                     </cellValueFactory>

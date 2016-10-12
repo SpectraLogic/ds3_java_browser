@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="985.0" spacing="10.0"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="1000.0" spacing="10.0"
       xmlns="http://javafx.com/javafx/8"
       fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
     <children>
@@ -22,7 +22,7 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementDataTable" editable="true"
+        <TableView fx:id="physicalPlacementDataTable"
                    prefHeight="127.0" prefWidth="805.0">
             <columns>
                 <TableColumn prefWidth="166.0" text="Name">
@@ -66,9 +66,9 @@
             </children>
         </HBox>
         <TableView fx:id="physicalPlacementDataTableTape" editable="true"
-                   prefHeight="175.0" prefWidth="850.0">
+                   prefHeight="175.0" prefWidth="800.0">
             <columns>
-                <TableColumn prefWidth="55.0" text="Barcode">
+                <TableColumn prefWidth="60.0" text="Barcode" sortable="true">
                     <cellValueFactory>
                         <PropertyValueFactory property="barcode"/>
                     </cellValueFactory>
@@ -124,7 +124,7 @@
                         <PropertyValueFactory property="ejectLabel"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="95.0" text="Eject Location">
+                <TableColumn prefWidth="90.0" text="Eject Location">
                     <cellValueFactory>
                         <PropertyValueFactory property="ejectLocation"/>
                     </cellValueFactory>

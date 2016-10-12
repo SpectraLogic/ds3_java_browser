@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="431.0" prefWidth="650.0" spacing="20.0"
+      xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.JobInfoPresenter">
+    <children>
+        <TreeTableView fx:id="jobListTreeTable" layoutX="24.0" layoutY="33.0" prefHeight="384.0" prefWidth="400.0"
+                       VBox.vgrow="ALWAYS">
+            <columns>
+                <TreeTableColumn prefWidth="250.0" text="Name">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+            <columns>
+                <TreeTableColumn prefWidth="60.0" text="Size" fx:id="sizeColumn">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="size"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+            <columns>
+                <TreeTableColumn prefWidth="60.0" text="Date">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="date"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+            <columns>
+                <TreeTableColumn prefWidth="90.0" text="Target Location">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="targetLocation"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+
+            <columns>
+                <TreeTableColumn prefWidth="90.0" text="Status" resizable="false">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="status"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+        </TreeTableView>
+
+
+        <HBox alignment="CENTER_RIGHT" prefHeight="26.0" prefWidth="490.0" spacing="15.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="4">
+            <children>
+                <Button fx:id="saveJobListButtons" mnemonicParsing="false" onAction="#saveJobFileDialog"
+                        prefHeight="25.0" prefWidth="100.0" text="Recover All">
+                    <HBox.margin>
+                        <Insets bottom="10.0" top="20.0"/>
+                    </HBox.margin>
+                </Button>
+                <Button fx:id="cancelJobListButtons" cancelButton="true" mnemonicParsing="false"
+                        prefHeight="25.0" prefWidth="90.0" text="Cancel All">
+                    <HBox.margin>
+                        <Insets bottom="10.0" right="10.0" top="20.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+            <GridPane.margin>
+                <Insets top="10.0"/>
+            </GridPane.margin>
+            <VBox.margin>
+                <Insets/>
+            </VBox.margin>
+        </HBox>
+    </children>
+</VBox>

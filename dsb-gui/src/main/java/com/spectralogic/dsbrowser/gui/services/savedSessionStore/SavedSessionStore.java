@@ -106,12 +106,13 @@ public class SavedSessionStore {
             return true;
         if (!savedSession.getPortNo().equals(session.getPortNo()))
             return true;
-        if (savedSession.getProxyServer() != null && savedSession.getProxyServer().equals(session.getProxyServer()))
-            return true;
-        if (session.getProxyServer() != null) {
+        if (savedSession.getProxyServer() != null) {
+            if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
+                return true;
+            }
+        } else if (session.getProxyServer() != null) {
             return true;
         }
-
         return false;
     }
 

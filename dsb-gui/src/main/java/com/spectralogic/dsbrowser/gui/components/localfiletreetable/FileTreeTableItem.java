@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableItem.class);
@@ -97,12 +98,10 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                     return null;
                 }
             };
-
             workers.execute(buildChildren);
             buildChildren.setOnSucceeded(event -> {
                 LOG.info("Success");
                 super.setGraphic(previousGraphics);
-
             });
         }
         return super.getChildren();
@@ -123,16 +122,17 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         if (fileTreeModel == null) {
             return;
         }
-
         final Path path = fileTreeModel.getPath();
-
         if (path != null && !isLeaf(path)) try {
             final List<FileTreeTableItem> fileChildren = provider
                     .getListForDir(fileTreeModel)
                     .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
                     .collect(Collectors.toList());
-            fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
+            fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
+            ));
+
             children.setAll(fileChildren);
+
 
         } catch (final AccessDeniedException ae) {
             LOG.error("Could not access file", ae);

@@ -20,13 +20,14 @@ subprojects {
 
     dependencies {
         compile 'com.google.guava:guava:19.0'
-        compile 'com.spectralogic.ds3:ds3-sdk:3.0.5'
+        compile 'com.spectralogic.ds3:ds3-sdk:3.2.3'
         compile 'com.airhacks:afterburner.fx:1.6.2'
-        compile 'org.controlsfx:controlsfx:8.40.10'
+        compile 'org.controlsfx:controlsfx:8.40.12'
         compile 'de.jensd:fontawesomefx:8.9'
-        compile 'org.slf4j:slf4j-api:1.7.13'
-        compile 'ch.qos.logback:logback-classic:1.1.5'
-        compile 'ch.qos.logback:logback-core:1.1.5'
+        compile 'org.slf4j:slf4j-api:1.7.21'
+        compile 'ch.qos.logback:logback-classic:1.1.7'
+        compile 'ch.qos.logback:logback-core:1.1.7'
+        compile 'org.fxmisc.richtext:richtextfx:0.6.10'
 
         testCompile('org.mockito:mockito-core:1.10.19') {
             exclude group: 'org.hamcrest'

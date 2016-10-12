@@ -5,7 +5,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 
 public class LocalFileTreeTableView extends FXMLView {
 
-    public LocalFileTreeTableView(DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+    public LocalFileTreeTableView(final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         super(name -> {
             switch (name) {
                 case "deepStorageBrowserPresenter":

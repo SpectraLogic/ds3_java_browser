@@ -8,12 +8,12 @@ public class Ds3TreeTableValueCustom implements Serializable {
     private final String name;
     private final String fullName;
     private final Ds3TreeTableValue.Type type;
-    private final String size;
+    private final long size;
     private final String lastModified;
     private final String owner;
     private final boolean searchOn;
 
-    public Ds3TreeTableValueCustom(final String bucketName, final String name, final Ds3TreeTableValue.Type type, final String size, final String lastModified, final String owner, final boolean searchOn) {
+    public Ds3TreeTableValueCustom(final String bucketName, final String name, final Ds3TreeTableValue.Type type, final long size, final String lastModified, final String owner, final boolean searchOn) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -48,7 +48,7 @@ public class Ds3TreeTableValueCustom implements Serializable {
         return type;
     }
 
-    public String getSize() {
+    public long getSize() {
         return size;
     }
 

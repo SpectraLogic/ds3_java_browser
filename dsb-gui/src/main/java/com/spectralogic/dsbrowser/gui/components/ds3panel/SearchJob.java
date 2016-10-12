@@ -11,7 +11,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
-import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.GetStorageLocations;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import javafx.application.Platform;
@@ -53,11 +52,9 @@ public class SearchJob extends Task<String> {
 
             for (BucketDetails bucket : buckets) {
                 if (bucket.getName().contains(seachText)) {
-                    Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
-                                LogType.INFO);
-                    });
-                    final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, "--", "--", "--", false, null);
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
+                            LogType.INFO));
+                    final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, "--", "--", false, null);
                     list.add(new Ds3TreeTableItem(value.getName(), session, value, workers));
                 } else {
                     final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket.getName()).withName("%" + seachText + "%").withIncludePhysicalPlacement(true);
@@ -70,21 +67,19 @@ public class SearchJob extends Task<String> {
                                             final List<BulkObject> objects = f.getBlobs().getObjects();
                                             if (objects != null) {
                                                 if (objects.stream().findFirst().isPresent()) {
-                                                    treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().get())));
+                                                    treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null))));
                                                 }
                                             } else {
-                                                treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
+                                                treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
                                             }
                                         } else {
-                                            treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(f.getSize()), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
+                                            treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
                                         }
                                     }
                             );
-                    Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Searched in " + bucket.getName() + ": found " + treeItems.size() + " items",
-                                LogType.INFO);
-                    });
-                    treeItems.stream().forEach(item -> list.add(new Ds3TreeTableItem(item.getFullName().toString(), session, item, workers)));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Searched in " + bucket.getName() + ": found " + treeItems.size() + " items",
+                            LogType.INFO));
+                    treeItems.stream().forEach(item -> list.add(new Ds3TreeTableItem(item.getFullName(), session, item, workers)));
                 }
             }
 
@@ -92,9 +87,7 @@ public class SearchJob extends Task<String> {
                 ds3PathIndicator.setText("Search result(s): " + list.size() + " object(s) found");
                 deepStorageBrowserPresenter.logText("Search result(s): " + list.size() + " object(s) found", LogType.INFO);
                 list.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-                list.stream().forEach(value -> {
-                            rootTreeItem.getChildren().add(value);
-                        }
+                list.stream().forEach(value -> rootTreeItem.getChildren().add(value)
                 );
                 if (rootTreeItem.getChildren().size() == 0) {
                     ds3TreeTableView.setPlaceholder(new Label("Search result(s): 0 object(s) found"));
@@ -102,9 +95,7 @@ public class SearchJob extends Task<String> {
                 ds3TreeTableView.setRoot(rootTreeItem);
             });
         } catch (final Exception e) {
-            Platform.runLater(() -> {
-                deepStorageBrowserPresenter.logText("Search failed: " + e.toString(), LogType.INFO);
-            });
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e.toString(), LogType.INFO));
         }
         return null;
     }

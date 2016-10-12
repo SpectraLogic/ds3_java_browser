@@ -42,16 +42,16 @@ public class LocalFileTreeTableProvider {
         return Arrays.stream(files).map(file -> {
             final FileTreeModel.Type type = getRootType(file);
             final Path path = file.toPath();
-            String size = "";
+            long size = 0;
             String lastModified = "";
             try {
                 if ((type == FileTreeModel.Type.Media_Device) || (type == FileTreeModel.Type.Directory)) {
-                    size = FileSizeFormat.getFileSizeType(0);
+                    size = 0;
                 } else {
-                    size = FileSizeFormat.getFileSizeType(Files.size(path));
+                    size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);
-                final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
+                final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
                 lastModified = sdf.format(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
@@ -87,21 +87,20 @@ public class LocalFileTreeTableProvider {
                 if (type == FileTreeModel.Type.Directory) {
                     final String size = FileSizeFormat.getFileSizeType(0);
                     final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                    final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
+                    final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
                     final String lastModified = sdf.format(fileModifiedTime.toMillis());
-                    return new FileTreeModel(filePath, type, size, newDepth, lastModified);
+                    return new FileTreeModel(filePath, type, 0, newDepth, lastModified);
                 } else {
                     final String size = FileSizeFormat.getFileSizeType(Files.size(filePath));
                     final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                    final SimpleDateFormat sdf = new SimpleDateFormat("M/d/yyyy HH:mm:ss");
+                    final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
                     final String lastModified = sdf.format(fileModifiedTime.toMillis());
-                    return new FileTreeModel(filePath, type, size, newDepth, lastModified);
+                    return new FileTreeModel(filePath, type, Files.size(filePath), newDepth, lastModified);
                 }
             } catch (final IOException e) {
                 LOG.error("Failed to get file size for: " + filePath.toString(), e);
-                return new FileTreeModel(filePath, FileTreeModel.Type.Error, "", newDepth, "");
+                return new FileTreeModel(filePath, FileTreeModel.Type.Error, 0, newDepth, "");
             }
         });
     }
-
 }

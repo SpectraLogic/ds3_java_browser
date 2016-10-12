@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.TextFlow?>
+<?import org.fxmisc.richtext.InlineCssTextArea?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
             minWidth="-Infinity"
             prefHeight="400.0" prefWidth="600.0" stylesheets="@common.css"
@@ -17,7 +17,7 @@
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem fx:id="settingsMenuItem" mnemonicParsing="false" onAction="#showSettingsPopup"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeWindow"/>
+                        <MenuItem fx:id="closeMenuItem" mnemonicParsing="false"/>
                     </items>
                 </Menu>
                 <Menu fx:id="viewMenu" mnemonicParsing="false">
@@ -68,8 +68,10 @@
                                 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" pannable="true"
                                             vbarPolicy="AS_NEEDED">
                                     <content>
-                                        <TextFlow fx:id="logTextFlow">
-                                        </TextFlow>
+                                        <InlineCssTextArea fx:id="inlineCssTextArea" prefHeight="Infinity"
+                                                           style="-fx-font-weight: bold;" editable="false"
+                                                           wrapText="true">
+                                        </InlineCssTextArea>
                                     </content>
                                 </ScrollPane>
                             </content>

@@ -33,7 +33,7 @@ public class DeleteFilesPresenter implements Initializable {
     private Button deleteButton;
 
     @FXML
-    Label deleteLabel;
+    private Label deleteLabel, deleteConfirmationInfoLabel;
 
     @Inject
     private Workers workers;
@@ -50,8 +50,8 @@ public class DeleteFilesPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            if (ds3PanelPresenter.ds3TreeTableView != null) {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.ds3TreeTableView.getSelectionModel().getSelectedItems();
+            if (ds3PanelPresenter.getDs3TreeTableView() != null) {
+                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
                 changeLabelText(selectedPanelItems);
             } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
@@ -79,10 +79,13 @@ public class DeleteFilesPresenter implements Initializable {
     public void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             deleteLabel.setText("DELETE FILE(S)");
+            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected files please type 'DELETE'");
         } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            deleteLabel.setText("DELETE FOLDER(S)");
+            deleteLabel.setText("DELETE FOLDER");
+            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected folder please type 'DELETE'");
         } else {
-            deleteLabel.setText("DELETE BUCKET(S)");
+            deleteLabel.setText("DELETE BUCKET");
+            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected Bucket please type 'DELETE'");
         }
     }
 
@@ -92,7 +95,6 @@ public class DeleteFilesPresenter implements Initializable {
         deleteTask.setOnSucceeded(this::handle);
 
         workers.execute(deleteTask);
-
     }
 
     private void handle(final Event event) {

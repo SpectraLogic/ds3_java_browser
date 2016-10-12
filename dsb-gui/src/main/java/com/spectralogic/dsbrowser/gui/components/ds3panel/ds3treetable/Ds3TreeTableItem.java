@@ -9,7 +9,6 @@ import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
-import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -26,7 +25,7 @@ import javafx.scene.layout.HBox;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.*;
+import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -46,6 +45,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.leaf = isLeaf(value);
         this.workers = workers;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
+    }
+
+    public boolean isAccessedChildren() {
+        return accessedChildren;
+    }
+
+    public void setAccessedChildren(boolean accessedChildren) {
+        this.accessedChildren = accessedChildren;
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
@@ -91,6 +98,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
         getBucketTask.setOnSucceeded(event -> super.setGraphic(previousGraphics));
+        getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
+        getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
     }
 
     @Override
@@ -142,10 +151,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                             return i.getName();
                         } else {
                             final List<BulkObject> objects = i.getBlobs().getObjects();
-                            objects.stream().forEach(obj -> {
-                                final HBox iconsAndTooltip = addPlacementIconsandTooltip(obj);
-                                files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(i.getSize()), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
-                            });
+                            if (objects.stream().findFirst().isPresent()) {
+                                final HBox iconsAndTooltip = addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null));
+                                files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, i.getSize(), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
+                            }
                             return null;
                         }
                     } catch (final Exception e) {
@@ -153,14 +162,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     }
 
                 } else {
-                    String splitReg = "/";
+                    final String splitReg = "/";
                     if (i.getName().contains("/")) {
                         return i.getName().split(splitReg)[0] + "/";
                     } else {
                         final List<BulkObject> objects = i.getBlobs().getObjects();
                         if (objects.stream().findFirst().isPresent()) {
-                            final HBox iconsAndTooltip = addPlacementIconsandTooltip(objects.stream().findFirst().get());
-                            files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, FileSizeFormat.getFileSizeType(i.getSize()), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
+                            final HBox iconsAndTooltip = addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null));
+                            files.add(new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, i.getSize(), DateFormat.formatDate(i.getCreationDate()), i.getOwner(), false, iconsAndTooltip));
                         }
                         return null;
                     }
@@ -169,7 +178,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 final HBox hbox = new HBox();
                 hbox.getChildren().add(new Label("----"));
                 hbox.setAlignment(Pos.CENTER);
-                return new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, FileSizeFormat.getFileSizeType(0), "--", "--", false, hbox);
+                return new Ds3TreeTableValue(bucket, c, Ds3TreeTableValue.Type.Directory, 0, "--", "--", false, hbox);
             }).collect(GuavaCollectors.immutableList());
             final ImmutableList<Ds3TreeTableValue> filteredFiles = files.stream().filter(i -> !i.getName().equals("")).collect(GuavaCollectors.immutableList());
 

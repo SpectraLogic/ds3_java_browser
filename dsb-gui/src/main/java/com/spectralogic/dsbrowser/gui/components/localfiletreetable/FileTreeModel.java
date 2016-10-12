@@ -6,11 +6,11 @@ public class FileTreeModel {
     final private Path path;
     final private String name;
     final private Type type;
-    final private String size;
+    final private long size;
     final private int depth;
     private final String lastModified;
 
-    public FileTreeModel(final Path path, final Type type, final String size, final int depth, final String lastModified) {
+    public FileTreeModel(final Path path, final Type type, final long size, final int depth, final String lastModified) {
         this.path = path;
         this.type = type;
         this.size = size;
@@ -31,7 +31,7 @@ public class FileTreeModel {
         return type;
     }
 
-    public String getSize() {
+    public long getSize() {
         return size;
     }
 

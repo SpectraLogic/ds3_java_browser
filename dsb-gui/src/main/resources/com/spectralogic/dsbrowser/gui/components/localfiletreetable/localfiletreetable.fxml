@@ -86,11 +86,12 @@
                 </Label>
             </children>
         </Pane>
-        <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefWidth="296.0" prefHeight="500.0" AnchorPane.bottomAnchor="0.0"
+        <TreeTableView fx:id="treeTable" layoutX="24.0" layoutY="33.0" prefWidth="296.0" prefHeight="500.0"
+                       AnchorPane.bottomAnchor="0.0"
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                        VBox.vgrow="ALWAYS">
             <columns>
-                <TreeTableColumn minWidth="100.0" prefWidth="200.0" text="Name">
+                <TreeTableColumn minWidth="100.0" prefWidth="200.0" text="Name" fx:id="nameColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="name"/>
                     </cellValueFactory>
@@ -100,7 +101,7 @@
                         <TreeItemPropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn prefWidth="100.0" text="Size">
+                <TreeTableColumn prefWidth="100.0" text="Size" fx:id="sizeColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="size"/>
                     </cellValueFactory>

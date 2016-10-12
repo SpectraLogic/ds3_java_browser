@@ -59,6 +59,7 @@ public class CreateBucketPresenter implements Initializable {
 
         initGUIElements();
 
+        //noinspection unchecked
         dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
 
         bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {

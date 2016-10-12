@@ -29,7 +29,6 @@ import java.util.ResourceBundle;
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
-
     private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
@@ -51,13 +50,11 @@ public class CreateFolderPresenter implements Initializable {
     private ResourceBundle resourceBundle;
 
     @Inject
-    DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-
         try {
-
             ALERT.setTitle("Error while creating folder");
             ALERT.setHeaderText(null);
 
@@ -79,7 +76,6 @@ public class CreateFolderPresenter implements Initializable {
         } catch (final Throwable e) {
             LOG.error("Encountered an error making the create folder presenter", e);
         }
-
     }
 
     private void initGUIElements() {
@@ -89,7 +85,6 @@ public class CreateFolderPresenter implements Initializable {
     }
 
     public void createFolder() {
-
         final Ds3Task createFolderTask = new Ds3Task(createFolderModel.getClient()) {
 
             @Override
@@ -109,7 +104,7 @@ public class CreateFolderPresenter implements Initializable {
                     });
                     return response;
                 } catch (final Exception e) {
-                    LOG.error("Failed to delete files" + e);
+                    LOG.error("Failed to craete directory", e);
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Failed to create folder. Reason: " + e.toString(), LogType.ERROR);
                         ALERT.setContentText("Failed to create folder. Check logs.");

@@ -6,6 +6,7 @@ import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
 import com.spectralogic.ds3client.models.Tape;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
@@ -51,7 +52,9 @@ public class PhysicalPlacementPresenter implements Initializable {
                 for (final Pool pool : listPool) {
                     physicalPlacementPoolEntryBuilder.add(new PhysicalPlacementPoolEntry(pool.getName(), pool.getHealth().toString(), pool.getType().toString(), pool.getPartitionId().toString()));
                 }
-                physicalPlacementDataTable.setItems(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
+                final SortedList sortedList = new SortedList(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
+                physicalPlacementDataTable.setItems(sortedList);
+                sortedList.comparatorProperty().bind(physicalPlacementDataTable.comparatorProperty());
             }
             final List<Tape> listTape = ds3PhysicalPlacement.getTapes();
             if (listTape != null) {
@@ -70,7 +73,9 @@ public class PhysicalPlacementPresenter implements Initializable {
                     final String ejectLocation = tape.getEjectLocation();
                     physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntry(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified, ejectLabel, ejectLocation));
                 }
-                physicalPlacementDataTableTape.setItems(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
+                final SortedList sortedList = new SortedList(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
+                physicalPlacementDataTableTape.setItems(sortedList);
+                sortedList.comparatorProperty().bind(physicalPlacementDataTableTape.comparatorProperty());
             }
         }
     }
