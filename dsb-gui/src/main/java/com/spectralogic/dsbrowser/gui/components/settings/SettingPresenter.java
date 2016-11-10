@@ -141,7 +141,6 @@ public class SettingPresenter implements Initializable {
         Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
         Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
         Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
-
     }
 
     private void initGUIElements() {
@@ -157,7 +156,6 @@ public class SettingPresenter implements Initializable {
         cancelSettingsPerforanceButton.setText(resourceBundle.getString("cancelSettingsPerforanceButton"));
         performanceTab.setText(resourceBundle.getString("performanceTab"));
         loggingTab.setText(resourceBundle.getString("loggingTab"));
-
         putJobPriority.getItems().add(resourceBundle.getString("defaultPolicyText"));
         getJobPriority.getItems().add(resourceBundle.getString("defaultPolicyText"));
         Priority[] priorities = PriorityFilter.filterPriorities(Priority.values());

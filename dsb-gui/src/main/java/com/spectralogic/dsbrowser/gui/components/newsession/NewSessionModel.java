@@ -118,7 +118,6 @@ public class NewSessionModel {
             final GetServiceResponse response = client.getService(new GetServiceRequest());
             return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
 
-
         } catch (final UnknownHostException e) {
             ALERT.setTitle("Invalid Endpoint");
             ALERT.setContentText("Invalid Endpoint Server Name or IP Address");
@@ -129,6 +128,11 @@ public class NewSessionModel {
             ALERT.showAndWait();
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
+                if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
+                    ALERT.setTitle("Failed To authenticate session");
+                    ALERT.setContentText("Failed To authenticate session : Client's clock is not synchronized with server's clock");
+                    ALERT.showAndWait();
+                }
                 ALERT.setTitle("Invalid ID and KEY");
                 ALERT.setContentText("Invalid Access ID or Secret Key");
                 ALERT.showAndWait();
@@ -136,18 +140,18 @@ public class NewSessionModel {
                 ALERT.setTitle("Unexpected Status");
                 ALERT.setContentText("BlackPearl return an unexpected status code we did not expect");
                 ALERT.showAndWait();
-
             }
-        } catch (final IOException e) {
-            ALERT.setTitle("Networking Error");
-            ALERT.setContentText("Encountered a networking error");
-            ALERT.showAndWait();
+        } catch (final Exception e) {
 
-        } catch (final RuntimeException e) {
-            ALERT.setTitle("Error");
-            ALERT.setContentText("Authentication error. Please check your credentials");
-            ALERT.showAndWait();
-
+            if (e instanceof IOException) {
+                ALERT.setTitle("Networking Error");
+                ALERT.setContentText("Encountered a networking error");
+                ALERT.showAndWait();
+            } else if (e instanceof RuntimeException) {
+                ALERT.setTitle("Error");
+                ALERT.setContentText("Authentication error. Please check your credentials");
+                ALERT.showAndWait();
+            }
         }
         return null;
     }

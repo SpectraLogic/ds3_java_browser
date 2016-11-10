@@ -207,11 +207,16 @@ public class Ds3PutJob extends Ds3JobTask {
 
         } catch (final Exception e) {
             final String newDate = DateFormat.formatDate(new Date());
-            if (e instanceof InterruptedException || e instanceof RuntimeException) {
+            if (e instanceof InterruptedException  ) {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT Job Cancelled (User Interruption)" + " at " + newDate, LogType.ERROR));
-            } else {
-
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
+            }
+            else if(e instanceof RuntimeException || e instanceof IllegalFormatException){
+                //cancel the job if it is already running
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
+            }
+            else {
+                Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
                 final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
                 if (session != null) {

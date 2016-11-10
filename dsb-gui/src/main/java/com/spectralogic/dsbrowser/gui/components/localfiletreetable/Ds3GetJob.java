@@ -97,6 +97,8 @@ public class Ds3GetJob extends Ds3JobTask {
                 final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
                 final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
 
+                final Map<Path, Boolean> duplicateFileMap = new HashMap<>();
+
                 files.stream().forEach(i -> {
                     fileMap.put(i.getFullName(), Paths.get("/"));
                     nodes.add(i);
@@ -160,26 +162,31 @@ public class Ds3GetJob extends Ds3JobTask {
                 });
 
                 getJob.attachObjectCompletedListener(obj -> {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                    updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
-                    updateProgress(totalSent.get(), totalJobSize);
+                    if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
+                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
+                    } else {
+                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
+                        updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                        updateProgress(totalSent.get(), totalJobSize);
+                    }
                 });
 
                 getJob.transfer(l -> {
                     final File file = new File(l);
                     String skipPath = null;
 
+                    if (new File(fileTreeModel + "/" + l).exists()) {
+                        duplicateFileMap.put(Paths.get(fileTreeModel + "/" + l), true);
+                    }
                     if (map.size() == 0 && file.getParent() != null) {
                         skipPath = file.getParent();
                     }
-
                     if (files.size() == 0) {
                         final Path skipPath1 = map.get(file.toPath());
                         if (skipPath1 != null) {
                             skipPath = skipPath1.toString();
                         }
                     }
-
                     if (skipPath != null) {
                         return new PrefixRemoverObjectChannelBuilder(new FileObjectGetter(fileTreeModel), skipPath).buildChannel(l.substring(("/" + skipPath).length()));
                     } else {
@@ -212,8 +219,13 @@ public class Ds3GetJob extends Ds3JobTask {
             }
 
         } catch (final Exception e) {
-            if (e instanceof InterruptedException || e instanceof RuntimeException) {
+            if (e instanceof InterruptedException) {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled (User Interruption)", LogType.ERROR));
+            } else if (e instanceof RuntimeException || e instanceof IllegalFormatException) {
+                if (e instanceof NoSuchElementException) {
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
+                } else
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
             } else {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
@@ -222,7 +234,6 @@ public class Ds3GetJob extends Ds3JobTask {
                 if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
-
             }
         }
     }

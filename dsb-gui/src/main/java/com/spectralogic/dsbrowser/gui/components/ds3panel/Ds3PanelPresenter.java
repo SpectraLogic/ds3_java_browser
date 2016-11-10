@@ -146,6 +146,7 @@ public class Ds3PanelPresenter implements Initializable {
             initTabPane();
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
+            ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
             workers.execute(backgroundTask);
         } catch (final Throwable e) {
@@ -181,7 +182,6 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void initListeners() {
-
         ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
 
         ds3Refresh.setOnAction(event -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers));
@@ -231,21 +231,27 @@ public class Ds3PanelPresenter implements Initializable {
                     final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, deepStorageBrowserPresenter, this, ds3Common);
                     final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
                     treeTab.setOnClosed(event -> {
-                        store.removeSession(newSession);
-                        ds3Common.getExpandedNodesInfo().remove(newSession.getSessionName() + "-" + newSession.getEndpoint());
-                        if (ds3Common.getCurrentSession().contains(newSession)) {
-                            ds3Common.getCurrentSession().clear();
-                            ds3Common.getCurrentTabPane().clear();
-                        }
-
-                        if (ds3Common.getCurrentSession().stream().findFirst().isPresent()) {
-                            final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
-                            if (session != null) {
-                                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), session.getEndpoint() + ":" + session.getPortNo(), deepStorageBrowserPresenter.getJobProgressView(), null);
-                                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
+                       try {
+                            final Tab closedTab = (Tab) event.getSource();
+                            if (closedTab != null) {
+                                final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(closedTab.getText())).findFirst().orElse(null);
+                                if (session != null) {
+                                    final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), session.getEndpoint() + ":" + session.getPortNo(), deepStorageBrowserPresenter.getJobProgressView(), null);
+                                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
+                                    ParseJobInterruptionMap.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, LOG, workers, session);
+                                }
+                            } else {
+                                ParseJobInterruptionMap.setButtonAndCountNumber(null, deepStorageBrowserPresenter);
+                                ParseJobInterruptionMap.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, LOG, workers, newSession);
                             }
-                        } else {
-                            ParseJobInterruptionMap.setButtonAndCountNumber(null, deepStorageBrowserPresenter);
+                            store.removeSession(newSession);
+                            ds3Common.getExpandedNodesInfo().remove(newSession.getSessionName() + "-" + newSession.getEndpoint());
+                            if (ds3Common.getCurrentSession().contains(newSession)) {
+                                ds3Common.getCurrentSession().clear();
+                                ds3Common.getCurrentTabPane().clear();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
                         ds3PathIndicator.setText("");
@@ -642,9 +648,7 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
             //Can not assign final as assigning value again in next step
             String location = ds3TreeTableValueTreeItem.getValue().getFullName();
-
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-
             CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)), deepStorageBrowserPresenter);
             refresh(ds3TreeTableValueTreeItem);
         } else {
@@ -676,9 +680,20 @@ public class Ds3PanelPresenter implements Initializable {
         LOG.info("Running refresh of row");
         deepStorageBrowserPresenter.logText("Running refresh of row", LogType.INFO);
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
-            LOG.info("Refresh row");
-            final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
-            ds3TreeTableItem.refresh();
+            Ds3TreeTableItem item;
+            if (modifiedTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                item = (Ds3TreeTableItem) modifiedTreeItem.getParent();
+            } else {
+                item = (Ds3TreeTableItem) modifiedTreeItem;
+            }
+            if (item.isExpanded()) {
+                item.refresh();
+            } else if (item.isAccessedChildren()) {
+                item.setExpanded(true);
+                item.refresh();
+            } else {
+                item.setExpanded(true);
+            }
         }
     }
 
@@ -762,6 +777,10 @@ public class Ds3PanelPresenter implements Initializable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void disableSearch(final boolean disable) {
+        ds3PanelSearch.setDisable(disable);
     }
 
     private void initButtons() {

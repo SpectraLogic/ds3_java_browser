@@ -15,6 +15,7 @@ public class Ds3TreeTableValue implements Serializable {
     private final HBox physicalPlacementHBox;
     private final String owner;
     private final boolean searchOn;
+    private  String marker = "";
 
     public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
@@ -26,6 +27,20 @@ public class Ds3TreeTableValue implements Serializable {
         this.physicalPlacementHBox = physicalPlacementHBox;
         this.owner = owner;
         this.searchOn = searchOn;
+    }
+
+    //constructor with marker
+    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox,String marker) {
+        this.bucketName = bucketName;
+        this.fullName = name;
+        this.name = getLastPart(name, type);
+        this.type = type;
+        this.size = size;
+        this.lastModified = lastModified;
+        this.physicalPlacementHBox = physicalPlacementHBox;
+        this.owner = owner;
+        this.searchOn = searchOn;
+        this.marker = marker;
     }
 
     public boolean isSearchOn() {
@@ -72,6 +87,14 @@ public class Ds3TreeTableValue implements Serializable {
         return bucketName;
     }
 
+    public String getMarker() {
+        return marker;
+    }
+
+    public void setMarker(String marker) {
+        this.marker = marker;
+    }
+
     public String getDirectoryName() {
         switch (type) {
             case Directory:
@@ -96,6 +119,6 @@ public class Ds3TreeTableValue implements Serializable {
     }
 
     public enum Type {
-        File, Directory, Bucket
+        File, Directory, Bucket , Loader
     }
 }

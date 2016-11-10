@@ -87,7 +87,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
             });
 
-
             final Path finalFileTreeModel = fileTreeModel;
             job.transfer(s -> {
                         if (filesAndFolderMapMap.getType().equals("PUT")) {
@@ -99,7 +98,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 final Path finalPath = Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
                                 return new FileObjectPutter(finalPath).buildChannel("");
                             }
-
                         } else {
                             if (filesAndFolderMapMap.isNonAdjacent())
                                 return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
@@ -111,11 +109,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                         skipPath = file.getParent();
                                     else
                                         skipPath = "";
-                                } else {
-                                    final Stream<Map.Entry<String, Path>> entryStream = folders.entrySet().stream().filter(i -> s.startsWith(i.getKey()));
-                                    if (entryStream != null) {
-                                        skipPath = entryStream.findFirst().get().getValue().toString();
-                                    }
                                 }
                                 if (skipPath.isEmpty()) {
                                     return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
@@ -123,7 +116,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                     return new PrefixRemoverObjectChannelBuilder(new FileObjectGetter(finalFileTreeModel), skipPath).buildChannel(s.substring(("/" + skipPath).length()));
                                 }
                             }
-
                         }
                     }
             );
@@ -132,9 +124,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job. Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to " + filesAndFolderMapMap.getTargetLocation() + "(BlackPearl cache). Waiting for the storage target allocation.");
                 updateProgress(totalJobSize, totalJobSize);
             });
-
-
-//            //Can not assign final.
+            //Can not assign final.
             GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
 
             while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
@@ -150,6 +140,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
             }
         } catch (final Exception e) {
+            e.printStackTrace();
             if (e instanceof FailedRequestException) {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job not found. Cancelling job.", LogType.INFO));
                 cancel();

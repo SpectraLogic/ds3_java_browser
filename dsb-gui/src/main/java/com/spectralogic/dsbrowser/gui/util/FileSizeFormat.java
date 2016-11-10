@@ -18,7 +18,10 @@ public class FileSizeFormat {
 
         if (size == 0) {
             return "--";
-        } else if (size < sizeKb)
+        }
+        else if(size == -1)
+            return "";
+        else if (size < sizeKb)
             return dfbytes.format(size) + " Bytes";
         else if (size < sizeMo)
             return df.format(size / sizeKb) + " KB";

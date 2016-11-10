@@ -2,8 +2,10 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -16,6 +18,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -202,19 +205,61 @@ public class ParseJobInterruptionMap {
         }
     }
 
+
+    public static void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, Workers workers, Session session) {
+        final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
+        if (tasks.size() != 0) {
+            final Task cancelAllRunningJobs = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    tasks.stream().forEach(i -> {
+                        try {
+                            if (i instanceof Ds3PutJob) {
+                                final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
+                                if (ds3PutJob.getClient().getConnectionDetails().getCredentials().getClientId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()) && ds3PutJob.getClient().getConnectionDetails().getCredentials().getKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
+                                    ds3PutJob.cancel();
+                                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3PutJob.getJobId().toString(), ds3PutJob.getClient().getConnectionDetails().getEndpoint(), null);
+                                }
+                            } else if (i instanceof Ds3GetJob) {
+                                final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
+                                if (ds3GetJob.getDs3Client().getConnectionDetails().getCredentials().getClientId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()) && ds3GetJob.getDs3Client().getConnectionDetails().getCredentials().getKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
+                                    ds3GetJob.cancel();
+                                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3GetJob.getJobId().toString(), ds3GetJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
+                                }
+                            } else if (i instanceof RecoverInterruptedJob) {
+                                final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) i;
+                                if (recoverInterruptedJob.getDs3Client().getConnectionDetails().getCredentials().getClientId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()) && recoverInterruptedJob.getDs3Client().getConnectionDetails().getCredentials().getKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
+                                    recoverInterruptedJob.cancel();
+                                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
+                                }
+                            } else {
+                            }
+                        } catch (final Exception e1) {
+                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                        }
+                    });
+                    return null;
+                }
+            };
+            workers.execute(cancelAllRunningJobs);
+
+            cancelAllRunningJobs.setOnSucceeded(event -> {
+                if (cancelAllRunningJobs.getValue() != null) {
+                    Platform.runLater(() -> LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue()));
+                }
+            });
+        }
+    }
+
     //Refresh blackpearl side
     public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers) {
 
         if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
-
             final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
-
             ds3Common.getDeepStorageBrowserPresenter().logText("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
-
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
             final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-
             final Ds3Task getBucketTask = new Ds3Task(session.getClient()) {
 
                 @Override
@@ -236,6 +281,11 @@ public class ParseJobInterruptionMap {
                         Platform.runLater(() -> {
                             ds3TreeTableView.setRoot(rootTreeItem);
                         });
+                    } catch (final FailedRequestException ex) {
+                        Platform.runLater(() -> {
+                            ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR);
+                        });
+                        LOG.error("Invalid Security : " + ex.getError().getMessage());
                     } catch (final Exception e) {
                         Platform.runLater(() -> {
                             ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR);

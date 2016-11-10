@@ -31,7 +31,12 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
+import java.net.ServerSocket;
+import java.nio.channels.FileLock;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -43,6 +48,7 @@ public class Main extends Application {
             Alert.AlertType.CONFIRMATION,
             "Are you sure you want to exit?"
     );
+    final Alert alert = new Alert(Alert.AlertType.ERROR);
 
     private final Workers workers = new Workers();
     private JobWorkers jobWorkers = null;
@@ -55,9 +61,8 @@ public class Main extends Application {
     private JobInterruptionStore jobInterruptionStore = null;
 
     public static void main(final String[] args) {
-        launch(args);
+      launch(args);
     }
-
     @Override
     public void start(final Stage primaryStage) throws Exception {
 
@@ -220,5 +225,4 @@ public class Main extends Application {
         }
 
     }
-
 }

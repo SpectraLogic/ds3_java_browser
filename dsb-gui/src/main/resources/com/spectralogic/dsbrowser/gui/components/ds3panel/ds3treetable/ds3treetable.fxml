@@ -10,7 +10,7 @@
     <children>
         <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css">
             <columns>
-                <TreeTableColumn maxWidth="800" minWidth="-1.0" prefWidth="125.0" text="Name">
+                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="-1.0" prefWidth="125.0" text="Name">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="name"/>
                     </cellValueFactory>
@@ -30,7 +30,7 @@
                         <TreeItemPropertyValueFactory property="owner"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="400" minWidth="-1.0" prefWidth="41.0" text="Type">
+                <TreeTableColumn fx:id="fileType" maxWidth="400" minWidth="-1.0" prefWidth="41.0" text="Type">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="type"/>
                     </cellValueFactory>

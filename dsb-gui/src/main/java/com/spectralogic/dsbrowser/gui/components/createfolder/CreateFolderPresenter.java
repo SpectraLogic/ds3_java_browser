@@ -93,20 +93,26 @@ public class CreateFolderPresenter implements Initializable {
                     String location = "";
                     if (!createFolderModel.getLocation().equals(createFolderModel.getBucketName())) {
                         location = createFolderModel.getLocation();
+                        //if creating folder while file is selected
+                        if(location.charAt(location.length()-1) != '/')
+                        {
+                            int lastIndex = location.lastIndexOf("/");
+                            location = location.substring(0,lastIndex+1);
+                        }
                     }
                     final List<Ds3Object> ds3ObjectList = new ArrayList<>();
-                    final Ds3Object object = new Ds3Object(location + folderNameField.textProperty().getValue() + "/", 0);
+                    final Ds3Object object = new Ds3Object(location+folderNameField.textProperty().getValue() + "/", 0);
                     ds3ObjectList.add(object);
                     final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName().trim(), ds3ObjectList));
                     Platform.runLater(() -> {
                         deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
-                        deepStorageBrowserPresenter.logText("Folder is created", LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue()+" Folder is created", LogType.SUCCESS);
                     });
                     return response;
                 } catch (final Exception e) {
                     LOG.error("Failed to craete directory", e);
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Failed to create folder. Reason: " + e.toString(), LogType.ERROR);
+                        deepStorageBrowserPresenter.logText("Failed to create folder "+folderNameField.textProperty().getValue()+" Reason: " + e.toString(), LogType.ERROR);
                         ALERT.setContentText("Failed to create folder. Check logs.");
                         ALERT.showAndWait();
                     });

@@ -341,7 +341,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     /**
      * This function is to set the tooltip behaviour. You can set initial delay, duration of the tooltip and close delay.
-     *
      * @param openDelay  delay in displaying toltip
      * @param duration   tooltip display time
      * @param closeDelay tooltip closing time
@@ -439,7 +438,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                                 final CancelJobSpectraS3Response cancelJobSpectraS3Response = recoverInterruptedJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(recoverInterruptedJob.getUuid()));
                                 Platform.runLater(() -> LOG.info("Cancelled job. Status code: ", cancelJobSpectraS3Response.getResponse().getStatusCode()));
-
                             }
                         } catch (final Exception e1) {
                             Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
@@ -485,7 +483,26 @@ public class DeepStorageBrowserPresenter implements Initializable {
             }
             scrollPane.setVvalue(1.0);
         }
+    }
 
+    //set the same color for all the lines of string log seprated by \n
+    public void logTextForParagraph(final String log, final LogType type) {
+        final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
+        inlineCssTextArea.appendText(formattedString(log));
+        final int size = inlineCssTextArea.getParagraphs().size() - 2;
+
+        for (int i = previousSize + 1; i <= size; i++)
+            switch (type) {
+                case SUCCESS:
+                    inlineCssTextArea.setStyle(i, "-fx-fill: GREEN;");
+                    break;
+                case ERROR:
+                    inlineCssTextArea.setStyle(i, "-fx-fill: RED;");
+                    break;
+                default:
+                    inlineCssTextArea.setStyle(i, "-fx-fill: BLACK;");
+            }
+        scrollPane.setVvalue(1.0);
     }
 
     private String formattedString(final String log) {
