@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 public final class Platform {
 
-    private final static Logger LOG = LoggerFactory.getLogger(Platform.class);
     public final static OS OS_TYPE;
+    private final static Logger LOG = LoggerFactory.getLogger(Platform.class);
 
     static {
         final String osName = System.getProperty("os.name");
@@ -18,8 +18,7 @@ public final class Platform {
             OS_TYPE = OS.LINUX;
         } else if (osName.contains("FreeBSD")) {
             OS_TYPE = OS.FREE_BSD;
-        }
-        else {
+        } else {
             LOG.info("Unknown platform type: " + osName);
             OS_TYPE = OS.UNKNOWN;
         }

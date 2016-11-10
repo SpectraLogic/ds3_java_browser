@@ -8,7 +8,7 @@ public class Ds3Metadata {
     private final long size;
     private final String name;
 
-    public  Ds3Metadata() {
+    public Ds3Metadata() {
         this(null, 0, "");
     }
 

@@ -21,20 +21,35 @@ public class SettingsStore {
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "settings.json");
 
-    private boolean dirty = false;
-
     @JsonProperty("logSettings")
     private final LogSettings logSettings;
 
+    @JsonProperty("processSettings")
+    private final ProcessSettings processSettings;
+
+    private boolean dirty = false;
+
+
+    @JsonCreator
+    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings, @JsonProperty("processSettings") final ProcessSettings processSettings) {
+        this.logSettings = logSettings;
+        this.processSettings = processSettings;
+    }
 
     public static SettingsStore loadSettingsStore() throws IOException {
         // Do not log when loading the settings store since the logger has not been configured
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
                 return JsonMapping.fromJson(inputStream, SettingsStore.class);
+            } catch (final Exception e) {
+                Files.delete(PATH);
+                LOG.info("Creating new empty saved setting store");
+                final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT);
+                settingsStore.dirty = true; // set this to true so we will write the settings after the first run
+                return settingsStore;
             }
         } else {
-            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT);
+            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT);
             settingsStore.dirty = true; // set this to true so we will write the settings after the first run
             return settingsStore;
         }
@@ -52,11 +67,6 @@ public class SettingsStore {
         }
     }
 
-    @JsonCreator
-    public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings) {
-        this.logSettings = logSettings;
-    }
-
     public LogSettings getLogSettings() {
         return logSettings.copy();
     }
@@ -64,6 +74,15 @@ public class SettingsStore {
     public void setLogSettings(final LogSettings settings) {
         dirty = true;
         logSettings.overwrite(settings);
+    }
+
+    public ProcessSettings getProcessSettings() {
+        return processSettings;
+    }
+
+    public void setProcessSettings(final ProcessSettings settings) {
+        dirty = true;
+        processSettings.overwrite(settings);
     }
 
 }

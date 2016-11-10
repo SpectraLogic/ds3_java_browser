@@ -1,0 +1,42 @@
+@font-face {
+    font-family: 'Open Sans ExtraBold';
+    src: url('fonts/OpenSans-ExtraBold.ttf');
+}
+@font-face {
+    font-family: 'Open Sans Semibold';
+    src: url('fonts/OpenSans-Semibold.ttf');
+}
+.label{
+ -fx-font-family: 'Open Sans Semibold';
+}
+
+.button {
+
+     -fx-background-insets: 0,1,2;
+     -fx-background-radius: 3,2,0;
+
+     -fx-text-fill: black;
+     -fx-font-size: 14px;
+
+}
+.button Text {
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , 1);
+}
+.tab-pane .tab {
+    -fx-text-fill: black;
+}
+
+.tab-pane
+{
+-fx-tab-max-width: 8.583em;
+-fx-tab-min-height: 2em; /* 24 */
+-fx-tab-max-height: 2em; /* 24 */
+}
+
+.tree-table-row-cell:focused{
+    -fx-background-insets: 0;
+}
+
+table-row-cell:focused{
+    -fx-background-insets: 0;
+}

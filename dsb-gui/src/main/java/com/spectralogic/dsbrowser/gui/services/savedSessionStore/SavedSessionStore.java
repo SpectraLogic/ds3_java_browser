@@ -28,6 +28,15 @@ public class SavedSessionStore {
 
     private boolean dirty = false;
 
+    private SavedSessionStore(final List<SavedSession> sessionList) {
+        this.sessions = FXCollections.observableArrayList(sessionList);
+        this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
+            if (c.next() && (c.wasAdded() || c.wasRemoved())) {
+                dirty = true;
+            }
+        });
+    }
+
     public static SavedSessionStore loadSavedSessionStore() throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
@@ -55,24 +64,64 @@ public class SavedSessionStore {
         }
     }
 
-    private SavedSessionStore(final List<SavedSession> sessionList) {
-        this.sessions = FXCollections.observableArrayList(sessionList);
-        this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
-            if (c.next() && (c.wasAdded() || c.wasRemoved())) {
-                dirty = true;
-            }
-        });
-    }
-
     public ObservableList<SavedSession> getSessions() {
         return sessions;
     }
 
-    public void saveSession(final Session session) {
-        this.sessions.add(
-                new SavedSession(session.getSessionName(),
-                        session.getEndpoint(),
+    public int saveSession(final Session session) {
+        int index = 0;
+        if (sessions.size() == 0) {
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            index = 1;
+        } else if (containsSessionName(sessions, session.getSessionName())) {
+            final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
+            if (isNewValuePresent(savedSession, session)) {
+                index = sessions.indexOf(savedSession);
+                this.sessions.remove(savedSession);
+                this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                         SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            } else {
+                return -1;
+            }
+
+        } else if (!containsSessionName(sessions, session.getSessionName())) {
+            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials())));
+            index = sessions.size();
+        } else {
+            index = -2;
+        }
+        return index;
+    }
+
+    private boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
+        if (!savedSession.getName().equals(session.getSessionName()))
+            return true;
+        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
+            return true;
+        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey()))
+            return true;
+        if (!savedSession.getEndpoint().equals(session.getEndpoint()))
+            return true;
+        if (!savedSession.getPortNo().equals(session.getPortNo()))
+            return true;
+        if (savedSession.getProxyServer() != null) {
+            if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
+                return true;
+            }
+        } else if (session.getProxyServer() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
+        return list.stream().filter(o -> o.getName().equals(name)).findFirst().isPresent();
+    }
+
+    public boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
+        return list.stream().filter(o -> o.getSessionName().equals(name)).findFirst().isPresent();
     }
 
     public void removeSession(final SavedSession sessionName) {

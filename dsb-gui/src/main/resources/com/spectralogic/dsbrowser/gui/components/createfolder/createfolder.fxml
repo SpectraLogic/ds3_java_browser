@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" spacing="15.0" stylesheets="@../../common.css"
+      xmlns="http://javafx.com/javafx/8"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderPresenter">
+    <children>
+        <Label text="Create Folder">
+            <font>
+                <Font name="System Bold" size="18.0"/>
+            </font>
+        </Label>
+        <Label fx:id="labelText"/>
+        <TextField fx:id="folderNameField" prefHeight="25.0" prefWidth="316.0">
+            <VBox.margin>
+                <Insets left="30.0" right="30.0"/>
+            </VBox.margin>
+        </TextField>
+        <HBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+              minWidth="-Infinity" prefHeight="29.0" prefWidth="339.0" spacing="10.0">
+            <children>
+                <Button fx:id="createFolderButton" disable="true" mnemonicParsing="false" onAction="#createFolder"/>
+                <Button fx:id="cancelCreateFolderButton" cancelButton="true" mnemonicParsing="false"
+                        onAction="#cancel"/>
+            </children>
+            <VBox.margin>
+                <Insets bottom="10.0" right="10.0"/>
+            </VBox.margin>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</VBox>

@@ -8,12 +8,14 @@ public class FileTreeModel {
     final private Type type;
     final private long size;
     final private int depth;
+    private final String lastModified;
 
-    public FileTreeModel(final Path path, final Type type, final long size, final int depth) {
+    public FileTreeModel(final Path path, final Type type, final long size, final int depth, final String lastModified) {
         this.path = path;
         this.type = type;
         this.size = size;
         this.depth = depth;
+        this.lastModified = lastModified;
         this.name = getNamePart(path, depth);
     }
 
@@ -37,6 +39,10 @@ public class FileTreeModel {
         return depth;
     }
 
+    public String getLastModified() {
+        return lastModified;
+    }
+
     public String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
             return path.toString();
@@ -46,6 +52,6 @@ public class FileTreeModel {
     }
 
     public static enum Type {
-        FILE, DIRECTORY, MEDIA_DEVICE, FILE_SYSTEM, ERROR
+        File, Directory, Media_Device, File_System, Error
     }
 }

@@ -1,65 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter">
-   <top>
-      <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#showSessionPopup" text="Sessions..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#showSettingsPopup" text="Settings..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Close" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="View">
-               <items>
-                  <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false" text="Jobs" />
-                  <Menu mnemonicParsing="false" text="Theme">
+<?import org.fxmisc.richtext.InlineCssTextArea?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0" stylesheets="@common.css"
+            xmlns="http://javafx.com/javafx/8"
+            fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter" fx:id="borderPane">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu fx:id="fileMenu" mnemonicParsing="false">
                     <items>
-                        <CheckMenuItem mnemonicParsing="false" selected="true" text="Light" />
-                        <CheckMenuItem mnemonicParsing="false" text="Dark" />
+                        <MenuItem fx:id="sessionsMenuItem" mnemonicParsing="false" onAction="#showSessionPopup"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="settingsMenuItem" mnemonicParsing="false" onAction="#showSettingsPopup"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="closeMenuItem" mnemonicParsing="false"/>
                     </items>
-                  </Menu>
-               </items>
-            </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+                </Menu>
+                <Menu fx:id="viewMenu" mnemonicParsing="false">
+                    <items>
+                        <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false"/>
+                        <CheckMenuItem fx:id="logsMenuItem" mnemonicParsing="false"/>
+                    </items>
+                </Menu>
+                <Menu fx:id="helpMenu" mnemonicParsing="false">
+                    <items>
+                        <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#showAboutPopup"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <SplitPane fx:id="jobSplitter" orientation="VERTICAL">
             <items>
-                  <MenuItem mnemonicParsing="false" text="Help..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#showAboutPopup" text="About..." />
-                <MenuItem mnemonicParsing="false" onAction="#showLicensePopup" text="Licenses..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Version Check" />
+                <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
+                    <items>
+                        <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                    AnchorPane.topAnchor="0.0"/>
+
+                        <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                    AnchorPane.topAnchor="0.0"/>
+                    </items>
+                </SplitPane>
             </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-   </top>
-   <center>
-      <SplitPane fx:id="jobSplitter" orientation="VERTICAL">
-         <items>
-         <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
-           <items>
-             <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      
-                         <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      
-                 </items>
-         </SplitPane>
-         </items>
-      </SplitPane>
-   </center>
-   <bottom>
-      <HBox BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Label" />
-         </children>
-      </HBox>
-   </bottom>
+        </SplitPane>
+    </center>
+    <bottom>
+        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
+            <children>
+                <TabPane fx:id="bottomTabPane" prefHeight="0" prefWidth="433.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab text="Jobs" fx:id="jobsTab">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="200.0"/>
+                            </content>
+                        </Tab>
+                        <Tab text="Logs" fx:id="logsTab">
+                            <content>
+
+                                <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" pannable="true"
+                                            vbarPolicy="AS_NEEDED">
+                                    <content>
+                                        <InlineCssTextArea fx:id="inlineCssTextArea" prefHeight="Infinity"
+                                                           style="-fx-font-weight: bold;" editable="false"
+                                                           wrapText="true">
+                                        </InlineCssTextArea>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+
+                        </Tab>
+                    </tabs>
+                </TabPane>
+
+            </children>
+        </HBox>
+    </bottom>
 </BorderPane>

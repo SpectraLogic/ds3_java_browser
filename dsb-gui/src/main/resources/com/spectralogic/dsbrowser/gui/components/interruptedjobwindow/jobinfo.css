@@ -1,0 +1,3 @@
+.tree-table-row-cell:focused{
+    -fx-background-insets: 0;
+}

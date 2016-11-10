@@ -14,7 +14,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
         try {
             executeJob();
-        } catch(final Exception e) {
+        } catch (final Exception e) {
             LOG.error("Job failed with an exception", e);
             return false;
         }

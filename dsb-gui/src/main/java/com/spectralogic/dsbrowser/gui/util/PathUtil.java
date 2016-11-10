@@ -36,6 +36,10 @@ public final class PathUtil {
         return rootPath.relativize(fullObjPath).toString().replace('\\', '/');
     }
 
+    public static String toDs3ObjWithFiles(final Path rootPath, final Path fullObjPath) {
+        return rootPath.relativize(fullObjPath).toString().replace('\\', '/');
+    }
+
     public static Path resolveForSymbolic(final Path path) throws IOException {
         if (Files.isSymbolicLink(path)) {
             final Path simLink = Files.readSymbolicLink(path);

@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 
 public class LicensePresenter implements Initializable {
     @FXML
-    TableView<LicenseModel> licenseTable;
+    private TableView<LicenseModel> licenseTable;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

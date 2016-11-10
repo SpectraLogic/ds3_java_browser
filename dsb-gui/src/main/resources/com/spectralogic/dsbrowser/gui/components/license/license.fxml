@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.cell.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.*?>
-
-<AnchorPane maxHeight="-Infinity" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.license.LicensePresenter">
-   <children>
-      <TableView fx:id="licenseTable" layoutX="152.0" layoutY="51.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <columns>
-          <TableColumn maxWidth="200.0" minWidth="50.0" prefWidth="150.0" text="Name">
-            <cellValueFactory>
-                <PropertyValueFactory property="libraryName" />
-            </cellValueFactory>
-          </TableColumn>
-          <TableColumn maxWidth="950.0" prefWidth="650.0" resizable="false" text="License">
-              <cellValueFactory>
-                  <PropertyValueFactory property="license" />
-              </cellValueFactory>
-                  </TableColumn>
-        </columns>
-      </TableView>
-   </children>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8"
+            fx:controller="com.spectralogic.dsbrowser.gui.components.license.LicensePresenter">
+    <children>
+        <TableView fx:id="licenseTable" layoutX="152.0" layoutY="51.0" maxHeight="1.7976931348623157E308"
+                   maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <TableColumn maxWidth="200.0" minWidth="50.0" prefWidth="150.0" text="Name">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="libraryName"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn maxWidth="950.0" prefWidth="650.0" resizable="false" text="License">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="license"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </children>
 </AnchorPane>

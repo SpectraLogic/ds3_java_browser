@@ -52,6 +52,7 @@ public class LogService {
         rollingPolicy.setContext(context);
         rollingPolicy.setFileNamePattern(destPath.toString() + ".%i");
         rollingPolicy.setMinIndex(1);
+        rollingPolicy.setMaxIndex(7);
         rollingPolicy.setMinIndex(logSettings.getNumRollovers());
         rollingPolicy.setParent(fileAppender);
         rollingPolicy.start();

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Hyperlink?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="400.0" prefWidth="500.0" spacing="20.0"
+      xmlns="http://javafx.com/javafx/8"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.about.AboutPresenter">
+    <children>
+        <Label text="Deep Storage Browser" style="-fx-font-weight: bold"/>
+        <Label text="Build Version 2.0.17" style="-fx-font-weight: bold"/>
 
-
-<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="50.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.about.AboutPresenter">
-   <children>
-      <Label text="Deep Storage Browser" />
-      <Label text="Copyright Spectra Logic Corp" />
-   </children>
+        <Label fx:id="aboutDSBLabel1" alignment="CENTER_RIGHT"/>
+        <Hyperlink fx:id="hyperlink" style="-fx-fill: BLUE;-fx-font-weight: bold" Alignment="CENTER" text="http://www.apache.org/licenses/LICENSE-2.0" />
+        <Label fx:id="aboutDSBLabel2" alignment="CENTER_RIGHT"/>
+    </children>
 </VBox>

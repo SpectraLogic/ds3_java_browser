@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox id="ds3VBoxTreeTable" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter">
+    <children>
+        <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css">
+            <columns>
+                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="-1.0" prefWidth="125.0" text="Name">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn maxWidth="500" minWidth="-1.0" prefWidth="70.0" text="Storage Locations">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="physicalPlacementHBox"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="43.0" text="Size" fx:id="sizeColumn">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="size"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="37.0" text="Owner">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="owner"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn fx:id="fileType" maxWidth="400" minWidth="-1.0" prefWidth="41.0" text="Type">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="type"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn maxWidth="600" minWidth="-1.0" prefWidth="70.0" text="Date Modified">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="lastModified"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+            </columns>
+            <columnResizePolicy>
+                <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TreeTableView>
+
+    </children>
+</VBox>
