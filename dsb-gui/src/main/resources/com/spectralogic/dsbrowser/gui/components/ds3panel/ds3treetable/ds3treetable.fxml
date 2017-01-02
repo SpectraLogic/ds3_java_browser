@@ -15,6 +15,11 @@
                         <TreeItemPropertyValueFactory property="name"/>
                     </cellValueFactory>
                 </TreeTableColumn>
+                <TreeTableColumn  maxWidth="600" minWidth="-1.0" prefWidth="70.0" text="Full Path" visible="false">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="fullPath"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
                 <TreeTableColumn maxWidth="500" minWidth="-1.0" prefWidth="70.0" text="Storage Locations">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="physicalPlacementHBox"/>

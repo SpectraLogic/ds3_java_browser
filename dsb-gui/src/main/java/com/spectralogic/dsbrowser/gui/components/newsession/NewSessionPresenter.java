@@ -84,6 +84,7 @@ public class NewSessionPresenter implements Initializable {
         cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
         openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
         deleteSessionButtonTooltip.setText(resourceBundle.getString("deleteSessionTooltip"));
+
     }
 
     private void initSessionList() {
@@ -272,7 +273,7 @@ public class NewSessionPresenter implements Initializable {
                     savedSessions.getSelectionModel().select(i);
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                     }
                     if (i <= previousSize) {

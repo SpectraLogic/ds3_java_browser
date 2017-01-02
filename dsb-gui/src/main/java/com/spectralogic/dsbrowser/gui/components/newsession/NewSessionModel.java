@@ -91,7 +91,7 @@ public class NewSessionModel {
         return proxyServer.get();
     }
 
-    public void setProxyServer(String proxyServer) {
+    public void setProxyServer(final String proxyServer) {
         this.proxyServer.set(proxyServer);
     }
 
@@ -118,6 +118,7 @@ public class NewSessionModel {
             final GetServiceResponse response = client.getService(new GetServiceRequest());
             return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
 
+
         } catch (final UnknownHostException e) {
             ALERT.setTitle("Invalid Endpoint");
             ALERT.setContentText("Invalid Endpoint Server Name or IP Address");
@@ -140,6 +141,7 @@ public class NewSessionModel {
                 ALERT.setTitle("Unexpected Status");
                 ALERT.setContentText("BlackPearl return an unexpected status code we did not expect");
                 ALERT.showAndWait();
+
             }
         } catch (final Exception e) {
 

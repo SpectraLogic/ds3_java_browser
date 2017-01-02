@@ -1,58 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" maxHeight="-Infinity" maxWidth="-Infinity"
-      minHeight="-Infinity" minWidth="-Infinity" prefHeight="216.0" prefWidth="448.0" spacing="10.0"
-      xmlns="http://javafx.com/javafx/8"
-      fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
+
+<VBox fx:id="metadataVBox" maxHeight="100000" maxWidth="100000" minHeight="1.0" minWidth="1.0" prefHeight="300.0" prefWidth="600.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
     <children>
-        <HBox spacing="10.0">
+        <HBox fx:id="metadataHbox" prefWidth="440.0" spacing="10.0">
             <children>
-                <Label text="Name:">
+                <Label prefHeight="17.0" prefWidth="47.0" text="Name:">
                     <font>
-                        <Font name="System Bold" size="12.0"/>
+                        <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectName"/>
+                <Label fx:id="objectName" prefHeight="17.0" prefWidth="425.0">
+               <tooltip>
+                  <Tooltip fx:id="nameTooltip" />
+               </tooltip></Label>
             </children>
         </HBox>
         <HBox spacing="10.0">
             <children>
-                <Label text="Size:">
+                <Label prefHeight="17.0" prefWidth="41.0" text="Size:">
                     <font>
-                        <Font name="System Bold" size="12.0"/>
+                        <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectSize"/>
+                <Label fx:id="objectSize" prefHeight="17.0" prefWidth="399.0" />
             </children>
         </HBox>
-        <TableView fx:id="metadataTable" prefHeight="201.0" prefWidth="448.0">
+        <TableView fx:id="metadataTable" prefHeight="280.0" prefWidth="500.0" style="-fx-wrap-text: true;" >
             <columns>
-                <TableColumn prefWidth="166.0" text="Metadata Name">
+                <TableColumn fx:id="metadataTableColName" maxWidth="500.0" minWidth="-1.0" prefWidth="240.0" text="Metadata Name">
                     <cellValueFactory>
-                        <PropertyValueFactory property="key"/>
+                        <PropertyValueFactory property="key" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="260.0" text="Metadata Value">
+                <TableColumn fx:id="metadataTableColValue" maxWidth="1000.0" minWidth="-1.0" prefWidth="550.0" text="Metadata Value" editable="true" >
                     <cellValueFactory>
-                        <PropertyValueFactory property="value"/>
+                        <PropertyValueFactory property="value" />
                     </cellValueFactory>
                 </TableColumn>
             </columns>
             <columnResizePolicy>
-                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
             <VBox.margin>
-                <Insets/>
+                <Insets />
             </VBox.margin>
         </TableView>
     </children>
     <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
     </padding>
 </VBox>

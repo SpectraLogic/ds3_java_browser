@@ -30,7 +30,7 @@ public class Ds3Common {
         return ds3PanelPresenter;
     }
 
-    public void setDs3PanelPresenter(Ds3PanelPresenter ds3PanelPresenter) {
+    public void setDs3PanelPresenter(final Ds3PanelPresenter ds3PanelPresenter) {
         this.ds3PanelPresenter = ds3PanelPresenter;
     }
 

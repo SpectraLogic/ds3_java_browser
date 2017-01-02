@@ -11,7 +11,6 @@ import javafx.scene.control.TreeItem;
 public final class DeleteFilesPopup {
     public static void show(final Ds3Task deleteTask, final Ds3PanelPresenter ds3PanelPresenter, final Ds3TreeTablePresenter ds3TreeTablePresenter) {
         final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3TreeTablePresenter, ds3PanelPresenter);
-
         if (ds3PanelPresenter != null) {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
             changeLabelText(selectedPanelItems, deleteView);

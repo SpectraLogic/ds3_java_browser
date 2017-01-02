@@ -56,8 +56,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private TreeTableView ds3TreeTable;
     private Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private ResourceBundle myResources =
-            ResourceBundle.getBundle("lang",new Locale("en_IN"));
+    private final ResourceBundle myResources =
+            ResourceBundle.getBundle("lang", new Locale("en_IN"));
 
 
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers workers) {
@@ -74,7 +74,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return accessedChildren;
     }
 
-    public void setAccessedChildren(boolean accessedChildren) {
+    public void setAccessedChildren(final boolean accessedChildren) {
         this.accessedChildren = accessedChildren;
     }
 
@@ -102,19 +102,20 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     }
 
     /**
-     * @param ds3TreeTable used to clear all selection in case of load more
-     * @param ds3Common used to save bucket selection
+     * @param ds3TreeTable                used to clear all selection in case of load more
+     * @param ds3Common                   used to save bucket selection
      * @param deepStorageBrowserPresenter use to log no of files loaded
-     *                     called from click to add more button
-     *                     get the list of parent children and call buildChilren method to add items in the list
+     *                                    called from click to add more button
+     *                                    get the list of parent children and call buildChilren method to add items in the list
      */
-    public void loadMore(TreeTableView ds3TreeTable, Ds3Common ds3Common, DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+    public void loadMore(final TreeTableView ds3TreeTable, final Ds3Common ds3Common, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.ds3Common = ds3Common;
         this.ds3TreeTable = ds3TreeTable;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getParent().getChildren();
         buildChildren(list);
     }
+
     @Override
     public ObservableList<TreeItem<Ds3TreeTableValue>> getChildren() {
         if (!accessedChildren) {
@@ -174,7 +175,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     if (Ds3TreeTableItem.this.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
 
                     } else {
-                        Ds3TreeTableValue ds3ParentValue = Ds3TreeTableItem.this.getParent().getValue();
+                        final Ds3TreeTableValue ds3ParentValue = Ds3TreeTableItem.this.getParent().getValue();
                         request.withPrefix(ds3ParentValue.getFullName());
                     }
                 } else {
@@ -185,13 +186,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 //marker for the next request
                 final String marker = bucketResponse.getListBucketResult().getNextMarker();
                 //use to store list of files
-                List<Ds3TreeTableValue> filteredFiles = new ArrayList<>();
+                final List<Ds3TreeTableValue> filteredFiles = new ArrayList<>();
                 //get list of objects with condition key shoul not be null and key name and prefix should not be same
-                List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult().getObjects().stream().filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName())))).map(i -> new Ds3Object(i.getKey(), i.getSize())).collect(Collectors.toList());
+                final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult().getObjects().stream().filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName())))).map(i -> new Ds3Object(i.getKey(), i.getSize())).collect(Collectors.toList());
                 if (ds3ObjectListFiles.size() != 0) {
-                    GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement = new GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request(bucket, ds3ObjectListFiles);
-                    GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response responsePlacement = session.getClient().getPhysicalPlacementForObjectsWithFullDetailsSpectraS3(requestPlacement);
-                    List<Ds3TreeTableValue> filteredFileslist = responsePlacement.getBulkObjectListResult().getObjects().stream().map(i ->
+                    final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement = new GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request(bucket, ds3ObjectListFiles);
+                    final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response responsePlacement = session.getClient().getPhysicalPlacementForObjectsWithFullDetailsSpectraS3(requestPlacement);
+                    final List<Ds3TreeTableValue> filteredFileslist = responsePlacement.getBulkObjectListResult().getObjects().stream().map(i ->
                     {
                         Contents content = bucketResponse.getListBucketResult().getObjects().stream().filter(j -> j.getKey().equals(i.getName())).findFirst().get();
                         final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
@@ -201,7 +202,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 }
 
                 //directoryValues is used to store directories
-                List<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult().getCommonPrefixes().stream().map(i ->
+                final List<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult().getCommonPrefixes().stream().map(i ->
                 {
                     String folderName = i.getPrefix();
                     final HBox hbox = new HBox();
@@ -233,10 +234,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 //                            }
 //                    );
 
-                    Comparator comp = new Comparator<Ds3TreeTableItem>() {
-                        public int compare(Ds3TreeTableItem o1, Ds3TreeTableItem o2) {
-                            String type1 = o1.getValue().getType().toString();
-                            String type2 = o2.getValue().getType().toString();
+                    final Comparator comp = new Comparator<Ds3TreeTableItem>() {
+                        public int compare(final Ds3TreeTableItem o1, final Ds3TreeTableItem o2) {
+                            final String type1 = o1.getValue().getType().toString();
+                            final String type2 = o2.getValue().getType().toString();
                             if (type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && !type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
                                 // Directory before non-directory
                                 return -1;
@@ -252,13 +253,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
                     Collections.sort(partialResults.get(), comp);
                     //if selected item was button then just remove that click more button and add new one
-                    if(ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
+                    if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                         //clear the selection
                         if (ds3TreeTable != null) {
                             ds3TreeTable.getSelectionModel().clearSelection();
                             ds3TreeTable.getSelectionModel().select(Ds3TreeTableItem.this.getParent());
                             ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), Ds3TreeTableItem.this.getParent());
-                            deepStorageBrowserPresenter.logText((partialResults.get().size()-1)+" files/folders have been loaded inside " + Ds3TreeTableItem.this.getParent().getValue().getType().toString() + " " + Ds3TreeTableItem.this.getParent().getValue().getFullName(), LogType.SUCCESS);
+                            deepStorageBrowserPresenter.logText((partialResults.get().size() - 1) + " files/folders have been loaded inside " + Ds3TreeTableItem.this.getParent().getValue().getType().toString() + " " + Ds3TreeTableItem.this.getParent().getValue().getFullName(), LogType.SUCCESS);
                         }
                         partialResults.get().remove(Ds3TreeTableItem.this);
                     }
@@ -267,14 +268,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                         final HBox hbox = new HBox();
                         hbox.getChildren().add(new Label(""));
                         hbox.setAlignment(Pos.CENTER);
-                        Text clickToLoadMore = new Text("Click to Add More");
+                        final Text clickToLoadMore = new Text("Click to Add More");
                         clickToLoadMore.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
-                        Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue(bucket,clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1, "", "", false, hbox, marker), workers);
+                        final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue(bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1, "", "", false, hbox, marker), workers);
                         partialResults.get().add(addMoreItem);
 
                     }
                 });
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
             }
             return partialResults.get();
@@ -282,8 +283,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     }
 
     //function for distinction on the basis of some property
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+    public static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
+        final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

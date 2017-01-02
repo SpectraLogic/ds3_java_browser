@@ -26,8 +26,8 @@ public class FilesAndFolderMap {
     private String bucket;
 
     @JsonCreator
-    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files, @JsonProperty("folders") final Map<String, Path> folders, @JsonProperty("type") final String type, @JsonProperty("date") String date, @JsonProperty("nonAdjecent")
-    final boolean nonAdjacent, @JsonProperty("targetLocation") final String targetLocation, @JsonProperty("totalJobSize") long totalJobSize, @JsonProperty("bucket") String bucket) {
+    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files, @JsonProperty("folders") final Map<String, Path> folders, @JsonProperty("type") final String type, @JsonProperty("date") final String date, @JsonProperty("nonAdjecent")
+    final boolean nonAdjacent, @JsonProperty("targetLocation") final String targetLocation, @JsonProperty("totalJobSize") final long totalJobSize, @JsonProperty("bucket") final String bucket) {
         this.files = files;
         this.folders = folders;
         this.type = type;
@@ -42,7 +42,7 @@ public class FilesAndFolderMap {
         return bucket;
     }
 
-    public void setBucket(String bucket) {
+    public void setBucket(final String bucket) {
         this.bucket = bucket;
     }
 
@@ -58,7 +58,7 @@ public class FilesAndFolderMap {
         return nonAdjacent;
     }
 
-    public void setNonAdjacent(boolean nonAdjacent) {
+    public void setNonAdjacent(final boolean nonAdjacent) {
         this.nonAdjacent = nonAdjacent;
     }
 
@@ -66,7 +66,7 @@ public class FilesAndFolderMap {
         return targetLocation;
     }
 
-    public void setTargetLocation(String targetLocation) {
+    public void setTargetLocation(final String targetLocation) {
         this.targetLocation = targetLocation;
     }
 
@@ -74,7 +74,7 @@ public class FilesAndFolderMap {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(final String date) {
         this.date = date;
     }
 
@@ -86,11 +86,11 @@ public class FilesAndFolderMap {
         return folders;
     }
 
-    public void setFiles(Map<String, Path> files) {
+    public void setFiles(final Map<String, Path> files) {
         this.files = files;
     }
 
-    public void setFolders(Map<String, Path> folders) {
+    public void setFolders(final Map<String, Path> folders) {
         this.folders = folders;
     }
 
@@ -98,7 +98,7 @@ public class FilesAndFolderMap {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 

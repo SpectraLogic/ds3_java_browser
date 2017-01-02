@@ -77,7 +77,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                     recoverInterruptedJob.setOnCancelled(event -> {
                         try {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
-                            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS));
+                            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
                         } catch (final IOException e1) {
                             if (!(e1 instanceof FailedRequestException)) {
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
@@ -99,13 +99,13 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         cancelButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
-            public void handle(ActionEvent t) {
+            public void handle(final ActionEvent t) {
 
                 if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                     final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                     try {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
-                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS));
+                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
                     } catch (final IOException e1) {
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
                     } finally {
