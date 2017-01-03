@@ -132,7 +132,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
         super.setGraphic(processImage);
-
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
         getBucketTask.setOnSucceeded(event -> super.setGraphic(previousGraphics));
@@ -173,7 +172,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
                 } else if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                     if (Ds3TreeTableItem.this.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
-
                     } else {
                         final Ds3TreeTableValue ds3ParentValue = Ds3TreeTableItem.this.getParent().getValue();
                         request.withPrefix(ds3ParentValue.getFullName());
@@ -181,7 +179,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 } else {
                     request.withPrefix(ds3Value.getFullName());
                 }
-
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 //marker for the next request
                 final String marker = bucketResponse.getListBucketResult().getNextMarker();
@@ -200,7 +197,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     }).collect(Collectors.toList());
                     filteredFiles.addAll(filteredFileslist);
                 }
-
                 //directoryValues is used to store directories
                 final List<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult().getCommonPrefixes().stream().map(i ->
                 {
@@ -233,7 +229,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 //                                }
 //                            }
 //                    );
-
                     final Comparator comp = new Comparator<Ds3TreeTableItem>() {
                         public int compare(final Ds3TreeTableItem o1, final Ds3TreeTableItem o2) {
                             final String type1 = o1.getValue().getType().toString();
@@ -250,7 +245,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                             }
                         }
                     };
-
                     Collections.sort(partialResults.get(), comp);
                     //if selected item was button then just remove that click more button and add new one
                     if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
@@ -268,7 +262,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                         final HBox hbox = new HBox();
                         hbox.getChildren().add(new Label(""));
                         hbox.setAlignment(Pos.CENTER);
-                        final Text clickToLoadMore = new Text("Click to Add More");
+                        final Text clickToLoadMore = new Text(myResources.getString("addMoreButton"));
                         clickToLoadMore.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
                         final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue(bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1, "", "", false, hbox, marker), workers);
                         partialResults.get().add(addMoreItem);

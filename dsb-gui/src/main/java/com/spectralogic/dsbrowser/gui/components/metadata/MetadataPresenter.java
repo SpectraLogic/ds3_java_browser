@@ -34,8 +34,15 @@ public class MetadataPresenter implements Initializable {
     private TableView<MetadataEntry> metadataTable;
     @FXML
     private TableColumn<MetadataEntry, String> metadataTableColValue;
+
+    @FXML
+    private TableColumn metadataTableColName;
+
     @Inject
     private Ds3Metadata ds3Metadata;
+
+    @Inject
+    private ResourceBundle resourceBundle;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -152,6 +159,8 @@ public class MetadataPresenter implements Initializable {
     }
 
     private void initLabels() {
+        metadataTableColName.setText(resourceBundle.getString("metadataTableColName"));
+        metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
         objectName.setText(ds3Metadata.getName());
         objectSize.setText(ByteFormat.humanReadableByteCount(ds3Metadata.getSize(), false));
         nameTooltip.setText(ds3Metadata.getName());
