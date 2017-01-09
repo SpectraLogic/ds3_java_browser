@@ -129,8 +129,8 @@ public class JobInfoPresenter implements Initializable {
                     Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job cancel for " + i.getKey(), LogType.INFO));
                     try {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
-                        LOG.info("Cancelled job. Status code: ", cancelJobSpectraS3Response.getResponse().getStatusCode());
-                    } catch (IOException e) {
+                        LOG.info("Cancelled job.");
+                    } catch (final IOException e) {
                         LOG.info("Unable to cancel job ", e);
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
@@ -167,7 +167,7 @@ public class JobInfoPresenter implements Initializable {
 
         jobListTreeTable.setRowFactory(view -> new TreeTableRow<>());
 
-        TreeTableColumn<JobInfoModel, Boolean> actionColumn = new TreeTableColumn<>("Action");
+        final TreeTableColumn<JobInfoModel, Boolean> actionColumn = new TreeTableColumn<>("Action");
         actionColumn.setSortable(false);
         actionColumn.setPrefWidth(120);
 
@@ -215,7 +215,7 @@ public class JobInfoPresenter implements Initializable {
             sizeColumn.setCellFactory(c -> new TreeTableCell<JobInfoModel, Number>() {
 
                 @Override
-                protected void updateItem(Number item, boolean empty) {
+                protected void updateItem(final Number item, final boolean empty) {
                     super.updateItem(item, empty);
                     if (empty || item == null) {
                         setText(null);
@@ -253,7 +253,7 @@ public class JobInfoPresenter implements Initializable {
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
                                 final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
-                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS));
+                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
                                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                             } catch (final IOException e1) {
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));

@@ -13,6 +13,8 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+
+import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
@@ -77,7 +79,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return jobId;
     }
 
-    public void setJobID(UUID jobID) {
+    public void setJobID(final UUID jobID) {
         this.jobId = jobID;
     }
 
@@ -90,20 +92,15 @@ public class Ds3GetJob extends Ds3JobTask {
                 updateTitle("GET Job" + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()));
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("Get Job initiated " + ds3Client.getConnectionDetails().getEndpoint(), LogType.INFO));
                 updateMessage("Transferring..");
-
                 final ImmutableList<Ds3TreeTableValueCustom> directories = list.stream().filter(value -> !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
                 final ImmutableList<Ds3TreeTableValueCustom> files = list.stream().filter(value -> value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
-
                 final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
                 final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
-
                 final Map<Path, Boolean> duplicateFileMap = new HashMap<>();
-
                 files.stream().forEach(i -> {
                     fileMap.put(i.getFullName(), Paths.get("/"));
                     nodes.add(i);
                 });
-
                 directories.stream().forEach(value -> {
                     if (value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
                         if (Paths.get(value.getFullName()).getParent() != null) {
@@ -115,9 +112,7 @@ public class Ds3GetJob extends Ds3JobTask {
                         }
                     }
                 });
-
                 final List<Ds3TreeTableValueCustom> filteredNode = nodes.stream().filter(i -> i.getSize() != 0).collect(Collectors.toList());
-
                 final ImmutableList<Ds3Object> objects = filteredNode.stream().map(pair -> {
                     try {
                         return new Ds3Object(pair.getFullName(), pair.getSize());
@@ -127,95 +122,91 @@ public class Ds3GetJob extends Ds3JobTask {
                         return null;
                     }
                 }).filter(item -> item != null).collect(GuavaCollectors.immutableList());
+                final long totalJobSize = objects.stream().mapToLong(Ds3Object::getSize).sum();
+                final long freeSpace = new File(fileTreeModel.toString()).getFreeSpace();
+                if (totalJobSize > freeSpace) {
+                    Platform.runLater(() -> {
+                        deepStorageBrowserPresenter.logText("GET Job failed:Restoration directory does not have enough space ", LogType.ERROR);
+                        ALERT.setContentText("GET Job failed:Restoration directory does not have enough space");
+                        ALERT.showAndWait();
+                    });
 
-                long totalJobSize = objects.stream().mapToLong(Ds3Object::getSize).sum();
-
-                final ImmutableList<String> buckets = filteredNode.stream().map(Ds3TreeTableValueCustom::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-
-                final String bucket = buckets.stream().findFirst().get();
-
-                final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
-
-                final Ds3ClientHelpers.Job getJob = helpers.startReadJob(bucket, objects).withMaxParallelRequests(maximumNumberOfParallelThreads);
-
-                if (getJobId() == null) {
-                    setJobID(getJob.getJobId());
-                }
-
-                try {
-                    ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreeModel.toString(), "GET", bucket);
-                } catch (final Exception e) {
-                    LOG.info("Failed to save job id");
-                }
-
-                updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " from " + bucket + " to " + fileTreeModel);
-
-                if (jobPriority != null && !jobPriority.isEmpty()) {
-                    ds3Client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(getJob.getJobId()).withPriority(Priority.valueOf(jobPriority)));
-                }
-
-                final AtomicLong totalSent = new AtomicLong(0L);
-
-                getJob.attachDataTransferredListener(l -> {
-                    updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
-                    totalSent.addAndGet(l);
-                });
-
-                getJob.attachObjectCompletedListener(obj -> {
-                    if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
-                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                    } else {
-                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                        updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
-                        updateProgress(totalSent.get(), totalJobSize);
+                } else {
+                    final ImmutableList<String> buckets = filteredNode.stream().map(Ds3TreeTableValueCustom::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+                    final String bucket = buckets.stream().findFirst().get();
+                    final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
+                    final Ds3ClientHelpers.Job getJob = helpers.startReadJob(bucket, objects).withMaxParallelRequests(maximumNumberOfParallelThreads);
+                    if (getJobId() == null) {
+                        setJobID(getJob.getJobId());
                     }
-                });
-
-                getJob.transfer(l -> {
-                    final File file = new File(l);
-                    String skipPath = null;
-
-                    if (new File(fileTreeModel + "/" + l).exists()) {
-                        duplicateFileMap.put(Paths.get(fileTreeModel + "/" + l), true);
+                    try {
+                        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreeModel.toString(), "GET", bucket);
+                    } catch (final Exception e) {
+                        LOG.info("Failed to save job id");
                     }
-                    if (map.size() == 0 && file.getParent() != null) {
-                        skipPath = file.getParent();
+                    updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " from " + bucket + " to " + fileTreeModel);
+                    if (jobPriority != null && !jobPriority.isEmpty()) {
+                        ds3Client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(getJob.getJobId()).withPriority(Priority.valueOf(jobPriority)));
                     }
-                    if (files.size() == 0) {
-                        final Path skipPath1 = map.get(file.toPath());
-                        if (skipPath1 != null) {
-                            skipPath = skipPath1.toString();
+                    final AtomicLong totalSent = new AtomicLong(0L);
+                    getJob.attachDataTransferredListener(l -> {
+                        updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
+                        totalSent.addAndGet(l);
+                    });
+                    getJob.attachObjectCompletedListener(obj -> {
+                        if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
+                            Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
+                        } else {
+                            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
+                            updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                            updateProgress(totalSent.get(), totalJobSize);
+                            // Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         }
+                    });
+                    //get meta data saved on  server
+                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
+                    getJob.transfer(l -> {
+                        final File file = new File(l);
+                        String skipPath = null;
+                        if (new File(fileTreeModel + "/" + l).exists()) {
+                            duplicateFileMap.put(Paths.get(fileTreeModel + "/" + l), true);
+                        }
+                        if (map.size() == 0 && file.getParent() != null) {
+                            skipPath = file.getParent();
+                        }
+                        if (files.size() == 0) {
+                            final Path skipPath1 = map.get(file.toPath());
+                            if (skipPath1 != null) {
+                                skipPath = skipPath1.toString();
+                            }
+                        }
+                        if (skipPath != null) {
+                            return new PrefixRemoverObjectChannelBuilder(new FileObjectGetter(fileTreeModel), skipPath).buildChannel(l.substring(("/" + skipPath).length()));
+                        } else {
+                            return new FileObjectGetter(fileTreeModel).buildChannel(l);
+                        }
+                    });
+                    updateProgress(totalJobSize, totalJobSize);
+                    updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to " + fileTreeModel);
+                    updateProgress(totalJobSize, totalJobSize);
+                    //Can't assign final.
+                    GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+                    while (response.getMasterObjectListResult().getStatus().toString().equals("IN_PROGRESS")) {
+                        updateMessage("Transferred to blackpearl cache ");
+                        response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
                     }
-                    if (skipPath != null) {
-                        return new PrefixRemoverObjectChannelBuilder(new FileObjectGetter(fileTreeModel), skipPath).buildChannel(l.substring(("/" + skipPath).length()));
-                    } else {
-                        return new FileObjectGetter(fileTreeModel).buildChannel(l);
+                    if (response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
+                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                     }
-                });
-
-                updateProgress(totalJobSize, totalJobSize);
-                updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to " + fileTreeModel);
-                updateProgress(totalJobSize, totalJobSize);
-
-                //Can't assign final.
-                GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-
-                while (response.getMasterObjectListResult().getStatus().toString().equals("IN_PROGRESS")) {
-                    updateMessage("Transferred to blackpearl cache ");
-                    response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job [size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS));
                 }
-
-                if (response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
-                    final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-                }
-
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job [size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS));
             } else {
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR));
-                Platform.runLater(() -> ALERT.setTitle("Unavailable Network"));
-                Platform.runLater(() -> ALERT.setContentText("Host " + ds3Client.getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection"));
-                Platform.runLater(() -> ALERT.showAndWait());
+                Platform.runLater(() -> {
+                    deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR);
+                    ALERT.setTitle("Unavailable Network");
+                    ALERT.setContentText("Host " + ds3Client.getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection");
+                    ALERT.showAndWait();
+                });
             }
 
         } catch (final Exception e) {
@@ -234,6 +225,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
+
             }
         }
     }
@@ -250,17 +242,14 @@ public class Ds3GetJob extends Ds3JobTask {
                     .getObjects().stream()
                     .map(f -> new Ds3TreeTableValueCustom(value.getBucketName(), f.getKey(), Ds3TreeTableValue.Type.File, f.getSize(), "", f.getOwner().getDisplayName(), false)
                     ).collect(GuavaCollectors.immutableList());
-
             files.stream().forEach(i -> {
                 nodes.add(i);
                 map.put(Paths.get(i.getFullName()), path);
             });
-
             final ImmutableList<Ds3TreeTableValueCustom> directoryValues = bucketResponse.getListBucketResult()
                     .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
                     .map(c -> new Ds3TreeTableValueCustom(value.getBucketName(), c, Ds3TreeTableValue.Type.Directory, 0, "", "--", false))
                     .collect(GuavaCollectors.immutableList());
-
             directoryValues.stream().forEach(i -> addAllDescendents(i, nodes, path));
 
         } catch (final IOException e) {

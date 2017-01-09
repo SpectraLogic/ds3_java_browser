@@ -2,12 +2,10 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
-import com.spectralogic.ds3client.commands.DeleteObjectsResponse;
-import com.spectralogic.ds3client.commands.GetServiceRequest;
-import com.spectralogic.ds3client.commands.GetServiceResponse;
+import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.models.BucketDetails;
+import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
@@ -76,6 +74,9 @@ public class Ds3PanelPresenter implements Initializable {
     private Label ds3PathIndicator;
 
     @FXML
+    private Tooltip ds3PathIndicatorTooltip;
+
+    @FXML
     private Button ds3Refresh, ds3NewFolder, ds3NewBucket, ds3DeleteButton, newSessionButton, ds3TransferLeft;
 
     @FXML
@@ -135,7 +136,6 @@ public class Ds3PanelPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Loading Ds3PanelPresenter");
-
             ALERT.setTitle("Error");
             ALERT.setHeaderText(null);
 
@@ -176,6 +176,11 @@ public class Ds3PanelPresenter implements Initializable {
     public Label getDs3PathIndicator() {
         return ds3PathIndicator;
     }
+
+    public Tooltip getDs3PathIndicatorTooltip() {
+        return ds3PathIndicatorTooltip;
+    }
+
 
     public TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
         return ds3TreeTableView;
@@ -231,7 +236,7 @@ public class Ds3PanelPresenter implements Initializable {
                     final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, deepStorageBrowserPresenter, this, ds3Common);
                     final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
                     treeTab.setOnClosed(event -> {
-                       try {
+                        try {
                             final Tab closedTab = (Tab) event.getSource();
                             if (closedTab != null) {
                                 final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(closedTab.getText())).findFirst().orElse(null);
@@ -250,7 +255,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3Common.getCurrentSession().clear();
                                 ds3Common.getCurrentTabPane().clear();
                             }
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             e.printStackTrace();
                         }
 
@@ -410,7 +415,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final List<Ds3TreeTableValue> selectedItemsAtSourceLocationList = selectedItemsAtSourceLocation.stream().map(TreeItem::getValue).collect(Collectors.toList());
                 final List<Ds3TreeTableValueCustom> selectedItemsAtSourceLocationListCustom = selectedItemsAtSourceLocationList.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(Collectors.toList());
 
-                Path localPath;
+                final Path localPath;
                 final FileTreeModel selectedAtDest = selectedItemsAtDestinationList.stream().findFirst().orElse(null);
                 if (selectedAtDest == null) {
                     localPath = Paths.get(fileRootItem);
@@ -441,7 +446,7 @@ public class Ds3PanelPresenter implements Initializable {
                         try {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-                            deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
+                            deepStorageBrowserPresenter.logText("GET Job Cancelled", LogType.ERROR);
                         } catch (final IOException e1) {
                             LOG.info("Failed to cancel job", LogType.ERROR);
                         }
@@ -550,25 +555,33 @@ public class Ds3PanelPresenter implements Initializable {
             ALERT.showAndWait();
             return;
         }
-
-        final Ds3Task deleteBucketTask = new Ds3Task(session.getClient()) {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
-                } catch (final IOException e) {
-                    LOG.error("Failed to delte Bucket " + e);
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket", LogType.ERROR));
-                    ALERT.setContentText("Failed to delete Bucket");
-                    ALERT.showAndWait();
+        final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
+        if (!checkIfBucketEmpty(value.getValue().getBucketName())) {
+            Platform.runLater(() -> {
+                deepStorageBrowserPresenter.logText("Failed to delete Bucket as it contains files/folders", LogType.ERROR);
+                ALERT.setContentText("You can not delete bucket as it contains files/folders");
+                ALERT.showAndWait();
+            });
+        } else {
+            final Ds3Task deleteBucketTask = new Ds3Task(session.getClient()) {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
+                    } catch (final IOException e) {
+                        LOG.error("Failed to delte Bucket " + e);
+                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket", LogType.ERROR));
+                        ALERT.setContentText("Failed to delete Bucket");
+                        ALERT.showAndWait();
+                    }
+                    return null;
                 }
-                return null;
-            }
-        };
-        DeleteFilesPopup.show(deleteBucketTask, this, null);
-        values.stream().forEach(file -> refresh(file.getParent()));
-        ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
-        ds3PathIndicator.setText("");
+            };
+            DeleteFilesPopup.show(deleteBucketTask, this, null);
+            values.stream().forEach(file -> refresh(file.getParent()));
+            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+            ds3PathIndicator.setText("");
+        }
     }
 
     /**
@@ -595,7 +608,7 @@ public class Ds3PanelPresenter implements Initializable {
                 try {
                     final DeleteObjectsResponse response = getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
+                        // deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
                     });
                 } catch (final IOException e) {
@@ -647,7 +660,7 @@ public class Ds3PanelPresenter implements Initializable {
 
             final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
             //Can not assign final as assigning value again in next step
-            String location = ds3TreeTableValueTreeItem.getValue().getFullName();
+            final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
             CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)), deepStorageBrowserPresenter);
             refresh(ds3TreeTableValueTreeItem);
@@ -679,13 +692,19 @@ public class Ds3PanelPresenter implements Initializable {
     private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
         LOG.info("Running refresh of row");
         deepStorageBrowserPresenter.logText("Running refresh of row", LogType.INFO);
+        /*if (modifiedTreeItem instanceof Ds3TreeTableItem) {
+            LOG.info("Refresh row");
+            final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
+            ds3TreeTableItem.refresh();
+        }*/
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
-            Ds3TreeTableItem item;
+            final Ds3TreeTableItem item;
             if (modifiedTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                 item = (Ds3TreeTableItem) modifiedTreeItem.getParent();
             } else {
                 item = (Ds3TreeTableItem) modifiedTreeItem;
             }
+
             if (item.isExpanded()) {
                 item.refresh();
             } else if (item.isAccessedChildren()) {
@@ -755,7 +774,7 @@ public class Ds3PanelPresenter implements Initializable {
         super();
     }
 
-    private void filterChanged(final String newValue) {
+    public void filterChanged(final String newValue) {
         ds3PathIndicator.setText("Searching..");
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         final Session session = getSession();
@@ -803,6 +822,37 @@ public class Ds3PanelPresenter implements Initializable {
         ds3PanelSearch.setDisable(disable);
         ds3TransferLeft.setDisable(disable);
     }
+
+    /**
+     * check if bucket contains files or folders
+     *
+     * @param bucketName
+     * @return true if bucket is empty else return false
+     */
+    private boolean checkIfBucketEmpty(final String bucketName) {
+
+        try {
+            final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/").withMaxKeys(1);
+            final Session session = getSession();
+            final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
+            final ListBucketResult listBucketResult = bucketResponse.getListBucketResult();
+            if (listBucketResult.getObjects().size() == 0 && listBucketResult.getCommonPrefixes().size() == 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (final Exception e) {
+            LOG.error("could not get bucket response", e);
+            return false;
+        }
+
+    }
+
+    public String getSearchedText() {
+        return ds3PanelSearch.getText();
+    }
+
 }
 
 

@@ -101,7 +101,8 @@ public class CreateBucketPresenter implements Initializable {
                     final CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
                     final PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText().trim()).withDataPolicyId(dataPolicy.getId()));
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Create bucket status code: " + response.getResponse().getStatusCode(), LogType.SUCCESS);
+                      //  ds3PanelPresenter.disableSearch(false);
+                        //deepStorageBrowserPresenter.logText("Create bucket status code: " + response.getResponse().getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Bucket is created.", LogType.SUCCESS);
                     });
                     return response;

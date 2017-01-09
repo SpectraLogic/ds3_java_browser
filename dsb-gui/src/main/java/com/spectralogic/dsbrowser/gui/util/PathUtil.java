@@ -29,7 +29,7 @@ public final class PathUtil {
         return toDs3Obj(rootPath, fullObjPath, false);
     }
 
-    public static String toDs3Obj(final Path rootPath, final Path fullObjPath, boolean includeParentDir) {
+    public static String toDs3Obj(final Path rootPath, final Path fullObjPath, final boolean includeParentDir) {
         if (includeParentDir) {
             return toDs3Obj(rootPath.getParent(), fullObjPath);
         }

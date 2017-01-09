@@ -29,7 +29,7 @@ public class SavedJobPrioritiesStore {
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
                 return JsonMapping.fromJson(inputStream, SavedJobPrioritiesStore.class);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 Files.delete(PATH);
                 LOG.info("Creating new empty saved job setting store");
                 final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(JobSettings.DEFAULT);

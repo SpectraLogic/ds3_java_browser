@@ -96,7 +96,7 @@ public class CreateFolderPresenter implements Initializable {
                         //if creating folder while file is selected
                         if(location.charAt(location.length()-1) != '/')
                         {
-                            int lastIndex = location.lastIndexOf("/");
+                            final int lastIndex = location.lastIndexOf("/");
                             location = location.substring(0,lastIndex+1);
                         }
                     }
@@ -105,7 +105,7 @@ public class CreateFolderPresenter implements Initializable {
                     ds3ObjectList.add(object);
                     final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName().trim(), ds3ObjectList));
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
+                        //deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue()+" Folder is created", LogType.SUCCESS);
                     });
                     return response;

@@ -11,14 +11,14 @@ public class JobIdsModel {
 
     private static JobIdsModel createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
-        ArrayList<Map<String, Map<String, FilesAndFolderMap>>> abc = new ArrayList<>();
+        final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> abc = new ArrayList<>();
         return new JobIdsModel(abc);
     }
 
     @JsonProperty("endpoints")
     private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
 
-    public JobIdsModel(ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
+    public JobIdsModel(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
         this.endpoints = endpoints;
     }
 
@@ -26,7 +26,7 @@ public class JobIdsModel {
         this(null);
     }
 
-    public void setEndpoints(ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
+    public void setEndpoints(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
         this.endpoints = endpoints;
     }
 
@@ -34,7 +34,7 @@ public class JobIdsModel {
         return endpoints;
     }
 
-    public void overwrite(JobIdsModel jobIdsModel) {
+    public void overwrite(final JobIdsModel jobIdsModel) {
         this.endpoints = jobIdsModel.getEndpoints();
     }
 }

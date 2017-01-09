@@ -5,12 +5,12 @@ public interface ImageURLs {
     final String CANCELALLJOBIMAGE = "/images/cross.png";
 
     //Storage locations images
-    final String ONLINEDISK = "/images/online_disk.png";
-    final String NEARLINEDISK = "/images/nearline-disk.png";
-    final String STORAGETAPES = "/images/storage-tapes.png";
-    final String EJECTEDTAPES = "/images/ejected-tapes.png";
-    final String BLACKPEARLCACHE = "/images/cache.png";
-    final String REPLICATION = "/images/replication.png";
+    final String ONLINEDISK = "/images/onlineDisk.png";
+    final String NEARLINEDISK = "/images/arcticBlue.png";
+    final String STORAGETAPES = "/images/tape.png";
+    final String EJECTEDTAPES = "/images/tapeEjected.png";
+    final String BLACKPEARLCACHE = "/images/blackPearlCache.png";
+    final String REPLICATION = "/images/bpReplicate.png";
 
     final String LENSICON = "/images/lens.png";
     final String CROSSICON = "/images/cross.png";

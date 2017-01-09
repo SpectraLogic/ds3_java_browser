@@ -19,7 +19,7 @@ public class JobWorkers {
     private ExecutorService workers;
     private final ObservableList<Ds3JobTask> tasks;
 
-    public void setWorkers(ExecutorService workers) {
+    public void setWorkers(final ExecutorService workers) {
         this.workers = workers;
     }
 
@@ -50,7 +50,8 @@ public class JobWorkers {
             onSucceeded.handle(event);
         });
         LOG.info("Adding to task list");
-        tasks.add(run);
+        tasks.add(0,run);
+        run.updateProgressPutJob();
     }
 
     public ObservableList<Ds3JobTask> getTasks() {
