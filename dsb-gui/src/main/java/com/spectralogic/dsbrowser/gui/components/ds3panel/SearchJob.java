@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class SearchJob extends Task<String> {
             ds3TreeTableView.setShowRoot(false);
             final List<Ds3TreeTableItem> list = new ArrayList<>();
 
-            for (BucketDetails bucket : buckets) {
+            for (final BucketDetails bucket : buckets) {
                 if (bucket.getName().contains(seachText)) {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
                             LogType.INFO));
@@ -64,20 +65,21 @@ public class SearchJob extends Task<String> {
                     final List<Ds3TreeTableValue> treeItems = new ArrayList<>();
                     detailedS3Objects.stream()
                             .forEach(f -> {
-                                if(!f.getType().equals(S3ObjectType.FOLDER)){
-                                        if (f.getBlobs() != null ) {
-                                            final List<BulkObject> objects = f.getBlobs().getObjects();
-                                            if (objects != null ) {
-                                                if (objects.stream().findFirst().isPresent()) {
-                                                    treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null))));
+                                        if (!f.getType().equals(S3ObjectType.FOLDER)) {
+                                            if (f.getBlobs() != null) {
+                                                final List<BulkObject> objects = f.getBlobs().getObjects();
+                                                if (objects != null) {
+                                                    if (objects.stream().findFirst().isPresent()) {
+                                                        treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null))));
+                                                    }
+                                                } else {
+                                                    treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
                                                 }
                                             } else {
                                                 treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
                                             }
-                                        } else {
-                                            treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
                                         }
-                                    }}
+                                    }
                             );
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Searched in " + bucket.getName() + ": found " + treeItems.size() + " item(s)",
                             LogType.INFO));
@@ -95,6 +97,8 @@ public class SearchJob extends Task<String> {
                     ds3TreeTableView.setPlaceholder(new Label("Search result(s): 0 object(s) found"));
                 }
                 ds3TreeTableView.setRoot(rootTreeItem);
+                final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView.getColumns().get(1);
+                ds3TreeTableValueTreeTableColumn.setVisible(true);
             });
         } catch (final Exception e) {
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e.toString(), LogType.INFO));

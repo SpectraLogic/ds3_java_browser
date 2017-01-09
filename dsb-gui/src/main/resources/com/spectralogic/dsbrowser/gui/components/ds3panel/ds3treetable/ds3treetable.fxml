@@ -10,9 +10,14 @@
     <children>
         <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css">
             <columns>
-                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="-1.0" prefWidth="125.0" text="Name">
+                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="-1.0" prefWidth="125.0">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TreeTableColumn>
+                <TreeTableColumn fx:id="fullPath" maxWidth="600" minWidth="-1.0" prefWidth="70.0" visible="false">
+                    <cellValueFactory>
+                        <TreeItemPropertyValueFactory property="fullPath"/>
                     </cellValueFactory>
                 </TreeTableColumn>
                 <TreeTableColumn maxWidth="500" minWidth="-1.0" prefWidth="70.0" text="Storage Locations">

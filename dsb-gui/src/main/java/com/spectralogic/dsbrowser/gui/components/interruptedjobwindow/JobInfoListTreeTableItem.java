@@ -34,7 +34,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
     private final Session session;
     private final Workers workers;
 
-    public JobInfoListTreeTableItem(final String jobId, final JobInfoModel value, final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap, final Session session, Workers workers) {
+    public JobInfoListTreeTableItem(final String jobId, final JobInfoModel value, final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap, final Session session, final Workers workers) {
         super(value);
         this.jobId = jobId;
         this.modelValue = value;

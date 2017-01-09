@@ -34,7 +34,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final Ds3Client ds3Client;
 
-    public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, JobInterruptionStore jobInterruptionStore) {
+    public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -65,17 +65,21 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final Map<String, Path> files = filesAndFolderMapMap.getFiles();
             final Map<String, Path> folders = filesAndFolderMapMap.getFolders();
 
+            final long totalJobSize = filesAndFolderMapMap.getTotalJobSize();
+
             if (filesAndFolderMapMap.getType().equals("PUT")) {
                 job = helpers.recoverWriteJob(uuid);
                 updateMessage("Initiating transfer to " + job.getBucketName());
+
             } else if (filesAndFolderMapMap.getType().equals("GET")) {
                 job = helpers.recoverReadJob(uuid);
                 fileTreeModel = Paths.get(filesAndFolderMapMap.getTargetLocation());
+
                 updateMessage("Initiating transfer from " + job.getBucketName());
             }
 
             final AtomicLong totalSent = new AtomicLong(0L);
-            final long totalJobSize = filesAndFolderMapMap.getTotalJobSize();
+
 
             job.attachDataTransferredListener(l -> {
                 updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
@@ -86,6 +90,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Successfully transferred: " + s + " to " + filesAndFolderMapMap.getTargetLocation(), LogType.SUCCESS));
                 updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
             });
+
 
             final Path finalFileTreeModel = fileTreeModel;
             job.transfer(s -> {
@@ -98,6 +103,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 final Path finalPath = Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
                                 return new FileObjectPutter(finalPath).buildChannel("");
                             }
+
                         } else {
                             if (filesAndFolderMapMap.isNonAdjacent())
                                 return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
@@ -109,13 +115,19 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                         skipPath = file.getParent();
                                     else
                                         skipPath = "";
-                                }
+                                }/* else {
+                                    final Stream<Map.Entry<String, Path>> entryStream = folders.entrySet().stream().filter(i -> s.startsWith(i.getKey()));
+                                    if (entryStream != null) {
+                                        skipPath = entryStream.findFirst().get().getValue().toString();
+                                    }
+                                }*/
                                 if (skipPath.isEmpty()) {
                                     return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
                                 } else {
                                     return new PrefixRemoverObjectChannelBuilder(new FileObjectGetter(finalFileTreeModel), skipPath).buildChannel(s.substring(("/" + skipPath).length()));
                                 }
                             }
+
                         }
                     }
             );
@@ -124,7 +136,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job. Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to " + filesAndFolderMapMap.getTargetLocation() + "(BlackPearl cache). Waiting for the storage target allocation.");
                 updateProgress(totalJobSize, totalJobSize);
             });
-            //Can not assign final.
+
+
+//            //Can not assign final.
             GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
 
             while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {

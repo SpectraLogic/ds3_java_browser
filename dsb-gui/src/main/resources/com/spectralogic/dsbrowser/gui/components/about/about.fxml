@@ -9,11 +9,12 @@
       xmlns="http://javafx.com/javafx/8"
       fx:controller="com.spectralogic.dsbrowser.gui.components.about.AboutPresenter">
     <children>
-        <Label text="Deep Storage Browser" style="-fx-font-weight: bold"/>
-        <Label text="Build Version 2.0.17" style="-fx-font-weight: bold"/>
+        <Label fx:id="title" style="-fx-font-weight: bold"/>
+        <Label fx:id="buildVersion" style="-fx-font-weight: bold"/>
 
-        <Label fx:id="aboutDSBLabel1" alignment="CENTER_RIGHT"/>
-        <Hyperlink fx:id="hyperlink" style="-fx-fill: BLUE;-fx-font-weight: bold" Alignment="CENTER" text="http://www.apache.org/licenses/LICENSE-2.0" />
-        <Label fx:id="aboutDSBLabel2" alignment="CENTER_RIGHT"/>
+        <Label fx:id="copyRightLabel1" alignment="CENTER_RIGHT"/>
+        <Hyperlink fx:id="hyperlink" style="-fx-fill: BLUE;-fx-font-weight: bold" Alignment="CENTER"
+                   text="http://www.apache.org/licenses/LICENSE-2.0"/>
+        <Label fx:id="copyRightLabel2" alignment="CENTER_RIGHT"/>
     </children>
 </VBox>

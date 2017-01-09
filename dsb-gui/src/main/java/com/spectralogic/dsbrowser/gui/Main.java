@@ -61,8 +61,10 @@ public class Main extends Application {
     private JobInterruptionStore jobInterruptionStore = null;
 
     public static void main(final String[] args) {
-      launch(args);
+        launch(args);
     }
+
+
     @Override
     public void start(final Stage primaryStage) throws Exception {
 
@@ -95,6 +97,10 @@ public class Main extends Application {
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
         primaryStage.setMaximized(true);
+       /* primaryStage.setMinHeight(300);
+        primaryStage.setMinWidth(200);
+        primaryStage.setMaxHeight(800);
+        primaryStage.setMaxWidth(900);*/
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
@@ -182,20 +188,20 @@ public class Main extends Application {
                                 ds3PutJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3PutJob.getJobId().toString(), ds3PutJob.getClient().getConnectionDetails().getEndpoint(), null);
                                 final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3PutJob.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3PutJob.getJobId()));
-                                Platform.runLater(() -> LOG.info("Cancelled job. Status code: ", cancelJobSpectraS3Response.getResponse().getStatusCode()));
+                                Platform.runLater(() -> LOG.info("Cancelled job."));
                             } else if (i instanceof Ds3GetJob) {
                                 final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
                                 ds3GetJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3GetJob.getJobId().toString(), ds3GetJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                                 final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3GetJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3GetJob.getJobId()));
-                                Platform.runLater(() -> LOG.info("Cancelled job. Status code: ", cancelJobSpectraS3Response.getResponse().getStatusCode()));
+                                Platform.runLater(() -> LOG.info("Cancelled job."));
 
                             } else if (i instanceof RecoverInterruptedJob) {
                                 final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) i;
                                 recoverInterruptedJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                                 final CancelJobSpectraS3Response cancelJobSpectraS3Response = recoverInterruptedJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(recoverInterruptedJob.getUuid()));
-                                Platform.runLater(() -> LOG.info("Cancelled job. Status code: ", cancelJobSpectraS3Response.getResponse().getStatusCode()));
+                                Platform.runLater(() -> LOG.info("Cancelled job."));
 
                             }
                         } catch (final Exception e1) {

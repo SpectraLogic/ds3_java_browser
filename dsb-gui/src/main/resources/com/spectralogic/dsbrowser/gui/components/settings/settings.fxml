@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
 <Pane prefHeight="243.0" prefWidth="515.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
@@ -72,25 +75,33 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0" vgap="10.0">
+                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0"
+                                          vgap="10.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="201.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="204.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0"
+                                                           prefWidth="201.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0"
+                                                           prefWidth="204.0"/>
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" />
-                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" />
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0"
+                                               prefWidth="336.0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0"
+                                                   GridPane.columnIndex="1"/>
+                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0"
+                                              spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#saveLogSettings" />
-                                                <Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
+                                                <Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false"
+                                                        onAction="#saveLogSettings"/>
+                                                <Button fx:id="cancelSettingsPerforanceButton" cancelButton="true"
+                                                        mnemonicParsing="false" onAction="#closeDialog"/>
                                             </children>
                                             <GridPane.margin>
-                                                <Insets top="10.0" />
+                                                <Insets top="10.0"/>
                                             </GridPane.margin>
                                         </HBox>
                                     </children>
@@ -99,7 +110,7 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="jobPriority" text="Job Priority">
+                <Tab fx:id="jobPriority">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
@@ -122,8 +133,10 @@
                                         <RowConstraints/>
                                     </rowConstraints>
                                     <children>
-                                        <Label alignment="TOP_LEFT" text="Put Job Priority:" GridPane.rowIndex="1"/>
-                                        <Label text="Get Job Priority:" GridPane.rowIndex="3"/>
+                                        <Label fx:id="putJobPriorityText" alignment="TOP_LEFT"
+                                               GridPane.rowIndex="1"/>
+                                        <Label fx:id="getJobPriorityText"
+                                               GridPane.rowIndex="3"/>
                                         <ComboBox fx:id="putJobPriority" prefHeight="25.0" prefWidth="200.0"
                                                   GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <GridPane.margin>
@@ -142,9 +155,9 @@
                                               spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
                                             <children>
                                                 <Button fx:id="saveSettingsJobButton" mnemonicParsing="false"
-                                                        text="Save" onAction="#saveJobSettings"/>
+                                                        onAction="#saveJobSettings"/>
                                                 <Button fx:id="cancelSettingsJobButton" cancelButton="true"
-                                                        mnemonicParsing="false" onAction="#closeDialog" text="Cancel"/>
+                                                        mnemonicParsing="false" onAction="#closeDialog"/>
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0"/>
@@ -156,6 +169,52 @@
                                     <padding>
                                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/>
                                     </padding>
+                                </GridPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="fileProperties">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="208.0" prefWidth="508.0"
+                                          vgap="10.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.0" minWidth="10.0"
+                                                           prefWidth="199.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0"
+                                                           prefWidth="99.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <children>
+                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0"
+                                               prefWidth="336.0" GridPane.columnIndex="0">
+                                            <tooltip>
+                                                <Tooltip fx:id="enableFilePropertiesTooltip" wrapText="true"
+                                                         prefWidth="300.0"
+                                                />
+                                            </tooltip>
+                                        </Label>
+                                        <CheckBox fx:id="filePropertiesCheckbox" alignment="CENTER"
+                                                  mnemonicParsing="false" GridPane.columnIndex="1"/>
+                                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0" spacing="15.0"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <children>
+                                                <Button fx:id="saveFilePropertiesEnableButton" mnemonicParsing="false"
+                                                        onAction="#saveFilePropertiesSettings" prefWidth="70.0"/>
+                                                <Button fx:id="cancelFilePropertiesEnableButton" cancelButton="true"
+                                                        mnemonicParsing="false" onAction="#closeDialog"
+                                                        prefWidth="80.0"/>
+                                            </children>
+                                            <GridPane.margin>
+                                                <Insets top="10.0"/>
+                                            </GridPane.margin>
+                                        </HBox>
+                                    </children>
                                 </GridPane>
                             </children>
                         </AnchorPane>

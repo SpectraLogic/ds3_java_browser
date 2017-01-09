@@ -220,7 +220,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
 
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common,settingsStore);
             jobWorkers.execute(putJob);
 
             putJob.setOnSucceeded(event -> {
@@ -238,11 +238,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 try {
                     if (putJob.getJobId() != null) {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                        deepStorageBrowserPresenter.logText("PUT Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText("PUT Job Cancelled.", LogType.SUCCESS);
                         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                         refreshBlackPearlSideItem(treeItem);
                     }
-                } catch (IOException e1) {
+                } catch (final IOException e1) {
                     LOG.info("Failed to cancel job", LogType.ERROR);
                 }
             });
@@ -314,12 +314,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     }
 
-    private void setExpandBehaviour(TreeTableView<FileTreeModel> treeTable) {
+    private void setExpandBehaviour(final TreeTableView<FileTreeModel> treeTable) {
         final ObservableList<TreeItem<FileTreeModel>> children = treeTable.getRoot().getChildren();
 
         children.stream().forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
                 final BooleanProperty bb = (BooleanProperty) observable;
                 final TreeItem<FileTreeModel> bean = (TreeItem<FileTreeModel>) bb.getBean();
                 if (newValue) {
@@ -387,10 +387,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     if (getJob.getJobId() != null) {
                         try {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
-                            deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
+                            deepStorageBrowserPresenter.logText("GET Job Cancelled.", LogType.ERROR);
                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
 
-                        } catch (IOException e1) {
+                        } catch (final IOException e1) {
                             LOG.info("Failed to cancel job", LogType.ERROR);
                         }
                     }
@@ -486,12 +486,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                 try {
                                     final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
                                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-                                    deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.ERROR);
+                                    deepStorageBrowserPresenter.logText("GET Job Cancelled", LogType.ERROR);
                                     if (fileTreeItem != null)
                                         refresh(fileTreeItem);
                                     else
                                         refreshFileTreeView();
-                                } catch (IOException e1) {
+                                } catch (final IOException e1) {
                                     deepStorageBrowserPresenter.logText(" Failed to cancel job. ", LogType.ERROR);
                                 }
                             });
@@ -593,7 +593,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             sizeColumn.setCellFactory(c -> new TreeTableCell<FileTreeModel, Number>() {
 
                 @Override
-                protected void updateItem(Number item, boolean empty) {
+                protected void updateItem(final Number item, final boolean empty) {
                     super.updateItem(item, empty);
                     if (empty || item == null) {
                         setText(null);
@@ -608,10 +608,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     set(
                             new Callback<TreeTableView<FileTreeModel>, Boolean>() {
                                 @Override
-                                public Boolean call(TreeTableView<FileTreeModel> param) {
-                                    Comparator<TreeItem<FileTreeModel>> comparator = new Comparator<TreeItem<FileTreeModel>>() {
+                                public Boolean call(final TreeTableView<FileTreeModel> param) {
+                                    final Comparator<TreeItem<FileTreeModel>> comparator = new Comparator<TreeItem<FileTreeModel>>() {
                                         @Override
-                                        public int compare(TreeItem<FileTreeModel> o1, TreeItem<FileTreeModel> o2) {
+                                        public int compare(final TreeItem<FileTreeModel> o1, final TreeItem<FileTreeModel> o2) {
                                             if (param.getComparator() == null) {
                                                 return 0;
                                             } else {

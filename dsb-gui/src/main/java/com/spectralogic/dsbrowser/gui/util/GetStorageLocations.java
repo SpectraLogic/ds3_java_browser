@@ -22,7 +22,7 @@ public class GetStorageLocations {
     private static final Image BLACKPEARLCACHE = new Image(ImageURLs.BLACKPEARLCACHE);
     private static final Image REPLICATION = new Image(ImageURLs.REPLICATION);
 
-    public static HBox addPlacementIconsandTooltip(BulkObject objects) {
+    public static HBox addPlacementIconsandTooltip(final BulkObject objects) {
 
         final HBox placementIconTooltipHbox = new HBox();
         placementIconTooltipHbox.setAlignment(Pos.CENTER);
@@ -60,7 +60,7 @@ public class GetStorageLocations {
                 nearlineDiskIcon.setImage(NEARLINEDISK);
                 nearlineDiskIcon.setFitHeight(15);
                 nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDisk.size()) + " copy on Nearline Disk"));
+                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDisk.size()) + " copy on ArcticBlue"));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
             if ((onlineDiskCount - nearLineDisk.size()) != 0) {
@@ -78,7 +78,7 @@ public class GetStorageLocations {
             blackPearlCacheIcon.setImage(BLACKPEARLCACHE);
             blackPearlCacheIcon.setFitHeight(15);
             blackPearlCacheIcon.setFitWidth(15);
-            Tooltip.install(blackPearlCacheIcon, new Tooltip("In cache"));
+            Tooltip.install(blackPearlCacheIcon, new Tooltip("In BlackPearl cache"));
             placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
         }
 
@@ -99,14 +99,14 @@ public class GetStorageLocations {
                 replicationIcon.setImage(REPLICATION);
                 replicationIcon.setFitHeight(15);
                 replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(ds3Targets.size()) + " Replicated copy"));
+                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(ds3Targets.size()) + "BP Replicated copy"));
                 placementIconTooltipHbox.getChildren().add(replicationIcon);
             }
         }
         return placementIconTooltipHbox;
     }
 
-    public static HBox addPlacementIconsandTooltip(PhysicalPlacement placement , boolean inCache) {
+    public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement , final boolean inCache) {
 
         final HBox placementIconTooltipHbox = new HBox();
         placementIconTooltipHbox.setAlignment(Pos.CENTER);

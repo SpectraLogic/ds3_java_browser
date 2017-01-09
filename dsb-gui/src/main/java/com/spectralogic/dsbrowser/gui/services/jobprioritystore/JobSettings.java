@@ -28,11 +28,11 @@ public class JobSettings {
         this(null, null, false);
     }
 
-    public void setGetJobPriority(String getJobPriority) {
+    public void setGetJobPriority(final String getJobPriority) {
         this.getJobPriority = getJobPriority;
     }
 
-    public void setPutJobPriority(String putJobPriority) {
+    public void setPutJobPriority(final String putJobPriority) {
         this.putJobPriority = putJobPriority;
     }
 

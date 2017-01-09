@@ -25,4 +25,10 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
     public abstract void executeJob() throws Exception;
-}
+
+    public void updateProgressPutJob(){
+        updateProgress(0.1,100);
+    }
+
+
+    }
