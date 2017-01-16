@@ -1,7 +1,7 @@
 Deep Storage Browser
 ====================
 
-[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/SpectraLogic/ds3_java_sdk/blob/master/LICENSE.md)
+[![Build Status](https://travis-ci.org/SpectraLogic/ds3_java_browser.svg?branch=master)](https://travis-ci.org/SpectraLogic/ds3_java_browser) [![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/SpectraLogic/ds3_java_sdk/blob/master/LICENSE.md)
 
 ## Overview
 Spectra Logic’s Deep Storage Browser is a free and open-source Spectra® BlackPearl® client (application) that provides users an easy-to-use tool to archive files to the BlackPearl Deep Storage Gateway. The intuitive graphical interface facilitates the management and transfer of files between local drives or network shares and BlackPearl. The Deep Storage Browser’s simple user interface is similar to an FTP client, allowing users to search, select, group, archive, and restore by simply dragging and dropping files between their file system and BlackPearl.
