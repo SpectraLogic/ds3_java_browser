@@ -11,6 +11,7 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 
 import com.spectralogic.ds3client.metadata.MetaDataAccessImpl;
+import com.spectralogic.ds3client.metadata.interfaces.MetaDataStoreListner;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -172,7 +173,13 @@ public class Ds3PutJob extends Ds3JobTask {
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
                 if (isFilePropertiesEnable) {
-                    job.withMetadata(new MetaDataAccessImpl(fileMapper));
+                    // job.withMetadata(new MetaDataAccessImpl(fileMapper));
+                    job.withMetadata(new MetaDataAccessImpl(fileMapper, new MetaDataStoreListner() {
+                                @Override
+                                public void onMetaDataFailed(String s) {
+
+                                }
+                            }));
                     // Path file = fileMapper.get(filename);
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
@@ -194,8 +201,10 @@ public class Ds3PutJob extends Ds3JobTask {
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
             } else {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR));
+                final String msg = "Host " + client.getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection";
+                BackgroundTask.dumpTheStack(msg);
                 Platform.runLater(() -> ALERT.setTitle("Unavailable Network"));
-                Platform.runLater(() -> ALERT.setContentText("Host " + client.getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection"));
+                Platform.runLater(() -> ALERT.setContentText(msg));
                 Platform.runLater(ALERT::showAndWait);
             }
 

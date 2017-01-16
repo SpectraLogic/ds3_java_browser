@@ -47,7 +47,9 @@ public class BackgroundTask extends Task {
                         LOG.info("network is not reachble");
                         if (!isAlertDisplayed) {
                             Platform.runLater(() -> {
-                                ALERT.setContentText("Host " + session.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                                final String msg = "Host " + session.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection";
+                                dumpTheStack(msg);
+                                ALERT.setContentText(msg);
                                 ALERT.showAndWait();
                             });
 
@@ -57,11 +59,19 @@ public class BackgroundTask extends Task {
                 } else {
                     LOG.info("No Connection..");
                 }
-                Thread.sleep(5000);
+                Thread.sleep(100);
             } catch (final Exception e) {
-                LOG.info("object call catch" + e.toString());
+                LOG.error("network is not reachble", e);
             }
         }
 
+    }
+
+    public static void dumpTheStack(final String msg) {
+        StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+        for (int i = 1; i < elements.length; i++) {
+            StackTraceElement s = elements[i];
+            LOG.info(msg + "====> \tat " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")");
+        }
     }
 }

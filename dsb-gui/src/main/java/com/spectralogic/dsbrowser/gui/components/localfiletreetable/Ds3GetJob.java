@@ -12,12 +12,14 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
+import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
+import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -164,7 +166,14 @@ public class Ds3GetJob extends Ds3JobTask {
                         }
                     });
                     //get meta data saved on  server
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
+                    // getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
+                    getJob.attachMetadataReceivedListener(new MetadataReceivedListener() {
+                        @Override
+                        public void metadataReceived(String s, Metadata metadata) {
+
+                        }
+                    });
+
                     getJob.transfer(l -> {
                         final File file = new File(l);
                         String skipPath = null;
@@ -201,6 +210,8 @@ public class Ds3GetJob extends Ds3JobTask {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job [size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS));
                 }
             } else {
+                BackgroundTask.dumpTheStack("Host " + ds3Client.getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+
                 Platform.runLater(() -> {
                     deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR);
                     ALERT.setTitle("Unavailable Network");

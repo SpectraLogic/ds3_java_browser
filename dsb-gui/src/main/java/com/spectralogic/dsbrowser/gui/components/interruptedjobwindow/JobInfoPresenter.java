@@ -8,6 +8,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.util.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
@@ -113,6 +114,7 @@ public class JobInfoPresenter implements Initializable {
                     }
                 }
             } else {
+                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.showAndWait();
                 LOG.info("Network in unreachable");
@@ -269,6 +271,7 @@ public class JobInfoPresenter implements Initializable {
                 });
             }
         } else {
+            BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
             ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
             ALERT.showAndWait();
             LOG.info("Host network is unreachable");
