@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Deep Storage Browser
+Comment=DeepStorageBrowser
+Exec=/usr/deepstoragebrowser/deepstoragebrowser
+Icon=/usr/share/deepstoragebrowser/deep_storage_browser.png
+Terminal=false
+Type=Application
+StartupNotify=true
+Name[en_IN]=deepstoragebrowser

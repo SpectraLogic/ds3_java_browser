@@ -1,0 +1,49 @@
+#!/bin/sh
+
+set -x
+
+a=`dpkg-query -l | grep inotify-tools | wc -l`
+
+if [ $a -eq 0 ] 
+then
+sudo apt-get install inotify-tools
+else
+echo "Already Installed"
+notify-send "inotify-tools" "Already Installed"
+fi 
+
+sudo mkdir -p /opt/jvm
+cd /opt
+
+if [ -f "/opt/jdk-8u102-linux-i586.tar.gz" ] 
+then
+if [ -d "/opt/jdk1.8.0_102" ]
+then
+        echo "jdk directory found"
+        notify-send "JDK" "jdk directory found"
+else
+        notify-send "JDK-tar.gz is present in the system"
+        sudo tar -xvzf "jdk-8u102-linux-i586.tar.gz"
+fi
+else
+        sudo wget --no-cookies --no-check-certificate --header "Cookie: gpw_le24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jdk-8u102-linux-i586.tar.gz"
+        command && notify-send 'JDK' 'JDK-tar.gz has downloaded successfully'
+
+        sudo tar -xvzf jdk-8u102-linux-x64.tar.gz
+
+        echo "Already installed"
+        notify-send "JDK" "jdk Already installed"
+fi
+sudo update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_102/bin/java 1100
+
+a=`dpkg-query -l | grep wmctrl | wc -l`
+if [ $a -eq 0 ] 
+then
+sudo apt-get install wmctrl
+else
+echo "Already installed"
+notify-send "wmctrl" "Already Installed"
+fi
+
+exit 0
+

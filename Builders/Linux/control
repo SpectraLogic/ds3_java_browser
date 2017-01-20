@@ -1,0 +1,7 @@
+Section: games
+Priority: optional
+Architecture: all
+Maintainer: VVDN Technologies <suman.chahar@vvdntech.in>
+Description: Deep Storage Browser.
+ *The Deep Storage Browser is a free and open-source BlackPearl Spectra S3 client that provides a graphical FTP-like interface to manage files between BlackPearl and your local computer or a server. Spectra S3 enables you to efficiently move large quantities of data with minimal cost and effort. The Spectra S3 communication interface allows the client to direct and manage “bulk” storage read or write operations of data objects. This interface supports bulk object storage operations with tape for accessibility to the lowest cost media option.
+Depends: openjdk-8-jre | openjdk-7-jre | openjdk-6-jre | oracle-java8-installer | oracle-java7-installer | oracle-java6-installer | jarwrapper

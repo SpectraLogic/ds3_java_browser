@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -x
+
+echo "postrm executed"
+
+MY_DIR=$HOME"/.dsbrowser"
+
+if [ -d $MY_DIR ]; then
+rm -rf .??* $MY_DIR
+fi
+
+notify-send "Removed .dsbrowser folder"
+
+exit 0
