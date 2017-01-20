@@ -1,0 +1,21 @@
+#!/bin/sh
+
+a=`dpkg-query -l | grep zenity | wc -l`
+if [ $a -eq 0 ] 
+then
+sudo apt-get install zenity
+fi 
+/bin/ps -ef | grep -i spectralogic.jar | grep -v "grep" >/dev/null 2>&1
+if [ $? -eq 0 ]
+then 
+process_id=`/bin/ps -fu $USER| grep "spectralogic.jar" | grep -v "grep" | awk '{print $2}'`
+zenity --question --text="Deep Storage Browser is already running...Do you want to close current instance and open new instance??" 
+if [ $? -eq 0 ]
+then
+kill $process_id
+java -jar /usr/share/deepstoragebrowser/spectralogic.jar 
+fi
+else
+java -jar /usr/share/deepstoragebrowser/spectralogic.jar 
+fi
+

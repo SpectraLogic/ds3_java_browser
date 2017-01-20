@@ -1,0 +1,108 @@
+<?xmlversion="1.0"encoding="UTF-8"?>
+<!-- The name of the product -->
+<?defineName = "Deep Storage Browser" ?>
+<!-- The manufacturer, for setup package publisher and folder info -->
+<?defineManufacturer = "Spectra Logic" ?>
+<!-- The version -->
+<?defineVersion = "2.0.0" ?>
+
+<Wixxmlns="http://schemas.microsoft.com/wix/2006/wi">
+<?defineTestDSB2_TargetDir=$(var.TestDSB2.TargetDir)?>
+<ProductId="79aa821f-d3ac-422b-a9a8-a4b8a0a6f927"Name="$(var.Name)"Language="1033"Version="$(var.Version)"Manufacturer="$(var.Manufacturer)"UpgradeCode="61718ba5-b4c2-43b8-838b-fb3930c5ed3f">
+<PackageInstallerVersion="200"Compressed="yes"InstallScope="perMachine"Platform="x64"/>
+
+<IconId="icon.ico"SourceFile="$(var.ProjectDir)deep_storage_browser.ico" />
+<PropertyId="ARPPRODUCTICON"Value="icon.ico" />
+<UI>
+<PublishDialog="WelcomeDlg"
+Control="Next"
+Event="NewDialog"
+Value="InstallDirDlg"
+Order="5">1</Publish>
+
+<PublishDialog="InstallDirDlg"
+Control="Back"
+Event="NewDialog"
+Value="WelcomeDlg"
+Order="5">1</Publish>
+</UI>
+
+<PropertyId="WIXUI_INSTALLDIR"Value="INSTALLFOLDER" />
+<UIRefId="WixUI_InstallDir" />
+<MajorUpgradeDowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+<MediaTemplateEmbedCab="yes"/>
+
+<BinaryId="CustomAction.CA.dll"SourceFile="$(var.ProjectDir)CustomAction.CA.dll" />
+<InstallExecuteSequence>
+<CustomAction="DeleteLogFile"After="InstallFinalize">REMOVE="ALL"</Custom>
+</InstallExecuteSequence>
+
+<CustomActionId="DeleteLogFile"Return="check"Execute="immediate"
+BinaryKey="CustomAction.CA.dll"DllEntry="DeleteLogFile"/>
+
+<CustomActionId="SetLaunchApplicationTarget"Property="WixShellExecTarget"Value="[#run.bat]"  />
+
+<CustomActionId="LaunchApplication"BinaryKey="WixCA"DllEntry="WixShellExec"Impersonate="yes"  />
+
+<UIId="LaunchApplication">
+<PublishDialog="ExitDialog"Control="Finish"Event="DoAction"Value="SetLaunchApplicationTarget">
+<![CDATA[NOT Installed]]>
+</Publish>
+<PublishDialog="ExitDialog"Control="Finish"Event="DoAction"Value="LaunchApplication">
+<![CDATA[NOT Installed]]>
+</Publish>
+</UI>
+
+<FeatureId="ProductFeature"Title="$(var.Name)"Level="1">
+<ComponentRefId="ApplicationShortcut" />
+<ComponentRefId="ApplicationShortcutDesktop" />
+<ComponentRefId="dsb.jar" />
+<ComponentRefId="run.bat" />
+<ComponentGroupRefId="JavaFilesGroup"/>
+</Feature>
+</Product>
+
+<Fragment>
+<DirectoryRefId="ApplicationProgramsFolder">
+<ComponentId="ApplicationShortcut"Guid="{B48BD021-AD51-4811-A5B9-A70892BD7334}">
+<ShortcutId="ApplicationStartMenuShortcut"Name="$(var.Name)"Icon="icon.ico"Target="[#run.bat]"WorkingDirectory="INSTALLFOLDER" />
+
+<RemoveFolderId="ApplicationProgramsFolder"On="both" />
+
+<RegistryValueRoot="HKCU"Key="Software\Spectra Logic\$(var.Name)"Name="ApplicationShortcut"Type="integer"Value="1"KeyPath="yes" />
+
+</Component>
+
+</DirectoryRef>
+<DirectoryRefId="DesktopFolder">
+<ComponentId="ApplicationShortcutDesktop"Guid="{8213EAF3-AFB1-4946-9A79-99A8543732E7}">
+<ShortcutId="ApplicationDesktopShortcut"Name="$(var.Name)"Icon="icon.ico"Target="[#run.bat]"WorkingDirectory="INSTALLFOLDER"  />
+<RemoveFolderId="DesktopFolder"On="both" />
+<RegistryValueRoot="HKCU"Key="Software\Spectra Logic\$(var.Name)"Name="ApplicationDesktopShortcut"Type="integer"Value="1"KeyPath="yes" />
+</Component>
+</DirectoryRef>
+
+<DirectoryId="TARGETDIR"Name="SourceDir">
+<DirectoryId="ProgramFiles64Folder">
+<DirectoryId="ROOTDIRECTORY"Name="$(var.Manufacturer)">
+<DirectoryId="INSTALLFOLDER"Name="$(var.Name)">
+
+<ComponentId="dsb.jar"Guid="{AFF58ABB-1ED8-4860-8AE1-38DDC3C45B60}"Win64="yes">
+<FileId="dsb.jar"Source="dsb.jar"KeyPath="yes" />
+</Component>
+
+<ComponentId="run.bat"Guid="{fabf23ea-a1b3-4387-ac5e-e560e934604a}"Win64="yes">
+<FileId="run.bat"Source="run.bat"KeyPath="yes" />
+</Component>
+
+</Directory>
+</Directory>
+</Directory>
+<DirectoryId="ProgramMenuFolder">
+<DirectoryId="ApplicationProgramsFolder"Name="Spectra Logic" />
+</Directory>
+<DirectoryId="DesktopFolder"Name="desktop">
+</Directory>
+</Directory>
+</Fragment>
+</Wix>

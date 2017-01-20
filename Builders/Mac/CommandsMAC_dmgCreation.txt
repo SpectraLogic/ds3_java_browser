@@ -1,0 +1,32 @@
+3.1 create a folder where you want to create .dmg file
+->mkdir DeepStorageBrowser
+->cd DeepStorageBrowser
+
+3.2 create icon for the application
+->curl "image path" say  "--remote-name http://centerkey.com/mac/java/DeepStorageBrowser.png"
+->mkdir "foldername" say "DeepStorageBrowser.iconset"
+->sips -z 32 32DeepStorageBrowser.png --out DeepStorageBrowser.iconset/icon_32x32.png//giving dimensions for the icon
+->sips -s format icns DeepStorageBrowser.png --out ShowTime.icns//converts the format of icon from png to icns
+->ls -l
+->mkdir -p package/macosx//make directory for icon
+->cp DeepStorageBrowser.icns package/macosx//copy icon to that directory
+
+3.3 Createdmg file
+->jdk=$(/usr/libexec/java_home)//java_home reference in jdk variable
+
+->$jdk/bin/javapackager -version//to check the version of present java
+
+->By using AppMaker we madeDeepStorageBrowser.app//Appmaker is used to attach .jar and .icns in .app file
+
+->$jdk/bin/javapackager -deploy -native dmg -srcfiles DeepStorageBrowser.jar -appclasscom.spectralogic.dsbrowser.gui.Main -name DeepStorageBrowser -BappVersion=2.1 -Bmac.signing-key-developer-id-app="Spectra Logic Corporation" -outdir deploy -outfileDeepStorageBrowser// creates dmg file in deploy folder
+
+Some Important Points while creating .dmg file:
+
+•For version name , just type the –BappVersion=2.0 after dmg file  name as:
+
+$jdk/bin/javapackager -deploy -native dmg -srcfiles "SpectraLogic.jar" -appclass "com.spectralogic.dsbrowser.gui.Main" -name "spectraLogic"–BappVersion=2.0-outdirdeploy -outfilespectraLogic –v
+
+•Dmg file name and –outfile name should be same.
+•Image (.icns) and folder name should be same.
+•DeepStorageBrowser.app should be in same folder where all other files are placed.
+•Bmac.signing-key-developer-id-app="Spectra Logic Corporation" this command is used to sign the app, with mac developer's certificate i.e. Spectra Logic Corporation
