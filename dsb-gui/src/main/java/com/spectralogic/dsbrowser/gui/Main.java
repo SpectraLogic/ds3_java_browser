@@ -31,12 +31,7 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
-import java.net.ServerSocket;
-import java.nio.channels.FileLock;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -59,11 +54,46 @@ public class Main extends Application {
     private ResourceBundle resourceBundle = null;
     private Stage primaryStage = null;
     private JobInterruptionStore jobInterruptionStore = null;
+    private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
+
+        if (jobWorkers.getTasks().isEmpty()) {
+            closeApplication();
+            event.consume();
+
+        } else {
+
+            final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                    ButtonType.OK
+            );
+            final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                    ButtonType.CANCEL
+            );
+
+            exitButton.setText("Exit");
+            cancelButton.setText("Cancel");
+
+            if (jobWorkers.getTasks().size() == 1) {
+                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
+            } else {
+                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
+            }
+
+            final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
+
+            if (closeResponse.get().equals(ButtonType.OK)) {
+                closeApplication();
+                event.consume();
+            }
+
+            if (closeResponse.get().equals(ButtonType.CANCEL)) {
+                event.consume();
+            }
+        }
+    };
 
     public static void main(final String[] args) {
         launch(args);
     }
-
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
@@ -106,43 +136,6 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
     }
-
-    private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
-
-        if (jobWorkers.getTasks().isEmpty()) {
-            closeApplication();
-            event.consume();
-
-        } else {
-
-            final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                    ButtonType.OK
-            );
-            final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                    ButtonType.CANCEL
-            );
-
-            exitButton.setText("Exit");
-            cancelButton.setText("Cancel");
-
-            if (jobWorkers.getTasks().size() == 1) {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
-            } else {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
-            }
-
-            final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
-
-            if (closeResponse.get().equals(ButtonType.OK)) {
-                closeApplication();
-                event.consume();
-            }
-
-            if (closeResponse.get().equals(ButtonType.CANCEL)) {
-                event.consume();
-            }
-        }
-    };
 
     private void closeApplication() {
         Injector.forgetAll();
