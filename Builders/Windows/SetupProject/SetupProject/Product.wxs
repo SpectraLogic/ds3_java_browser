@@ -35,7 +35,7 @@
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <UIRef Id="WixUI_InstallDir" />
-    <MajorUpgradeDowngrade ErrorMessage="A newer version of [ProductName] is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes"/>
 
     <Binary Id="CustomAction.CA.dll" SourceFile="$(var.ProjectDir)CustomAction.CA.dll" />
