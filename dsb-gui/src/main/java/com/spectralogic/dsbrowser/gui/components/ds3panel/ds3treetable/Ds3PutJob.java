@@ -11,7 +11,6 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
-import com.spectralogic.ds3client.metadata.interfaces.MetadataStoreListener;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -173,12 +172,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
                 if (isFilePropertiesEnable) {
-                    job.withMetadata(new MetadataAccessImpl(fileMapper, new MetadataStoreListener() {
-                        @Override
-                        public void onMetadataFailed(String s) {
-
-                        }
-                    }));
+                    job.withMetadata(new MetadataAccessImpl(fileMapper));
                     job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
                 updateProgress(totalJobSize, totalJobSize);
