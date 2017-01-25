@@ -9,6 +9,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.util.FileSize;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class LogService {
 
         final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
         triggeringPolicy.setContext(context);
-        triggeringPolicy.setMaxFileSize(String.format("%dMB", logSettings.getLogSize()));
+        triggeringPolicy.setMaxFileSize(FileSize.valueOf(String.format("%dMB", logSettings.getLogSize())));
         triggeringPolicy.start();
 
         fileAppender.setName("FILE");
