@@ -1,30 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The name of the product -->
+<?defineName = "Deep Storage Browser" ?>
+<!-- The manufacturer, for setup package publisher and folder info -->
+<?defineManufacturer = "Spectra Logic" ?>
+<!-- The version -->
+<?defineVersion = "2.0.0" ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="SetupProject" Language="1033" Version="1.0.0.0" Manufacturer="Spectra Logic Corporation" UpgradeCode="f0b4b8e0-a899-4429-a644-342a46143baf">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+  <Product Id="79aa821f-d3ac-422b-a9a8-a4b8a0a6f927" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="61718ba5-b4c2-43b8-838b-fb3930c5ed3f">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64"/>
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<MediaTemplate />
+    <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)deep_storage_browser.ico" />
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <UI>
+      <Publish
+        Dialog="WelcomeDlg"
+        Control="Next"
+        Event="NewDialog"
+        Value="InstallDirDlg"
+        Order="5">
+        1
+      </Publish>
 
-		<Feature Id="ProductFeature" Title="SetupProject" Level="1">
-			<ComponentGroupRef Id="ProductComponents" />
-		</Feature>
-	</Product>
+      <Publish
+        Dialog="InstallDirDlg"
+        Control="Back"
+        Event="NewDialog"
+        Value="WelcomeDlg"
+        Order="5">
+        1
+      </Publish>
+    </UI>
 
-	<Fragment>
-		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="SetupProject" />
-			</Directory>
-		</Directory>
-	</Fragment>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
+    <MajorUpgradeDowngrade ErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes"/>
 
-	<Fragment>
-		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
-			<!-- <Component Id="ProductComponent"> -->
-				<!-- TODO: Insert files, registry keys, and other resources here. -->
-			<!-- </Component> -->
-		</ComponentGroup>
-	</Fragment>
+    <Binary Id="CustomAction.CA.dll" SourceFile="$(var.ProjectDir)CustomAction.CA.dll" />
+    <InstallExecuteSequence>
+      <Custom Action="DeleteLogFile" After="InstallFinalize">REMOVE="ALL"</Custom>
+    </InstallExecuteSequence>
+
+    <CustomAction Id="DeleteLogFile" Return="check" Execute="immediate" BinaryKey="CustomAction.CA.dll" DllEntry="DeleteLogFile"/>
+
+    <CustomAction Id="SetLaunchApplicationTarget" Property="WixShellExecTarget" Value="[#run.bat]"  />
+
+    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"  />
+
+    <UI Id="LaunchApplication">
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="SetLaunchApplicationTarget">
+        <![CDATA[NOT Installed]]>
+      </Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">
+        <![CDATA[NOT Installed]]>
+      </Publish>
+    </UI>
+
+    <Feature Id="ProductFeature" Title="$(var.Name)" Level="1">
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
+      <ComponentRef Id="dsb.jar" />
+      <ComponentRef Id="run.bat" />
+      <ComponentGroupRef Id="JavaFilesGroup"/>
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{B48BD021-AD51-4811-A5B9-A70892BD7334}">
+        <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.Name)" Icon="icon.ico" Target="[#run.bat]" WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="both" />
+        <RegistryValue Root="HKCU" Key="Software\Spectra Logic\$(var.Name)" Name="ApplicationShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="{8213EAF3-AFB1-4946-9A79-99A8543732E7}">
+        <Shortcut Id="ApplicationDesktopShortcut" Name="$(var.Name)" Icon="icon.ico" Target="[#run.bat]" WorkingDirectory="INSTALLFOLDER"  />
+        <RemoveFolder Id="DesktopFolder" On="both" />
+        <RegistryValue Root="HKCU" Key="Software\Spectra Logic\$(var.Name)" Name="ApplicationDesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="ROOTDIRECTORY" Name="$(var.Manufacturer)">
+          <Directory Id="INSTALLFOLDER" Name="$(var.Name)">
+
+            <Component Id="dsb.jar" Guid="{AFF58ABB-1ED8-4860-8AE1-38DDC3C45B60}" Win64="yes">
+              <File Id="dsb.jar" Source="dsb.jar" KeyPath="yes" />
+            </Component>
+
+            <Component Id="run.bat" Guid="{fabf23ea-a1b3-4387-ac5e-e560e934604a}" Win64="yes">
+              <File Id="run.bat" Source="run.bat" KeyPath="yes" />
+            </Component>
+
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Spectra Logic" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="desktop">
+      </Directory>
+    </Directory>
+  </Fragment>
 </Wix>
