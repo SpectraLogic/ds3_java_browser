@@ -1,9 +1,6 @@
-sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
 language: java
+sudo: false
+dist: trusty
 jdk:
   - oraclejdk8
 script: ./gradlew -S clean jar
