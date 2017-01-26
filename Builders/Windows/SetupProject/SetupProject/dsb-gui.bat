@@ -1,4 +1,4 @@
-if "%DEBUG%" == "" @echo off
+@rem if "%DEBUG%" == "" @echo off
 @rem ##########################################################################
 @rem
 @rem  DeepStorageBrowser startup script for Windows
@@ -11,14 +11,14 @@ if "%OS%"=="Windows_NT" setlocal
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
-set APP_HOME=%DIRNAME%
+set APP_HOME=%DIRNAME%..
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and NCL_GUI_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS=
 set NCL_GUI_OPTS=
 
 @rem Find java.exe
-set JAVA_HOME=Java\jre1.8.0_102
+set JAVA_HOME=Java\jre1.8.0_112
 if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=javaw.exe
@@ -71,8 +71,10 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
+set CLASSPATH=%APP_HOME%\lib\*
+
 @rem Execute ncl-gui
-START %JAVA_EXE% dsb.exe
+START "" "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %DSB_GUI_OPTS%  -classpath "%CLASSPATH%" com.spectralogic.dsbrowser.gui.Main %CMD_LINE_ARGS%
 
 :end
 @rem End local scope for the variables with windows NT shell
