@@ -3,7 +3,7 @@
 ->cd DeepStorageBrowser
 
 3.2 create icon for the application
-->curl "image path" say  "--remote-name http://centerkey.com/mac/java/DeepStorageBrowser.png"
+->curl "image path" say  "/Users/apple/Desktop/DeepStorageBrowser.png"
 ->mkdir "foldername" say "DeepStorageBrowser.iconset"
 ->sips -z 32 32DeepStorageBrowser.png --out DeepStorageBrowser.iconset/icon_32x32.png//giving dimensions for the icon
 ->sips -s format icns DeepStorageBrowser.png --out ShowTime.icns//converts the format of icon from png to icns
