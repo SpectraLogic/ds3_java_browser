@@ -151,7 +151,7 @@ public final class ParseJobInterruptionMap {
             jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
             JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
         } catch (final IOException e) {
-            LOG.info("Failed to saved job ids", e.toString());
+            LOG.error("Failed to save job ids", e);
         }
     }
 
@@ -177,7 +177,7 @@ public final class ParseJobInterruptionMap {
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                             }
                         } catch (final Exception e1) {
-                            LOG.info("Failed to cancel job", e1);
+                            LOG.error("Failed to cancel job", e1);
                         }
                     });
                     return null;
@@ -227,7 +227,7 @@ public final class ParseJobInterruptionMap {
                                 }
                             }
                         } catch (final Exception e1) {
-                            LOG.info("Failed to cancel job", e1);
+                            LOG.error("Failed to cancel job", e1);
                         }
                     });
                     return null;
@@ -277,9 +277,10 @@ public final class ParseJobInterruptionMap {
                         rootTreeItem.getChildren().addAll(treeItems);
                         Platform.runLater(() -> ds3TreeTableView.setRoot(rootTreeItem));
                     } catch (final FailedRequestException ex) {
+                        LOG.error("Request failed", ex);
                         Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR));
-                        LOG.error("Invalid Security : " + ex.getError().getMessage());
                     } catch (final Exception e) {
+                        LOG.error("Request failed",e);
                         Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR));
                     }
                     return null;
