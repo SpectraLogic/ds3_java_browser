@@ -29,6 +29,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +42,8 @@ import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlaceme
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
 
     private static final int PAGE_LENGTH = 1000;
 
@@ -256,7 +260,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     }
                 });
             } catch (final Exception e) {
-                e.printStackTrace();
+                LOG.error("Encountered an error trying to get the next list of items", e);
             }
             return partialResults.get();
         }

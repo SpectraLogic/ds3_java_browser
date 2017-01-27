@@ -522,49 +522,43 @@ public class Ds3TreeTablePresenter implements Initializable {
                         new Callback<TreeTableView<Ds3TreeTableValue>, Boolean>() {
                             @Override
                             public Boolean call(final TreeTableView<Ds3TreeTableValue> param) {
-                                try {
-                                    final Comparator<TreeItem<Ds3TreeTableValue>> comparator = new Comparator<TreeItem<Ds3TreeTableValue>>() {
-                                        @Override
-                                        public int compare(final TreeItem<Ds3TreeTableValue> o1, final TreeItem<Ds3TreeTableValue> o2) {
-                                            if (param.getComparator() == null) {
-                                                return 0;
-                                            } else {
-                                                return param.getComparator()
-                                                        .compare(o1, o2);
-                                            }
-                                        }
-
-
-                                    };
-                                    if (ds3TreeTable.getRoot() != null) {
-                                        final ImmutableList<TreeItem<Ds3TreeTableValue>> loaderList = ds3TreeTable.getRoot().getChildren().stream().filter(i -> (i.getValue().getType().toString().equals(Ds3TreeTableValue.Type.Loader.toString()))).collect(GuavaCollectors.immutableList());
-                                        final ImmutableList<TreeItem<Ds3TreeTableValue>> collect = ds3TreeTable.getRoot().getChildren().stream().filter(i -> !(i.getValue().getType().toString().equals(Ds3TreeTableValue.Type.Loader.toString()))).collect(GuavaCollectors.immutableList());
-                                        final ObservableList<TreeItem<Ds3TreeTableValue>> treeItems = FXCollections.observableArrayList(collect);
-                                        FXCollections.sort(treeItems, comparator);
-                                        if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
-                                            ds3TreeTable.getRoot().getChildren().removeAll(ds3TreeTable.getRoot().getChildren());
-                                            ds3TreeTable.getRoot().getChildren().addAll(treeItems);
-                                            if (loaderList.stream().findFirst().orElse(null) != null)
-                                                ds3TreeTable.getRoot().getChildren().add(loaderList.stream().findFirst().get());
-                                        }
-                                        treeItems.forEach(i -> {
-                                            if (i.isExpanded()) {
-                                                if (param.getSortOrder().stream().findFirst().isPresent())
-                                                    sortChild(i, comparator, param.getSortOrder().stream().findFirst().get().getText());
-                                                else
-                                                    sortChild(i, comparator, "");
-                                            }
-                                        });
-                                        if (param.getSortOrder().stream().findFirst().isPresent()) {
-                                            if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
-                                                FXCollections.sort(ds3TreeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
-                                            }
-
+                                final Comparator<TreeItem<Ds3TreeTableValue>> comparator = new Comparator<TreeItem<Ds3TreeTableValue>>() {
+                                    @Override
+                                    public int compare(final TreeItem<Ds3TreeTableValue> o1, final TreeItem<Ds3TreeTableValue> o2) {
+                                        if (param.getComparator() == null) {
+                                            return 0;
+                                        } else {
+                                            return param.getComparator()
+                                                    .compare(o1, o2);
                                         }
                                     }
-                                } catch (final Exception e) {
-                                    e.printStackTrace();
 
+
+                                };
+                                if (ds3TreeTable.getRoot() != null) {
+                                    final ImmutableList<TreeItem<Ds3TreeTableValue>> loaderList = ds3TreeTable.getRoot().getChildren().stream().filter(i -> (i.getValue().getType().toString().equals(Ds3TreeTableValue.Type.Loader.toString()))).collect(GuavaCollectors.immutableList());
+                                    final ImmutableList<TreeItem<Ds3TreeTableValue>> collect = ds3TreeTable.getRoot().getChildren().stream().filter(i -> !(i.getValue().getType().toString().equals(Ds3TreeTableValue.Type.Loader.toString()))).collect(GuavaCollectors.immutableList());
+                                    final ObservableList<TreeItem<Ds3TreeTableValue>> treeItems = FXCollections.observableArrayList(collect);
+                                    FXCollections.sort(treeItems, comparator);
+                                    if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
+                                        ds3TreeTable.getRoot().getChildren().removeAll(ds3TreeTable.getRoot().getChildren());
+                                        ds3TreeTable.getRoot().getChildren().addAll(treeItems);
+                                        if (loaderList.stream().findFirst().orElse(null) != null)
+                                            ds3TreeTable.getRoot().getChildren().add(loaderList.stream().findFirst().get());
+                                    }
+                                    treeItems.forEach(i -> {
+                                        if (i.isExpanded()) {
+                                            if (param.getSortOrder().stream().findFirst().isPresent())
+                                                sortChild(i, comparator, param.getSortOrder().stream().findFirst().get().getText());
+                                            else
+                                                sortChild(i, comparator, "");
+                                        }
+                                    });
+                                    if (param.getSortOrder().stream().findFirst().isPresent()) {
+                                        if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
+                                            FXCollections.sort(ds3TreeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
+                                        }
+                                    }
                                 }
                                 return true;
                             }

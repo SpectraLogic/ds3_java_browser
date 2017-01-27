@@ -299,7 +299,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             logText("Encountered an error when creating Main view", LogType.ERROR);
-            e.printStackTrace();
         }
     }
 

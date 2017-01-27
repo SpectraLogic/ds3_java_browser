@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -14,6 +16,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class AboutPresenter implements Initializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
+
     @FXML
     private Label copyRightLabel1, copyRightLabel2;
     @FXML
@@ -35,10 +40,8 @@ public class AboutPresenter implements Initializable {
         hyperlink.setOnAction(event -> {
             try {
                 Desktop.getDesktop().browse(new URI("http://www.apache.org/licenses/LICENSE-2.0"));
-            } catch (final IOException e1) {
-                e1.printStackTrace();
-            } catch (final URISyntaxException e1) {
-                e1.printStackTrace();
+            } catch (final IOException|URISyntaxException e) {
+                LOG.error("Failed to open apache license in a browser", e);
             }
         });
         copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));

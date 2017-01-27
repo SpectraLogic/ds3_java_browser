@@ -233,7 +233,7 @@ public class JobInfoPresenter implements Initializable {
         if (CheckNetwork.isReachable(endpointInfo.getClient())) {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
             if (jobIDMap != null) {
-                jobIDMap.entrySet().stream().forEach(i -> {
+                jobIDMap.entrySet().forEach(i -> {
                     try {
                         final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore);
                         jobWorkers.execute(recoverInterruptedJob);
@@ -254,7 +254,7 @@ public class JobInfoPresenter implements Initializable {
 
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
-                                final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
+                                endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
                                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                             } catch (final IOException e1) {
@@ -266,7 +266,7 @@ public class JobInfoPresenter implements Initializable {
                             }
                         });
                     } catch (final Exception e) {
-                        e.printStackTrace();
+                        LOG.error("Failed to save the job", e);
                     }
                 });
             }
