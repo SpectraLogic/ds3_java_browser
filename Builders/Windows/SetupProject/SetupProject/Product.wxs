@@ -6,7 +6,7 @@
 <?define Manufacturer = "Spectra Logic" ?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="79aa821f-d3ac-422b-a9a8-a4b8a0a6f927" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="61718ba5-b4c2-43b8-838b-fb3930c5ed3f">
+  <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="61718ba5-b4c2-43b8-838b-fb3930c5ed3f">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64"/>
 
     <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)deep_storage_browser.ico" />
@@ -50,8 +50,12 @@
           Event="DoAction"
           Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
+
+    <MajorUpgrade
+      Schedule="afterInstallExecute"
+      DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."
+      AllowSameVersionUpgrades="yes"/>
     
-    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes"/>
 
     <Binary Id="CustomAction.CA.dll" SourceFile="$(var.ProjectDir)..\CustomAction\bin\Release\CustomAction.CA.dll" />
