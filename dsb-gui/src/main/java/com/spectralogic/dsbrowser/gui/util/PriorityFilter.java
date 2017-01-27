@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PriorityFilter {
+public final class PriorityFilter {
     public static Priority[] filterPriorities(final Priority[] priorities) {
         final Priority[] elements = {Priority.BACKGROUND, Priority.CRITICAL};
         final List<Priority> list = new ArrayList<Priority>(Arrays.asList(priorities));

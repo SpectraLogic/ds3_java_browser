@@ -28,9 +28,8 @@ public class PathUtil_Test {
 
     @Test
     public void convertWindowsPaths() {
-        final String result = PathUtil.toDs3Obj(Paths.get("\\parent\\path/"), Paths.get("\\parent\\path\\subdir\\file.txt"));
+        final String result = PathUtil.toDs3Obj(Paths.get("\\parent\\path\\"), Paths.get("\\parent\\path\\subdir\\file.txt"));
         assertThat(result, is("subdir/file.txt"));
-
     }
 
     @Test

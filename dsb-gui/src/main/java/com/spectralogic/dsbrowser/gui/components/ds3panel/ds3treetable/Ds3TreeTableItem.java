@@ -3,14 +3,9 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response;
-import com.spectralogic.ds3client.models.BulkObject;
 import com.spectralogic.ds3client.models.Contents;
-import com.spectralogic.ds3client.models.DetailedS3Object;
-import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -34,6 +29,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,13 +43,16 @@ import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlaceme
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
+
+    private static final int PAGE_LENGTH = 1000;
+
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
     private boolean accessedChildren = false;
-    private final int pageLength = 1000;
     private TreeTableView ds3TreeTable;
     private Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
@@ -163,12 +163,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
             try {
-                GetBucketRequest request = null;
+                final GetBucketRequest request;
                 //if marker is set blank for a item that means offset is 0 else set the marker
-                if (ds3Value.getMarker().equals(""))
-                    request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(pageLength);
-                else
-                    request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(pageLength).withMarker(ds3Value.getMarker());
+                if (ds3Value.getMarker().equals("")) {
+                    request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(PAGE_LENGTH);
+                } else {
+                    request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(PAGE_LENGTH).withMarker(ds3Value.getMarker());
+                }
                 if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
                 } else if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                     if (Ds3TreeTableItem.this.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
@@ -184,17 +185,30 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 final String marker = bucketResponse.getListBucketResult().getNextMarker();
                 //use to store list of files
                 final List<Ds3TreeTableValue> filteredFiles = new ArrayList<>();
-                //get list of objects with condition key shoul not be null and key name and prefix should not be same
-                final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult().getObjects().stream().filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName())))).map(i -> new Ds3Object(i.getKey(), i.getSize())).collect(Collectors.toList());
+                //get list of objects with condition key should not be null and key name and prefix should not be same
+                final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
+                        .getObjects()
+                        .stream()
+                        .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName()))))
+                        .map(i -> new Ds3Object(i.getKey(), i.getSize()))
+                        .collect(Collectors.toList());
                 if (ds3ObjectListFiles.size() != 0) {
                     final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement = new GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request(bucket, ds3ObjectListFiles);
                     final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response responsePlacement = session.getClient().getPhysicalPlacementForObjectsWithFullDetailsSpectraS3(requestPlacement);
-                    final List<Ds3TreeTableValue> filteredFileslist = responsePlacement.getBulkObjectListResult().getObjects().stream().map(i ->
-                    {
-                        Contents content = bucketResponse.getListBucketResult().getObjects().stream().filter(j -> j.getKey().equals(i.getName())).findFirst().get();
-                        final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
-                        return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, content.getSize(), DateFormat.formatDate(content.getLastModified()), content.getOwner().getDisplayName(), false, iconsAndTooltip);
-                    }).collect(Collectors.toList());
+                    final List<Ds3TreeTableValue> filteredFileslist = responsePlacement
+                            .getBulkObjectListResult()
+                            .getObjects()
+                            .stream()
+                            .map(i ->  {
+                                final Contents content = bucketResponse.getListBucketResult()
+                                        .getObjects()
+                                        .stream()
+                                        .filter(j -> j.getKey().equals(i.getName()))
+                                        .findFirst()
+                                        .get();
+                                final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
+                                return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, content.getSize(), DateFormat.formatDate(content.getLastModified()), content.getOwner().getDisplayName(), false, iconsAndTooltip);
+                            }).collect(Collectors.toList());
                     filteredFiles.addAll(filteredFileslist);
                 }
                 //directoryValues is used to store directories
@@ -209,43 +223,19 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 }).collect(Collectors.toList());
                 //after getting both lists we need to merge in partialResult and need to sort
                 Platform.runLater(() -> {
-                    final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).collect(GuavaCollectors.immutableList());
-                    final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles.stream().map(item -> new Ds3TreeTableItem(bucket, session, item, workers)).filter(distinctByKey(p -> p.getValue().getFullName())).collect(GuavaCollectors.immutableList());
+                    final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues
+                            .stream()
+                            .map(item -> new Ds3TreeTableItem(bucket, session, item, workers))
+                            .collect(GuavaCollectors.immutableList());
+                    final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles
+                            .stream()
+                            .map(item -> new Ds3TreeTableItem(bucket, session, item, workers))
+                            .filter(distinctByKey(p -> p.getValue().getFullName()))
+                            .collect(GuavaCollectors.immutableList());
                     partialResults.get().addAll(directoryItems);
                     partialResults.get().addAll(fileItems);
-//                    partialResults.get().stream().sorted((o1, o2) ->
-//                            {
-//                                String type1 = (String) o1.getValue().getType().toString();
-//                                String type2 = (String) o2.getValue().getType().toString();
-//                                if (type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && !type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-//                                    // Directory before non-directory
-//                                    return -1;
-//                                } else if (!type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-//                                    // Non-directory after directory
-//                                    return 1;
-//                                } else {
-//                                    // Alphabetic order otherwise
-//                                    return o1.getValue().getFullName().compareTo(o2.getValue().getFullName());
-//                                }
-//                            }
-//                    );
-                    final Comparator comp = new Comparator<Ds3TreeTableItem>() {
-                        public int compare(final Ds3TreeTableItem o1, final Ds3TreeTableItem o2) {
-                            final String type1 = o1.getValue().getType().toString();
-                            final String type2 = o2.getValue().getType().toString();
-                            if (type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && !type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-                                // Directory before non-directory
-                                return -1;
-                            } else if (!type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-                                // Non-directory after directory
-                                return 1;
-                            } else {
-                                // Alphabetic order otherwise
-                                return o1.getValue().getFullName().compareTo(o2.getValue().getFullName());
-                            }
-                        }
-                    };
-                    Collections.sort(partialResults.get(), comp);
+
+                    Collections.sort(partialResults.get(), new PartialResultComparator());
                     //if selected item was button then just remove that click more button and add new one
                     if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                         //clear the selection
@@ -270,7 +260,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                     }
                 });
             } catch (final Exception e) {
-                e.printStackTrace();
+                LOG.error("Encountered an error trying to get the next list of items", e);
             }
             return partialResults.get();
         }
@@ -280,5 +270,24 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     public static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
         final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    private class PartialResultComparator implements Comparator<TreeItem<Ds3TreeTableValue>> {
+
+        @Override
+        public int compare(final TreeItem<Ds3TreeTableValue> o1, final TreeItem<Ds3TreeTableValue> o2) {
+            final String type1 = o1.getValue().getType().toString();
+                final String type2 = o2.getValue().getType().toString();
+                if (type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && !type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
+                    // Directory before non-directory
+                    return -1;
+                } else if (!type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
+                    // Non-directory after directory
+                    return 1;
+                } else {
+                    // Alphabetic order otherwise
+                    return o1.getValue().getFullName().compareTo(o2.getValue().getFullName());
+                }
+        }
     }
 }

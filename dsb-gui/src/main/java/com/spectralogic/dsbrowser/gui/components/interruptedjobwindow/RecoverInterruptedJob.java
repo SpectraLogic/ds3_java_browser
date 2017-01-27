@@ -17,6 +17,8 @@ import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import javafx.application.Platform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -25,9 +27,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
@@ -115,12 +118,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                         skipPath = file.getParent();
                                     else
                                         skipPath = "";
-                                }/* else {
-                                    final Stream<Map.Entry<String, Path>> entryStream = folders.entrySet().stream().filter(i -> s.startsWith(i.getKey()));
-                                    if (entryStream != null) {
-                                        skipPath = entryStream.findFirst().get().getValue().toString();
-                                    }
-                                }*/
+                                }
                                 if (skipPath.isEmpty()) {
                                     return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
                                 } else {
@@ -138,7 +136,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             });
 
 
-//            //Can not assign final.
+            //Can not assign final.
             GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
 
             while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
@@ -153,21 +151,19 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             if (currentSelectedEndpoint.equals(session.getClient().getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
             }
+        } catch (final FailedRequestException e) {
+            LOG.error("Request to black pearl failed", e);
+            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job not found. Cancelling job.", LogType.INFO));
+            cancel();
         } catch (final Exception e) {
-            e.printStackTrace();
-            if (e instanceof FailedRequestException) {
-                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job not found. Cancelling job.", LogType.INFO));
-                cancel();
-            } else {
-                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Exception" + e.toString() + "-User Interruption", LogType.ERROR));
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getClient().getConnectionDetails().getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), uuid);
-                final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
-                final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
-                if (currentSelectedEndpoint.equals(endpointInfo.getClient().getConnectionDetails().getEndpoint())) {
-                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
-                }
+            LOG.error("Encountered an exception when executing a job", e);
+            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Exception" + e.toString() + "-User Interruption", LogType.ERROR));
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getClient().getConnectionDetails().getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), uuid);
+            final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
+            final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
+            if (currentSelectedEndpoint.equals(endpointInfo.getClient().getConnectionDetails().getEndpoint())) {
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
             }
-
         }
     }
 }

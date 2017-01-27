@@ -274,7 +274,7 @@ public class NewSessionPresenter implements Initializable {
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     } catch (final IOException e) {
-                        e.printStackTrace();
+                        LOG.error("Failed to save session", e);
                     }
                     if (i <= previousSize) {
                         ALERTINFO.setContentText("Session updated successfully.");
