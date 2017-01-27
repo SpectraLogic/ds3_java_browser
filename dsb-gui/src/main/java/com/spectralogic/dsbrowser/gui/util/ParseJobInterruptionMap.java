@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
 import com.spectralogic.ds3client.networking.FailedRequestException;
@@ -18,13 +17,10 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
@@ -41,17 +37,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class ParseJobInterruptionMap {
+public final class ParseJobInterruptionMap {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMap.class);
 
     public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final TaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
-        if (endpoints.stream().filter(i -> i.containsKey(endpoint)).findFirst().isPresent()) {
+        if (endpoints.stream().anyMatch(i -> i.containsKey(endpoint))) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointMap = endpoints.stream().filter(i -> i.containsKey(endpoint)).findFirst().get();
             final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
             final HashMap<String, FilesAndFolderMap> collect = jobIDMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
             final ObservableList<Ds3JobTask> tasks = jobWorkers.getTasks();
-            tasks.stream().forEach(i -> {
+            tasks.forEach(i -> {
                 UUID uuid = null;
                 if (i instanceof Ds3PutJob) {
                     uuid = ((Ds3PutJob) i).getJobId();
@@ -60,7 +56,7 @@ public class ParseJobInterruptionMap {
                 } else if (i instanceof RecoverInterruptedJob) {
                     uuid = ((RecoverInterruptedJob) i).getUuid();
                 }
-                if (uuid != jobId) {
+                if (uuid != null && uuid != jobId) {
                     if (collect.containsKey(uuid.toString())) {
                         collect.remove(uuid.toString());
                     }
@@ -73,27 +69,29 @@ public class ParseJobInterruptionMap {
 
     public static Map<String, FilesAndFolderMap> removeJobID(final JobInterruptionStore jobInterruptionStore, final String uuid, final String endpoint, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints();
-        Map<String, FilesAndFolderMap> jobIdMap = null;
-        if (completeArrayList.stream().filter(i -> i.containsKey(endpoint)).findFirst().isPresent()) {
+        final Map<String, FilesAndFolderMap> jobIdMap;
+        if (completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointsMapImmutableMap = completeArrayList.stream().filter(i -> i.containsKey(endpoint)).findFirst().get();
             final HashMap<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsMapImmutableMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
             completeArrayList.remove(endpointsMapImmutableMap);
             if (endpointHashMap.containsKey(endpoint)) {
-                jobIdMap = endpointHashMap.get(endpoint);
-                jobIdMap = jobIdMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
+                jobIdMap = endpointHashMap.get(endpoint)
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
                 if (jobIdMap.containsKey(uuid)) {
                     jobIdMap.remove(uuid);
                 }
-                final Map<String, FilesAndFolderMap> finalJobIdMap = jobIdMap;
                 endpointHashMap.put(endpoint, jobIdMap);
             }
             try {
                 completeArrayList.add(endpointHashMap);
                 jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
-                jobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
+                JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception e) {
+                LOG.error("Encountered an exception when trying to remove a job", e);
                 if (deepStorageBrowserPresenter != null) {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to remove job id" + e.toString(), LogType.ERROR));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to remove job id " + e.toString(), LogType.ERROR));
                 }
             }
         }
@@ -132,7 +130,7 @@ public class ParseJobInterruptionMap {
             isNonAdjacent = true;
         }
         final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, foldersMap, jobType, DateFormat.formatDate(new Date()), isNonAdjacent, targetLocation, totalJobSize, bucket);
-        if (completeArrayList != null && completeArrayList.stream().filter(i -> i.containsKey(endpoint)).findFirst().isPresent()) {
+        if (completeArrayList != null && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = completeArrayList.stream().filter(i -> i.containsKey(endpoint)).findFirst().get();
             if (endpointsImmutableMap != null && endpointsImmutableMap.containsKey(endpoint)) {
                 final Map<String, FilesAndFolderMap> jobIdImmutableMap = endpointsImmutableMap.get(endpoint);
@@ -163,7 +161,7 @@ public class ParseJobInterruptionMap {
             final Task cancelAllRunningJobs = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    tasks.stream().forEach(i -> {
+                    tasks.forEach(i -> {
                         try {
                             if (i instanceof Ds3PutJob) {
                                 final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
@@ -179,8 +177,7 @@ public class ParseJobInterruptionMap {
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
-
+                            LOG.info("Failed to cancel job", e1);
                         }
                     });
                     return null;
@@ -190,7 +187,7 @@ public class ParseJobInterruptionMap {
             cancelAllRunningJobs.setOnSucceeded(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers);
                 if (cancelAllRunningJobs.getValue() != null) {
-                    Platform.runLater(() -> LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue()));
+                    LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue());
                 }
             });
 
@@ -198,13 +195,13 @@ public class ParseJobInterruptionMap {
     }
 
 
-    public static void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, Session session) {
+    public static void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Session session) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
         if (tasks.size() != 0) {
             final Task cancelAllRunningJobs = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    tasks.stream().forEach(i -> {
+                    tasks.forEach(i -> {
                         try {
                             //Ds3Client ds3Client = null;
                             if (i instanceof Ds3PutJob) {
@@ -228,10 +225,9 @@ public class ParseJobInterruptionMap {
                                     recoverInterruptedJob.cancel();
                                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
                                 }
-                            } else {
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            LOG.info("Failed to cancel job", e1);
                         }
                     });
                     return null;
@@ -240,7 +236,7 @@ public class ParseJobInterruptionMap {
             workers.execute(cancelAllRunningJobs);
             cancelAllRunningJobs.setOnSucceeded(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
-                    Platform.runLater(() -> LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue()));
+                    LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue());
                 }
             });
         }
@@ -279,18 +275,12 @@ public class ParseJobInterruptionMap {
                         buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
                         final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
                         rootTreeItem.getChildren().addAll(treeItems);
-                        Platform.runLater(() -> {
-                            ds3TreeTableView.setRoot(rootTreeItem);
-                        });
+                        Platform.runLater(() -> ds3TreeTableView.setRoot(rootTreeItem));
                     } catch (final FailedRequestException ex) {
-                        Platform.runLater(() -> {
-                            ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR);
-                        });
+                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR));
                         LOG.error("Invalid Security : " + ex.getError().getMessage());
                     } catch (final Exception e) {
-                        Platform.runLater(() -> {
-                            ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR);
-                        });
+                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR));
                     }
                     return null;
                 }
@@ -298,17 +288,14 @@ public class ParseJobInterruptionMap {
             workers.execute(getBucketTask);
             getBucketTask.setOnSucceeded(event -> {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTableView.getRoot().getChildren();
-                children.stream().forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
-                        final BooleanProperty bb = (BooleanProperty) observable;
-                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
-                    }
+                children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                    final BooleanProperty bb = (BooleanProperty) observable;
+                    final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                    ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
                 }));
                 if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + "-" + session.getEndpoint())) {
                     final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
-                    if (children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().isPresent()) {
+                    if (children.stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
                         final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
                         ds3TreeTableValueTreeItem.setExpanded(false);
                         if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
