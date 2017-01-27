@@ -187,7 +187,7 @@ public final class ParseJobInterruptionMap {
             cancelAllRunningJobs.setOnSucceeded(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers);
                 if (cancelAllRunningJobs.getValue() != null) {
-                    LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue());
+                    LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
                 }
             });
 
@@ -236,7 +236,7 @@ public final class ParseJobInterruptionMap {
             workers.execute(cancelAllRunningJobs);
             cancelAllRunningJobs.setOnSucceeded(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
-                    LOG.info("Cancelled job. " + cancelAllRunningJobs.getValue());
+                    LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
                 }
             });
         }

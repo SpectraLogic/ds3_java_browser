@@ -39,7 +39,7 @@ public class BackgroundTask implements Runnable{
                         }
 
                     } else {
-                        LOG.info("network is not reachable");
+                        LOG.error("network is not reachable");
                         if (!isAlertDisplayed) {
                             Platform.runLater(() -> {
                                 final String msg = "Host " + session.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection";
@@ -52,7 +52,7 @@ public class BackgroundTask implements Runnable{
                         }
                     }
                 } else {
-                    LOG.info("No Connection..");
+                    LOG.error("No Connection..");
                 }
                 Thread.sleep(3000);
             } catch (final Throwable e) {

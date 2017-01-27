@@ -143,7 +143,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     try {
                         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreeModel.toString(), "GET", bucket);
                     } catch (final Exception e) {
-                        LOG.info("Failed to save job id");
+                        LOG.error("Failed to save job id", e);
                     }
                     updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " from " + bucket + " to " + fileTreeModel);
                     if (jobPriority != null && !jobPriority.isEmpty()) {

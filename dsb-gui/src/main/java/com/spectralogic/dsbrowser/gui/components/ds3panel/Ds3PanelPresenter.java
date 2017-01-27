@@ -217,7 +217,7 @@ public class Ds3PanelPresenter implements Initializable {
                 workers.execute(getDataPolicies);
 
                 getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                    LOG.info("Launching create bucket popup" + getDataPolicies.getValue().getDataPolicies().size());
+                    LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
                     CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
                     ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                 }));

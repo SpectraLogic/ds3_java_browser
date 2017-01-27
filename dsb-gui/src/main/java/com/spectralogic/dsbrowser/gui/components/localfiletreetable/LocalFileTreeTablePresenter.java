@@ -227,7 +227,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             });
 
             putJob.setOnFailed(e -> {
-                LOG.info("Get Job failed");
+                LOG.error("Get Job failed");
                 refreshBlackPearlSideItem(treeItem);
             });
 
@@ -235,16 +235,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 LOG.info("Get Job cancelled");
                 try {
                     if (putJob.getJobId() != null) {
-                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                        session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
                         deepStorageBrowserPresenter.logText("PUT Job Cancelled.", LogType.SUCCESS);
                         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                         refreshBlackPearlSideItem(treeItem);
                     }
                 } catch (final IOException e1) {
-                    LOG.info("Failed to cancel job", LogType.ERROR);
+                    LOG.error("Failed to cancel job", e1);
                 }
             });
         } catch (final Exception e) {
+            LOG.error("Failed to transfer data to black pearl", e);
             deepStorageBrowserPresenter.logText("Something went wrong. Reason: " + e.toString(), LogType.ERROR);
         }
     }
@@ -464,7 +465,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             });
 
                             getJob.setOnFailed(e -> {
-                                LOG.info("Get Job failed");
+                                LOG.error("Get Job failed");
                                 if (fileTreeItem != null)
                                     refresh(fileTreeItem);
                                 else
@@ -474,7 +475,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             getJob.setOnCancelled(e -> {
                                 LOG.info("Get Job cancelled");
                                 try {
-                                    final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
+                                    session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
                                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                                     deepStorageBrowserPresenter.logText("GET Job Cancelled", LogType.ERROR);
                                     if (fileTreeItem != null)
@@ -482,6 +483,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     else
                                         refreshFileTreeView();
                                 } catch (final IOException e1) {
+                                    LOG.error("Failed to cancel job", e);
                                     deepStorageBrowserPresenter.logText(" Failed to cancel job. ", LogType.ERROR);
                                 }
                             });
