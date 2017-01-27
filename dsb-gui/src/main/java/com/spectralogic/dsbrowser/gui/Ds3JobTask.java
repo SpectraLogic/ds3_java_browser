@@ -30,5 +30,4 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         updateProgress(0.1,100);
     }
 
-
-    }
+}

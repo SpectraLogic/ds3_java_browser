@@ -15,7 +15,6 @@ import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 
-import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
@@ -99,11 +98,11 @@ public class Ds3GetJob extends Ds3JobTask {
                 final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
                 final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
                 final Map<Path, Boolean> duplicateFileMap = new HashMap<>();
-                files.stream().forEach(i -> {
+                files.forEach(i -> {
                     fileMap.put(i.getFullName(), Paths.get("/"));
                     nodes.add(i);
                 });
-                directories.stream().forEach(value -> {
+                directories.forEach(value -> {
                     if (value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
                         if (Paths.get(value.getFullName()).getParent() != null) {
                             folderMap.put(value.getFullName(), Paths.get(value.getFullName()).getParent());
@@ -169,7 +168,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     // getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
                     getJob.attachMetadataReceivedListener(new MetadataReceivedListener() {
                         @Override
-                        public void metadataReceived(String s, Metadata metadata) {
+                        public void metadataReceived(final String s, final Metadata metadata) {
 
                         }
                     });
@@ -253,7 +252,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     .getObjects().stream()
                     .map(f -> new Ds3TreeTableValueCustom(value.getBucketName(), f.getKey(), Ds3TreeTableValue.Type.File, f.getSize(), "", f.getOwner().getDisplayName(), false)
                     ).collect(GuavaCollectors.immutableList());
-            files.stream().forEach(i -> {
+            files.forEach(i -> {
                 nodes.add(i);
                 map.put(Paths.get(i.getFullName()), path);
             });
@@ -261,7 +260,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
                     .map(c -> new Ds3TreeTableValueCustom(value.getBucketName(), c, Ds3TreeTableValue.Type.Directory, 0, "", "--", false))
                     .collect(GuavaCollectors.immutableList());
-            directoryValues.stream().forEach(i -> addAllDescendents(i, nodes, path));
+            directoryValues.forEach(i -> addAllDescendents(i, nodes, path));
 
         } catch (final IOException e) {
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));

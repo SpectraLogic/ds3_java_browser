@@ -43,7 +43,6 @@ public class Main extends Application {
             Alert.AlertType.CONFIRMATION,
             "Are you sure you want to exit?"
     );
-    final Alert alert = new Alert(Alert.AlertType.ERROR);
 
     private final Workers workers = new Workers();
     private JobWorkers jobWorkers = null;
@@ -127,10 +126,6 @@ public class Main extends Application {
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
         primaryStage.setMaximized(true);
-       /* primaryStage.setMinHeight(300);
-        primaryStage.setMinWidth(200);
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(900);*/
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
@@ -174,7 +169,7 @@ public class Main extends Application {
             final Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    collect.stream().forEach(i -> {
+                    collect.forEach(i -> {
                         try {
                             if (i instanceof Ds3PutJob) {
                                 final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
@@ -198,7 +193,7 @@ public class Main extends Application {
 
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            LOG.error("Failed to cancel job", e1);
                         }
                     });
                     return null;

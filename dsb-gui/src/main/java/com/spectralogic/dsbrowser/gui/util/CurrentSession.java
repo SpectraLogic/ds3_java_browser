@@ -1,6 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
-public class CurrentSession {
+public final class CurrentSession {
 
     private static String currentSession = null;
 
