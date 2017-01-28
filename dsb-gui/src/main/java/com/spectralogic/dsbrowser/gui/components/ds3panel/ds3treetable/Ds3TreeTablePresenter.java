@@ -509,7 +509,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     }
                 } else {
                     ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    if (row.getTreeItem()!=null && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                         loadMore(row.getTreeItem());
                     }
                 }
