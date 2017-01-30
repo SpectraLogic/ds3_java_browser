@@ -259,8 +259,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
                     }
                 });
-            } catch (final Exception e) {
-                LOG.error("Encountered an error trying to get the next list of items", e);
+            } catch (final Throwable t) {
+                LOG.error("Encountered an error trying to get the next list of items", t);
             }
             return partialResults.get();
         }
