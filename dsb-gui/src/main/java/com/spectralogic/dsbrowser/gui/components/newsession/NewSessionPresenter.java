@@ -9,12 +9,14 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.PropertyItem;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.PropertySheet;
@@ -65,6 +67,10 @@ public class NewSessionPresenter implements Initializable {
         try {
             ALERT.setHeaderText(null);
             ALERTINFO.setHeaderText(null);
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            final Stage stageInfo = (Stage) ALERTINFO.getDialogPane().getScene().getWindow();
+            stageInfo.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             initGUIElement();
             initSessionList();
             initPropertySheet();

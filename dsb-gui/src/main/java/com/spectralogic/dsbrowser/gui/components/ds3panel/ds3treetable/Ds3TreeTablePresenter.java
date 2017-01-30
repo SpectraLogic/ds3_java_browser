@@ -46,12 +46,14 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +130,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName(), LogType.INFO);
             ALERT.setTitle("Information Dialog");
             ALERT.setHeaderText(null);
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             initContextMenu();
             initTreeTableView();
         } catch (final Throwable e) {
@@ -509,7 +513,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     }
                 } else {
                     ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    if (row.getTreeItem()!=null && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                         loadMore(row.getTreeItem());
                     }
                 }
@@ -804,9 +808,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                     @Override
                     protected Object call() throws Exception {
                         try {
-                            final DeleteBucketSpectraS3Response deleteBucketSpectraS3Response = getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
+                            getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(value.getValue().getBucketName()).withForce(true));
                             Platform.runLater(() -> {
-                                // deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
                                 deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);
                             });
 
@@ -818,7 +821,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 ALERT.showAndWait();
                             } else {
                                 LOG.error("Failed to delete Bucket", e);
-                                Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket.", LogType.ERROR));
+                                Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket." + e, LogType.ERROR));
                                 ALERT.setContentText("Failed to delete a bucket");
                                 ALERT.showAndWait();
                             }

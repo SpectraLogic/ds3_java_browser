@@ -6,6 +6,7 @@ import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.models.BucketDetails;
 import com.spectralogic.ds3client.models.ListBucketResult;
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
@@ -48,6 +49,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,6 +140,9 @@ public class Ds3PanelPresenter implements Initializable {
             LOG.info("Loading Ds3PanelPresenter");
             ALERT.setTitle("Error");
             ALERT.setHeaderText(null);
+
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
 
             ds3PathIndicator = makeSelectable(ds3PathIndicator);
             initMenuItems();
@@ -570,11 +575,21 @@ public class Ds3PanelPresenter implements Initializable {
                 protected Object call() throws Exception {
                     try {
                         getClient().deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
+                        Platform.runLater(() -> {
+                            // deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
+                            deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);  });
                     } catch (final IOException e) {
-                        LOG.error("Failed to delte Bucket " + e);
-                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket", LogType.ERROR));
-                        ALERT.setContentText("Failed to delete Bucket");
-                        ALERT.showAndWait();
+                        if (e instanceof FailedRequestException) {
+                            LOG.error("Failed to delete Buckets" + e);
+                            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
+                            ALERT.setContentText("Failed to delete bucket");
+                            ALERT.showAndWait();
+                            } else {
+                            LOG.error("Failed to delete Bucket " + e);
+                            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket"+ e, LogType.ERROR));
+                            ALERT.setContentText("Failed to delete Bucket");
+                            ALERT.showAndWait();
+                            }
                     }
                     return null;
                 }

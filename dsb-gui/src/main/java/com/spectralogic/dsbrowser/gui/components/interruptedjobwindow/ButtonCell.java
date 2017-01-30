@@ -7,11 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.util.BackgroundTask;
-import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,8 +16,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +43,8 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
 
         ALERT.setTitle(endpointInfo.getEndpoint());
         ALERT.setHeaderText(null);
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
         this.workers = workers;

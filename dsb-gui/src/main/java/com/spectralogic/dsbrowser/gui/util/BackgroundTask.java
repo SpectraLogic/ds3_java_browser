@@ -5,6 +5,8 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,8 @@ public class BackgroundTask implements Runnable{
     public BackgroundTask(final Ds3Common ds3Common, final Workers workers) {
         this.ds3Common = ds3Common;
         this.workers = workers;
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
     }
 
     @Override

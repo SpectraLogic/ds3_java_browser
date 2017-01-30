@@ -128,7 +128,7 @@ public class SavedSessionStore {
         this.sessions.remove(sessionName);
     }
 
-    private static class SerializedSessionStore {
+    public static class SerializedSessionStore {
         @JsonProperty("sessions")
         private final List<SavedSession> sessions;
 

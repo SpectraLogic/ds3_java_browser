@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
@@ -34,6 +33,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -42,6 +42,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
@@ -140,6 +141,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
             LOG.info("Loading Main view");
             logText("Loading main view", LogType.INFO);
+
+            final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
 
             jobProgressView = new TaskProgressView<>();
             jobProgressView.setPrefHeight(1000);
