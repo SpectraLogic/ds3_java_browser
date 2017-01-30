@@ -48,13 +48,14 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy $(ProjectDir)dsb-gui.bat ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin /Y
+    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.40$(TargetExt)%2a /Y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin\%2a.%2a
+xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin /Y
 
 call ..\..\..\..\..\createWXSJavaFiles.bat
 call ..\..\..\createWXSDbsFiles.bat</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.40$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

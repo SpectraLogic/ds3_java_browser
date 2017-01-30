@@ -5,11 +5,8 @@
             <Directory Id="dir477D3386EA775CED98738C93E885E05D" Name="distributions">
                 <Directory Id="dirD1B712D541CCA0EC42110DB10504E50B" Name="dsb-gui-2.0.40">
                     <Directory Id="dir9799D90A4220B1E090FBF1873F580C02" Name="bin">
-                        <Component Win64="yes" Id="cmp67222726018EF7B90D4C016C35CCDF13" Guid="*">
-                            <File Id="filABDBB6DFA420B4256E68A7D78520EC0A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\bin\dsb-gui" />
-                        </Component>
-                        <Component Win64="yes" Id="cmpBC5CC04AAE902A1DA95FD441975F559B" Guid="*">
-                            <File Id="fil1108FC18630C1A934C92562DB9CF51F3" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\bin\dsb-gui.bat" />
+                        <Component Win64="yes" Id="cmp414E493808F38161B30496D82971A4E0" Guid="*">
+                            <File Id="fil47ECB9A3369A1218D4AB80FB76C5409E" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\bin\dsb-gui.exe" />
                         </Component>
                     </Directory>
                     <Directory Id="dir8A6BC0BD6AAD2E2ACF2BE6302FE8BDBA" Name="lib">
@@ -134,8 +131,7 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="DsbFilesGroup">
-            <ComponentRef Id="cmp67222726018EF7B90D4C016C35CCDF13" />
-            <ComponentRef Id="cmpBC5CC04AAE902A1DA95FD441975F559B" />
+            <ComponentRef Id="cmp414E493808F38161B30496D82971A4E0" />
             <ComponentRef Id="cmpCEFD1F2FF44145997E524A7A1BE94DEB" />
             <ComponentRef Id="cmpB972B9B0BE58B72C52507AB5C51DF79B" />
             <ComponentRef Id="cmp7B585020D88230394BF41A4DADE297FA" />
