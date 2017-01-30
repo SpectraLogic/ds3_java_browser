@@ -4,13 +4,11 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
-import javafx.scene.control.TabPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BackgroundTask extends Task {
+public class BackgroundTask implements Runnable{
 
     private final static Logger LOG = LoggerFactory.getLogger(BackgroundTask.class);
     private final Ds3Common ds3Common;
@@ -24,7 +22,7 @@ public class BackgroundTask extends Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    public void run() {
         ALERT.setHeaderText(null);
         ALERT.setTitle("Network connection error");
         while (true) {
@@ -34,17 +32,14 @@ public class BackgroundTask extends Task {
                     if (CheckNetwork.isReachable(session.getClient())) {
                         if (isAlertDisplayed) {
                             LOG.info("network is up");
-                            final TabPane tabPane = ds3Common.getCurrentTabPane().stream().findFirst().get();
-                            Platform.runLater(() -> {
-                                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
-                            });
+                            Platform.runLater(() -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers));
                             isAlertDisplayed = false;
                         } else {
                             LOG.info("network is working");
                         }
 
                     } else {
-                        LOG.info("network is not reachble");
+                        LOG.error("network is not reachable");
                         if (!isAlertDisplayed) {
                             Platform.runLater(() -> {
                                 final String msg = "Host " + session.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection";
@@ -57,20 +52,19 @@ public class BackgroundTask extends Task {
                         }
                     }
                 } else {
-                    LOG.info("No Connection..");
+                    LOG.error("No Connection..");
                 }
-                Thread.sleep(100);
-            } catch (final Exception e) {
-                LOG.error("network is not reachble", e);
+                Thread.sleep(3000);
+            } catch (final Throwable e) {
+                LOG.error("Encountered an error when attempting to verify that the bp is reachable", e);
             }
         }
-
     }
 
     public static void dumpTheStack(final String msg) {
-        StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+        final StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         for (int i = 1; i < elements.length; i++) {
-            StackTraceElement s = elements[i];
+            final StackTraceElement s = elements[i];
             LOG.info(msg + "====> \tat " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")");
         }
     }

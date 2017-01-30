@@ -15,6 +15,8 @@ import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JobInfoListTreeTableItem.class);
 
     private final String jobId;
     private final JobInfoModel modelValue;
@@ -111,8 +115,8 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
 
                 } else {
                     if (modelValue.getJobType().equals("PUT")) {
-                        File[] files = null;
-                        if (value.getFolders().entrySet().stream().filter(i -> i.getKey().equals(modelValue.getName())).findFirst().isPresent()) {
+                        final File[] files;
+                        if (value.getFolders().entrySet().stream().anyMatch(i -> i.getKey().equals(modelValue.getName()))) {
                             final Map.Entry<String, Path> stringPathEntry = value.getFolders().entrySet().stream().filter(i -> i.getKey().equals(modelValue.getName())).findFirst().get();
                             files = new File(stringPathEntry.getValue().toString()).listFiles();
                         } else {
@@ -121,7 +125,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
 
                         for (final File file : files) {
                             final FileTreeModel.Type type = getRootType(file);
-                            if ((type == FileTreeModel.Type.Directory)) {
+                            if (type == FileTreeModel.Type.Directory) {
                                 final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), "--", 0, file.getPath(), modelValue.getJobType(), "--", JobInfoModel.Type.Directory, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);
                             } else {
@@ -142,8 +146,8 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         try {
                             final GetObjectsWithFullDetailsSpectraS3Response objectsWithFullDetailsSpectraS3 = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
                             final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();
-                            detailedS3Objects.stream().forEach(file -> {
-                                if ((file.getType() == S3ObjectType.FOLDER)) {
+                            detailedS3Objects.forEach(file -> {
+                                if (file.getType() == S3ObjectType.FOLDER) {
                                     final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), "--", 0, file.getName(), modelValue.getJobType(), "--", JobInfoModel.Type.Directory, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                     list.add(jobListTreeTableItem);
                                 } else {
@@ -153,7 +157,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 }
                             });
                         } catch (final IOException e) {
-                            e.printStackTrace();
+                            LOG.error("Failed to get full object details", e);
                         }
                     }
                 }

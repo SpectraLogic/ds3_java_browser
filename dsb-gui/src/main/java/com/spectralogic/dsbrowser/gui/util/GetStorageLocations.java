@@ -10,10 +10,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class GetStorageLocations {
+public final class GetStorageLocations {
 
     private static final Image ONLINEDISK = new Image(ImageURLs.ONLINEDISK);
     private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINEDISK);

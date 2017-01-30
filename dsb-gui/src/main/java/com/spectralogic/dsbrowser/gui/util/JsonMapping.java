@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class JsonMapping {
+public final class JsonMapping {
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
 

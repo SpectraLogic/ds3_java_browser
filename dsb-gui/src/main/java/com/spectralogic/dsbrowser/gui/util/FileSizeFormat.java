@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import java.text.DecimalFormat;
 
-public class FileSizeFormat {
+public final class FileSizeFormat {
 
     final static DecimalFormat df = new DecimalFormat("0.00");
     final static DecimalFormat dfbytes = new DecimalFormat("0");

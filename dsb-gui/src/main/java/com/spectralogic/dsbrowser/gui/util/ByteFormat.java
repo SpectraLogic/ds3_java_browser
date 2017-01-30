@@ -1,6 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
-public class ByteFormat {
+public final class ByteFormat {
 
     public static String humanReadableByteCount(final long bytes, final boolean si) {
         final int unit = si ? 1000 : 1024;

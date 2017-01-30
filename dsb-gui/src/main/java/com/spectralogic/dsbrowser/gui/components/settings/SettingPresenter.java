@@ -10,7 +10,6 @@ import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -155,7 +154,7 @@ public class SettingPresenter implements Initializable {
             }
 
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to save file properties", e);
         }
         closeDialog();
     }
@@ -174,9 +173,9 @@ public class SettingPresenter implements Initializable {
         try {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
-            jobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+            SavedJobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to save job priorities", e);
         }
         closeDialog();
     }
@@ -220,14 +219,14 @@ public class SettingPresenter implements Initializable {
         enableFileProperties.setText(resourceBundle.getString("enableFileProperties"));
         saveFilePropertiesEnableButton.setText(resourceBundle.getString("saveFilePropertiesEnableButton"));
         cancelFilePropertiesEnableButton.setText(resourceBundle.getString("cancelFilePropertiesEnableButton"));
-        filePropertiesCheckbox.setSelected(filePropertiesSettings.getFilePropertiesEnable().booleanValue());
+        filePropertiesCheckbox.setSelected(filePropertiesSettings.getFilePropertiesEnable());
         final Priority[] priorities = PriorityFilter.filterPriorities(Priority.values());
         for (final Priority priority : priorities) {
             putJobPriority.getItems().add(priority.toString());
             getJobPriority.getItems().add(priority.toString());
         }
-        putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority().toString());
-        getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority().toString());
+        putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority());
+        getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority());
         performanceFieldValue.setText("" + processSettings.getMaximumNumberOfParallelThreads());
     }
 

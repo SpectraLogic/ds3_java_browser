@@ -13,7 +13,7 @@
         <Label fx:id="buildVersion" style="-fx-font-weight: bold"/>
 
         <Label fx:id="copyRightLabel1" alignment="CENTER_RIGHT"/>
-        <Hyperlink fx:id="hyperlink" style="-fx-fill: BLUE;-fx-font-weight: bold" Alignment="CENTER"
+        <Hyperlink fx:id="hyperlink" style="-fx-fill: BLUE;-fx-font-weight: bold"
                    text="http://www.apache.org/licenses/LICENSE-2.0"/>
         <Label fx:id="copyRightLabel2" alignment="CENTER_RIGHT"/>
     </children>

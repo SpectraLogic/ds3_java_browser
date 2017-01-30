@@ -43,7 +43,6 @@ public class Main extends Application {
             Alert.AlertType.CONFIRMATION,
             "Are you sure you want to exit?"
     );
-    final Alert alert = new Alert(Alert.AlertType.ERROR);
 
     private final Workers workers = new Workers();
     private JobWorkers jobWorkers = null;
@@ -127,10 +126,6 @@ public class Main extends Application {
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
         primaryStage.setMaximized(true);
-       /* primaryStage.setMinHeight(300);
-        primaryStage.setMinWidth(200);
-        primaryStage.setMaxHeight(800);
-        primaryStage.setMaxWidth(900);*/
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
@@ -174,31 +169,31 @@ public class Main extends Application {
             final Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    collect.stream().forEach(i -> {
+                    collect.forEach(i -> {
                         try {
                             if (i instanceof Ds3PutJob) {
                                 final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
                                 ds3PutJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3PutJob.getJobId().toString(), ds3PutJob.getClient().getConnectionDetails().getEndpoint(), null);
-                                final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3PutJob.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3PutJob.getJobId()));
-                                Platform.runLater(() -> LOG.info("Cancelled job."));
+                                ds3PutJob.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3PutJob.getJobId()));
+                                LOG.info("Cancelled job.");
                             } else if (i instanceof Ds3GetJob) {
                                 final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
                                 ds3GetJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3GetJob.getJobId().toString(), ds3GetJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                                final CancelJobSpectraS3Response cancelJobSpectraS3Response = ds3GetJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3GetJob.getJobId()));
-                                Platform.runLater(() -> LOG.info("Cancelled job."));
+                                ds3GetJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3GetJob.getJobId()));
+                                LOG.info("Cancelled job.");
 
                             } else if (i instanceof RecoverInterruptedJob) {
                                 final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) i;
                                 recoverInterruptedJob.cancel();
                                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                                final CancelJobSpectraS3Response cancelJobSpectraS3Response = recoverInterruptedJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(recoverInterruptedJob.getUuid()));
-                                Platform.runLater(() -> LOG.info("Cancelled job."));
+                                recoverInterruptedJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(recoverInterruptedJob.getUuid()));
+                                LOG.info("Cancelled job.");
 
                             }
                         } catch (final Exception e1) {
-                            Platform.runLater(() -> LOG.info("Failed to cancel job", e1));
+                            LOG.error("Failed to cancel job", e1);
                         }
                     });
                     return null;

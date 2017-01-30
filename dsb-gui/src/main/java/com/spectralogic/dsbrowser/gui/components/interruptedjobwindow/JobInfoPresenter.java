@@ -127,13 +127,13 @@ public class JobInfoPresenter implements Initializable {
         final Task cancelJobId = new Task() {
             @Override
             protected String call() throws Exception {
-                jobIDMap.entrySet().stream().forEach(i -> {
+                jobIDMap.entrySet().forEach(i -> {
                     Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job cancel for " + i.getKey(), LogType.INFO));
                     try {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                         LOG.info("Cancelled job.");
                     } catch (final IOException e) {
-                        LOG.info("Unable to cancel job ", e);
+                        LOG.error("Unable to cancel job ", e);
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
@@ -150,7 +150,7 @@ public class JobInfoPresenter implements Initializable {
             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
             //ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo, workers);
             if (cancelJobId.getValue() != null) {
-                LOG.info("Cancelled job ", cancelJobId.getValue());
+                LOG.info("Cancelled job {}", cancelJobId.getValue());
             } else {
                 LOG.info("Cancelled to cancel job ");
             }
@@ -233,7 +233,7 @@ public class JobInfoPresenter implements Initializable {
         if (CheckNetwork.isReachable(endpointInfo.getClient())) {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
             if (jobIDMap != null) {
-                jobIDMap.entrySet().stream().forEach(i -> {
+                jobIDMap.entrySet().forEach(i -> {
                     try {
                         final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore);
                         jobWorkers.execute(recoverInterruptedJob);
@@ -254,7 +254,7 @@ public class JobInfoPresenter implements Initializable {
 
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
-                                final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
+                                endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
                                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                             } catch (final IOException e1) {
@@ -266,7 +266,7 @@ public class JobInfoPresenter implements Initializable {
                             }
                         });
                     } catch (final Exception e) {
-                        e.printStackTrace();
+                        LOG.error("Failed to save the job", e);
                     }
                 });
             }

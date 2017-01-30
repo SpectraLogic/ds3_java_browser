@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Response;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.fxml.FXML;
@@ -49,11 +48,11 @@ public class ModifyJobPriorityPresenter implements Initializable {
             cancelModifyJobPriority();
         } else {
             try {
-                final ModifyJobSpectraS3Response modifyJobSpectraS3Response = value.getSession().getClient().modifyJobSpectraS3(new ModifyJobSpectraS3Request(value.getJobID()).withPriority(newPriority));
+                value.getSession().getClient().modifyJobSpectraS3(new ModifyJobSpectraS3Request(value.getJobID()).withPriority(newPriority));
                 final Stage popupStage = (Stage) modifyJobPriorityComboBox.getScene().getWindow();
                 popupStage.close();
             } catch (final IOException e) {
-                e.printStackTrace();
+                LOG.error("Failed to modify the job", e);
             }
         }
     }

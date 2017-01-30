@@ -3,7 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.validation;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SessionValidation {
+public final class SessionValidation {
 
     /**
      * Check if the given String is a valid port number
@@ -31,13 +31,10 @@ public class SessionValidation {
      * @return Flag
      */
     public static boolean checkStringEmptyNull(final String value) {
-        boolean flag = false;
-
         if (value != null && !value.trim().isEmpty()) {
-            flag = true;
-            return flag;
+            return true;
         }
-        return flag;
+        return false;
     }
 
     /**

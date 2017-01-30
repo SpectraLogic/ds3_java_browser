@@ -47,7 +47,7 @@ public class SettingsStore {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
                 return JsonMapping.fromJson(inputStream, SettingsStore.class);
             } catch (final Exception e) {
-                e.printStackTrace();
+                LOG.error("Failed to de-serialize", e);
                 Files.delete(PATH);
                 LOG.info("Creating new empty saved setting store");
                 final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT);
@@ -103,7 +103,7 @@ public class SettingsStore {
     //method to include new json entry to settings.json file if any new setting property is introduced.
     public static void writeNewSettingsToSettingsJsonFile() {
         try (final Stream<String> stream = Files.lines(PATH)) {
-            stream.forEach((e) -> {
+            stream.forEach(e -> {
                 if (!e.contains("filePropertiesSettings")) {
                     StringBuilder newFile = new StringBuilder(e);
                     newFile.deleteCharAt(newFile.length() - 1);
@@ -111,14 +111,12 @@ public class SettingsStore {
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {
-                        ex.printStackTrace();
+                        LOG.error("Failed to save settings", ex);
                     }
                 }
             });
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to save settings", e);
         }
     }
-
-
 }

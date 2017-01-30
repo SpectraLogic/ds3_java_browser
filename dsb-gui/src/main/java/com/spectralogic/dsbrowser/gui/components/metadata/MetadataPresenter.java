@@ -149,11 +149,11 @@ public class MetadataPresenter implements Initializable {
                 }
 
             } else {
-                metadata.keys().stream().forEach(key -> metadata.get(key).stream().forEach(value -> builder.add(new MetadataEntry(key, value))));
+                metadata.keys().forEach(key -> metadata.get(key).forEach(value -> builder.add(new MetadataEntry(key, value))));
             }
             return builder;
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to create metadata", e);
         }
         return builder;
     }

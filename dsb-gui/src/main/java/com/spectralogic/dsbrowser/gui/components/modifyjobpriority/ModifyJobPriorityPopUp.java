@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
 
-public class ModifyJobPriorityPopUp {
+public final class ModifyJobPriorityPopUp {
 
     public static void show(final ModifyJobPriorityModel value) {
         final ModifyJobPriorityView view = new ModifyJobPriorityView(value);

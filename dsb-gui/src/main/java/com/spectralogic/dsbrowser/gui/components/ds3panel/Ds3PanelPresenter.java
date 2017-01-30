@@ -217,7 +217,7 @@ public class Ds3PanelPresenter implements Initializable {
                 workers.execute(getDataPolicies);
 
                 getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                    LOG.info("Launching create bucket popup" + getDataPolicies.getValue().getDataPolicies().size());
+                    LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
                     CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
                     ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                 }));
@@ -231,7 +231,7 @@ public class Ds3PanelPresenter implements Initializable {
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
-                newItems.stream().forEach(newSession -> {
+                newItems.forEach(newSession -> {
                     addNewTab.setTooltip(new Tooltip(resourceBundle.getString("newSessionToolTip")));
                     final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, deepStorageBrowserPresenter, this, ds3Common);
                     final Tab treeTab = new Tab(newSession.getSessionName() + "-" + newSession.getEndpoint(), newTreeView.getView());
@@ -256,7 +256,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 ds3Common.getCurrentTabPane().clear();
                             }
                         } catch (final Exception e) {
-                            e.printStackTrace();
+                            LOG.error("Failed to remove session", e);
                         }
 
                         ds3PathIndicator.setText("");
@@ -307,7 +307,7 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                         }
                     } catch (final Exception e) {
-                        LOG.info("Not able to parse");
+                        LOG.error("Not able to parse", e);
                     }
                 }
         );
@@ -421,8 +421,9 @@ public class Ds3PanelPresenter implements Initializable {
                     localPath = Paths.get(fileRootItem);
                 } else if (selectedAtDest.getType().equals(FileTreeModel.Type.File)) {
                     localPath = selectedAtDest.getPath().getParent();
-                } else
+                } else {
                     localPath = selectedAtDest.getPath();
+                }
 
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
 
@@ -436,7 +437,7 @@ public class Ds3PanelPresenter implements Initializable {
                 });
 
                 getJob.setOnFailed(e -> {
-                    LOG.info("Get Job failed");
+                    LOG.error("Get Job failed");
                     refreshLocalSideView(selectedItemsAtDestination, treeTable, fileRootItemLabel, fileRootItem);
                 });
 
@@ -444,17 +445,18 @@ public class Ds3PanelPresenter implements Initializable {
                     LOG.info("Get Job cancelled");
                     if (getJob.getJobId() != null) {
                         try {
-                            final CancelJobSpectraS3Response cancelJobSpectraS3Response = session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
+                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
                             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                             deepStorageBrowserPresenter.logText("GET Job Cancelled", LogType.ERROR);
                         } catch (final IOException e1) {
-                            LOG.info("Failed to cancel job", LogType.ERROR);
+                            LOG.error("Failed to cancel job", e1);
                         }
                     }
                     refreshLocalSideView(selectedItemsAtDestination, treeTable, fileRootItemLabel, fileRootItem);
                 });
 
             } catch (final Exception e) {
+                LOG.error("Failed to get data from black pearl", e);
                 deepStorageBrowserPresenter.logText("Something went wrong", LogType.ERROR);
                 ALERT.setContentText("Something went wrong");
                 ALERT.showAndWait();
@@ -578,7 +580,7 @@ public class Ds3PanelPresenter implements Initializable {
                 }
             };
             DeleteFilesPopup.show(deleteBucketTask, this, null);
-            values.stream().forEach(file -> refresh(file.getParent()));
+            values.forEach(file -> refresh(file.getParent()));
             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText("");
         }
@@ -606,12 +608,13 @@ public class Ds3PanelPresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 try {
-                    final DeleteObjectsResponse response = getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
+                    getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
                     Platform.runLater(() -> {
                         // deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
                         deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
                     });
                 } catch (final IOException e) {
+                    LOG.error("Failed to delete objects", e);
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete files" + e.toString(), LogType.ERROR));
                     LOG.error("Failed to delete files" + e);
                     ALERT.setContentText("Failed to delete files");
@@ -621,7 +624,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         };
         DeleteFilesPopup.show(deleteFilesTask, this, null);
-        values.stream().forEach(file -> refresh(file.getParent()));
+        values.forEach(file -> refresh(file.getParent()));
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
         ds3PathIndicator.setText("");
@@ -793,7 +796,7 @@ public class Ds3PanelPresenter implements Initializable {
                 searchJob.setOnCancelled(event -> LOG.info("Search cancelled"));
 
             } catch (final Exception e) {
-                e.printStackTrace();
+                LOG.error("Could not complete search", e);
             }
         }
     }
@@ -836,11 +839,7 @@ public class Ds3PanelPresenter implements Initializable {
             final Session session = getSession();
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             final ListBucketResult listBucketResult = bucketResponse.getListBucketResult();
-            if (listBucketResult.getObjects().size() == 0 && listBucketResult.getCommonPrefixes().size() == 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return listBucketResult.getObjects().size() == 0 && listBucketResult.getCommonPrefixes().size() == 0;
 
         } catch (final Exception e) {
             LOG.error("could not get bucket response", e);

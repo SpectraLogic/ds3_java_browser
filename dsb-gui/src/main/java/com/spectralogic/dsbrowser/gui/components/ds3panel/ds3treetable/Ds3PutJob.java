@@ -148,7 +148,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     final String targetLocation = PathUtil.toDs3Path(bucket, targetDir);
                     ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(), client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, "PUT", bucket);
                 } catch (final Exception e) {
-                    LOG.info("Failed to save job id");
+                    LOG.error("Failed to save job id", e);
                 }
                 if (jobPriority != null && !jobPriority.isEmpty()) {
                     client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
@@ -201,6 +201,7 @@ public class Ds3PutJob extends Ds3JobTask {
             }
 
         } catch (final Exception e) {
+            LOG.error("Encountered an error on a put job", e);
             final String newDate = DateFormat.formatDate(new Date());
             if (e instanceof InterruptedException) {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logText("PUT Job Cancelled (User Interruption)" + " at " + newDate, LogType.ERROR));
