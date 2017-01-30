@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
@@ -14,6 +13,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Application;
@@ -99,6 +99,8 @@ public class Main extends Application {
 
         this.primaryStage = primaryStage;
         this.settings = SettingsStore.loadSettingsStore();
+        final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
         // Create the log service before any logging has started..
         final LogService logService = new LogService(this.settings.getLogSettings());
         this.savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();

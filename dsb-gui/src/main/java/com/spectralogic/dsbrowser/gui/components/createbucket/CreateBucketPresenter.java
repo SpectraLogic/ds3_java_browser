@@ -6,11 +6,13 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,9 @@ public class CreateBucketPresenter implements Initializable {
         LOG.info("Initializing Create Bucket form");
 
         ALERT.setTitle("Error while creating bucket");
+
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
         ALERT.setHeaderText(null);
 
         initGUIElements();

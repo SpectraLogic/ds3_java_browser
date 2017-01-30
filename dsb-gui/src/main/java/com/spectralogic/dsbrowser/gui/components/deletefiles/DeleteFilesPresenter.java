@@ -50,6 +50,7 @@ public class DeleteFilesPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            deleteButton.setDisable(true);
             if (ds3PanelPresenter.getDs3TreeTableView() != null) {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
                 changeLabelText(selectedPanelItems);

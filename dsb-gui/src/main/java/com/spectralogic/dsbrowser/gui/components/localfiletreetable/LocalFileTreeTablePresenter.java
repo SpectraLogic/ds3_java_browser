@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
@@ -17,6 +16,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -29,12 +29,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +128,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Starting LocalFileTreeTablePresenter");
             ALERT.setTitle("Error");
             ALERT.setHeaderText(null);
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             initGUIElements();
             initTableView();
             initListeners();
@@ -408,7 +412,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                 rowNameList.remove(row.getTreeItem().getValue().getName());
                             }
                         } else if (event.getClickCount() == 2) {
-                            if (!row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
+                            if (row.getTreeItem()!= null && row.getTreeItem().getValue() != null && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
                                 changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
                             }
                         } else {

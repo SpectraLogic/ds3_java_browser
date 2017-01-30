@@ -8,11 +8,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.util.BackgroundTask;
-import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
-import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
@@ -20,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -28,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 
 public class JobInfoPresenter implements Initializable {
@@ -80,6 +74,9 @@ public class JobInfoPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         ALERT.setTitle("No network connection");
         ALERT.setHeaderText(null);
+
+        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
 
         initListeners();
         initTreeTableView();
@@ -196,9 +193,12 @@ public class JobInfoPresenter implements Initializable {
             @Override
             protected Object call() throws Exception {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
+                //to show jobs in reverse order
+                final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
+                final TreeMap<String,FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
+                final Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
                 if (jobIDMap != null) {
-                    jobIDMap.entrySet().stream().forEach(i -> {
+                    jobIDMap.entrySet().forEach(i -> {
                         final JobInfoModel jobModel = new JobInfoModel(i.getValue().getType(), i.getKey(), i.getValue().getDate(), i.getValue().getTotalJobSize(), i.getKey(), i.getValue().getType(), "Interrupted", JobInfoModel.Type.JOBID, i.getValue().getTargetLocation(), i.getValue().getBucket());
                         rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
                     });

@@ -1,12 +1,12 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.ds3client.Ds3Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class CheckNetwork {
     private static final Logger LOG = LoggerFactory.getLogger(CheckNetwork.class);
