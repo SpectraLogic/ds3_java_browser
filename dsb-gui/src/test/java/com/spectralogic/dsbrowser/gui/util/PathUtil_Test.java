@@ -34,6 +34,7 @@ public class PathUtil_Test {
 
     @Test
     public void prefixForObj() {
+
         final String result = PathUtil.toDs3Path("dirA", "subdir/file.txt");
         assertThat(result, is("dirA/subdir/file.txt"));
     }
