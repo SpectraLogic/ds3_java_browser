@@ -2,9 +2,6 @@ package com.spectralogic.dsbrowser.gui.components.createbucket;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 public class CreateBucketModelTest {
     @Test
     public void getInitializedDataPolicy() throws Exception {
