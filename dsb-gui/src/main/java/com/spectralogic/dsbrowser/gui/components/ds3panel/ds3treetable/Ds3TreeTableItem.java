@@ -81,11 +81,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch (type) {
             case Bucket:
-                return (new ImageView("/images/bucket.png"));
+                return new ImageView("/images/bucket.png");
             case Directory:
-                return (new ImageView("/images/folder.png"));
+                return new ImageView("/images/folder.png");
             case File:
-                return (new ImageView("/images/file.png"));
+                return new ImageView("/images/file.png");
             default:
                 return null;
         }
