@@ -12,12 +12,12 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
-import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+
+import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
-import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -168,13 +168,7 @@ public class Ds3GetJob extends Ds3JobTask {
                         }
                     });
                     //get meta data saved on  server
-                    // getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListener() {
-                        @Override
-                        public void metadataReceived(final String s, final Metadata metadata) {
-
-                        }
-                    });
+                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
 
                     getJob.transfer(l -> {
                         final File file = new File(l);
@@ -222,23 +216,20 @@ public class Ds3GetJob extends Ds3JobTask {
                 });
             }
 
-        } catch (final Exception e) {
-            if (e instanceof InterruptedException) {
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled (User Interruption)", LogType.ERROR));
-            } else if (e instanceof RuntimeException || e instanceof IllegalFormatException) {
-                if (e instanceof NoSuchElementException) {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
-                } else
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
-            } else {
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
-                final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
-                final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
-                if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
-                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
-                }
-
+        } catch (final NoSuchElementException e) {
+            LOG.error("The job failed to process", e);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
+        } catch (final RuntimeException e) {
+            LOG.error("The job failed to process", e);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
+        } catch (final Throwable t) {
+            LOG.error("The job failed to process", t);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + t.toString(), LogType.ERROR));
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
+            final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+            final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
+            if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
             }
         }
     }
