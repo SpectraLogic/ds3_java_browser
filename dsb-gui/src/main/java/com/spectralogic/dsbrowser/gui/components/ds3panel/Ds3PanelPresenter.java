@@ -578,18 +578,18 @@ public class Ds3PanelPresenter implements Initializable {
                         Platform.runLater(() -> {
                             // deepStorageBrowserPresenter.logText("Delete response code: " + deleteBucketSpectraS3Response.getStatusCode(), LogType.SUCCESS);
                             deepStorageBrowserPresenter.logText("Successfully deleted bucket", LogType.SUCCESS);  });
-                    } catch (final IOException e) {
-                        if (e instanceof FailedRequestException) {
-                            LOG.error("Failed to delete Buckets" + e);
-                            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket : " + ((FailedRequestException) e).getError().getMessage(), LogType.ERROR));
-                            ALERT.setContentText("Failed to delete bucket");
-                            ALERT.showAndWait();
-                            } else {
+                    }
+                    catch (final FailedRequestException fre){
+                        LOG.error("Failed to delete Buckets" + fre);
+                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete Bucket : " + fre.getError().getMessage(), LogType.ERROR));
+                        ALERT.setContentText("Failed to delete bucket");
+                        ALERT.showAndWait();
+                    }
+                    catch (final IOException e) {
                             LOG.error("Failed to delete Bucket " + e);
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete bucket"+ e, LogType.ERROR));
                             ALERT.setContentText("Failed to delete Bucket");
                             ALERT.showAndWait();
-                            }
                     }
                     return null;
                 }
