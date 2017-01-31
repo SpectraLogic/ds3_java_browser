@@ -5,8 +5,10 @@
 <!-- The manufacturer, for setup package publisher and folder info -->
 <?define Manufacturer = "Spectra Logic" ?>
 
+<?define UpgradeCode = "61718ba5-b4c2-43b8-838b-fb3930c5ed3f" ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="61718ba5-b4c2-43b8-838b-fb3930c5ed3f">
+  <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64"/>
 
     <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)deep_storage_browser.ico" />
@@ -60,7 +62,7 @@
 
     <Binary Id="CustomAction.CA.dll" SourceFile="$(var.ProjectDir)..\CustomAction\bin\Release\CustomAction.CA.dll" />
     <InstallExecuteSequence>
-      <Custom Action="DeleteLogFile" After="InstallFinalize">REMOVE="ALL"</Custom>
+      <Custom Action="DeleteLogFile" After="InstallFinalize">Installed AND NOT UPGRADINGPRODUCTCODE</Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="DeleteLogFile" Return="check" Execute="immediate" BinaryKey="CustomAction.CA.dll" DllEntry="DeleteLogFile"/>

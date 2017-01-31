@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=2.0.40;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
+    <DefineConstants>Version=2.0.41;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
@@ -48,14 +48,17 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.40$(TargetExt)%2a /Y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin\%2a.%2a
-xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin /Y
+    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.41\bin\%2a.%2a
+
+xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.41\bin /Y
+
 
 call ..\..\..\..\..\createWXSJavaFiles.bat
+
 call ..\..\..\createWXSDbsFiles.bat</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.41$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
