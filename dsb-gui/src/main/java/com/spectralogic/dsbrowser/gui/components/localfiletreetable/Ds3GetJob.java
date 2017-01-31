@@ -12,12 +12,14 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
+import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
+import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -167,8 +169,14 @@ public class Ds3GetJob extends Ds3JobTask {
                             // Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         }
                     });
-                    //get meta data saved on  server
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
+
+                    //get meta data saved on server
+                    LOG.info("Registering metadata receiver");
+                    final MetadataReceivedListenerImpl metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreeModel.toString());
+                    getJob.attachMetadataReceivedListener((s, metadata) -> {
+                        LOG.info("Restoring metadata for {}", s);
+                        metadataReceivedListener.metadataReceived(s, metadata);
+                    });
 
                     getJob.transfer(l -> {
                         final File file = new File(l);
