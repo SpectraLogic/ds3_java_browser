@@ -30,7 +30,6 @@ subprojects {
         compile 'ch.qos.logback:logback-core:1.1.9'
         compile 'org.fxmisc.richtext:richtextfx:0.6.10'
         compile 'net.java.dev.jna:jna-platform:4.2.2'
-
         compile 'net.java.dev.jna:jna:4.2.2'
 
 
