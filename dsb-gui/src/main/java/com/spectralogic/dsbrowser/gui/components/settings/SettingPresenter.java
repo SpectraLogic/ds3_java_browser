@@ -5,10 +5,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
-import com.spectralogic.dsbrowser.gui.services.settings.FilePropertiesSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -16,7 +13,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +31,7 @@ public class SettingPresenter implements Initializable {
     private ComboBox<String> getJobPriority, putJobPriority;
 
     @FXML
-    private CheckBox isDefaultCheckBox, debugLogging;
+    private CheckBox  debugLogging;
 
     @FXML
     private TextField numRolling;
@@ -63,7 +59,7 @@ public class SettingPresenter implements Initializable {
     private ProcessSettings processSettings;
 
     @FXML
-    private Label performanceLabel;
+    private Label performanceLabel, showCachedJob;
 
     @FXML
     private Label locationSetting;
@@ -99,11 +95,13 @@ public class SettingPresenter implements Initializable {
 
     private FilePropertiesSettings filePropertiesSettings;
 
+    private ShowCachedJobSettings showCachedJobSettings;
+
     @FXML
     private Label enableFileProperties;
 
     @FXML
-    private CheckBox filePropertiesCheckbox;
+    private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -112,8 +110,9 @@ public class SettingPresenter implements Initializable {
             this.processSettings = settings.getProcessSettings();
             this.jobSettings = jobPrioritiesStore.getJobSettings();
             this.filePropertiesSettings = settings.getFilePropertiesSettings();
-            initGUIElements();
-            initPropertyPane();
+            this.showCachedJobSettings = settings.getShowCachedJobSettings();
+                initGUIElements();
+                initPropertyPane();
         } catch (final Throwable e) {
             LOG.error("Failed to startup settings presenter");
         }
@@ -141,7 +140,7 @@ public class SettingPresenter implements Initializable {
     private Tab fileProperties;
 
     @FXML
-    private Tooltip enableFilePropertiesTooltip;
+    private Tooltip enableFilePropertiesTooltip,showCachedJobTooltip;
 
 
     public void saveFilePropertiesSettings() {
@@ -173,7 +172,12 @@ public class SettingPresenter implements Initializable {
         try {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
-            SavedJobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+            jobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+            if (showCachedJobCheckbox.isSelected()) {
+                settings.setShowCachedJobSettings(true);
+            } else {
+                settings.setShowCachedJobSettings(false);
+            }
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }
@@ -191,7 +195,8 @@ public class SettingPresenter implements Initializable {
         Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
         Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
         Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(null, filePropertiesSettings.filePropertiesEnableProperty(), new BooleanStringConverter());
+        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.filePropertiesEnableProperty());
+        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.filePropertiesEnableProperty());
     }
 
     private void initGUIElements() {
@@ -203,6 +208,8 @@ public class SettingPresenter implements Initializable {
         fileProperties.setText(resourceBundle.getString("fileProperties"));
         enableFilePropertiesTooltip.setText(resourceBundle.getString("enableFilePropertiesTooltip"));
         performanceLabel.setText(resourceBundle.getString("performanceLabel"));
+        showCachedJob.setText(resourceBundle.getString("showCachedJob"));
+        showCachedJobTooltip.setText(resourceBundle.getString("showCachedJobTooltip"));
         locationSetting.setText(resourceBundle.getString("locationSetting"));
         logSizeSetting.setText(resourceBundle.getString("logSizeSetting"));
         savedLogSetting.setText(resourceBundle.getString("savedLogSetting"));

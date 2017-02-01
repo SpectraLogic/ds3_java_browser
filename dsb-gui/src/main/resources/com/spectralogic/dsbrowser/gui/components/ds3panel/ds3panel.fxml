@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0"
       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
@@ -12,6 +29,18 @@
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
+                <Button fx:id="ds3ParentDir">
+                    <tooltip>
+                        <Tooltip fx:id="ds3ParentDirToolTip"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@/images/parent_directory.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
                 <Button fx:id="ds3Refresh">
                     <tooltip>
                         <Tooltip fx:id="ds3RefreshToolTip"/>
@@ -77,7 +106,7 @@
                 <AnchorPane prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                             AnchorPane.topAnchor="0.0">
                     <children>
-                        <TextField fx:id="ds3PanelSearch" disable="true" layoutY="4.0" layoutX="4.0" prefHeight="30.0"
+                        <TextField fx:id="ds3PanelSearch" disable="true" layoutX="4.0" layoutY="4.0" prefHeight="30.0"
                                    prefWidth="200.0" promptText="Type object name to search.."
                                    AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
@@ -86,8 +115,8 @@
                             </padding>
                         </TextField>
 
-                        <ImageView fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0" pickOnBounds="true"
-                                   preserveRatio="true" fx:id="imageView">
+                        <ImageView fx:id="imageView" fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0"
+                                   pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image requestedHeight="20" requestedWidth="20" url="@/images/lens.png"/>
                             </image>
@@ -142,5 +171,16 @@
                 </Tab>
             </tabs>
         </TabPane>
+        <HBox fx:id="lowerPanel" prefWidth="200" spacing="10">
+            <children>
+                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="199.0" visible="false"/>
+                <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="140.0"
+                       visible="false"/>
+                <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="280.0" visible="false"/>
+            </children>
+            <padding>
+                <Insets bottom="5" left="10" right="10" top="5"/>
+            </padding>
+        </HBox>
     </children>
 </VBox>

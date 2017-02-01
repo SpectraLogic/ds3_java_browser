@@ -1,77 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
-<HBox stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
+
+
+<HBox stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
     <children>
         <AnchorPane prefHeight="200.0" prefWidth="200.0">
             <children>
                 <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
                     <children>
-                        <Label fx:id="selectExistingLabel" />
-                        <TableView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="selectExistingLabel"/>
+                        <TableView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0"
+                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <columns>
                                 <TableColumn prefWidth="172.0" text="Name">
                                     <cellValueFactory>
-                                        <PropertyValueFactory property="name" />
+                                        <PropertyValueFactory property="name"/>
                                     </cellValueFactory>
                                 </TableColumn>
                             </columns>
                             <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                             </columnResizePolicy>
                         </TableView>
                     </children>
                 </VBox>
             </children>
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </padding>
         </AnchorPane>
         <AnchorPane>
             <children>
                 <VBox spacing="10.0">
                     <children>
-                        <Label fx:id="createNewLabel" />
-                        <AnchorPane fx:id="propertySheetAnchor" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <Label fx:id="createNewLabel"/>
+                        <AnchorPane fx:id="propertySheetAnchor" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <VBox.margin>
-                                <Insets />
+                                <Insets/>
                             </VBox.margin>
                         </AnchorPane>
+
                         <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                             <children>
                                 <Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">
                                     <tooltip>
-                                        <Tooltip fx:id="saveSessionButtonTooltip" />
+                                        <Tooltip fx:id="saveSessionButtonTooltip"/>
                                     </tooltip>
                                 </Button>
                                 <Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#createSession">
                                     <tooltip>
-                                        <Tooltip fx:id="openSessionButtonTooltip" />
+                                        <Tooltip fx:id="openSessionButtonTooltip"/>
                                     </tooltip>
                                 </Button>
                                 <Button fx:id="cancelSessionButton" mnemonicParsing="false" onAction="#cancelSession">
                                     <tooltip>
-                                        <Tooltip fx:id="cancelSessionButtonTooltip" />
+                                        <Tooltip fx:id="cancelSessionButtonTooltip"/>
                                     </tooltip>
                                 </Button>
                                 <Button fx:id="deleteSessionButton" mnemonicParsing="false" onAction="#deleteSession">
                                     <tooltip>
-                                        <Tooltip fx:id="deleteSessionButtonTooltip" />
+                                        <Tooltip fx:id="deleteSessionButtonTooltip"/>
                                     </tooltip>
                                 </Button>
                             </children>
                             <padding>
-                                <Insets right="15.0" />
+                                <Insets right="15.0"/>
                             </padding>
                         </HBox>
                     </children>
                 </VBox>
             </children>
             <HBox.margin>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </HBox.margin>
         </AnchorPane>
     </children>

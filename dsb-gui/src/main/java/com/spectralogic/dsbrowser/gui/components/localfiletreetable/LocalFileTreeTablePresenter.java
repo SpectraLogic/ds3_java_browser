@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
@@ -21,6 +22,8 @@ import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -155,7 +158,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void goToParentDirectory() {
-
         if (!localPathIndicator.getText().equals(ROOT_LOCATION)) {
             if (Paths.get(fileRootItem).getParent() != null) {
                 changeRootDir(Paths.get(fileRootItem).getParent().toString());
@@ -173,7 +175,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 ALERT.showAndWait();
                 return;
             }
-
             final ObservableList<javafx.scene.Node> list = deepStorageBrowserPresenter.getBlackPearl().getChildren();
             final VBox vbox = (VBox) list.stream().filter(i -> i instanceof VBox).findFirst().get();
             final ObservableList<javafx.scene.Node> children = vbox.getChildren();
@@ -182,29 +183,34 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final VBox vboxBP = (VBox) tabPane.getSelectionModel().getSelectedItem().getContent();
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) vboxBP.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().get();
-            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+            ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
-
-            if (values.isEmpty()) {
-                ALERT.setContentText("Select destination location.");
-                ALERT.showAndWait();
-                return;
+            //Finding root in case of double click to get selected items
+            final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
+            if (root == null) {
+                if (values.isEmpty()) {
+                    ALERT.setContentText("Select destination location.");
+                    ALERT.showAndWait();
+                    return;
+                }
             }
+            //If values is empty we have to assign it with root
+            else if (values.isEmpty()) {
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+                values = builder.add(root).build().asList();
 
+            }
             if (values.size() > 1) {
                 ALERT.setContentText("Multiple destination not allowed. Please select one.");
                 ALERT.showAndWait();
                 return;
             }
-
             if (values.stream().findFirst().get().getValue().isSearchOn()) {
                 ALERT.setContentText("Operation not allowed here");
                 ALERT.showAndWait();
                 return;
             }
-
             final TreeItem<Ds3TreeTableValue> treeItem = values.get(0);
-
             if (!treeItem.isExpanded()) {
                 treeItem.setExpanded(true);
             }
@@ -212,29 +218,22 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final String bucket = value.getBucketName();
             final String targetDir = value.getDirectoryName();
             LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-
             final Session session = getSession(tabPane.getSelectionModel().getSelectedItem().getText());
-
             final List<File> files = currentSelection
                     .stream()
                     .map(i -> new File(i.getValue().getPath().toString()))
                     .collect(Collectors.toList());
-
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common,settingsStore);
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
             jobWorkers.execute(putJob);
-
             putJob.setOnSucceeded(event -> {
                 LOG.info("Succeed");
                 refreshBlackPearlSideItem(treeItem);
             });
-
             putJob.setOnFailed(e -> {
                 LOG.error("Get Job failed");
                 refreshBlackPearlSideItem(treeItem);
             });
-
             putJob.setOnCancelled(e -> {
                 LOG.info("Get Job cancelled");
                 try {
@@ -250,7 +249,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             });
         } catch (final Exception e) {
             LOG.error("Failed to transfer data to black pearl", e);
-            deepStorageBrowserPresenter.logText("Something went wrong. Reason: " + e.toString(), LogType.ERROR);
+            deepStorageBrowserPresenter.logText("Failed to transfer data to black pearl: " + e, LogType.ERROR);
         }
     }
 
@@ -258,7 +257,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (treeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) treeItem;
-            ds3TreeTableItem.refresh();
+            ds3TreeTableItem.refresh(ds3Common);
         }
     }
 
@@ -268,15 +267,18 @@ public class LocalFileTreeTablePresenter implements Initializable {
         localPathIndicator.setText(rootDir);
         final Stream<FileTreeModel> rootItems = provider.getRoot(rootDir);
         if (rootItems != null) {
-            final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
-            rootTreeItem.setExpanded(true);
-            treeTable.setShowRoot(false);
-            rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
-                rootTreeItem.getChildren().add(newRootTreeItem);
-            });
-
-            treeTable.setRoot(rootTreeItem);
+            try {
+                final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
+                rootTreeItem.setExpanded(true);
+                treeTable.setShowRoot(false);
+                rootItems.forEach(ftm -> {
+                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+                    rootTreeItem.getChildren().add(newRootTreeItem);
+                });
+                treeTable.setRoot(rootTreeItem);
+            } catch (final Exception e) {
+                LOG.error("Unable to get root directory", e);
+            }
             treeTable.getSelectionModel().clearSelection();
         }
     }
@@ -285,20 +287,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-
         final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
             final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
-
         treeTable.setRoot(rootTreeItem);
-
         setExpandBehaviour(treeTable);
-
         if (lastExpandedNode != null) {
-
             if (treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().isPresent()) {
                 final TreeItem<FileTreeModel> ds3TreeTableValueTreeItem = treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().get();
                 ds3TreeTableValueTreeItem.setExpanded(false);
@@ -315,7 +312,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void setExpandBehaviour(final TreeTableView<FileTreeModel> treeTable) {
         final ObservableList<TreeItem<FileTreeModel>> children = treeTable.getRoot().getChildren();
-
         children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
             final BooleanProperty bb = (BooleanProperty) observable;
             final TreeItem<FileTreeModel> bean = (TreeItem<FileTreeModel>) bb.getBean();
@@ -334,50 +330,35 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initTableView() {
-
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
         treeTable.setOnDragEntered(event -> {
             event.acceptTransferModes(TransferMode.COPY);
 
         });
-
         treeTable.setOnDragOver(event -> {
             event.acceptTransferModes(TransferMode.COPY);
         });
-
         treeTable.setOnDragDropped(event -> {
-
             final Dragboard db = event.getDragboard();
-
             if (db.hasContent(dataFormat)) {
                 LOG.info("Drop event contains files");
-
                 final Path localPath;
-
                 if (!fileRootItem.equals(ROOT_LOCATION)) {
                     localPath = Paths.get(fileRootItem);
                 } else {
                     return;
                 }
-
                 @SuppressWarnings("unchecked")
                 final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
-
                 final Session session = getSession(db.getString());
-
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-
                 final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
                         deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
-
                 jobWorkers.execute(getJob);
-
                 getJob.setOnSucceeded(e -> {
                     LOG.info("Get Job completed successfully");
                     refreshFileTreeView();
                 });
-
                 getJob.setOnCancelled(e -> {
                     if (getJob.getJobId() != null) {
                         try {
@@ -393,14 +374,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
             event.consume();
         });
-
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
-
                     final List<String> rowNameList = new ArrayList<>();
-
                     row.setOnMouseClicked(event -> {
-
                         if (event.isControlDown() || event.isShiftDown()) {
                             if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
                                 rowNameList.add(row.getTreeItem().getValue().getName());
@@ -412,31 +389,26 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                 rowNameList.remove(row.getTreeItem().getValue().getName());
                             }
                         } else if (event.getClickCount() == 2) {
-                            if (row.getTreeItem()!= null && row.getTreeItem().getValue() != null && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
+                            if (row.getTreeItem() != null && row.getTreeItem().getValue() != null && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
                                 changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
                             }
                         } else {
                             treeTable.getSelectionModel().clearAndSelect(row.getIndex());
                         }
                     });
-
                     row.setOnDragDropped(event -> {
                         LOG.info("Drop detected..");
-
                         if (row.getTreeItem() != null) {
                             if (!row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
                                 LOG.info("Expanding closed row");
                                 row.getTreeItem().setExpanded(true);
                             }
                         }
-
                         final Dragboard db = event.getDragboard();
-
                         if (db.hasContent(dataFormat)) {
                             LOG.info("Drop event contains files");
                             // get bucket info and current path
                             final TreeItem<FileTreeModel> fileTreeItem = row.getTreeItem();
-
                             Path localPath = null;
                             if (fileTreeItem != null && !fileTreeItem.getValue().getType().equals(FileTreeModel.Type.File)) {
                                 localPath = fileTreeItem.getValue().getPath();
@@ -447,19 +419,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     localPath = fileTreeItem.getParent().getValue().getPath();
                                 }
                             }
-
                             @SuppressWarnings("unchecked")
                             final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
-
                             final Session session = getSession(db.getString());
-
                             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-
                             final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
                                     deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
-
                             jobWorkers.execute(getJob);
-
                             getJob.setOnSucceeded(e -> {
                                 LOG.info("Get Job completed successfully");
                                 if (fileTreeItem != null)
@@ -467,7 +433,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                 else
                                     refreshFileTreeView();
                             });
-
                             getJob.setOnFailed(e -> {
                                 LOG.error("Get Job failed");
                                 if (fileTreeItem != null)
@@ -475,7 +440,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                 else
                                     refreshFileTreeView();
                             });
-
                             getJob.setOnCancelled(e -> {
                                 LOG.info("Get Job cancelled");
                                 try {
@@ -495,11 +459,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         event.consume();
 
                     });
-
                     row.setOnDragOver(event -> {
-
                         final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-
                         if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
                             event.acceptTransferModes(TransferMode.COPY);
                             if (treeItem == null) {
@@ -510,10 +471,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             event.consume();
                         }
                     });
-
                     row.setOnDragEntered(event -> {
                         final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-
                         if (treeItem != null) {
                             final InnerShadow is = new InnerShadow();
                             is.setOffsetY(1.0f);
@@ -523,50 +482,37 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         }
                         event.consume();
                     });
-
                     row.setOnDragExited(event -> {
                         row.setEffect(null);
                         event.consume();
                     });
-
                     row.setOnDragDetected(event -> {
                         LOG.info("Drag detected...");
-
                         final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
-
                         if (!selectedItems.isEmpty()) {
                             LOG.info("Starting drag and drop event");
                             final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
                             final ClipboardContent content = new ClipboardContent();
-
                             content.putFilesByPath(selectedItems
                                     .stream()
                                     .map(i -> i.getValue().getPath().toString())
                                     .collect(Collectors.toList()));
-
                             db.setContent(content);
                         }
                         event.consume();
                     });
-
                     return row;
                 }
-
         );
-
         final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
-
         localPathIndicator.setText(ROOT_LOCATION);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
-
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);
         treeTable.setPlaceholder(new StackPane(progress));
-
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-
         final Task getMediaDevices = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -579,9 +525,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         };
-
         workers.execute(getMediaDevices);
-
         getMediaDevices.setOnSucceeded(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
@@ -599,7 +543,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 }
 
             });
-
             treeTable.sortPolicyProperty().
                     set(
                             new Callback<TreeTableView<FileTreeModel>, Boolean>() {
@@ -628,7 +571,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                                     sortChild(i, comparator, "");
                                             }
                                         });
-
                                         if (param.getSortOrder().stream().findFirst().isPresent()) {
                                             if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
                                                 FXCollections.sort(treeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
@@ -676,7 +618,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         } else {
             deepStorageBrowserPresenter.logText("Refreshing " + selectedItem.getValue().getName(), LogType.SUCCESS);
         }
-
         if (selectedItem instanceof FileTreeTableItem) {
             final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
             fileTreeTableItem.refresh();

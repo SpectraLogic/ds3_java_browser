@@ -10,6 +10,6 @@ public final class MetadataPopup {
 
     public static void show(final Ds3Metadata metadata) {
         final MetadataView view = new MetadataView(metadata);
-        Popup.show(view.getView(), "Metadata");
+        Popup.show(view.getView(), "File Properties");
     }
 }

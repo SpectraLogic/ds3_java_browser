@@ -2,10 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
-import com.spectralogic.ds3client.models.BucketDetails;
-import com.spectralogic.ds3client.models.BulkObject;
-import com.spectralogic.ds3client.models.DetailedS3Object;
-import com.spectralogic.ds3client.models.S3ObjectType;
+import com.spectralogic.ds3client.models.*;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -20,13 +17,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class SearchJob extends Task<String> {
-    private final List<BucketDetails> buckets;
+    private final Logger LOG = LoggerFactory.getLogger(SearchJob.class);
+    private final List<Bucket> buckets;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
     private final Label ds3PathIndicator;
@@ -34,7 +34,7 @@ public class SearchJob extends Task<String> {
     private final Session session;
     private final Workers workers;
 
-    public SearchJob(final List<BucketDetails> buckets, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final String seachText, final Session session, final Workers workers) {
+    public SearchJob(final List<Bucket> buckets, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final String seachText, final Session session, final Workers workers) {
         this.buckets = buckets;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.ds3TreeTableView = ds3TreeTableView;
@@ -51,8 +51,7 @@ public class SearchJob extends Task<String> {
             rootTreeItem.setExpanded(true);
             ds3TreeTableView.setShowRoot(false);
             final List<Ds3TreeTableItem> list = new ArrayList<>();
-
-            for (final BucketDetails bucket : buckets) {
+            for (final Bucket bucket : buckets) {
                 if (bucket.getName().contains(seachText)) {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
                             LogType.INFO));
@@ -86,7 +85,6 @@ public class SearchJob extends Task<String> {
                     treeItems.stream().forEach(item -> list.add(new Ds3TreeTableItem(item.getFullName(), session, item, workers)));
                 }
             }
-
             Platform.runLater(() -> {
                 ds3PathIndicator.setText("Search result(s): " + list.size() + " object(s) found");
                 deepStorageBrowserPresenter.logText("Search result(s): " + list.size() + " object(s) found", LogType.INFO);
@@ -101,7 +99,7 @@ public class SearchJob extends Task<String> {
                 ds3TreeTableValueTreeTableColumn.setVisible(true);
             });
         } catch (final Exception e) {
-            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e.toString(), LogType.INFO));
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e, LogType.INFO));
         }
         return null;
     }

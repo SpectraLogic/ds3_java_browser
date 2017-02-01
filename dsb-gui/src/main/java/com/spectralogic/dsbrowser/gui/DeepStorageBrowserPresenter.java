@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
@@ -22,10 +23,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
-import com.spectralogic.dsbrowser.gui.util.Popup;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -44,7 +42,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,10 +88,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private ScrollPane scrollPane;
 
     @FXML
-    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, fileProperties;
+    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, selectAllInFolderItem, selectAllInBucketItem;
 
     @FXML
-    private Menu fileMenu, helpMenu, viewMenu;
+    private Menu fileMenu, helpMenu, viewMenu, editMenu;
 
     @FXML
     private BorderPane borderPane;
@@ -123,7 +120,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     private Workers workers;
 
-    private TaskProgressView<Ds3JobTask> jobProgressView;
+    private MyTaskProgressView<Ds3JobTask> jobProgressView;
+
 
     private final Label count = new Label();
 
@@ -145,7 +143,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
             stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
 
-            jobProgressView = new TaskProgressView<>();
+            jobProgressView = new MyTaskProgressView<>();
             jobProgressView.setPrefHeight(1000);
 
             final VBox jobProgressVBox = new VBox();
@@ -312,6 +310,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
         viewMenu.setText(resourceBundle.getString("viewMenu"));
+        editMenu.setText(resourceBundle.getString("editMenu"));
+        selectAllInBucketItem.setText(resourceBundle.getString("selectAllInBucketItem"));
+        selectAllInFolderItem.setText(resourceBundle.getString("selectAllInFolderItem"));
         jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
         helpMenu.setText(resourceBundle.getString("helpMenu"));
@@ -338,7 +339,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return blackPearl;
     }
 
-    public TaskProgressView<Ds3JobTask> getJobProgressView() {
+    public MyTaskProgressView<Ds3JobTask> getJobProgressView() {
         return jobProgressView;
     }
 

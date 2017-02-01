@@ -87,13 +87,11 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
         final Map.Entry<String, FilesAndFolderMap> stringFilesAndFolderMapEntry = stringFilesAndFolderMapMap.entrySet().stream().filter(i -> i.getKey().equals(jobId)).findFirst().get();
         final FilesAndFolderMap value = stringFilesAndFolderMapEntry.getValue();
         final List<JobInfoListTreeTableItem> list = new ArrayList<>();
-
         final Node previousGraphics = super.getGraphic();
         final ImageView processImage = new ImageView(ImageURLs.CHILDLOADER);
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
         super.setGraphic(processImage);
-
         final Task getChildren = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -103,11 +101,11 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         try {
                             size = Files.size(i.getValue());
                         } catch (final IOException e) {
+                            LOG.error("Unable to get children", e);
                         }
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), "--", size, i.getValue().toString(), modelValue.getJobType(), "--", JobInfoModel.Type.File, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
-
                     value.getFolders().entrySet().stream().forEach(i -> {
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), "--", 0, i.getValue().toString(), modelValue.getJobType(), "--", JobInfoModel.Type.Directory, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
@@ -122,7 +120,6 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         } else {
                             files = new File(modelValue.getFullPath()).listFiles();
                         }
-
                         for (final File file : files) {
                             final FileTreeModel.Type type = getRootType(file);
                             if (type == FileTreeModel.Type.Directory) {
@@ -133,16 +130,15 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 try {
                                     size = Files.size(file.toPath());
                                 } catch (final IOException e) {
+                                    LOG.error(e.toString());
                                 }
                                 final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), "--", size, file.getPath(), modelValue.getJobType(), "--", JobInfoModel.Type.File, "--", modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);
                             }
                         }
                     } else {
-
                         final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(modelValue.getBucket()).withIncludePhysicalPlacement(true);
                         request.withName(modelValue.getName() + "%").withFolder(modelValue.getName());
-
                         try {
                             final GetObjectsWithFullDetailsSpectraS3Response objectsWithFullDetailsSpectraS3 = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
                             final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();
@@ -164,9 +160,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                 return null;
             }
         };
-
         workers.execute(getChildren);
-
         getChildren.setOnSucceeded(event -> {
             super.setGraphic(previousGraphics);
             children.setAll(list);

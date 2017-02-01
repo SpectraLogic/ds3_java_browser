@@ -7,17 +7,14 @@ import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
-import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
-import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -41,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -89,6 +87,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
+        final Calendar jobStartTime = Calendar.getInstance();
         try {
             updateTitle("Checking BlackPearl's health");
             ALERT.setHeaderText(null);
@@ -109,9 +108,9 @@ public class Ds3GetJob extends Ds3JobTask {
                     if (value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
                         if (Paths.get(value.getFullName()).getParent() != null) {
                             folderMap.put(value.getFullName(), Paths.get(value.getFullName()).getParent());
-                            addAllDescendents(value, nodes, Paths.get(value.getFullName()).getParent());
+                            addAllDescendants(value, nodes, Paths.get(value.getFullName()).getParent());
                         } else {
-                            addAllDescendents(value, nodes, null);
+                            addAllDescendants(value, nodes, null);
                             folderMap.put(value.getFullName(), Paths.get("/"));
                         }
                     }
@@ -122,7 +121,7 @@ public class Ds3GetJob extends Ds3JobTask {
                         return new Ds3Object(pair.getFullName(), pair.getSize());
                     } catch (final SecurityException e) {
                         LOG.error("Exception while creation directories ", e);
-                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job failed: " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()) + " " + e.toString(), LogType.SUCCESS));
+                        Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job failed: " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()) + " " + e, LogType.SUCCESS));
                         return null;
                     }
                 }).filter(item -> item != null).collect(GuavaCollectors.immutableList());
@@ -158,24 +157,38 @@ public class Ds3GetJob extends Ds3JobTask {
                         totalSent.addAndGet(l);
                     });
                     getJob.attachObjectCompletedListener(obj -> {
+                        final Calendar currentTime = Calendar.getInstance();
                         if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         } else {
+                            final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                            final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
+                            final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                            updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                            updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
                             updateProgress(totalSent.get(), totalJobSize);
                             // Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         }
                     });
-                    //get meta data saved on  server
-                    // getJob.attachMetadataReceivedListener(new MetadataReceivedListenerImpl(fileTreeModel.toString()));
-                    getJob.attachMetadataReceivedListener(new MetadataReceivedListener() {
-                        @Override
-                        public void metadataReceived(final String s, final Metadata metadata) {
-
-                        }
+                    //get meta data saved on server
+                    LOG.info("Registering metadata receiver");
+                    final MetadataReceivedListenerImpl metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreeModel.toString());
+                    getJob.attachMetadataReceivedListener((s, metadata) -> {
+                        LOG.info("Restoring metadata for {}", s);
+                        metadataReceivedListener.metadataReceived(s, metadata);
                     });
-
+                    // check whether chunk are available
+                    getJob.attachWaitingForChunksListener(retryAfterSeconds -> {
+                        for (int retryTimeRemaining = retryAfterSeconds; retryTimeRemaining >= 0; retryTimeRemaining--) {
+                            try {
+                                updateMessage("No available chunks to transfer. Trying again in " + retryTimeRemaining + "seconds");
+                                Thread.sleep(1000);
+                            } catch (final Exception e) {
+                                LOG.error("Exception in attachWaitingForChunksListener", e);
+                            }
+                        }
+                        updateMessage("Transferring..");
+                    });
                     getJob.transfer(l -> {
                         final File file = new File(l);
                         String skipPath = null;
@@ -213,7 +226,6 @@ public class Ds3GetJob extends Ds3JobTask {
                 }
             } else {
                 BackgroundTask.dumpTheStack("Host " + ds3Client.getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-
                 Platform.runLater(() -> {
                     deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR);
                     ALERT.setTitle("Unavailable Network");
@@ -222,28 +234,25 @@ public class Ds3GetJob extends Ds3JobTask {
                 });
             }
 
-        } catch (final Exception e) {
-            if (e instanceof InterruptedException) {
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled (User Interruption)", LogType.ERROR));
-            } else if (e instanceof RuntimeException || e instanceof IllegalFormatException) {
-                if (e instanceof NoSuchElementException) {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
-                } else
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
-            } else {
-                Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
-                final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
-                final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
-                if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
-                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
-                }
-
+        } catch (final NoSuchElementException e) {
+            LOG.error("The job failed to process", e);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
+        } catch (final RuntimeException e) {
+            LOG.error("The job failed to process", e);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e, LogType.ERROR));
+        } catch (final Throwable t) {
+            LOG.error("The job failed to process", t);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + t.toString(), LogType.ERROR));
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
+            final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+            final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
+            if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
             }
         }
     }
 
-    private void addAllDescendents(final Ds3TreeTableValueCustom value, final ArrayList nodes, final Path path) {
+    private void addAllDescendants(final Ds3TreeTableValueCustom value, final ArrayList nodes, final Path path) {
         try {
             final GetBucketRequest request = new GetBucketRequest(value.getBucketName()).withDelimiter("/");
             // Don't include the prefix if the item we are looking up from is the base bucket
@@ -263,10 +272,11 @@ public class Ds3GetJob extends Ds3JobTask {
                     .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
                     .map(c -> new Ds3TreeTableValueCustom(value.getBucketName(), c, Ds3TreeTableValue.Type.Directory, 0, "", "--", false))
                     .collect(GuavaCollectors.immutableList());
-            directoryValues.forEach(i -> addAllDescendents(i, nodes, path));
+            directoryValues.forEach(i -> addAllDescendants(i, nodes, path));
 
         } catch (final IOException e) {
-            Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));
+            LOG.error("Unable to add descendants", e);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e, LogType.ERROR));
         }
     }
 

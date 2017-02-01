@@ -55,7 +55,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
         try {
             final javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
-
             final BufferedImage bufferedImage = new BufferedImage(
                     16,
                     16,
@@ -64,6 +63,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
             return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
         } catch (final Exception e) {
+            LOG.error("Unable to get FileSystem Icon", e);
             return getGraphicFont(fileTreeModel);
         }
 
@@ -86,7 +86,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             accessedChildren = true;
             final ObservableList<TreeItem<FileTreeModel>> children = super.getChildren();
             final Node previousGraphics = super.getGraphic();
-
             final ImageView processImage = new ImageView("/images/loading.gif");
             processImage.setFitHeight(20);
             processImage.setFitWidth(20);
@@ -130,7 +129,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                     .collect(Collectors.toList());
             fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
             ));
-
             children.setAll(fileChildren);
 
 

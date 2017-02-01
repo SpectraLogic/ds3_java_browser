@@ -20,6 +20,13 @@
                         <MenuItem fx:id="closeMenuItem" mnemonicParsing="false"/>
                     </items>
                 </Menu>
+                <Menu fx:id="editMenu" mnemonicParsing="false">
+                    <items>
+                        <MenuItem fx:id="selectAllInFolderItem" mnemonicParsing="false" />
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem fx:id="selectAllInBucketItem" mnemonicParsing="false"/>
+                    </items>
+                </Menu>
                 <Menu fx:id="viewMenu" mnemonicParsing="false">
                     <items>
                         <CheckMenuItem fx:id="jobsMenuItem" mnemonicParsing="false"/>

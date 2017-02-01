@@ -32,6 +32,7 @@ public class LocalFileTreeTableProvider {
 
         if (rootDir.equals("My Computer")) {
             files = File.listRoots();
+
         } else {
             files = new File(rootDir).listFiles();
         }

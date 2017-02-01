@@ -21,6 +21,8 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
@@ -41,7 +43,7 @@ public final class ParseJobInterruptionMap {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMap.class);
 
-    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final TaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
+    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final MyTaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
         if (endpoints.stream().anyMatch(i -> i.containsKey(endpoint))) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointMap = endpoints.stream().filter(i -> i.containsKey(endpoint)).findFirst().get();
             final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
@@ -91,7 +93,7 @@ public final class ParseJobInterruptionMap {
             } catch (final Exception e) {
                 LOG.error("Encountered an exception when trying to remove a job", e);
                 if (deepStorageBrowserPresenter != null) {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to remove job id " + e.toString(), LogType.ERROR));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to remove job id " + e, LogType.ERROR));
                 }
             }
         }
@@ -249,6 +251,7 @@ public final class ParseJobInterruptionMap {
             ds3Common.getDeepStorageBrowserPresenter().logText("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
+            final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
             //invisible column of full path
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView.getColumns().get(1);
@@ -256,56 +259,65 @@ public final class ParseJobInterruptionMap {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
             }
-            final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-            final Ds3Task getBucketTask = new Ds3Task(session.getClient()) {
+            if (selectedRoot != null && selectedRoot.getValue() != null) {
+                ds3TreeTableView.getSelectionModel().clearSelection();
+                ds3TreeTableView.setRoot(selectedRoot);
+                ds3TreeTableView.getSelectionModel().select(selectedRoot);
+                ((Ds3TreeTableItem) selectedRoot).refresh(ds3Common);
+                ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
+                // ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(selectedRoot.getValue().getFullName());
+            } else {
+                final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
+                final Ds3Task getBucketTask = new Ds3Task(session.getClient()) {
 
-                @Override
-                protected Object call() throws Exception {
-                    try {
-                        final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-                        final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
-                                .getBuckets().stream()
-                                .map(bucket -> {
-                                    final HBox hbox = new HBox();
-                                    hbox.getChildren().add(new Label("----"));
-                                    hbox.setAlignment(Pos.CENTER);
-                                    return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
-                                })
-                                .collect(Collectors.toList());
-                        buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
-                        final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
-                        rootTreeItem.getChildren().addAll(treeItems);
-                        Platform.runLater(() -> ds3TreeTableView.setRoot(rootTreeItem));
-                    } catch (final FailedRequestException ex) {
-                        LOG.error("Request failed", ex);
-                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR));
-                    } catch (final Exception e) {
-                        LOG.error("Request failed",e);
-                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR));
+                    @Override
+                    protected Object call() throws Exception {
+                        try {
+                            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
+                            final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+                                    .getBuckets().stream()
+                                    .map(bucket -> {
+                                        final HBox hbox = new HBox();
+                                        hbox.getChildren().add(new Label("----"));
+                                        hbox.setAlignment(Pos.CENTER);
+                                        return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
+                                    })
+                                    .collect(Collectors.toList());
+                            buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
+                            final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
+                            rootTreeItem.getChildren().addAll(treeItems);
+                            Platform.runLater(() -> ds3TreeTableView.setRoot(rootTreeItem));
+                        } catch (final FailedRequestException ex) {
+                            LOG.error("Request failed", ex);
+                            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR));
+                        } catch (final Exception e) {
+                            LOG.error("Request failed", e);
+                            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e, LogType.ERROR));
+                        }
+                        return null;
                     }
-                    return null;
-                }
-            };
-            workers.execute(getBucketTask);
-            getBucketTask.setOnSucceeded(event -> {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTableView.getRoot().getChildren();
-                children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
-                    final BooleanProperty bb = (BooleanProperty) observable;
-                    final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                    ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
-                }));
-                if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + "-" + session.getEndpoint())) {
-                    final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
-                    if (children.stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
-                        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
-                        ds3TreeTableValueTreeItem.setExpanded(false);
-                        if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
-                            ds3TreeTableView.getSelectionModel().select(ds3TreeTableValueTreeItem);
-                            ds3TreeTableValueTreeItem.setExpanded(true);
+                };
+                workers.execute(getBucketTask);
+                getBucketTask.setOnSucceeded(event -> {
+                    final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTableView.getRoot().getChildren();
+                    children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                        final BooleanProperty bb = (BooleanProperty) observable;
+                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
+                    }));
+                    if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + "-" + session.getEndpoint())) {
+                        final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
+                        if (children.stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
+                            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
+                            ds3TreeTableValueTreeItem.setExpanded(false);
+                            if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
+                                ds3TreeTableView.getSelectionModel().select(ds3TreeTableValueTreeItem);
+                                ds3TreeTableValueTreeItem.setExpanded(true);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 

@@ -81,11 +81,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch (type) {
             case Bucket:
-                return (new ImageView("/images/bucket.png"));
+                return new ImageView("/images/bucket.png");
             case Directory:
-                return (new ImageView("/images/folder.png"));
+                return new ImageView("/images/folder.png");
             case File:
-                return (new ImageView("/images/file.png"));
+                return new ImageView("/images/file.png");
             default:
                 return null;
         }
@@ -95,9 +95,26 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
-    public void refresh() {
+   
+
+    public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
+        this.ds3TreeTable = ds3TreeTable;
+    }
+
+ 
+    public void refresh(final Ds3Common ds3Common) {
+        this.ds3Common = ds3Common;
+        if (super.getValue() != null) {
+            String path = super.getValue().getFullName();
+            if (!super.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+                path = super.getValue().getBucketName() + "/" + path;
+
+            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
+            this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
+        }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
+        ds3Common.getDs3PanelPresenter().calculateFiles(ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
         buildChildren(list);
     }
 
@@ -134,7 +151,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList);
         workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> super.setGraphic(previousGraphics));
+        getBucketTask.setOnSucceeded(event -> {
+            super.setGraphic(previousGraphics);
+            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3PanelPresenter().getDs3TreeTableView() != null)
+                ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setPlaceholder(null);
+        });
         getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
         getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
     }
@@ -232,10 +253,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                             .map(item -> new Ds3TreeTableItem(bucket, session, item, workers))
                             .filter(distinctByKey(p -> p.getValue().getFullName()))
                             .collect(GuavaCollectors.immutableList());
+					partialResults.get().clear();
                     partialResults.get().addAll(directoryItems);
                     partialResults.get().addAll(fileItems);
 
-                    Collections.sort(partialResults.get(), new PartialResultComparator());
+                
+                     Collections.sort(partialResults.get(), new PartialResultComparator());
                     //if selected item was button then just remove that click more button and add new one
                     if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                         //clear the selection

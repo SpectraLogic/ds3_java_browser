@@ -23,9 +23,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
@@ -54,6 +56,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
+        final Calendar jobStartTime = Calendar.getInstance();
         try {
             final FilesAndFolderMap filesAndFolderMapMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
             final Ds3Client client = endpointInfo.getClient();
@@ -61,15 +64,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             updateTitle("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Recovering " + filesAndFolderMapMap.getType() + " job of " + filesAndFolderMapMap.getDate(), LogType.INFO));
             final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(client, 100);
-
             Ds3ClientHelpers.Job job = null;
             Path fileTreeModel = null;
-
             final Map<String, Path> files = filesAndFolderMapMap.getFiles();
             final Map<String, Path> folders = filesAndFolderMapMap.getFolders();
-
             final long totalJobSize = filesAndFolderMapMap.getTotalJobSize();
-
             if (filesAndFolderMapMap.getType().equals("PUT")) {
                 job = helpers.recoverWriteJob(uuid);
                 updateMessage("Initiating transfer to " + job.getBucketName());
@@ -77,25 +76,34 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             } else if (filesAndFolderMapMap.getType().equals("GET")) {
                 job = helpers.recoverReadJob(uuid);
                 fileTreeModel = Paths.get(filesAndFolderMapMap.getTargetLocation());
-
                 updateMessage("Initiating transfer from " + job.getBucketName());
             }
-
             final AtomicLong totalSent = new AtomicLong(0L);
-
-
             job.attachDataTransferredListener(l -> {
                 updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
                 totalSent.addAndGet(l);
             });
-
             job.attachObjectCompletedListener(s -> {
+                final Calendar currentTime = Calendar.getInstance();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Successfully transferred: " + s + " to " + filesAndFolderMapMap.getTargetLocation(), LogType.SUCCESS));
-                updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
+                final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
+                final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
+                updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
             });
-
-
             final Path finalFileTreeModel = fileTreeModel;
+            // check whether chunk are available
+            job.attachWaitingForChunksListener(retryAfterSeconds -> {
+                for (int retryTimeRemaining = retryAfterSeconds; retryTimeRemaining >= 0; retryTimeRemaining--) {
+                    try {
+                        updateMessage("No available chunks to transfer. Trying again in " + retryTimeRemaining + "seconds");
+                        Thread.sleep(1000);
+                    } catch (final Exception e) {
+                        LOG.error("Exception in attachWaitingForChunksListener" + e);
+                    }
+                }
+                updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
+            });
             job.transfer(s -> {
                         if (filesAndFolderMapMap.getType().equals("PUT")) {
                             if (files.containsKey(s)) {
@@ -134,16 +142,12 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 updateMessage("Recovering " + filesAndFolderMapMap.getType() + " job. Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to " + filesAndFolderMapMap.getTargetLocation() + "(BlackPearl cache). Waiting for the storage target allocation.");
                 updateProgress(totalJobSize, totalJobSize);
             });
-
-
             //Can not assign final.
             GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
-
             while (!response.getMasterObjectListResult().getStatus().toString().equals("COMPLETED")) {
                 Thread.sleep(60000);
                 response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
             }
-
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + " ] recovery completed. File transferred to " + filesAndFolderMapMap.getTargetLocation() + " (storage location)", LogType.SUCCESS));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
             final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
@@ -157,7 +161,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             cancel();
         } catch (final Exception e) {
             LOG.error("Encountered an exception when executing a job", e);
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Exception" + e.toString() + "-User Interruption", LogType.ERROR));
+            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Encountered an exception when executing a job" + e + "-User Interruption", LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getClient().getConnectionDetails().getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), uuid);
             final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
             final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();

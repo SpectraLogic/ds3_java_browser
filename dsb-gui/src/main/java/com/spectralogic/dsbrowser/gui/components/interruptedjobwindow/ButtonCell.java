@@ -20,6 +20,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
-
+    private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
@@ -40,7 +42,6 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
 
 
     public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter) {
-
         ALERT.setTitle(endpointInfo.getEndpoint());
         ALERT.setHeaderText(null);
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
@@ -50,7 +51,6 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         this.workers = workers;
         this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.jobInfoPresenter = jobInfoPresenter;
-
         recoverButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -64,25 +64,26 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-
                     recoverInterruptedJob.setOnSucceeded(event -> {
                         ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
                         jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                     });
-
                     recoverInterruptedJob.setOnFailed(event -> {
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR));
                         jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                     });
-
                     recoverInterruptedJob.setOnCancelled(event -> {
                         try {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
-                        } catch (final IOException e1) {
-                            if (!(e1 instanceof FailedRequestException)) {
-                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
-                            }
+                        }
+                        catch (final FailedRequestException fre){
+                            LOG.error("recover cancellation failed", fre);
+                        }
+                        catch (final IOException e) {
+                            LOG.error("recover cancellation failed", e);
+                            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR));
+
                         } finally {
                             final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());
@@ -97,19 +98,18 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 }
             }
         });
-
         cancelButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(final ActionEvent t) {
-
                 if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                     final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                     try {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
-                    } catch (final IOException e1) {
-                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
+                    } catch (final IOException e) {
+                        LOG.error("Unable to cancel recover job", e);
+                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR));
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
@@ -143,26 +143,21 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
 
     public HBox createHBox() {
         final HBox hbox = new HBox();
-
         final ImageView recoverImageView = new ImageView(ImageURLs.RECOVERIMAGE);
         recoverImageView.setFitHeight(15);
         recoverImageView.setFitWidth(15);
-
         recoverButton.setGraphic(recoverImageView);
         recoverButton.setStyle("-fx-background-color: transparent;");
         recoverButton.setTooltip(new Tooltip("Recover job"));
-
         final ImageView cancelImageView = new ImageView(ImageURLs.CANCELRECOVER);
         cancelImageView.setFitHeight(15);
         cancelImageView.setFitWidth(15);
         cancelButton.setGraphic(cancelImageView);
         cancelButton.setStyle("-fx-background-color: transparent;");
         cancelButton.setTooltip(new Tooltip("Cancel job"));
-
         hbox.setSpacing(3.0);
         hbox.setAlignment(Pos.CENTER);
         hbox.getChildren().addAll(recoverButton, cancelButton);
-
         return hbox;
     }
 }

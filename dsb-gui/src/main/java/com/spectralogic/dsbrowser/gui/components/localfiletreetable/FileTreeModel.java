@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.nio.file.Path;
 
 public class FileTreeModel {
@@ -45,7 +47,12 @@ public class FileTreeModel {
 
     public String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
-            return path.toString();
+            //get volume name from volume letter
+            final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+            if (!fileSystemView.getSystemDisplayName(new File(path.toString())).isEmpty())
+                return fileSystemView.getSystemDisplayName(new File(path.toString()));
+            else
+                return path.toString();
         } else {
             return path.getName(depth).toString();
         }

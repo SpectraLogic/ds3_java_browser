@@ -74,10 +74,8 @@ public class JobInfoPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         ALERT.setTitle("No network connection");
         ALERT.setHeaderText(null);
-
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
         initListeners();
         initTreeTableView();
     }
@@ -95,17 +93,13 @@ public class JobInfoPresenter implements Initializable {
                     );
                     exitButton.setText("Yes");
                     cancelButton.setText("No! I don't");
-
                     CLOSECONFIRMATIONALERT.setHeaderText("Are you really want to cancel all interrupted jobs");
                     CLOSECONFIRMATIONALERT.setContentText(jobIDMap.size() + " jobs will be cancelled. You can not recover them in future.");
-
                     final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
-
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         cancelAllInterruptedJobs(jobIDMap);
                         event.consume();
                     }
-
                     if (closeResponse.get().equals(ButtonType.CANCEL)) {
                         event.consume();
                     }
@@ -120,7 +114,6 @@ public class JobInfoPresenter implements Initializable {
     }
 
     private void cancelAllInterruptedJobs(final Map<String, FilesAndFolderMap> jobIDMap) {
-
         final Task cancelJobId = new Task() {
             @Override
             protected String call() throws Exception {
@@ -139,10 +132,8 @@ public class JobInfoPresenter implements Initializable {
                 return null;
             }
         };
-
         workers.execute(cancelJobId);
         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-
         cancelJobId.setOnSucceeded(event -> {
             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
             //ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo, workers);
@@ -155,47 +146,35 @@ public class JobInfoPresenter implements Initializable {
     }
 
     private void initTreeTableView() {
-
         endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs view", LogType.INFO);
-
         jobListTreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (jobListTreeTable == null) {
             jobListTreeTable.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));
             Platform.exit();
         }
-
         jobListTreeTable.setRowFactory(view -> new TreeTableRow<>());
-
         final TreeTableColumn<JobInfoModel, Boolean> actionColumn = new TreeTableColumn<>("Action");
         actionColumn.setSortable(false);
         actionColumn.setPrefWidth(120);
-
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
-
         actionColumn.setCellFactory(
                 p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this));
-
         jobListTreeTable.getColumns().add(actionColumn);
-
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         jobListTreeTable.setShowRoot(false);
-
         final Node oldPlaceHolder = jobListTreeTable.getPlaceholder();
-
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);
         jobListTreeTable.setPlaceholder(new StackPane(progress));
-
-
         final Task getJobIDs = new Task() {
             @Override
             protected Object call() throws Exception {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
                 //to show jobs in reverse order
                 final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                final TreeMap<String,FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
+                final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
                 final Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
                 if (jobIDMap != null) {
                     jobIDMap.entrySet().forEach(i -> {
@@ -207,12 +186,9 @@ public class JobInfoPresenter implements Initializable {
             }
         };
         progress.progressProperty().bind(getJobIDs.progressProperty());
-
         workers.execute(getJobIDs);
-
         getJobIDs.setOnSucceeded(event -> {
             jobListTreeTable.setPlaceholder(oldPlaceHolder);
-
             jobListTreeTable.setRoot(rootTreeItem);
             sizeColumn.setCellFactory(c -> new TreeTableCell<JobInfoModel, Number>() {
 
@@ -240,25 +216,22 @@ public class JobInfoPresenter implements Initializable {
                         final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());
                         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-
                         recoverInterruptedJob.setOnSucceeded(event -> {
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                         });
-
                         recoverInterruptedJob.setOnFailed(event -> {
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR));
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                             ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
                         });
-
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
                                 endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
                                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
-                            } catch (final IOException e1) {
-                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
+                            } catch (final IOException e) {
+                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR));
                             } finally {
                                 final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, endpointInfo.getDeepStorageBrowserPresenter());
@@ -279,52 +252,41 @@ public class JobInfoPresenter implements Initializable {
     }
 
     public void refresh(final TreeTableView<JobInfoModel> treeTableView, final JobInterruptionStore jobInterruptionStore, final EndpointInfo endpointInfo) {
-
         if (stage == null) {
             stage = (Stage) treeTableView.getScene().getWindow();
         }
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTableView.setShowRoot(false);
-
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);
         treeTableView.setPlaceholder(new StackPane(progress));
-
         final Task getJobIDs = new Task() {
             @Override
             protected Object call() throws Exception {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-
                 if (jobIDMap.size() == 0) {
                     Platform.runLater(() -> stage.close());
                 }
-
                 jobIDMap.entrySet().stream().forEach(i -> {
                     final FilesAndFolderMap fileAndFolder = i.getValue();
                     final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), i.getKey(), fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), i.getKey(), fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());
                     rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
                 });
-
                 return null;
             }
         };
-
         workers.execute(getJobIDs);
-
         progress.progressProperty().bind(getJobIDs.progressProperty());
-
         getJobIDs.setOnSucceeded(event -> {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));
         });
-
         getJobIDs.setOnCancelled(event -> {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));
         });
-
         getJobIDs.setOnFailed(event -> {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));

@@ -59,10 +59,8 @@ public class CreateFolderPresenter implements Initializable {
         try {
             ALERT.setTitle("Error while creating folder");
             ALERT.setHeaderText(null);
-
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
             stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
             initGUIElements();
             folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.equals("")) {
@@ -71,7 +69,6 @@ public class CreateFolderPresenter implements Initializable {
                     createFolderButton.setDisable(false);
                 }
             });
-
             folderNameField.setOnKeyReleased(event -> {
                 if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     createFolder();
@@ -99,25 +96,24 @@ public class CreateFolderPresenter implements Initializable {
                     if (!createFolderModel.getLocation().equals(createFolderModel.getBucketName())) {
                         location = createFolderModel.getLocation();
                         //if creating folder while file is selected
-                        if(location.charAt(location.length()-1) != '/')
-                        {
+                        if (location.charAt(location.length() - 1) != '/') {
                             final int lastIndex = location.lastIndexOf("/");
-                            location = location.substring(0,lastIndex+1);
+                            location = location.substring(0, lastIndex + 1);
                         }
                     }
                     final List<Ds3Object> ds3ObjectList = new ArrayList<>();
-                    final Ds3Object object = new Ds3Object(location+folderNameField.textProperty().getValue() + "/", 0);
+                    final Ds3Object object = new Ds3Object(location + folderNameField.textProperty().getValue() + "/", 0);
                     ds3ObjectList.add(object);
                     final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName().trim(), ds3ObjectList));
                     Platform.runLater(() -> {
                         //deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
-                        deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue()+" Folder is created", LogType.SUCCESS);
+                        deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue() + " Folder is created", LogType.SUCCESS);
                     });
                     return response;
                 } catch (final Exception e) {
-                    LOG.error("Failed to craete directory", e);
+                    LOG.error("Failed to create directory", e);
                     Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Failed to create folder "+folderNameField.textProperty().getValue()+" Reason: " + e.toString(), LogType.ERROR);
+                        deepStorageBrowserPresenter.logText("Failed to create directory " + folderNameField.textProperty().getValue() + " Reason: " + e, LogType.ERROR);
                         ALERT.setContentText("Failed to create folder. Check logs.");
                         ALERT.showAndWait();
                     });
@@ -125,11 +121,9 @@ public class CreateFolderPresenter implements Initializable {
                 }
             }
         };
-
         createFolderTask.setOnCancelled(this::handle);
         createFolderTask.setOnFailed(this::handle);
         createFolderTask.setOnSucceeded(this::handle);
-
         workers.execute(createFolderTask);
     }
 

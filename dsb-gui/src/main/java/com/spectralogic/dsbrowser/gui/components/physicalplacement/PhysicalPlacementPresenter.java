@@ -2,9 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
-import com.spectralogic.ds3client.models.Pool;
-import com.spectralogic.ds3client.models.Tape;
+import com.spectralogic.ds3client.models.*;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -18,6 +16,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 
 public class PhysicalPlacementPresenter implements Initializable {
@@ -29,6 +28,10 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     @FXML
     private TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
+
+    @FXML
+    private TableView<PhysicalPlacementReplicationEntry> physicalPlacementReplication;
+
 
     @Inject
     private PhysicalPlacement ds3PhysicalPlacement;
@@ -45,6 +48,7 @@ public class PhysicalPlacementPresenter implements Initializable {
     private void initTable() {
         final ImmutableList.Builder<PhysicalPlacementPoolEntry> physicalPlacementPoolEntryBuilder = ImmutableList.builder();
         final ImmutableList.Builder<PhysicalPlacementTapeEntry> physicalPlacementTapeEntryBuilder = ImmutableList.builder();
+        final ImmutableList.Builder<PhysicalPlacementReplicationEntry> physicalPlacementReplicationEntryBuilder = ImmutableList.builder();
 
         if (ds3PhysicalPlacement != null) {
             final List<Pool> listPool = ds3PhysicalPlacement.getPools();
@@ -76,6 +80,26 @@ public class PhysicalPlacementPresenter implements Initializable {
                 final SortedList sortedList = new SortedList(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
                 physicalPlacementDataTableTape.setItems(sortedList);
                 sortedList.comparatorProperty().bind(physicalPlacementDataTableTape.comparatorProperty());
+            }
+            final List<Ds3Target> ds3Targets = ds3PhysicalPlacement.getDs3Targets();
+            if(ds3Targets!=null){
+                for(final Ds3Target ds3Target : ds3Targets){
+                     final Ds3TargetAccessControlReplication accessControlReplication=ds3Target.getAccessControlReplication();
+                     final String adminAuthId=ds3Target.getAdminAuthId();
+                     final String adminSecretKey=ds3Target.getAdminSecretKey();
+                     final String dataPathEndPoint=ds3Target.getDataPathEndPoint();
+                     final boolean dataPathHttps=ds3Target.getDataPathHttps();
+                     final int dataPathPort=ds3Target.getDataPathPort();
+                     final String dataPathProxy=ds3Target.getDataPathProxy();
+                     final boolean dataPathVerifyCertificate=ds3Target.getDataPathVerifyCertificate();
+                     final TargetReadPreferenceType defaultReadPreference=ds3Target.getDefaultReadPreference();
+                     final UUID id=ds3Target.getId();
+                     final String name=ds3Target.getName();
+                     final boolean permitGoingOutOfSync=ds3Target.getPermitGoingOutOfSync();
+                     final Quiesced quiesced=ds3Target.getQuiesced();
+                     final String replicatedUserDefaultDataPolicy=ds3Target.getReplicatedUserDefaultDataPolicy();
+                     final TargetState state=ds3Target.getState();
+                }
             }
         }
     }
@@ -189,4 +213,106 @@ public class PhysicalPlacementPresenter implements Initializable {
             return ejectLocation;
         }
     }
+
+
+    public static class PhysicalPlacementReplicationEntry {
+        private final Ds3TargetAccessControlReplication accessControlReplication;
+        private final String adminAuthId;
+        private final String adminSecretKey;
+        private final String dataPathEndPoint;
+        private final boolean dataPathHttps;
+        private final int dataPathPort;
+        private final String dataPathProxy;
+        private final boolean dataPathVerifyCertificate;
+        private final TargetReadPreferenceType defaultReadPreference;
+        private final UUID id;
+        private final String name;
+        private final boolean permitGoingOutOfSync;
+        private final Quiesced quiesced;
+        private final String replicatedUserDefaultDataPolicy;
+        private final TargetState state;
+
+        private PhysicalPlacementReplicationEntry(final Ds3TargetAccessControlReplication accessControlReplication, final String adminAuthId, final String adminSecretKey, final TargetState state, final String dataPathEndPoint, final boolean dataPathHttps, final int dataPathPort, final String dataPathProxy, final boolean dataPathVerifyCertificate, final TargetReadPreferenceType defaultReadPreference, final UUID id, final String name, final boolean permitGoingOutOfSync, final Quiesced quiesced, final String replicatedUserDefaultDataPolicy) {
+            this.accessControlReplication = accessControlReplication;
+            this.adminAuthId = adminAuthId;
+            this.adminSecretKey = adminSecretKey;
+            this.dataPathEndPoint = dataPathEndPoint;
+            this.state = state;
+            this.dataPathHttps = dataPathHttps;
+            this.dataPathPort = dataPathPort;
+            this.dataPathProxy = dataPathProxy;
+            this.dataPathVerifyCertificate = dataPathVerifyCertificate;
+            this.defaultReadPreference = defaultReadPreference;
+            this.id = id;
+            this.name = name;
+            this.permitGoingOutOfSync = permitGoingOutOfSync;
+            this.quiesced = quiesced;
+            this.replicatedUserDefaultDataPolicy = replicatedUserDefaultDataPolicy;
+
+        }
+
+        public Ds3TargetAccessControlReplication getAccessControlReplication() {
+            return accessControlReplication;
+        }
+
+        public String getAdminAuthId() {
+            return adminAuthId;
+        }
+
+        public String getAdminSecretKey() {
+            return adminSecretKey;
+        }
+
+        public String getDataPathEndPoint() {
+            return dataPathEndPoint;
+        }
+
+        public TargetState getState() {
+            return state;
+        }
+
+        public boolean isDataPathHttps() {
+            return dataPathHttps;
+        }
+
+        public int getDataPathPort() {
+            return dataPathPort;
+        }
+
+        public String getDataPathProxy() {
+            return dataPathProxy;
+        }
+
+        public boolean isDataPathVerifyCertificate() {
+            return dataPathVerifyCertificate;
+        }
+
+        public TargetReadPreferenceType getDefaultReadPreference() {
+            return defaultReadPreference;
+        }
+
+        public UUID getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isPermitGoingOutOfSync() {
+            return permitGoingOutOfSync;
+        }
+
+        public Quiesced getQuiesced() {
+            return quiesced;
+        }
+
+        public String getReplicatedUserDefaultDataPolicy() {
+            return replicatedUserDefaultDataPolicy;
+        }
+
+
+    }
+
+
 }

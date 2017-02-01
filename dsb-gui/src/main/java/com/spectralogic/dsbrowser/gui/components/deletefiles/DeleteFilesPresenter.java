@@ -5,6 +5,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -52,10 +53,18 @@ public class DeleteFilesPresenter implements Initializable {
         try {
             deleteButton.setDisable(true);
             if (ds3PanelPresenter.getDs3TreeTableView() != null) {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
+                if (null == selectedPanelItems || selectedPanelItems.size() == 0) {
+                    selectedPanelItems = FXCollections.observableArrayList();
+                    selectedPanelItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
+                }
                 changeLabelText(selectedPanelItems);
             } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
+                if (null == selectedMenuItems || selectedMenuItems.size() == 0) {
+                    selectedMenuItems = FXCollections.observableArrayList();
+                    selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
+                }
                 changeLabelText(selectedMenuItems);
             }
             deleteField.textProperty().addListener((observable, oldValue, newValue) -> {

@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
@@ -32,9 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 public class Main extends Application {
 
@@ -53,14 +57,36 @@ public class Main extends Application {
     private ResourceBundle resourceBundle = null;
     private Stage primaryStage = null;
     private JobInterruptionStore jobInterruptionStore = null;
+
+
+    /*************************/
+    private static final String WINDOW_POSITION_X = "Window_Position_X";
+    private static final String WINDOW_POSITION_Y = "Window_Position_Y";
+    private static final String WINDOW_WIDTH = "Window_Width";
+    private static final String WINDOW_HEIGHT = "Window_Height";
+    private static final double DEFAULT_X = 10;
+    private static final double DEFAULT_Y = 10;
+    private static final double DEFAULT_WIDTH = 800;
+    private static final double DEFAULT_HEIGHT = 600;
+    private static final String NODE_NAME = "ViewSwitcher";
+    private static final String BUNDLE = "Bundle";
+
+    /*************************/
+
+    Preferences pref = Preferences.userRoot().node(NODE_NAME);
+    double x = pref.getDouble(WINDOW_POSITION_X, DEFAULT_X);
+    double y = pref.getDouble(WINDOW_POSITION_Y, DEFAULT_Y);
+    double width = pref.getDouble(WINDOW_WIDTH, DEFAULT_WIDTH);
+    double height = pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
+
     private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
 
-        if (jobWorkers.getTasks().isEmpty()) {
-            closeApplication();
-            event.consume();
-
+        //running tasks which are not in cache
+        List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
+        if (notCachedRunningTasks.isEmpty()) {
+            closeApplication(event);
+            //event.consume();
         } else {
-
             final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
                     ButtonType.OK
             );
@@ -71,17 +97,17 @@ public class Main extends Application {
             exitButton.setText("Exit");
             cancelButton.setText("Cancel");
 
-            if (jobWorkers.getTasks().size() == 1) {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
+            if (notCachedRunningTasks.size() == 1) {
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " job is still running.");
             } else {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " jobs are still running.");
             }
 
             final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
 
             if (closeResponse.get().equals(ButtonType.OK)) {
-                closeApplication();
-                event.consume();
+                closeApplication(event);
+                /*event.consume();*/
             }
 
             if (closeResponse.get().equals(ButtonType.CANCEL)) {
@@ -93,6 +119,7 @@ public class Main extends Application {
     public static void main(final String[] args) {
         launch(args);
     }
+
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
@@ -127,14 +154,24 @@ public class Main extends Application {
         final Scene mainScene = new Scene(mainView.getView());
         primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
         primaryStage.setScene(mainScene);
-        primaryStage.setMaximized(true);
+        primaryStage.setX(x);
+        primaryStage.setY(y);
+        primaryStage.setWidth(width);
+        primaryStage.setHeight(height);
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
     }
 
-    private void closeApplication() {
+
+
+    private void closeApplication(final WindowEvent closeEvent) {
+        final Preferences preferences = Preferences.userRoot().node(NODE_NAME);
+        preferences.putDouble(WINDOW_POSITION_X, primaryStage.getX());
+        preferences.putDouble(WINDOW_POSITION_Y, primaryStage.getY());
+        preferences.putDouble(WINDOW_WIDTH, primaryStage.getWidth());
+        preferences.putDouble(WINDOW_HEIGHT, primaryStage.getHeight());
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {
@@ -194,6 +231,7 @@ public class Main extends Application {
                                 LOG.info("Cancelled job.");
 
                             }
+                            closeEvent.consume();
                         } catch (final Exception e1) {
                             LOG.error("Failed to cancel job", e1);
                         }
