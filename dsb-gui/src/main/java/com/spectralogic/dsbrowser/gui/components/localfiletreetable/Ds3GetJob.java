@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class Ds3GetJob extends Ds3JobTask {
 
     private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
     private final ImmutableSet.Builder<String> partOfDirBuilder;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
