@@ -7,9 +7,6 @@ import java.util.Date;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by linchpin on 30/1/17.
- */
 public class DateFormatTest {
     @Test
     public void formatDate() throws Exception {

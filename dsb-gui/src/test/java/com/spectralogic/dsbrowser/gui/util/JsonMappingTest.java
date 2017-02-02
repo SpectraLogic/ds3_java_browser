@@ -1,11 +1,9 @@
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -15,9 +13,6 @@ import java.nio.file.Paths;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-/**
- * Created by linchpinub4 on 30/1/17.
- */
 public class JsonMappingTest {
     @Test
     public void fromJson() throws Exception {
