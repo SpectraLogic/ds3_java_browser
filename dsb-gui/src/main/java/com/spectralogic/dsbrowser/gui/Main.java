@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui;
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
@@ -70,19 +69,18 @@ public class Main extends Application {
     private static final double DEFAULT_HEIGHT = 600;
     private static final String NODE_NAME = "ViewSwitcher";
     private static final String BUNDLE = "Bundle";
-
     /*************************/
 
-    Preferences pref = Preferences.userRoot().node(NODE_NAME);
-    double x = pref.getDouble(WINDOW_POSITION_X, DEFAULT_X);
-    double y = pref.getDouble(WINDOW_POSITION_Y, DEFAULT_Y);
-    double width = pref.getDouble(WINDOW_WIDTH, DEFAULT_WIDTH);
-    double height = pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
+    private static final Preferences pref = Preferences.userRoot().node(NODE_NAME);
+    private static final double x = pref.getDouble(WINDOW_POSITION_X, DEFAULT_X);
+    private static final double y = pref.getDouble(WINDOW_POSITION_Y, DEFAULT_Y);
+    private static final double width = pref.getDouble(WINDOW_WIDTH, DEFAULT_WIDTH);
+    private static final double height = pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
 
     private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
 
         //running tasks which are not in cache
-        List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
+        final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
         if (notCachedRunningTasks.isEmpty()) {
             closeApplication(event);
             //event.consume();
@@ -107,7 +105,6 @@ public class Main extends Application {
 
             if (closeResponse.get().equals(ButtonType.OK)) {
                 closeApplication(event);
-                /*event.consume();*/
             }
 
             if (closeResponse.get().equals(ButtonType.CANCEL)) {
@@ -163,7 +160,6 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(confirmCloseEventHandler);
 
     }
-
 
 
     private void closeApplication(final WindowEvent closeEvent) {

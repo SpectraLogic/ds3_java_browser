@@ -2,7 +2,10 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetObjectsWithFullDetailsSpectraS3Response;
-import com.spectralogic.ds3client.models.*;
+import com.spectralogic.ds3client.models.Bucket;
+import com.spectralogic.ds3client.models.BulkObject;
+import com.spectralogic.ds3client.models.DetailedS3Object;
+import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -25,7 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class SearchJob extends Task<String> {
-    private final Logger LOG = LoggerFactory.getLogger(SearchJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SearchJob.class);
     private final List<Bucket> buckets;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
@@ -99,6 +102,7 @@ public class SearchJob extends Task<String> {
                 ds3TreeTableValueTreeTableColumn.setVisible(true);
             });
         } catch (final Exception e) {
+            LOG.error("Search failed", e);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Search failed: " + e, LogType.INFO));
         }
         return null;

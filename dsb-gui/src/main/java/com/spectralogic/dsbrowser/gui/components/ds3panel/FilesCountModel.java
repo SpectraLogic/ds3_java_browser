@@ -1,8 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
-/**
- * Created by linchpinub4 on 23/1/17.
- */
 public class FilesCountModel {
 
     private int noOfFolders = 0;

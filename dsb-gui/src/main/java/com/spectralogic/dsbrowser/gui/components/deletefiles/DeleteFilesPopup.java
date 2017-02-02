@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -14,14 +15,14 @@ public final class DeleteFilesPopup {
         final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3TreeTablePresenter, ds3PanelPresenter);
         if (ds3PanelPresenter != null) {
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
-            if (null == selectedPanelItems || selectedPanelItems.size() == 0) {
+            if (Guard.isNullOrEmpty(selectedPanelItems)) {
                 selectedPanelItems = FXCollections.observableArrayList();
                 selectedPanelItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
             }
             changeLabelText(selectedPanelItems, deleteView);
         } else if (ds3TreeTablePresenter != null) {
-             ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
-            if (null == selectedMenuItems || selectedMenuItems.size() == 0) {
+            ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
+            if (Guard.isNullOrEmpty(selectedMenuItems)) {
                 selectedMenuItems = FXCollections.observableArrayList();
                 selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
             }
@@ -29,8 +30,8 @@ public final class DeleteFilesPopup {
         }
     }
 
-    private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems, final
-    DeleteFilesView deleteView) {
+    private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
+                                        final DeleteFilesView deleteView) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             Popup.show(deleteView.getView(), "Delete File(s)");
         } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
