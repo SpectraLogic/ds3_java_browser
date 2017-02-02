@@ -196,7 +196,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
             //If values is empty we have to assign it with root
             else if (values.isEmpty()) {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(root).build().asList();
 
             }

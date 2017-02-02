@@ -34,7 +34,7 @@ public final class CheckNetwork {
     /**
      * Formats an URL string so that it always starts with 'http'
      */
-    static String formatUrl(final String endpoint) {
+    private static String formatUrl(final String endpoint) {
         if (endpoint.startsWith(HTTPS_PREFIX)) {
             return endpoint.replace(HTTPS_PREFIX, HTTP_PREFIX);
         }

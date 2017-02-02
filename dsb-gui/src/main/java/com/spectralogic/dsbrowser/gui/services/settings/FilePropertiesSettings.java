@@ -14,11 +14,11 @@ public class FilePropertiesSettings {
     @JsonProperty("filePropertiesEnable")
     private final BooleanProperty filePropertiesEnable = new SimpleBooleanProperty();
 
-    public FilePropertiesSettings(final boolean filePropertiesEnable) {
+    private FilePropertiesSettings(final boolean filePropertiesEnable) {
         this.filePropertiesEnable.set(filePropertiesEnable);
     }
 
-    public FilePropertiesSettings() {
+    private FilePropertiesSettings() {
         // pass
     }
 
@@ -36,7 +36,7 @@ public class FilePropertiesSettings {
         return filePropertiesEnable;
     }
 
-    public void setFilePropertiesEnable(final boolean filePropertiesEnable) {
+    private void setFilePropertiesEnable(final boolean filePropertiesEnable) {
         this.filePropertiesEnable.set(filePropertiesEnable);
     }
 

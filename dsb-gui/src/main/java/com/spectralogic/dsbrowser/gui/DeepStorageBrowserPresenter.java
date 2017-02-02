@@ -385,7 +385,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         NewSessionPopup.show();
     }
 
-    public void closeWindow() {
+    private void closeWindow() {
         Injector.forgetAll();
         if (savedSessionStore != null) {
             try {

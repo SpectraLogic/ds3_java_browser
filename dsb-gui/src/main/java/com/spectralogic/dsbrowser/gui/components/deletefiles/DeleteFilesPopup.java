@@ -29,7 +29,8 @@ public final class DeleteFilesPopup {
         }
     }
 
-    public static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems, final DeleteFilesView deleteView) {
+    private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems, final
+    DeleteFilesView deleteView) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             Popup.show(deleteView.getView(), "Delete File(s)");
         } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {

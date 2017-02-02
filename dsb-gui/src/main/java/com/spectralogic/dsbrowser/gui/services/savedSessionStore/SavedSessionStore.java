@@ -71,7 +71,7 @@ public class SavedSessionStore {
     }
 
     public int saveSession(final Session session) {
-        int index = 0;
+        int index;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
@@ -108,24 +108,21 @@ public class SavedSessionStore {
             return true;
         if (!savedSession.getPortNo().equals(session.getPortNo()))
             return true;
-        if (savedSession.getProxyServer() != null) {
-            if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
-                return true;
-            }
+        if (savedSession.getProxyServer() != null && !savedSession.getProxyServer().equals(session.getProxyServer())) {
+            return true;
         } else if (session.getProxyServer() != null) {
             return true;
         }
-        if (savedSession.getDefaultSession() == null || !savedSession.getDefaultSession().equals(session.getDefaultSession()))
-            return true;
-        return false;
+        return savedSession.getDefaultSession() == null || !savedSession.getDefaultSession()
+                .equals(session.getDefaultSession());
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
-        return list.stream().filter(o -> o.getName().equals(name)).findFirst().isPresent();
+        return list.stream().anyMatch(o -> o.getName().equals(name));
     }
 
     public boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
-        return list.stream().filter(o -> o.getSessionName().equals(name)).findFirst().isPresent();
+        return list.stream().anyMatch(o -> o.getSessionName().equals(name));
     }
 
     public void removeSession(final SavedSession sessionName) {

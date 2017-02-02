@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Ds3PutJob extends Ds3JobTask {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
-    final Alert ALERT = new Alert(
+    private final Alert ALERT = new Alert(
             Alert.AlertType.INFORMATION
     );
     private final Ds3Client client;

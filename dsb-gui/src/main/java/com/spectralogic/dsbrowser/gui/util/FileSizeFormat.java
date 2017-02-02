@@ -4,15 +4,15 @@ import java.text.DecimalFormat;
 
 public final class FileSizeFormat {
 
-    final static DecimalFormat df = new DecimalFormat("0.00");
-    final static DecimalFormat dfbytes = new DecimalFormat("0");
+    private final static DecimalFormat df = new DecimalFormat("0.00");
+    private final static DecimalFormat dfbytes = new DecimalFormat("0");
 
-    final static double sizeKb = 1024.00;
-    final static double sizeMo = sizeKb * sizeKb;
-    final static double sizeGo = sizeMo * sizeKb;
-    final static double sizeTerra = sizeGo * sizeKb;
-    final static double sizePeta = sizeTerra * sizeKb;
-    final static double sizeExa = sizePeta * sizeKb;
+    private final static double sizeKb = 1024.00;
+    private final static double sizeMo = sizeKb * sizeKb;
+    private final static double sizeGo = sizeMo * sizeKb;
+    private final static double sizeTerra = sizeGo * sizeKb;
+    private final static double sizePeta = sizeTerra * sizeKb;
+    private final static double sizeExa = sizePeta * sizeKb;
 
     public static String getFileSizeType(final long size) {
 

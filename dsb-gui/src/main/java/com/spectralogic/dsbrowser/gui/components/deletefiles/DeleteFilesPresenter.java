@@ -86,7 +86,7 @@ public class DeleteFilesPresenter implements Initializable {
         }
     }
 
-    public void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
+    private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             deleteLabel.setText("DELETE FILE(S)");
             deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected files please type 'DELETE'");

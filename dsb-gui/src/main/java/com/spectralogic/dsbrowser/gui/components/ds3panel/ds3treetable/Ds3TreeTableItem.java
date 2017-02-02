@@ -290,7 +290,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     }
 
     //function for distinction on the basis of some property
-    public static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
+    private static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
         final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }

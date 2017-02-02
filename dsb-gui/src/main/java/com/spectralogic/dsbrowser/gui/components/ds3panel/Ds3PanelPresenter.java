@@ -179,6 +179,7 @@ public class Ds3PanelPresenter implements Initializable {
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
             stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             ds3PathIndicator = makeSelectable(ds3PathIndicator);
+            ds3PathIndicator.setTooltip(null);
             initMenuItems();
             initButtons();
             initTab();
@@ -261,8 +262,10 @@ public class Ds3PanelPresenter implements Initializable {
         if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getValue()) {
         } else if (null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent()) {
             if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
-                getDs3PathIndicator().setText("");
-                getDs3PathIndicatorTooltip().setText("");
+               getDs3PathIndicator().setText("");
+                getDs3PathIndicator().setTooltip(null);
+            }else{
+                getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
             }
             ds3Common.getDs3PanelPresenter().getTreeTableView()
                     .setRoot(ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent());
@@ -524,7 +527,7 @@ public class Ds3PanelPresenter implements Initializable {
                     ALERT.showAndWait();
                     return;
                 } else if (selectedItemsAtSourceLocation.isEmpty()) {
-                    final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = selectedItemsAtSourceLocation.builder();
+                    final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                     selectedItemsAtSourceLocation = builder.add(root).build().asList();
                 }
                 final List<Ds3TreeTableValue> selectedItemsAtSourceLocationList = selectedItemsAtSourceLocation.stream().map(TreeItem::getValue).collect(Collectors.toList());
@@ -615,7 +618,7 @@ public class Ds3PanelPresenter implements Initializable {
                 ALERT.showAndWait();
                 return;
             } else if (values.isEmpty()) {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(selectedRoot).build().asList();
             }
             if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
@@ -761,7 +764,7 @@ public class Ds3PanelPresenter implements Initializable {
                 ALERT.showAndWait();
                 return;
             } else if (values.isEmpty()) {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(selectedRoot).build().asList();
 
             }

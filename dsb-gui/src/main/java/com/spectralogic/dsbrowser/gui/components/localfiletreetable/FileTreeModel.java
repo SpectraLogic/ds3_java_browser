@@ -45,7 +45,7 @@ public class FileTreeModel {
         return lastModified;
     }
 
-    public String getNamePart(final Path path, final int depth) {
+    private String getNamePart(final Path path, final int depth) {
         if (depth < 0) {
             //get volume name from volume letter
             final FileSystemView fileSystemView = FileSystemView.getFileSystemView();

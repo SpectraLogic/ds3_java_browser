@@ -54,7 +54,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private final Ds3Client ds3Client;
     private final ArrayList<Ds3TreeTableValueCustom> nodes;
     private final String jobPriority;
-    final Map<Path, Path> map;
+    private final Map<Path, Path> map;
     private UUID jobId;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;

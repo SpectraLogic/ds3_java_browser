@@ -135,7 +135,7 @@
         </ToolBar>
         <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
             <children>
-                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;" text=""
+                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;"
                        textAlignment="JUSTIFY" textFill="#000" wrapText="true">
                     <font>
                         <Font size="12.0"/>

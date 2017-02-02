@@ -199,7 +199,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.error("No files selected");
             return;
         } else if (tempValues.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = tempValues.builder();
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             tempValues = builder.add(root).build().asList();
 
         }
@@ -290,7 +290,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             ALERT.showAndWait();
             return;
         } else if (values.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build().asList();
         }
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
@@ -605,6 +605,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 loadMore(row.getTreeItem());
                             }
                         }
+                        if(ds3TreeTable.getRoot().getParent()==null && ds3TreeTable.getSelectionModel().getSelectedItem()==null){
+                            ds3PanelPresenter.getDs3PathIndicator().setText("");
+                            ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
+                        }else{
+                            ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
+                        }
                     } catch (final Exception e) {
                         LOG.error("Unable to get value of selected item", e);
                     }
@@ -793,7 +799,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             ALERT.showAndWait();
             return;
         } else if (tempValues.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = tempValues.builder();
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             tempValues = builder.add(root).build().asList();
 
         }
@@ -893,7 +899,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.error("No files selected");
             return;
         } else if (values.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = values.builder();
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build().asList();
 
         }
@@ -979,7 +985,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.info("No files selected");
             return;
         } else if (buckets.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = buckets.builder();
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             buckets = builder.add(root).build().asList();
 
         }

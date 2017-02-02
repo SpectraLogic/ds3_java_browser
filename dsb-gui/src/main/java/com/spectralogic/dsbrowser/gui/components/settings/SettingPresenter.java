@@ -172,7 +172,7 @@ public class SettingPresenter implements Initializable {
         try {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
-            jobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+            SavedJobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
             if (showCachedJobCheckbox.isSelected()) {
                 settings.setShowCachedJobSettings(true);
             } else {

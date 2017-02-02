@@ -33,7 +33,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
-    final HBox hbox = createHBox();
+    private final HBox hbox = createHBox();
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
     private final Workers workers;
@@ -76,11 +76,9 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                         try {
                             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
-                        }
-                        catch (final FailedRequestException fre){
+                        } catch (final FailedRequestException fre) {
                             LOG.error("recover cancellation failed", fre);
-                        }
-                        catch (final IOException e) {
+                        } catch (final IOException e) {
                             LOG.error("recover cancellation failed", e);
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR));
 
@@ -141,7 +139,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         }
     }
 
-    public HBox createHBox() {
+    private HBox createHBox() {
         final HBox hbox = new HBox();
         final ImageView recoverImageView = new ImageView(ImageURLs.RECOVERIMAGE);
         recoverImageView.setFitHeight(15);
