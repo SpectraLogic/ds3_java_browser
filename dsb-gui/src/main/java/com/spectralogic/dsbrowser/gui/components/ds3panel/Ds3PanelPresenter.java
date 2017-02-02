@@ -941,6 +941,9 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void disableMenu(final boolean disable) {
+        if(disable) {
+            ds3PathIndicator.setTooltip(null);
+        }
         imageViewForTooltip.setDisable(disable);
         ds3ParentDir.setDisable(disable);
         ds3Refresh.setDisable(disable);
