@@ -1,6 +1,6 @@
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.0.43'
+    version = '2.0.44'
 }
 
 subprojects {
@@ -20,8 +20,8 @@ subprojects {
 
     dependencies {
         compile 'com.google.guava:guava:21.0'
-        compile 'com.spectralogic.ds3:ds3-sdk:3.2.10'
-        compile 'com.spectralogic.ds3:ds3-metadata:3.2.11'
+        compile 'com.spectralogic.ds3:ds3-sdk:3.2.12'
+        compile 'com.spectralogic.ds3:ds3-metadata:3.2.12'
         compile 'com.airhacks:afterburner.fx:1.6.2'
         compile 'org.controlsfx:controlsfx:8.40.12'
         compile 'de.jensd:fontawesomefx:8.9'
