@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=2.0.43;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
+    <DefineConstants>Version=2.0.44;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
