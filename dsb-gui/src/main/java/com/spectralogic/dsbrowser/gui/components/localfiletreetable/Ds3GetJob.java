@@ -7,7 +7,9 @@ import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.*;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
+import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
@@ -37,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,7 +48,7 @@ import java.util.stream.Collectors;
 public class Ds3GetJob extends Ds3JobTask {
 
     private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
     private final ImmutableSet.Builder<String> partOfDirBuilder;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
@@ -87,7 +90,9 @@ public class Ds3GetJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
-        final Calendar jobStartTime = Calendar.getInstance();
+        //Job start time
+        final Instant jobStartTimeInstant = Instant.now();
+
         try {
             updateTitle("Checking BlackPearl's health");
             ALERT.setHeaderText(null);
@@ -157,11 +162,11 @@ public class Ds3GetJob extends Ds3JobTask {
                         totalSent.addAndGet(l);
                     });
                     getJob.attachObjectCompletedListener(obj -> {
-                        final Calendar currentTime = Calendar.getInstance();
+                        final Instant currentTime = Instant.now();
                         if (duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)) != null && duplicateFileMap.get(Paths.get(fileTreeModel + "/" + obj)).equals(true)) {
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         } else {
-                            final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                            final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartTimeInstant.toEpochMilli());
                             final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
                             final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));

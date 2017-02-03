@@ -81,6 +81,7 @@ public class Main extends Application {
 
         //running tasks which are not in cache
         final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
+
         if (notCachedRunningTasks.isEmpty()) {
             closeApplication(event);
             //event.consume();

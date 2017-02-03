@@ -7,7 +7,10 @@ import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,9 +124,9 @@ public class SettingsStore {
         try (final Stream<String> stream = Files.lines(PATH)) {
             stream.forEach(entry -> {
                 if (!entry.contains("filePropertiesSettings")) {
-                    StringBuilder newFile = new StringBuilder(entry);
+                    final StringBuilder newFile = new StringBuilder(entry);
                     newFile.deleteCharAt(newFile.length() - 1);
-                    newFile = newFile.append(",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}");//file property is true by default..adding this new setting to the file
+                    newFile.append(",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}");//file property is true by default..adding this new setting to the file
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException e) {
@@ -131,9 +134,9 @@ public class SettingsStore {
                     }
                 }
                 if (!entry.contains("showCachedJobSettings")) {
-                    StringBuilder newFile = new StringBuilder(entry);
+                    final StringBuilder newFile = new StringBuilder(entry);
                     newFile.deleteCharAt(newFile.length() - 1);
-                    newFile = newFile.append(",\"showCachedJobSettings\":{\"showCachedJobSettings\":true}}");//file property is true by default..adding this new setting to the file
+                    newFile.append(",\"showCachedJobSettings\":{\"showCachedJobSettings\":true}}");//file property is true by default..adding this new setting to the file
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException e) {
@@ -145,6 +148,5 @@ public class SettingsStore {
             LOG.error("Failed to save settings", e);
         }
     }
-
 
 }

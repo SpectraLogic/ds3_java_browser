@@ -5,7 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.*;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
+import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.Priority;
@@ -23,7 +25,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -68,7 +70,6 @@ public class Ds3PutJob extends Ds3JobTask {
         this.settings = settings;
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
     }
 
     public SettingsStore getSettings() {
@@ -86,7 +87,8 @@ public class Ds3PutJob extends Ds3JobTask {
     @Override
     public void executeJob() throws Exception {
         //job start time
-        final Calendar jobStartTime = Calendar.getInstance();
+        final Instant jobStartInstant = Instant.now();
+
         try {
             ALERT.setHeaderText(null);
             updateTitle("Checking BlackPearl's health");
@@ -159,11 +161,11 @@ public class Ds3PutJob extends Ds3JobTask {
                     totalSent.addAndGet(l);
                 });
                 job.attachObjectCompletedListener(obj -> {
-                    final Calendar currentTime = Calendar.getInstance();
+                    final Instant nowInstant = Instant.now();
                     final String newDate = DateFormat.formatDate(new Date());
                     if (obj.contains("/")) {
                         final int i = obj.lastIndexOf("/");
-                        final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                        final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(nowInstant.toEpochMilli() - jobStartInstant.toEpochMilli());
                         final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
                         final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
                         updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "/s" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
@@ -185,7 +187,7 @@ public class Ds3PutJob extends Ds3JobTask {
                                 updateMessage("No available chunks to transfer. Trying again in " + retryTimeRemaining + "seconds");
                                 Thread.sleep(1000);
                             } catch (final Exception e) {
-                                LOG.error("Exception in attachWaitingForChunksListener" + e.getMessage());
+                                LOG.error("Exception in attachWaitingForChunksListener", e);
                             }
                         }
                         updateMessage("Transferring " + FileSizeFormat.getFileSizeType(totalJobSize) + " in " + bucket + "\\" + targetDir);

@@ -131,21 +131,17 @@ public class NewSessionModel {
             }
             client = Ds3ClientBuilder
                     .create(this.getEndpoint().trim() + ":" + this.getPortNo().trim(),
-                            new Credentials(this.getAccessKey().trim(),
-                                    this.getSecretKey().trim()))
+                            new Credentials(this.getAccessKey(),
+                                    this.getSecretKey()))
                     .withHttps(false).withProxy(this.getProxyServer())
                     .build();
-            final GetSystemInformationSpectraS3Response sysreponse = client.getSystemInformationSpectraS3(new GetSystemInformationSpectraS3Request());
-            final GetServiceResponse response = client.getService(new GetServiceRequest());
-            return new Session(this.getSessionName().trim(), this.getEndpoint().trim(), this.getPortNo().trim(), this.getProxyServer(), client, this.getDefaultSession());
-
-
+            client.getService(new GetServiceRequest());
+            return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client, this.getDefaultSession());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
             ALERT.setTitle("Invalid Endpoint");
             ALERT.setContentText("Invalid Endpoint Server Name or IP Address");
             ALERT.showAndWait();
-
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
             ALERT.setContentText("Attempted data access on management port -- check endpoint");
@@ -168,14 +164,12 @@ public class NewSessionModel {
                 ALERT.setTitle("Unexpected Status");
                 ALERT.setContentText("BlackPearl return an unexpected status code we did not expect");
                 ALERT.showAndWait();
-
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
             ALERT.setTitle("Networking Error");
             ALERT.setContentText("Encountered a networking error");
             ALERT.showAndWait();
-
         } catch (final RuntimeException rte) {
             LOG.error("Authentication error. Please check your credentials", rte);
             ALERT.setTitle("Error");

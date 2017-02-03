@@ -33,7 +33,7 @@ public class SearchJob extends Task<String> {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
     private final Label ds3PathIndicator;
-    private final String seachText;
+    private final String searchText;
     private final Session session;
     private final Workers workers;
 
@@ -42,7 +42,7 @@ public class SearchJob extends Task<String> {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.ds3TreeTableView = ds3TreeTableView;
         this.ds3PathIndicator = ds3PathIndicator;
-        this.seachText = seachText;
+        this.searchText = seachText;
         this.session = session;
         this.workers = workers;
     }
@@ -55,13 +55,13 @@ public class SearchJob extends Task<String> {
             ds3TreeTableView.setShowRoot(false);
             final List<Ds3TreeTableItem> list = new ArrayList<>();
             for (final Bucket bucket : buckets) {
-                if (bucket.getName().contains(seachText)) {
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + seachText,
+                if (bucket.getName().contains(searchText)) {
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + searchText,
                             LogType.INFO));
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, "--", "--", false, null);
                     list.add(new Ds3TreeTableItem(value.getName(), session, value, workers));
                 } else {
-                    final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket.getName()).withName("%" + seachText + "%").withIncludePhysicalPlacement(true);
+                    final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket.getName()).withName("%" + searchText + "%").withIncludePhysicalPlacement(true);
                     final GetObjectsWithFullDetailsSpectraS3Response responseFullDetails = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
                     final List<DetailedS3Object> detailedS3Objects = responseFullDetails.getDetailedS3ObjectListResult().getDetailedS3Objects();
                     final List<Ds3TreeTableValue> treeItems = new ArrayList<>();

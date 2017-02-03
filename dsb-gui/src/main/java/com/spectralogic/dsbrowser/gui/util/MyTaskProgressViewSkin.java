@@ -21,7 +21,6 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
             ""
     );
 
-
     public MyTaskProgressViewSkin(final MyTaskProgressView<T> monitor) {
         super(monitor);
 
@@ -153,8 +152,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
             if (task != null) {
                 task.cancel();
             }
-        }else
-         if (closeResponse.get().equals(ButtonType.CANCEL)) {
+        }else if (closeResponse.get().equals(ButtonType.CANCEL)) {
                evt.consume();
         }
     }

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +56,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
-        final Calendar jobStartTime = Calendar.getInstance();
+        //job start time
+        final Instant jobStartInstant = Instant.now();
+
         try {
             final FilesAndFolderMap filesAndFolderMapMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
             final Ds3Client client = endpointInfo.getClient();
@@ -84,9 +86,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 totalSent.addAndGet(l);
             });
             job.attachObjectCompletedListener(s -> {
-                final Calendar currentTime = Calendar.getInstance();
+                final Instant currentTime = Instant.now();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Successfully transferred: " + s + " to " + filesAndFolderMapMap.getTargetLocation(), LogType.SUCCESS));
-                final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.getTime().getTime() - jobStartTime.getTime().getTime());
+                final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
                 final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
                 final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
                 updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
