@@ -31,7 +31,7 @@ public class LogSettings {
         // pass
     }
 
-    private static LogSettings createDefault() {
+    public static LogSettings createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
         return new LogSettings(logPath, 1, 10, true, false);
     }

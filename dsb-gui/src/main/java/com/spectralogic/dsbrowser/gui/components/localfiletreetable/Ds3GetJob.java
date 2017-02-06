@@ -244,7 +244,9 @@ public class Ds3GetJob extends Ds3JobTask {
             Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+ can't transfer bucket/empty folder", LogType.ERROR));
         } catch (final RuntimeException e) {
             LOG.error("The job failed to process", e);
-            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e, LogType.ERROR));
+            Platform.runLater(() -> {
+                deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e, LogType.ERROR);
+            });
         } catch (final Throwable t) {
             LOG.error("The job failed to process", t);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + t.toString(), LogType.ERROR));

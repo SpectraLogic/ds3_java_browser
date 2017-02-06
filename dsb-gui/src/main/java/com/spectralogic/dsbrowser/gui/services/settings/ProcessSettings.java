@@ -8,7 +8,7 @@ public class  ProcessSettings {
 
     public static final ProcessSettings DEFAULT = createDefault();
 
-    private static ProcessSettings createDefault() {
+    public static ProcessSettings createDefault() {
         return new ProcessSettings(10);
     }
 

@@ -97,7 +97,10 @@ public final class ParseJobInterruptionMap {
                 }
             }
         }
-        return getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
+        if(deepStorageBrowserPresenter != null) {
+            return getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
+        }
+        return null;
     }
 
     public static void setButtonAndCountNumber(final Map<String, FilesAndFolderMap> jobIDMap, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
@@ -152,44 +155,19 @@ public final class ParseJobInterruptionMap {
         try {
             jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
             JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             LOG.error("Failed to save job ids", e);
         }
     }
 
     public static void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Ds3Common ds3Common) {
-        final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
-        if (tasks.size() != 0) {
-            final Task cancelAllRunningJobs = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    tasks.forEach(i -> {
-                        try {
-                            if (i instanceof Ds3PutJob) {
-                                final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
-                                ds3PutJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3PutJob.getJobId().toString(), ds3PutJob.getClient().getConnectionDetails().getEndpoint(), null);
-                            } else if (i instanceof Ds3GetJob) {
-                                final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
-                                ds3GetJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3GetJob.getJobId().toString(), ds3GetJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                            } else if (i instanceof RecoverInterruptedJob) {
-                                final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) i;
-                                recoverInterruptedJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                            }
-                        } catch (final Exception e1) {
-                            LOG.error("Failed to cancel job", e1);
-                        }
-                    });
-                    return null;
-                }
-            };
-            workers.execute(cancelAllRunningJobs);
-            cancelAllRunningJobs.setOnSucceeded(event -> {
+        if (jobWorkers.getTasks().size() != 0) {
+            final CancelRunningJobsTask cancelRunningJobsTask = new CancelRunningJobsTask(jobWorkers, jobInterruptionStore);
+            workers.execute(cancelRunningJobsTask);
+            cancelRunningJobsTask.setOnSucceeded(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers);
-                if (cancelAllRunningJobs.getValue() != null) {
-                    LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
+                if (cancelRunningJobsTask.getValue() != null) {
+                    LOG.info("Cancelled job. {}", cancelRunningJobsTask.getValue());
                 }
             });
 

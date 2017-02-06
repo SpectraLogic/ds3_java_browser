@@ -4,13 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-/**
- * Created by Suman on 1/9/2017.
- */
 public class ShowCachedJobSettings {
     public static final ShowCachedJobSettings DEFAULT = createDefault();
 
-    private static ShowCachedJobSettings createDefault() {
+    public static ShowCachedJobSettings createDefault() {
         return new ShowCachedJobSettings(Boolean.TRUE);
     }
 

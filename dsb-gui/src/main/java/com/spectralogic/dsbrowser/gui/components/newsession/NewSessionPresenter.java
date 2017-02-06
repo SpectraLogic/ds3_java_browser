@@ -160,10 +160,10 @@ public class NewSessionPresenter implements Initializable {
         savedSessions.setItems(savedSessionStore.getSessions());
     }
 
-    private Session createConnection(final SavedSession rowData) {
+    public Session createConnection(final SavedSession rowData) {
         try {
             final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint() + ":" + rowData.getPortNo(), rowData.getCredentials().toCredentials()).withHttps(false).withProxy(rowData.getProxyServer()).build();
-            final GetUserSpectraS3Response userSpectraS3 = client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
+            client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
             return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), rowData.getProxyServer(), client, rowData.getDefaultSession());
         } catch (final Exception e) {
             LOG.error("Unable to create connection", e);

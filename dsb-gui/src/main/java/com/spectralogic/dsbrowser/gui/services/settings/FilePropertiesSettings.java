@@ -7,7 +7,7 @@ public class FilePropertiesSettings {
 
     public static final FilePropertiesSettings DEFAULT = createDefault();
 
-    private static FilePropertiesSettings createDefault() {
+    public static FilePropertiesSettings createDefault() {
         return new FilePropertiesSettings(Boolean.TRUE);
     }
 
