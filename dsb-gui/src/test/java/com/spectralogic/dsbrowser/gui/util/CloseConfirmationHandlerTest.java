@@ -50,7 +50,7 @@ public class CloseConfirmationHandlerTest {
             session = new NewSessionPresenter().createConnection(savedSession);
             handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
-            final URL url = classLoader.getResource("files/demo.txt");
+            final URL url = classLoader.getResource("files/demoFilte.txt");
             if (url != null) {
                 CloseConfirmationHandlerTest.file = new File(url.getFile());
             }
@@ -121,7 +121,7 @@ public class CloseConfirmationHandlerTest {
         Platform.runLater(() -> {
             try {
                 final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put("demo.txt", file.toPath());
+                filesMap.put("demoFilte.txt", file.toPath());
 
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
@@ -181,6 +181,9 @@ public class CloseConfirmationHandlerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), null, settingsStore);
                 jobWorkers.execute(ds3PutJob);
+                ds3PutJob.setOnSucceeded(event -> {
+                    System.out.println("Put job success");
+                });
                 Thread.sleep(5000);
                 final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds());
                 task.setOnSucceeded(event -> handler.shutdownWorkers());

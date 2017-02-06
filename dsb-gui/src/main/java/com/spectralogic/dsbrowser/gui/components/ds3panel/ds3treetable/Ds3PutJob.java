@@ -166,9 +166,19 @@ public class Ds3PutJob extends Ds3JobTask {
                     if (obj.contains("/")) {
                         final int i = obj.lastIndexOf("/");
                         final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(nowInstant.toEpochMilli() - jobStartInstant.toEpochMilli());
-                        final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-                        final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
-                        updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "/s" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
+
+                        long transferRate = 0;
+                        if (timeElapsedInSeconds != 0) {
+                            transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
+                        }
+
+                        if (transferRate != 0) {
+                            final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
+                            updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "/s" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
+                        } else {
+                            updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "/s" + "  Time remaining : calculating.. " + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferred file -> " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir);
+                        }
+
                         Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred (BlackPearl cache): " + obj.substring(i, obj.length()) + " to " + bucket + "/" + targetDir + " at " + newDate, LogType.SUCCESS));
                     } else {
                         updateMessage(FileSizeFormat.getFileSizeType(totalSent.get() / 2) + " / " + FileSizeFormat.getFileSizeType(totalJobSize) + "Transferred file -> " + obj.substring(0, obj.length()) + " to " + bucket + "/" + targetDir);

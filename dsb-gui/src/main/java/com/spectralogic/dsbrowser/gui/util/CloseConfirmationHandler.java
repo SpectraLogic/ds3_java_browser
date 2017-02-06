@@ -73,7 +73,7 @@ public class CloseConfirmationHandler {
      */
     public void closeConfirmationAlert(final Event event) {
         LOG.info("Initiating close event");
-        if (jobWorkers != null && Guard.isNullOrEmpty(jobWorkers.getTasks())) {
+        if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
             final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
             if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
                 closeApplication(event);

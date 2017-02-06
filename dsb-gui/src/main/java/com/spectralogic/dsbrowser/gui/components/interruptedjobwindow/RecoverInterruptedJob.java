@@ -89,9 +89,19 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 final Instant currentTime = Instant.now();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Successfully transferred: " + s + " to " + filesAndFolderMapMap.getTargetLocation(), LogType.SUCCESS));
                 final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
-                final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-                final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
-                updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
+
+                long transferRate = 0;
+                if (timeElapsedInSeconds != 0) {
+                    transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
+                }
+
+                if (transferRate != 0) {
+                    final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
+                    updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
+                } else {
+                    updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining: calculating.. " + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + s + " to " + filesAndFolderMapMap.getTargetLocation());
+                }
+
             });
             final Path finalFileTreeModel = fileTreeModel;
             // check whether chunk are available

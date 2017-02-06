@@ -29,7 +29,7 @@ public class CancelRunningJobsTask extends Task {
     @Override
     protected Object call() throws Exception {
         LOG.info("Starting cancel all the running jobs");
-        if (jobWorkers != null && Guard.isNullOrEmpty(jobWorkers.getTasks())) {
+        if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
             final ImmutableList<Ds3JobTask> ds3Jobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
             ds3Jobs.forEach(job -> {
                 try {

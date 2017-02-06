@@ -20,7 +20,6 @@ import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -167,10 +166,20 @@ public class Ds3GetJob extends Ds3JobTask {
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("File has overridden successfully: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         } else {
                             final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartTimeInstant.toEpochMilli());
-                            final long transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-                            final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
+
+                            long transferRate = 0;
+                            if (timeElapsedInSeconds != 0) {
+                                transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
+                            }
+
+                            if (transferRate != 0) {
+                                final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
+                                updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                            } else {
+                                updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining : calculating.. " + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
+                            }
+
                             Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
-                            updateMessage("  Transfer Rate " + FileSizeFormat.getFileSizeType(transferRate) + "PS" + "  Time remaining " + DateFormat.timeConversion(timeRemaining) + FileSizeFormat.getFileSizeType(totalSent.get() / 2) + "/" + FileSizeFormat.getFileSizeType(totalJobSize) + " Transferring file -> " + obj + " to " + fileTreeModel);
                             updateProgress(totalSent.get(), totalJobSize);
                             // Platform.runLater(() -> deepStorageBrowserPresenter.logText("Successfully transferred: " + obj + " to " + fileTreeModel, LogType.SUCCESS));
                         }
@@ -248,6 +257,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 deepStorageBrowserPresenter.logTextForParagraph("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e, LogType.ERROR);
             });
         } catch (final Throwable t) {
+            t.printStackTrace();
             LOG.error("The job failed to process", t);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Failed " + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + t.toString(), LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
