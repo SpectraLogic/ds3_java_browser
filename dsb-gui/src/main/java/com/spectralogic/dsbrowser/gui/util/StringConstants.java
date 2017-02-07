@@ -7,4 +7,6 @@ public interface StringConstants {
     String WINDOW_HEIGHT = "Window_Height";
     String NODE_NAME = "ViewSwitcher";
     String SPACE = " ";
+    String EMPTY_STRING = "";
+
 }
