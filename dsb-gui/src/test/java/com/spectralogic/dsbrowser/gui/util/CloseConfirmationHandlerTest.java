@@ -4,7 +4,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -186,9 +186,12 @@ public class CloseConfirmationHandlerTest {
                 });
                 Thread.sleep(5000);
                 final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds());
-                task.setOnSucceeded(event -> handler.shutdownWorkers());
+                task.setOnSucceeded(event -> {
+                    Assert.assertEquals(true,true);
+                    handler.shutdownWorkers();
+                });
                 task.setOnFailed(event -> {
-                    System.out.println("Test case failed");
+                    Assert.fail();
                     handler.shutdownWorkers();
                 });
 

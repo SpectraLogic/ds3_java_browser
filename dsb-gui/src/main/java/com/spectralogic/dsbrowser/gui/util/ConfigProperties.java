@@ -4,10 +4,7 @@ import com.spectralogic.dsbrowser.gui.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.Properties;
 
 //Singleton class for getting the language from config.properties
@@ -26,11 +23,10 @@ public class ConfigProperties {
             configProperties = new ConfigProperties();
             final Properties properties = new Properties();
             try {
-                final Path propertiesFile = Paths.get(Main.class.getResource("/config.properties").toURI());
-                properties.load(Files.newBufferedReader(propertiesFile));
+                properties.load(Main.class.getResourceAsStream("/config.properties"));
                 final String language = properties.getProperty("language");
                 setLanguage(language);
-            } catch (final URISyntaxException use) {
+            } catch (final IOException use) {
                 LOG.error("Property File not found", use);
             } catch (final Exception e) {
                 LOG.error("Property File not Loaded", e);

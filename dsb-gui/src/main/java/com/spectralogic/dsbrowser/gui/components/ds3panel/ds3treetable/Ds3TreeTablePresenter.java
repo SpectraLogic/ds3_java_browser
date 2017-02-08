@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -65,66 +66,45 @@ import java.util.stream.Collectors;
 public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
+    final List<String> rowNameList = new ArrayList<>();
     private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
-
-    private ContextMenu contextMenu;
-
     @FXML
     public TreeTableView<Ds3TreeTableValue> ds3TreeTable;
 
     @FXML
     public TreeTableColumn<Ds3TreeTableValue, String> fileName;
-
-    @FXML
-    private TreeTableColumn<Ds3TreeTableValue, Number> sizeColumn;
-
     @FXML
     public TreeTableColumn<Ds3TreeTableValue, Ds3TreeTableValue.Type> fileType;
-
     @Inject
     protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
+    private ContextMenu contextMenu;
+    @FXML
+    private TreeTableColumn<Ds3TreeTableValue, Number> sizeColumn;
     @Inject
     private Workers workers;
-
     @Inject
     private JobWorkers jobWorkers;
-
     @Inject
     private Session session;
-
     @Inject
     private ResourceBundle resourceBundle;
-
     @Inject
     private Ds3PanelPresenter ds3PanelPresenter;
-
     @Inject
     private DataFormat dataFormat;
-
     @Inject
     private Ds3Common ds3Common;
-
     @Inject
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
     @Inject
     private JobInterruptionStore jobInterruptionStore;
-
     @Inject
     private SettingsStore settingsStore;
-
     private IntegerProperty limit;
-
     @FXML
     private TreeTableColumn fullPath;
-
     private ListBucketResult listBucketResult;
-
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, selectAll, metaData, createBucket, createFolder;
-
-
-    final List<String> rowNameList = new ArrayList<>();
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -951,29 +931,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         /*values.stream().forEach(file -> refresh(file.getParent()));*/
     }
 
-    private class GetDirectoryObjects extends Task<ListBucketResult> {
-        String bucketName, directoryFullName;
-
-        public GetDirectoryObjects(final String bucketName, final String directoryFullName) {
-            this.bucketName = bucketName;
-            this.directoryFullName = directoryFullName;
-        }
-
-        @Override
-        protected ListBucketResult call() throws Exception {
-            try {
-                final GetBucketRequest request = new GetBucketRequest(bucketName);
-                request.withPrefix(directoryFullName);
-                final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
-                listBucketResult = bucketResponse.getListBucketResult();
-                return listBucketResult;
-            } catch (final Exception e) {
-                LOG.error("unable to get bucket response", e);
-                return null;
-            }
-        }
-    }
-
     private void deleteBucketPrompt() {
         LOG.info("Got delete bucket event");
         ImmutableList<TreeItem<Ds3TreeTableValue>> buckets = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
@@ -1154,5 +1111,28 @@ public class Ds3TreeTablePresenter implements Initializable {
             return false;
         }
 
+    }
+
+    private class GetDirectoryObjects extends Task<ListBucketResult> {
+        String bucketName, directoryFullName;
+
+        public GetDirectoryObjects(final String bucketName, final String directoryFullName) {
+            this.bucketName = bucketName;
+            this.directoryFullName = directoryFullName;
+        }
+
+        @Override
+        protected ListBucketResult call() throws Exception {
+            try {
+                final GetBucketRequest request = new GetBucketRequest(bucketName);
+                request.withPrefix(directoryFullName);
+                final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
+                listBucketResult = bucketResponse.getListBucketResult();
+                return listBucketResult;
+            } catch (final Exception e) {
+                LOG.error("unable to get bucket response", e);
+                return null;
+            }
+        }
     }
 }

@@ -4,21 +4,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.spectralogic.dsbrowser.gui.util.StringConstants.BACK_SLASH;
+import static com.spectralogic.dsbrowser.gui.util.StringConstants.FORWARD_SLASH;
 
 public final class PathUtil {
 
 
     public static String toDs3Path(final String ds3Dir, final String newPath) {
         final String path;
-        if (ds3Dir.endsWith(BACK_SLASH) && newPath.startsWith(BACK_SLASH)) {
+        if (ds3Dir.endsWith(FORWARD_SLASH) && newPath.startsWith(FORWARD_SLASH)) {
             path = ds3Dir + newPath.substring(1);
-        } else if (!ds3Dir.endsWith(BACK_SLASH) && !newPath.startsWith(BACK_SLASH)) {
-            path = ds3Dir + BACK_SLASH + newPath;
+        } else if (!ds3Dir.endsWith(FORWARD_SLASH) && !newPath.startsWith(FORWARD_SLASH)) {
+            path = ds3Dir + FORWARD_SLASH + newPath;
         } else {
             path = ds3Dir + newPath;
         }
-        if (path.startsWith(BACK_SLASH)) {
+        if (path.startsWith(FORWARD_SLASH)) {
             return path.substring(1);
         }
         return path;
@@ -48,7 +48,6 @@ public final class PathUtil {
                 final Path symLinkParent = path.toAbsolutePath().getParent();
                 return symLinkParent.resolve(simLink);
             }
-
             return simLink;
         }
         return path;

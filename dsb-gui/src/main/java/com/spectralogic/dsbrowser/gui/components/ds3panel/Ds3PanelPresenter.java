@@ -37,6 +37,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
@@ -82,92 +83,62 @@ public class Ds3PanelPresenter implements Initializable {
 
     @FXML
     private Label ds3PathIndicator;
-
     @FXML
     private Label infoLabel;
-
     @FXML
     private Label capacityLabel;
-
-
     @FXML
     private Label paneItems;
-
     @FXML
     private Tooltip ds3PathIndicatorTooltip;
-
     @FXML
     private Button ds3ParentDir, ds3Refresh, ds3NewFolder, ds3NewBucket, ds3DeleteButton, newSessionButton, ds3TransferLeft;
-
     @FXML
     private Tooltip ds3ParentDirToolTip, ds3RefreshToolTip, ds3NewFolderToolTip, ds3NewBucketToolTip, ds3DeleteButtonToolTip, ds3TransferLeftToolTip;
-
     @FXML
     private TextField ds3PanelSearch;
-
     @FXML
     private Tab addNewTab;
-
     @FXML
     private TabPane ds3SessionTabPane;
-
     @FXML
     private ImageView imageView, imageViewForTooltip;
-
     @FXML
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
-
     @Inject
     private Ds3SessionStore store;
-
     @Inject
     private Workers workers;
-
     @Inject
     private JobWorkers jobWorkers;
-
     @Inject
     private ResourceBundle resourceBundle;
-
     @Inject
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
     @Inject
     private JobInterruptionStore jobInterruptionStore;
-
     @Inject
     private SettingsStore settingsStore;
-
     @Inject
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
     @Inject
     private LocalFileTreeTableProvider provider;
-
     @Inject
     private DataFormat dataFormat;
-
     @Inject
     private Ds3Common ds3Common;
-
-
     @Inject
     private SavedSessionStore savedSessionStore;
-
-
     @FXML
     private HBox lowerPanel;
-
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView = null;
-
     private GetNoOfItemsTask itemsTask;
-
     private ListBucketResult listBucketResult;
 
-    private final int noOfFiles = 0;
-    private final int noOfFolders = 0;
-    private final long totalCapacity = 0;
 
+    public Ds3PanelPresenter() {
+        super();
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -239,7 +210,6 @@ public class Ds3PanelPresenter implements Initializable {
         return ds3PathIndicatorTooltip;
     }
 
-
     public Label getInfoLabel() {
         return infoLabel;
     }
@@ -250,10 +220,6 @@ public class Ds3PanelPresenter implements Initializable {
 
     public void setPaneItems(final Label paneItems) {
         this.paneItems = paneItems;
-    }
-
-    public void setDs3TreeTableView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
-        this.ds3TreeTableView = ds3TreeTableView;
     }
 
     private void goToParentDirectory() {
@@ -291,6 +257,10 @@ public class Ds3PanelPresenter implements Initializable {
 
     public TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
         return ds3TreeTableView;
+    }
+
+    public void setDs3TreeTableView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+        this.ds3TreeTableView = ds3TreeTableView;
     }
 
     private void initListeners() {
@@ -881,10 +851,6 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    public Ds3PanelPresenter() {
-        super();
-    }
-
     public void filterChanged(final String newValue) {
         ds3PathIndicator.setText("Searching..");
         ds3PathIndicatorTooltip.setText("Searching..");
@@ -1055,6 +1021,14 @@ public class Ds3PanelPresenter implements Initializable {
         this.ds3TreeTablePresenter = ds3TreeTablePresenter;
     }
 
+    public HBox getLowerPanel() {
+        return lowerPanel;
+    }
+
+    public void setLowerPanel(final HBox lowerPanel) {
+        this.lowerPanel = lowerPanel;
+    }
+
     private class GetNoOfItemsTask extends Task<FilesCountModel> {
         TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
 
@@ -1156,14 +1130,6 @@ public class Ds3PanelPresenter implements Initializable {
             return filesCountModel;
 
         }
-    }
-
-    public HBox getLowerPanel() {
-        return lowerPanel;
-    }
-
-    public void setLowerPanel(final HBox lowerPanel) {
-        this.lowerPanel = lowerPanel;
     }
 
 }
