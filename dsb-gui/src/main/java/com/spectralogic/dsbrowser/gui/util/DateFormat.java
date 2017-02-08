@@ -20,7 +20,7 @@ public final class DateFormat {
      */
     public static String timeConversion(final long seconds){
         final long day = (seconds/(60*60*24));
-        if(day>=1){
+        if(day >=1){
             if(day==1){
                 return day + " day ";
             }else{

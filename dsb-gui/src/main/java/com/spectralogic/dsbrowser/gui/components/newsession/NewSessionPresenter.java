@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -45,7 +44,6 @@ public class NewSessionPresenter implements Initializable {
 
     @FXML
     private TableView<SavedSession> savedSessions;
-    //private DefaultSessionSettings defaultSessionSettings;
 
     @Inject
     private Ds3SessionStore store;

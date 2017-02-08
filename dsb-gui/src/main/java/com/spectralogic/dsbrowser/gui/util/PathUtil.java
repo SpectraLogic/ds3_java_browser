@@ -4,22 +4,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.spectralogic.dsbrowser.gui.util.StringConstants.BACK_SLASH;
+
 public final class PathUtil {
 
-    private PathUtil() {
-        // pass
-    }
 
     public static String toDs3Path(final String ds3Dir, final String newPath) {
         final String path;
-        if (ds3Dir.endsWith("/") && newPath.startsWith("/")) {
+        if (ds3Dir.endsWith(BACK_SLASH) && newPath.startsWith(BACK_SLASH)) {
             path = ds3Dir + newPath.substring(1);
-        } else if (!ds3Dir.endsWith("/") && !newPath.startsWith("/")) {
-            path = ds3Dir + "/" + newPath;
+        } else if (!ds3Dir.endsWith(BACK_SLASH) && !newPath.startsWith(BACK_SLASH)) {
+            path = ds3Dir + BACK_SLASH + newPath;
         } else {
             path = ds3Dir + newPath;
         }
-        if (path.startsWith("/")) {
+        if (path.startsWith(BACK_SLASH)) {
             return path.substring(1);
         }
         return path;

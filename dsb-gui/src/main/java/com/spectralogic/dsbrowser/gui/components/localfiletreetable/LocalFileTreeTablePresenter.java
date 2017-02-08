@@ -257,7 +257,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (treeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) treeItem;
-            ds3TreeTableItem.refresh(ds3Common);
+            ds3TreeTableItem.refresh();
         }
     }
 

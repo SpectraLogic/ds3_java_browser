@@ -46,11 +46,11 @@ public class CloseConfirmationHandlerTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3BlY3RyYQ==", "JNXaNmyt"), false);
+            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
             session = new NewSessionPresenter().createConnection(savedSession);
             handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
-            final URL url = classLoader.getResource("files/demoFilte.txt");
+            final URL url = classLoader.getResource("files/demoFile.txt");
             if (url != null) {
                 CloseConfirmationHandlerTest.file = new File(url.getFile());
             }
@@ -77,9 +77,9 @@ public class CloseConfirmationHandlerTest {
                 final NewSessionModel newSessionModel = new NewSessionModel();
                 newSessionModel.setSessionName(session.getSessionName());
                 newSessionModel.setEndpoint(session.getEndpoint());
-                newSessionModel.setAccessKey("c3BlY3RyYQ==");
+                newSessionModel.setAccessKey("c3VsYWJoamFpbg==");
                 newSessionModel.setPortno("8080");
-                newSessionModel.setSecretKey("JNXaNmyt");
+                newSessionModel.setSecretKey("yVBAvWTG");
                 newSessionModel.setProxyServer(null);
                 final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
                 savedSessionStorePrevious.saveSession(newSessionModel.toSession());
@@ -121,7 +121,7 @@ public class CloseConfirmationHandlerTest {
         Platform.runLater(() -> {
             try {
                 final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put("demoFilte.txt", file.toPath());
+                filesMap.put("demoFile.txt", file.toPath());
 
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();

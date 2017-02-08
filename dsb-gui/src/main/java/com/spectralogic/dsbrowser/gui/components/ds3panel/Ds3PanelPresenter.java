@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
-import com.spectralogic.ds3client.commands.DeleteObjectsResponse;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.*;
@@ -262,9 +261,9 @@ public class Ds3PanelPresenter implements Initializable {
         if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getValue()) {
         } else if (null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent()) {
             if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
-               getDs3PathIndicator().setText("");
+                getDs3PathIndicator().setText("");
                 getDs3PathIndicator().setTooltip(null);
-            }else{
+            } else {
                 getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
             }
             ds3Common.getDs3PanelPresenter().getTreeTableView()
@@ -277,7 +276,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
                 ds3Common.getDs3PanelPresenter().getTreeTableView().setPlaceholder(new StackPane(progress));
-                ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh(ds3Common);
+                ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
             } catch (final Exception e) {
                 LOG.error("Unable to change root", e);
             }
@@ -827,10 +826,10 @@ public class Ds3PanelPresenter implements Initializable {
                 item = (Ds3TreeTableItem) modifiedTreeItem;
             }
             if (item.isExpanded()) {
-                item.refresh(ds3Common);
+                item.refresh();
             } else if (item.isAccessedChildren()) {
                 item.setExpanded(true);
-                item.refresh(ds3Common);
+                item.refresh();
             } else {
                 item.setExpanded(true);
             }
@@ -914,7 +913,8 @@ public class Ds3PanelPresenter implements Initializable {
                 } else {
                     searchableBuckets.addAll(buckets);
                 }
-                final SearchJob searchJob = new SearchJob(searchableBuckets, deepStorageBrowserPresenter, ds3TreeTableView, ds3PathIndicator, newValue, session, workers);
+                final SearchJob searchJob = new SearchJob(searchableBuckets, deepStorageBrowserPresenter,
+                        ds3TreeTableView, ds3PathIndicator, newValue, session, workers, ds3Common);
                 workers.execute(searchJob);
                 searchJob.setOnSucceeded(event -> LOG.info("Search completed!"));
                 searchJob.setOnCancelled(event -> LOG.info("Search cancelled"));
@@ -941,7 +941,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void disableMenu(final boolean disable) {
-        if(disable) {
+        if (disable) {
             ds3PathIndicator.setTooltip(null);
         }
         imageViewForTooltip.setDisable(disable);

@@ -28,13 +28,12 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -42,7 +41,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
@@ -51,7 +49,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -605,10 +602,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 loadMore(row.getTreeItem());
                             }
                         }
-                        if(ds3TreeTable.getRoot().getParent()==null && ds3TreeTable.getSelectionModel().getSelectedItem()==null){
+                        if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
                             ds3PanelPresenter.getDs3PathIndicator().setText("");
                             ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
-                        }else{
+                        } else {
                             ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
                         }
                     } catch (final Exception e) {
@@ -703,7 +700,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);
         ds3TreeTable.setPlaceholder(new StackPane(progress));
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
         workers.execute(getServiceTask);
         ds3TreeTable.setRoot(rootTreeItem);
         ds3TreeTable.expandedItemCountProperty().addListener(new ChangeListener<Number>() {
@@ -1078,10 +1075,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                 item = (Ds3TreeTableItem) modifiedTreeItem;
             }
             if (item.isExpanded()) {
-                item.refresh(ds3Common);
+                item.refresh();
             } else if (item.isAccessedChildren()) {
                 item.setExpanded(true);
-                item.refresh(ds3Common);
+                item.refresh();
             } else {
                 item.setExpanded(true);
             }
@@ -1099,7 +1096,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
-            ds3TreeTableItem.loadMore(ds3TreeTable, ds3Common, deepStorageBrowserPresenter);
+            ds3TreeTableItem.loadMore(ds3TreeTable, deepStorageBrowserPresenter);
         }
     }
 
@@ -1112,7 +1109,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);
         ds3TreeTable.setPlaceholder(new StackPane(progress));
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren());
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
         ds3TreeTable.setRoot(rootTreeItem);
         workers.execute(getServiceTask);
         progress.progressProperty().bind(getServiceTask.progressProperty());
@@ -1133,52 +1130,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             });
         });
     }
-
-
-    private class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
-
-        private final ReadOnlyObjectWrapper<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResults;
-
-        public GetServiceTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList) {
-            partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
-        }
-
-        public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {
-            return this.partialResults.get();
-        }
-
-        public ReadOnlyObjectProperty<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResultsProperty() {
-            return partialResults.getReadOnlyProperty();
-        }
-
-        @Override
-        protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
-            final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-            if (response.getListAllMyBucketsResult().getBuckets() != null) {
-                final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
-                        .getBuckets().stream()
-                        .map(bucket -> {
-                            final HBox hbox = new HBox();
-                            hbox.getChildren().add(new Label("----"));
-                            hbox.setAlignment(Pos.CENTER);
-                            return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
-                        })
-                        .collect(Collectors.toList());
-                buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
-                Platform.runLater(() -> {
-                    if (deepStorageBrowserPresenter != null)
-                        deepStorageBrowserPresenter.logText("Received bucket list", LogType.SUCCESS);
-                    ds3PanelPresenter.disableSearch(false);
-                    final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
-                    partialResults.get().addAll(treeItems);
-                });
-            } else {
-                ds3PanelPresenter.disableSearch(true);
-            }
-            return this.partialResults.get();
-        }
-    }
-
 
     /**
      * check if bucket contains files or folders

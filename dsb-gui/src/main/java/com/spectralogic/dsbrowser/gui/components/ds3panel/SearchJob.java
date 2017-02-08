@@ -36,8 +36,11 @@ public class SearchJob extends Task<String> {
     private final String searchText;
     private final Session session;
     private final Workers workers;
+    private final Ds3Common ds3Common;
 
-    public SearchJob(final List<Bucket> buckets, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final String seachText, final Session session, final Workers workers) {
+    public SearchJob(final List<Bucket> buckets, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final
+    TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final String seachText, final
+                     Session session, final Workers workers, final Ds3Common ds3Common) {
         this.buckets = buckets;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.ds3TreeTableView = ds3TreeTableView;
@@ -45,6 +48,7 @@ public class SearchJob extends Task<String> {
         this.searchText = seachText;
         this.session = session;
         this.workers = workers;
+        this.ds3Common = ds3Common;
     }
 
     @Override
@@ -59,7 +63,7 @@ public class SearchJob extends Task<String> {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Found bucket with name " + searchText,
                             LogType.INFO));
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, "--", "--", false, null);
-                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers));
+                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common));
                 } else {
                     final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(bucket.getName()).withName("%" + searchText + "%").withIncludePhysicalPlacement(true);
                     final GetObjectsWithFullDetailsSpectraS3Response responseFullDetails = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
@@ -85,7 +89,8 @@ public class SearchJob extends Task<String> {
                             );
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Searched in " + bucket.getName() + ": found " + treeItems.size() + " item(s)",
                             LogType.INFO));
-                    treeItems.stream().forEach(item -> list.add(new Ds3TreeTableItem(item.getFullName(), session, item, workers)));
+                    treeItems.stream().forEach(item -> list.add(new Ds3TreeTableItem(item.getFullName(), session,
+                            item, workers, ds3Common)));
                 }
             }
             Platform.runLater(() -> {
