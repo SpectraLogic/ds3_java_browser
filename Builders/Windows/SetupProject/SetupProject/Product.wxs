@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- The name of the product -->
-<?define Name = "Deep Storage Browser" ?>
+<?define Name = "BlackPearl Eon Browser" ?>
 <!-- The manufacturer, for setup package publisher and folder info -->
 <?define Manufacturer = "Spectra Logic" ?>
 
@@ -11,7 +11,7 @@
   <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64"/>
 
-    <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)deep_storage_browser.ico" />
+    <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)BlackPearlEonBrowser.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     <UI>
       <Publish
@@ -33,8 +33,8 @@
       </Publish>
     </UI>
 
-    <WixVariable Id="WixUIDialogBmp" Value="..\..\..\Dialog.bmp" />
-    <WixVariable Id="WixUIBannerBmp" Value="..\..\..\Banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="..\..\..\logo\BlackPearlEonBrowserDialog.jpg" />
+    <WixVariable Id="WixUIBannerBmp" Value="..\..\..\logo\BlackPearlEonBrowserBanner.jpg" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <UIRef Id="WixUI_InstallDir" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
