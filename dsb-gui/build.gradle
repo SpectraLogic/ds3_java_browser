@@ -1,8 +1,6 @@
 buildscript {
     repositories {
-        maven {
-            url "https://jcenter.bintray.com"
-        }
+        jcenter()
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
@@ -12,6 +10,8 @@ buildscript {
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'application'
 
+mainClassName = 'com.spectralogic.dsbrowser.gui.Main'
+
 dependencies {
     compile project(":dsb-api")
     compile project(":dsb-local")
@@ -20,24 +20,8 @@ dependencies {
 }
 
 shadowJar {
-    def version
-    def console = System.console()
-    if (console) {
-        version = console.readLine('>>> Please enter Version number here: ')
-
-    } else {
-        logger.error "Cannot get console."
-    }
     dependencies {
         exclude 'org.mockito:mockito-core:1.10.19'
         exclude 'junit:junit:4.12'
-        include 'processResources'
     }
-
-    new File("${project.rootDir}/dsb-gui/src/main/resources/version.properties").withWriter { w ->
-        Properties p = new Properties()
-        p['version'] = version.toString()
-        p.store w, null
-    }
-    project.version = version
 }

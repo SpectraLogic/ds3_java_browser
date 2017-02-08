@@ -9,6 +9,7 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class CancelAllTaskBySession extends Task {
     protected Object call() throws Exception {
         tasks.forEach(i -> {
             try {
-                String jobId = "";
+                String jobId = StringConstants.EMPTY_STRING;
                 Ds3Client ds3Client = null;
                 if (i instanceof Ds3PutJob) {
                     final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
