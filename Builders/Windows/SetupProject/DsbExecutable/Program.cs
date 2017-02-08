@@ -7,7 +7,7 @@ namespace DsbExecutable
     {
         public static void Main()
         {
-            const string root = @"HKEY_CURRENT_USER\Software\Spectra Logic\Deep Storage Browser";
+            const string root = @"HKEY_CURRENT_USER\Software\Spectra Logic\BlackPearl Eon Browser";
             var installFolderValue = (string)Registry.GetValue(root, "InstallFolder", null);
             var versionValue = (string)Registry.GetValue(root, "Version", null);
 
