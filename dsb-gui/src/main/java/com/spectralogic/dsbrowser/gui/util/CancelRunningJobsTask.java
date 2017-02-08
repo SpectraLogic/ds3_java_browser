@@ -34,7 +34,7 @@ public class CancelRunningJobsTask extends Task {
             final ImmutableList<Ds3JobTask> ds3Jobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
             ds3Jobs.forEach(job -> {
                 try {
-                    String jobId = "";
+                    String jobId = StringConstants.EMPTY_STRING;
                     Ds3Client ds3Client = null;
                     if (job instanceof Ds3PutJob) {
                         final Ds3PutJob ds3PutJob = (Ds3PutJob) job;

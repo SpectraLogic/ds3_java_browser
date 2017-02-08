@@ -37,15 +37,19 @@ public class LogService {
         final Path destPath = Paths.get(logSettings.getLogLocation(), "browser.log");
         final Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final LoggerContext context = rootLogger.getLoggerContext();
+
         // reset the configuration
         context.reset();
+
         final RollingFileAppender<ILoggingEvent> fileAppender = new RollingFileAppender<>();
         fileAppender.setContext(context);
         fileAppender.setFile(destPath.toString());
+
         final PatternLayoutEncoder layout = new PatternLayoutEncoder();
         layout.setPattern(pattern);
         layout.setContext(context);
         layout.start();
+
         final FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
         rollingPolicy.setContext(context);
         rollingPolicy.setFileNamePattern(destPath.toString() + ".%i");
@@ -54,16 +58,20 @@ public class LogService {
         rollingPolicy.setMinIndex(logSettings.getNumRollovers());
         rollingPolicy.setParent(fileAppender);
         rollingPolicy.start();
+
         final SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
         triggeringPolicy.setContext(context);
         triggeringPolicy.setMaxFileSize(FileSize.valueOf(String.format("%dMB", logSettings.getLogSize())));
         triggeringPolicy.start();
+
         fileAppender.setName("FILE");
         fileAppender.setEncoder(layout);
         fileAppender.setRollingPolicy(rollingPolicy);
         fileAppender.setTriggeringPolicy(triggeringPolicy);
         fileAppender.start();
+
         rootLogger.addAppender(fileAppender);
+
         if (logSettings.getConsoleLogging()) {
             final ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
             consoleAppender.setName("STDOUT");
@@ -71,11 +79,13 @@ public class LogService {
             consoleAppender.setEncoder(layout);
             consoleAppender.start();
         }
+
         if (logSettings.getDebugLogging()) {
             rootLogger.setLevel(Level.DEBUG);
         } else {
             rootLogger.setLevel(Level.INFO);
         }
+
         LOG.info("Finished configuring logging");
         return layout;
     }
