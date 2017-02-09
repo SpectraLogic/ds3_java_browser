@@ -10,6 +10,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -57,7 +58,7 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                     .getBuckets().stream()
                     .map(bucket -> {
                         final HBox hbox = new HBox();
-                        hbox.getChildren().add(new Label("----"));
+                        hbox.getChildren().add(new Label(StringConstants.TRIPLE_DASHES));
                         hbox.setAlignment(Pos.CENTER);
                         return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
                     })

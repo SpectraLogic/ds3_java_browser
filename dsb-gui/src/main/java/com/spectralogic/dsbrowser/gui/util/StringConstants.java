@@ -12,7 +12,8 @@ public interface StringConstants {
     String DOUBLE_SLASH = "\\";
     String SESSION_SEPARATOR = "-";
     String FORWARD_SLASH = "/";
-    String FULLSTOP = ".";
+    String FULL_STOP = ".";
+    String TRIPLE_DASHES = "----";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
 }

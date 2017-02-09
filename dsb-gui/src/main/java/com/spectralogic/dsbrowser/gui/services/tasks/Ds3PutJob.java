@@ -12,6 +12,7 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -110,7 +111,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                         fileMapBuilder.put(ds3FileName, pair.getValue());
                         return new Ds3Object(ds3FileName, size);
-                    } catch (final IOException e) {
+                        } catch (final IOException e) {
                         LOG.error("Failed to get file size for: " + pair.getValue(), e);
                         return null;
                     }
@@ -126,7 +127,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 } catch (final Exception e) {
                     LOG.error("Failed to save job id", e);
                 }
-                if (jobPriority != null && !jobPriority.isEmpty()) {
+                if (Guard.isStringNullOrEmpty(jobPriority)) {
                     client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
                 }
                 final AtomicLong totalSent = new AtomicLong(0L);
@@ -155,7 +156,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         transferRateString = getTransferRateString(transferRate, 0, totalSent, totalJobSize, obj, index);
                     }
                     updateMessage(transferRateString);
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText(transferRateString, LogType.SUCCESS));
+                    Platform.runLater(() -> deepStorageBrowserPresenter.logText(SPACE + " " + obj.substring(0, obj.length()) + SPACE + resourceBundle.getString("to") + SPACE + bucket + FORWARD_SLASH + targetDir + SPACE + resourceBundle.getString("at") + SPACE + newDate, LogType.SUCCESS));
 
                 });
                 //store meta data to server
@@ -317,7 +318,7 @@ public class Ds3PutJob extends Ds3JobTask {
      */
     public String setPutJobTransferString(final long totalJobSize, final boolean isCacheJobEnable,final String dateOfTransfer) {
         if (!isCacheJobEnable) {
-            return resourceBundle.getString("putJobSize") + SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + resourceBundle.getString("transferredTo") + SPACE + resourceBundle.getString("bucket") + bucket + SPACE + resourceBundle.getString("blackPearlLocation") + SPACE + targetDir + SPACE + resourceBundle.getString("at") + SPACE + dateOfTransfer + FULLSTOP;
+            return resourceBundle.getString("putJobSize") + SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + resourceBundle.getString("transferredTo") + SPACE + resourceBundle.getString("bucket") + bucket + SPACE + resourceBundle.getString("blackPearlLocation") + SPACE + targetDir + SPACE + resourceBundle.getString("at") + SPACE + dateOfTransfer + FULL_STOP;
         } else {
             return resourceBundle.getString("putJobSize") + SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + resourceBundle.getString("completedTransfered") + SPACE + resourceBundle.getString("bucket") + SPACE + bucket + SPACE + resourceBundle.getString("blackPearlLocation") + targetDir + SPACE + resourceBundle.getString("at") + SPACE + dateOfTransfer + resourceBundle.getString("waiting");
         }

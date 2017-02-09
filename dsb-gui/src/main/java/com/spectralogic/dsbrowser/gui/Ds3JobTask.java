@@ -11,23 +11,20 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     @Override
     protected final Boolean call() throws Exception {
         LOG.info("Starting DS3 Job");
-
         try {
             executeJob();
         } catch (final Exception e) {
             LOG.error("Job failed with an exception", e);
             return false;
         }
-
         LOG.info("Job finished successfully");
-
         return true;
     }
 
     public abstract void executeJob() throws Exception;
 
-    public void updateProgressPutJob(){
-        updateProgress(0.1,100);
+    public void updateProgressPutJob() {
+        updateProgress(0.1, 100);
     }
 
 }
