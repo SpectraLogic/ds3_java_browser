@@ -55,5 +55,4 @@ public class CheckNetwork_Test {
         });
         Thread.sleep(100);
     }
-
 }

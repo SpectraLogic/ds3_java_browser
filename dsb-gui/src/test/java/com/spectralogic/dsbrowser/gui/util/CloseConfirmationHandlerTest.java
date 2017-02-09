@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class CloseConfirmationHandlerTest {
@@ -66,6 +67,7 @@ public class CloseConfirmationHandlerTest {
             Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getWidth()), Double.valueOf(200));
             Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getHeight()), Double.valueOf(200));
         });
+
         Thread.sleep(2000);
     }
 
@@ -94,6 +96,7 @@ public class CloseConfirmationHandlerTest {
                 Assert.assertEquals(newSessionModel.getPortNo(), savedSession.getPortNo());
             } catch (final IOException e) {
                 e.printStackTrace();
+                Assert.fail();
             }
         });
         Thread.sleep(2000);
@@ -187,16 +190,16 @@ public class CloseConfirmationHandlerTest {
                 Thread.sleep(5000);
                 final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds());
                 task.setOnSucceeded(event -> {
-                    Assert.assertEquals(true,true);
                     handler.shutdownWorkers();
+                    Assert.assertEquals(true, true);
                 });
                 task.setOnFailed(event -> {
-                    Assert.fail();
                     handler.shutdownWorkers();
+                    Assert.fail();
                 });
-
             } catch (final Exception e) {
                 e.printStackTrace();
+                Assert.fail();
             }
         });
         Thread.sleep(5000);

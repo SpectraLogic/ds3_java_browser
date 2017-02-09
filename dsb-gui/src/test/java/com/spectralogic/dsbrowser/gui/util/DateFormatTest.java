@@ -17,7 +17,6 @@ public class DateFormatTest {
 
     @Test
     public void timeConversionTest() throws Exception {
-        final Date date = new Date(1485757788120l);
 
         final String timeConversionSecond = DateFormat.timeConversion(1);
         assertThat(timeConversionSecond, is("1 second "));

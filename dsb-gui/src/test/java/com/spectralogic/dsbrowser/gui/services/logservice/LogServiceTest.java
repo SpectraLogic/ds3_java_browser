@@ -8,9 +8,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by linchpinub4 on 6/2/17.
- */
 public class LogServiceTest {
 
     @Test

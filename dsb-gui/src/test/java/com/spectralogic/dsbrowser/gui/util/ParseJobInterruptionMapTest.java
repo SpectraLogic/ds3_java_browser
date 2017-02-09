@@ -53,7 +53,7 @@ public class ParseJobInterruptionMapTest {
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file
                 final ClassLoader classLoader = ParseJobInterruptionMapTest.class.getClassLoader();
-                final URL url = classLoader.getResource("files/demo.mp4");
+                final URL url = classLoader.getResource("files/Sample.txt");
                 if (url != null) {
                     ParseJobInterruptionMapTest.file = new File(url.getFile());
                 }
