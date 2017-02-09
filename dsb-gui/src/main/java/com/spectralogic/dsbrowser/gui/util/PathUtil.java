@@ -1,8 +1,12 @@
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.ds3client.models.bulk.Ds3Object;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.FORWARD_SLASH;
 
@@ -51,5 +55,25 @@ public final class PathUtil {
             return simLink;
         }
         return path;
+    }
+
+    public static String getFolderLocation(final String location, final String bucketName) {
+        String newLocation = StringConstants.EMPTY_STRING;
+        if (!location.equals(bucketName)) {
+            newLocation = location;
+            //if creating folder while file is selected
+            if (!newLocation.endsWith(StringConstants.FORWARD_SLASH)) {
+                final int lastIndex = newLocation.lastIndexOf(StringConstants.FORWARD_SLASH);
+                newLocation = newLocation.substring(0, lastIndex + 1);
+            }
+        }
+        return newLocation;
+    }
+
+    public static List<Ds3Object> getDs3ObjectList(final String location, final String folderName) {
+        final List<Ds3Object> ds3ObjectList = new ArrayList<>();
+        final Ds3Object object = new Ds3Object(location + folderName + StringConstants.FORWARD_SLASH, 0);
+        ds3ObjectList.add(object);
+        return ds3ObjectList;
     }
 }

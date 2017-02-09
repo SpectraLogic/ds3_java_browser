@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
@@ -16,6 +15,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -250,14 +250,13 @@ public final class ParseJobInterruptionMap {
                     getServiceTask.setOnSucceeded(event -> {
                         ds3TreeTableView.setRoot(rootTreeItem);
                         if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + StringConstants.SESSION_SEPARATOR +
-                                session
-                                        .getEndpoint())) {
-                            rootTreeItem.getChildren().forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue)
-                                    -> {
-                                final BooleanProperty bb = (BooleanProperty) observable;
-                                final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                                ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
-                            }));
+                                session.getEndpoint())) {
+                            rootTreeItem.getChildren().forEach(i ->
+                                    i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                                        final BooleanProperty bb = (BooleanProperty) observable;
+                                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
+                                    }));
                             final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
                             if (rootTreeItem.getChildren().stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
                                 final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = rootTreeItem.getChildren().stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
