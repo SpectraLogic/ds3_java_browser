@@ -70,7 +70,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     @FXML
     public TreeTableView<Ds3TreeTableValue> ds3TreeTable;
-
     @FXML
     public TreeTableColumn<Ds3TreeTableValue, String> fileName;
     @FXML

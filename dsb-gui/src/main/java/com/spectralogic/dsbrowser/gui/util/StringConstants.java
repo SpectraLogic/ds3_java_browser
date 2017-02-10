@@ -13,7 +13,6 @@ public interface StringConstants {
     String SESSION_SEPARATOR = "-";
     String FORWARD_SLASH = "/";
     String FULL_STOP = ".";
-    String TRIPLE_DASHES = "----";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
 }
