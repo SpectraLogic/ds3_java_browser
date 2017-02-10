@@ -15,19 +15,22 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CheckNetwork_Test {
     private static Session session;
+    private boolean successFlag = false;
 
     @BeforeClass
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3BlY3RyYQ==", "JNXaNmyt"), false);
+            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("cmFtYW4=", "BPgjgPeP"), false);
             session = new NewSessionPresenter().createConnection(savedSession);
         });
     }
@@ -49,10 +52,17 @@ public class CheckNetwork_Test {
 
     @Test
     public void isReachable_Test() throws Exception {
-        new JFXPanel();
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            assertTrue(CheckNetwork.isReachable(session.getClient()));
+            try {
+                successFlag = CheckNetwork.isReachable(session.getClient());
+                latch.countDown();
+            } catch (Exception e) {
+                e.printStackTrace();
+                latch.countDown();
+            }
         });
-        Thread.sleep(100);
+        latch.await();
+        assertTrue(successFlag);
     }
 }

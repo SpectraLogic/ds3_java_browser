@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -40,10 +42,12 @@ public class ParseJobInterruptionMapTest {
     private static File file;
     private static final UUID jobId = UUID.randomUUID();
     private static JobInterruptionStore jobInterruptionStore;
+    private boolean successFlag = false;
 
 
     @BeforeClass
     public static void setUp() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
             try {
@@ -54,12 +58,12 @@ public class ParseJobInterruptionMapTest {
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file
                 final ClassLoader classLoader = ParseJobInterruptionMapTest.class.getClassLoader();
-                final URL url = classLoader.getResource("files/Sample.txt");
+                final URL url = classLoader.getResource("files/SampleFiles.txt");
                 if (url != null) {
                     ParseJobInterruptionMapTest.file = new File(url.getFile());
                 }
                 final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put("demoFile.txt", file.toPath());
+                filesMap.put("SampleFiles.txt", file.toPath());
                 //Storing a interrupted job into resource file
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
@@ -74,13 +78,15 @@ public class ParseJobInterruptionMapTest {
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
             } catch (final IOException io) {
                 io.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(5000);
+        latch.await(5, TimeUnit.SECONDS);
     }
 
     @Test
     public void saveValuesToFiles() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 final Map<String, Path> filesMap = new HashMap<>();
@@ -107,18 +113,24 @@ public class ParseJobInterruptionMapTest {
                         .map(Map.Entry::getKey).filter(uuidKey -> uuidKey.equals(jobId.toString()))
                         .findFirst()
                         .orElse(null);
-                //Validating test case
-                assertEquals(jobIdKey, jobId.toString());
-            } catch (final IOException io) {
+
+                if (jobIdKey.equals(jobId.toString())) {
+                    successFlag = true;
+                }
+                latch.countDown();
+            } catch (final Exception io) {
                 io.printStackTrace();
+                latch.countDown();
             }
 
         });
-        Thread.sleep(2000);
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void getJobIDMap() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
@@ -143,17 +155,20 @@ public class ParseJobInterruptionMapTest {
                         }
                     }
                 }
-                assertEquals(true, result);
+                successFlag =  result;
+                latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(2000);
-
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void removeJobIdFromFile() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 final Map<String, Path> filesMap = new HashMap<>();
@@ -200,23 +215,29 @@ public class ParseJobInterruptionMapTest {
                         .findFirst()
                         .orElse(null);
                 //Validating test case
-                assertNull(jobIdToBeRemovedNew);
+                if (jobIdToBeRemovedNew == null) {
+                    successFlag = true;
+                }
+                latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(12000);
-
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void cancelTasks() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final List<File> filesList = new ArrayList<>();
-            filesList.add(file);
-            final Ds3Client ds3Client = session.getClient();
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             try {
+                final List<File> filesList = new ArrayList<>();
+                filesList.add(file);
+                final Ds3Client ds3Client = session.getClient();
+                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
+
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
@@ -227,32 +248,41 @@ public class ParseJobInterruptionMapTest {
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
                 });
+                ds3PutJob.setOnFailed(event -> {
+                    System.out.println("Put job failed");
+                });
                 Thread.sleep(5000);
                 //Cancelling put job task
                 final CancelRunningJobsTask cancelRunningJobsTask = ParseJobInterruptionMap.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers);
-                //Validating test case
-                assertNotNull(cancelRunningJobsTask);
                 cancelRunningJobsTask.setOnSucceeded(event -> {
-                    assertEquals(true, true);
+                    successFlag = true;
+                    latch.countDown();
                 });
                 cancelRunningJobsTask.setOnFailed(event -> {
-                    fail();
+                    latch.countDown();
+                });
+                cancelRunningJobsTask.setOnCancelled(event -> {
+                    latch.countDown();
                 });
             } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(20000);
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void cancelAllRunningJobsBySession() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final List<File> filesList = new ArrayList<>();
-            filesList.add(file);
-            final Ds3Client ds3Client = session.getClient();
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             try {
+                final List<File> filesList = new ArrayList<>();
+                filesList.add(file);
+                final Ds3Client ds3Client = session.getClient();
+                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
+
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
@@ -263,22 +293,30 @@ public class ParseJobInterruptionMapTest {
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
                 });
+
+                ds3PutJob.setOnFailed(event -> {
+                    System.out.println("Put job fail");
+                });
                 Thread.sleep(5000);
                 //Cancelling task by session
                 final CancelAllTaskBySession cancelAllRunningJobsBySession = ParseJobInterruptionMap.cancelAllRunningJobsBySession(jobWorkers,
                         jobInterruptionStore, null, workers, session);
-                //Validating test case
-                assertNotNull(cancelAllRunningJobsBySession);
                 cancelAllRunningJobsBySession.setOnSucceeded(event -> {
-                    assertEquals(true, true);
+                    successFlag = true;
+                    latch.countDown();
                 });
                 cancelAllRunningJobsBySession.setOnFailed(event -> {
-                    fail();
+                    latch.countDown();
+                });
+                cancelAllRunningJobsBySession.setOnCancelled(event -> {
+                    latch.countDown();
                 });
             } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(20000);
+       latch.await();
+       assertTrue(successFlag);
     }
 }

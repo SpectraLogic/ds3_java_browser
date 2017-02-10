@@ -25,6 +25,7 @@ public class GetServiceTaskTest {
 
     private final Workers workers = new Workers();
     private Session session;
+    private boolean successFlag = false;
 
     @Before
     public void setUp() throws Exception {
@@ -40,23 +41,27 @@ public class GetServiceTaskTest {
     public void getServiceTask() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
-            final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                    Mockito.mock(Ds3Common.class));
-            workers.execute(getServiceTask);
-            getServiceTask.setOnSucceeded(event -> {
+            try {
+                final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
+                final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
+                        Mockito.mock(Ds3Common.class));
+                workers.execute(getServiceTask);
+                getServiceTask.setOnSucceeded(event -> {
+                    successFlag=true;
+                    latch.countDown();
+                });
+                getServiceTask.setOnFailed(event -> {
+                    latch.countDown();
+                });
+                getServiceTask.setOnCancelled(event -> {
+                    latch.countDown();
+                });
+            }catch (Exception e){
+                e.printStackTrace();
                 latch.countDown();
-                assertTrue(true);
+            }
             });
-            getServiceTask.setOnFailed(event -> {
-                latch.countDown();
-                fail();
-            });
-            getServiceTask.setOnCancelled(event -> {
-                latch.countDown();
-                fail();
-            });
-        });
-        latch.await();
+            latch.await();
+            assertTrue(successFlag);
+        }
     }
-}

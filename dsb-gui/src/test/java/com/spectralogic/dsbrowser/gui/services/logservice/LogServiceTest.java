@@ -17,7 +17,7 @@ public class LogServiceTest {
         final LogService logService = new LogService(logSettings);
         final String pattern = "[%thread] %logger{10} [%file:%line] %msg%n";
         final PatternLayoutEncoder layout = logService.updateLogBackSettings(pattern);
-        assertEquals(pattern, layout.getPattern());
+        assertEquals("[%thread] %logger{10} [%file:%line] %msg%n", layout.getPattern());
     }
 
 }

@@ -6,7 +6,7 @@ import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.*;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
@@ -23,7 +23,7 @@ import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPrio
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.ds3panel.Ds3PanelService;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
@@ -674,7 +674,7 @@ public class Ds3PanelPresenter implements Initializable {
         }
 
         final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
-        if (!com.spectralogic.dsbrowser.gui.services.ds3panel.Ds3PanelService.checkIfBucketEmpty(value.getValue().getBucketName(), getSession())) {
+        if (!Ds3PanelService.checkIfBucketEmpty(value.getValue().getBucketName(), getSession())) {
             Platform.runLater(() -> {
                 deepStorageBrowserPresenter.logText("Failed to delete Bucket as it contains files/folders", LogType.ERROR);
                 ALERT.setContentText("You can not delete bucket as it contains files/folders");

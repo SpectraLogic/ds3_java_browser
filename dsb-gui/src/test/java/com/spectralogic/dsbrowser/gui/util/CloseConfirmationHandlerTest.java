@@ -33,7 +33,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertTrue;
 
 
 public class CloseConfirmationHandlerTest {
@@ -42,6 +45,7 @@ public class CloseConfirmationHandlerTest {
     private static Session session;
     private static CloseConfirmationHandler handler;
     private static File file;
+    private boolean successFlag = false;
 
     @BeforeClass
     public static void setConnection() {
@@ -67,12 +71,11 @@ public class CloseConfirmationHandlerTest {
             Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getWidth()), Double.valueOf(200));
             Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getHeight()), Double.valueOf(200));
         });
-
-        Thread.sleep(2000);
     }
 
     @Test
     public void saveSessionStore() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 //Creating new session
@@ -86,41 +89,53 @@ public class CloseConfirmationHandlerTest {
                 final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
                 savedSessionStorePrevious.saveSession(newSessionModel.toSession());
                 handler.saveSessionStore(savedSessionStorePrevious);
+
                 //To get list of saved session
                 final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore();
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
                 final SavedSession savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst().orElse(null);
-                Assert.assertEquals(newSessionModel.getSessionName(), savedSession.getName());
-                Assert.assertEquals(newSessionModel.getAccessKey(), savedSession.getCredentials().getAccessId());
-                Assert.assertEquals(newSessionModel.getSecretKey(), savedSession.getCredentials().getSecretKey());
-                Assert.assertEquals(newSessionModel.getPortNo(), savedSession.getPortNo());
-            } catch (final IOException e) {
+
+                if (newSessionModel.getSessionName().equals(savedSession.getName()) &&
+                        newSessionModel.getAccessKey().equals(savedSession.getCredentials().getAccessId()) &&
+                        newSessionModel.getSecretKey().equals(savedSession.getCredentials().getSecretKey()) &&
+                        newSessionModel.getPortNo().equals(savedSession.getPortNo())) {
+                    successFlag = true;
+                }
+                latch.countDown();
+            } catch (final Exception e) {
                 e.printStackTrace();
-                Assert.fail();
+                latch.countDown();
             }
         });
-        Thread.sleep(2000);
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void saveJobProperties() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(new JobSettings("URGENT", "URGENT", false));
+                final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(new JobSettings("URGENT", "URGENT", true));
                 handler.saveJobPriorities(savedJobPrioritiesStore);
                 //To get saved job priorities
                 final SavedJobPrioritiesStore savedJobPrioritiesStoreNew = SavedJobPrioritiesStore.loadSavedJobPriorties();
-                Assert.assertEquals(savedJobPrioritiesStoreNew.getJobSettings().getGetJobPriority(), Priority.URGENT.toString());
-                Assert.assertEquals(savedJobPrioritiesStoreNew.getJobSettings().getPutJobPriority(), Priority.URGENT.toString());
-            } catch (final IOException e) {
+                if (savedJobPrioritiesStoreNew.getJobSettings().getGetJobPriority().equals(Priority.URGENT.toString()) && savedJobPrioritiesStoreNew.getJobSettings().getPutJobPriority().equals(Priority.URGENT.toString())) {
+                    successFlag = true;
+                }
+                latch.countDown();
+            } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(2000);
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void saveInterruptionJobs() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 final Map<String, Path> filesMap = new HashMap<>();
@@ -144,43 +159,49 @@ public class CloseConfirmationHandlerTest {
                 final Map<String, Map<String, FilesAndFolderMap>> filesAndFolderMapNew = jobInterruptionStoreNew.getJobIdsModel().getEndpoints().get(jobInterruptionStoreNew.getJobIdsModel().getEndpoints().size() - 1);
                 final Set<String> keySet = filesAndFolderMapNew.keySet();
                 for (final String key : keySet) {
-                    Assert.assertEquals(key, session.getEndpoint() + ":" + session.getPortNo());
+                    if (key.equals(session.getEndpoint() + ":" + session.getPortNo())) {
+                        successFlag = true;
+                    } else {
+                        successFlag = false;
+                        break;
+                    }
                 }
-            } catch (final IOException e) {
+                latch.countDown();
+            } catch (final Exception e) {
                 e.printStackTrace();
+                latch.countDown();
             }
         });
-        Thread.sleep(2000);
+        latch.await();
+        assertTrue(successFlag);
     }
 
     @Test
     public void saveSettings() throws Exception {
-        Platform.runLater(() -> {
-            try {
-                final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.createDefault();
-                final ProcessSettings processSettings = ProcessSettings.createDefault();
-                final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
-                final LogSettings logSettings = LogSettings.createDefault();
-                new SettingsStore(logSettings, processSettings, filePropertiesSettings, showCachedJobSettings);
-                final SettingsStore settingsStoreNew = SettingsStore.loadSettingsStore();
-                final ShowCachedJobSettings showCachedJobSettingsNew = settingsStoreNew.getShowCachedJobSettings();
-                final Boolean showCachedJobNew = showCachedJobSettingsNew.getShowCachedJob();
-                Assert.assertEquals(showCachedJobNew, true);
-            } catch (final IOException e) {
-                e.printStackTrace();
-            }
-        });
-        Thread.sleep(2000);
+        try {
+            final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.createDefault();
+            final ProcessSettings processSettings = ProcessSettings.createDefault();
+            final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
+            final LogSettings logSettings = LogSettings.createDefault();
+            new SettingsStore(logSettings, processSettings, filePropertiesSettings, showCachedJobSettings);
+            final SettingsStore settingsStoreNew = SettingsStore.loadSettingsStore();
+            final ShowCachedJobSettings showCachedJobSettingsNew = settingsStoreNew.getShowCachedJobSettings();
+            successFlag = showCachedJobSettingsNew.getShowCachedJob();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+        assertTrue(successFlag);
     }
 
     @Test
     public void cancelAllRunningTasks() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             final List<File> filesList = new ArrayList<>();
             filesList.add(file);
-            final Ds3Client ds3Client = session.getClient();
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             try {
+                final Ds3Client ds3Client = session.getClient();
+                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), null, settingsStore);
                 jobWorkers.execute(ds3PutJob);
@@ -191,17 +212,23 @@ public class CloseConfirmationHandlerTest {
                 final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds());
                 task.setOnSucceeded(event -> {
                     handler.shutdownWorkers();
-                    Assert.assertEquals(true, true);
+                    successFlag = true;
+                    latch.countDown();
                 });
                 task.setOnFailed(event -> {
                     handler.shutdownWorkers();
-                    Assert.fail();
+                    latch.countDown();
+                });
+                task.setOnCancelled(event -> {
+                    handler.shutdownWorkers();
+                    latch.countDown();
                 });
             } catch (final Exception e) {
                 e.printStackTrace();
-                Assert.fail();
+                latch.countDown();
             }
         });
-        Thread.sleep(5000);
+        latch.await();
+        assertTrue(successFlag);
     }
 }

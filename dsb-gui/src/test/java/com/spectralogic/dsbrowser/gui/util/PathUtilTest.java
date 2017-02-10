@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class PathUtilTest {
+
     @Test
     public void toDs3Path() throws Exception {
         final String result1 = PathUtil.toDs3Path("TEST09/", "/file.txt");

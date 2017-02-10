@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.services.ds3panel;
+package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;

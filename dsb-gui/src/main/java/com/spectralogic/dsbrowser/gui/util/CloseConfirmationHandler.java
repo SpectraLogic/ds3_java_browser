@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;

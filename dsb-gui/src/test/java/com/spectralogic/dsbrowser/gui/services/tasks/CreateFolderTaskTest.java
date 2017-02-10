@@ -14,6 +14,8 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -21,6 +23,7 @@ public class CreateFolderTaskTest {
 
     private final Workers workers = new Workers();
     private Session session;
+    private boolean successFlag = false;
 
     @Before
     public void setUp() {
@@ -36,29 +39,37 @@ public class CreateFolderTaskTest {
     public void createFolder() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final String folderName = "TEMP_FOLDER";
-            final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), "TEST1",
-                    "TEST1");
-            final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
-                    .getBucketName());
-            //Instantiating create folder task
-            final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel,
-                    folderName, PathUtil.getDs3ObjectList(location, folderName),
-                    null);
-            workers.execute(createFolderTask);
-            //Validating test case
-            createFolderTask.setOnSucceeded(event -> {
-                //Releasing main thread
+            try {
+                final String folderName = "TEMP_FOLDER33";
+                final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), "TEST1",
+                        "TEST1");
+                final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
+                        .getBucketName());
+                //Instantiating create folder task
+                final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel,
+                        folderName, PathUtil.getDs3ObjectList(location, folderName),
+                        null);
+                workers.execute(createFolderTask);
+                //Validating test case
+                createFolderTask.setOnSucceeded(event -> {
+                    successFlag = true;
+                    //Releasing main thread
+                    latch.countDown();
+                });
+                createFolderTask.setOnFailed(event -> {
+                    //Releasing main thread
+                    latch.countDown();
+                });
+                createFolderTask.setOnCancelled(event -> {
+                    //Releasing main thread
+                    latch.countDown();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
                 latch.countDown();
-                assertTrue(true);
-            });
-            createFolderTask.setOnFailed(event -> {
-                //Releasing main thread
-                latch.countDown();
-                fail();
-            });
-
+            }
         });
         latch.await();
+        assertTrue(successFlag);
     }
 }

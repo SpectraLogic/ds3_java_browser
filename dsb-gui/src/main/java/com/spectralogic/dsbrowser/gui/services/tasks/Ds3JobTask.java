@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui;
+package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import javafx.concurrent.Task;
 import org.slf4j.Logger;

@@ -6,6 +6,9 @@ import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 public class Main_Test {
 
     @Test
@@ -14,8 +17,9 @@ public class Main_Test {
 
     @Test
     public void start() throws Exception {
-        final Thread thread = new Thread(() -> {
+        final CountDownLatch latch = new CountDownLatch(1);
             new JFXPanel(); // Initializes the JavaFx Platform
+
             Platform.runLater(() -> {
                 try {
                     new Main().start(new Stage());
@@ -23,8 +27,7 @@ public class Main_Test {
                     e.printStackTrace();
                 }
             });
-        });
-        thread.start();// Initialize the thread
-        Thread.sleep(20000); // Time to use the app, without this, the thread will be killed too soon
+       // Initialize the thread
+        latch.await(30, TimeUnit.SECONDS) ;// Time to use the app, without this, the thread will be killed too soon
     }
 }
