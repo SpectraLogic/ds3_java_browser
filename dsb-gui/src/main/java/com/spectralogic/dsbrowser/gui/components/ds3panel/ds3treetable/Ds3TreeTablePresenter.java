@@ -112,7 +112,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             ALERT.setTitle("Information Dialog");
             ALERT.setHeaderText(null);
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             initContextMenu();
             initTreeTableView();
         } catch (final Throwable e) {
@@ -251,7 +251,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 return null;
             }
         };
-        DeleteFilesPopup.show(task, null, this);
+        DeleteFilesPopup.show(task, null, this, ds3Common);
        /* values.stream().forEach(file -> refresh(file.getParent()));
         ds3TreeTable.getSelectionModel().clearSelection();*/
     }
@@ -926,7 +926,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 return null;
             }
         };
-        DeleteFilesPopup.show(task, null, this);
+        DeleteFilesPopup.show(task, null, this, ds3Common);
         /*values.stream().forEach(file -> refresh(file.getParent()));*/
     }
 
@@ -987,7 +987,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         return null;
                     }
                 };
-                DeleteFilesPopup.show(task, null, this);
+                DeleteFilesPopup.show(task, null, this, ds3Common);
                 refreshTreeTableView();
                 ds3PanelPresenter.getDs3PathIndicator().setText("");
                 ds3PanelPresenter.getDs3PathIndicatorTooltip().setText("");

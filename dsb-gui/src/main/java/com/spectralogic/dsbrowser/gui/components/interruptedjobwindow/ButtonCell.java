@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -45,7 +46,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         ALERT.setTitle(endpointInfo.getEndpoint());
         ALERT.setHeaderText(null);
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
         this.workers = workers;
@@ -141,13 +142,13 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
 
     private HBox createHBox() {
         final HBox hbox = new HBox();
-        final ImageView recoverImageView = new ImageView(ImageURLs.RECOVERIMAGE);
+        final ImageView recoverImageView = new ImageView(ImageURLs.RECOVER_IMAGE);
         recoverImageView.setFitHeight(15);
         recoverImageView.setFitWidth(15);
         recoverButton.setGraphic(recoverImageView);
         recoverButton.setStyle("-fx-background-color: transparent;");
         recoverButton.setTooltip(new Tooltip("Recover job"));
-        final ImageView cancelImageView = new ImageView(ImageURLs.CANCELRECOVER);
+        final ImageView cancelImageView = new ImageView(ImageURLs.CANCEL_RECOVER);
         cancelImageView.setFitHeight(15);
         cancelImageView.setFitWidth(15);
         cancelButton.setGraphic(cancelImageView);

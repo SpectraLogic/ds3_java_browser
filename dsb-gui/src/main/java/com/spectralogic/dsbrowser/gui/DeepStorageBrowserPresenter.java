@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
@@ -18,9 +17,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -40,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -51,8 +47,8 @@ import java.util.ResourceBundle;
 public class DeepStorageBrowserPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
-    private final ImageView INTERRUPTEDJOBIMAGEVIEW = new ImageView(ImageURLs.INTERRUPTEDJOBIMAGE);
-    private final ImageView CANCELALLJOBIMAGEVIEW = new ImageView(ImageURLs.CANCELALLJOBIMAGE);
+    private final ImageView INTERRUPTEDJOBIMAGEVIEW = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
+    private final ImageView CANCELALLJOBIMAGEVIEW = new ImageView(ImageURLs.CANCEL_ALL_JOBIMAGE);
     private final Alert CLOSECONFIRMATIONALERT = new Alert(
             Alert.AlertType.CONFIRMATION,
             "Are you sure you want to exit?"
@@ -128,7 +124,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             logText("Loading main view", LogType.INFO);
 
             final Stage stage = (Stage) CLOSECONFIRMATIONALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
 
             jobProgressView = new MyTaskProgressView<>();
             jobProgressView.setPrefHeight(1000);
@@ -162,8 +158,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
             jobButton.setGraphic(INTERRUPTEDJOBIMAGEVIEW);
             jobButton.setDisable(true);
             jobButton.setOnAction(event -> {
-                if (ds3Common.getCurrentSession().stream().findFirst().isPresent()) {
-                    final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+                if (ds3Common.getCurrentSession() != null) {
+                    final Session session = ds3Common.getCurrentSession();
                     final String endpoint = session.getEndpoint() + ":" + session.getPortNo();
                     final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
 

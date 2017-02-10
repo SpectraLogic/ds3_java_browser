@@ -75,11 +75,11 @@ public class NewSessionPresenter implements Initializable {
             ALERT.setHeaderText(null);
             ALERTINFO.setHeaderText(null);
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             final Stage stageInfo = (Stage) ALERTINFO.getDialogPane().getScene().getWindow();
-            stageInfo.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stageInfo.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             final Stage confirmstageInfo = (Stage) DEFAULTSESSIONCONFIRMATIONALERT.getDialogPane().getScene().getWindow();
-            confirmstageInfo.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            confirmstageInfo.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             initGUIElement();
             initSessionList();
             initPropertySheet();

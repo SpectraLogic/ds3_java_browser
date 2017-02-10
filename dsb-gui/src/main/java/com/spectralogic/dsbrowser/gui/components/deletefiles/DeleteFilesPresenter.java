@@ -1,11 +1,14 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.LogType;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -48,6 +51,9 @@ public class DeleteFilesPresenter implements Initializable {
 
     @Inject
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
+
+    @Inject
+    private Ds3Common ds3Common;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -101,15 +107,23 @@ public class DeleteFilesPresenter implements Initializable {
     }
 
     public void deleteFiles() {
-        deleteTask.setOnCancelled(this::handle);
-        deleteTask.setOnFailed(this::handle);
-        deleteTask.setOnSucceeded(this::handle);
+        deleteTask.setOnCancelled(event -> {
+            LOG.error("Failed to delete Buckets" + deleteTask.getValue());
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : " + deleteTask.getValue(), LogType.ERROR));
+            closeDialog();
+        });
+        deleteTask.setOnFailed(event -> {
+            LOG.error("Failed to delete Buckets" + deleteTask.getValue());
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : " + deleteTask.getValue(), LogType.ERROR));
+            closeDialog();
+        });
+        deleteTask.setOnSucceeded(event -> {
+            System.out.println(event.getEventType().toString());
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Successfully deleted bucket", LogType.SUCCESS));
+            closeDialog();
+        });
 
         workers.execute(deleteTask);
-    }
-
-    private void handle(final Event event) {
-        closeDialog();
     }
 
     public void cancelDelete() {

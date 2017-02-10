@@ -8,15 +8,12 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -224,7 +221,7 @@ public final class ParseJobInterruptionMap {
     @SuppressWarnings("unchecked")
     public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers) {
         if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
-            final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
+            final Session session = ds3Common.getCurrentSession();
             ds3Common.getDeepStorageBrowserPresenter().logText("Refreshing session " + session.getSessionName() +
                     StringConstants.SESSION_SEPARATOR +
                     session.getEndpoint(), LogType.INFO);
@@ -277,7 +274,7 @@ public final class ParseJobInterruptionMap {
 
     @SuppressWarnings("unchecked")
     private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {
-        final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane().stream().findFirst().orElse(null);
+        final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane();
         if (null != ds3SessionTabPane) {
             final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
             return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView)

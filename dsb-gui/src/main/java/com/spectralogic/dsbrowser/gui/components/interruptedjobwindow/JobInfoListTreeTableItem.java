@@ -52,11 +52,11 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
     private static Node getIcon(final JobInfoModel.Type type) {
         switch (type) {
             case JOBID:
-                return getImageView(ImageURLs.JOBICON);
+                return getImageView(ImageURLs.JOB_ICON);
             case Directory:
-                return getImageView(ImageURLs.FOLDERICON);
+                return getImageView(ImageURLs.FOLDER_ICON);
             case File:
-                return getImageView(ImageURLs.FILEICON);
+                return getImageView(ImageURLs.FILE_ICON);
             default:
                 return null;
         }
@@ -88,7 +88,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
         final FilesAndFolderMap value = stringFilesAndFolderMapEntry.getValue();
         final List<JobInfoListTreeTableItem> list = new ArrayList<>();
         final Node previousGraphics = super.getGraphic();
-        final ImageView processImage = new ImageView(ImageURLs.CHILDLOADER);
+        final ImageView processImage = new ImageView(ImageURLs.CHILD_LOADER);
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
         super.setGraphic(processImage);

@@ -1,15 +1,15 @@
-package com.spectralogic.dsbrowser.gui.util;
+package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;

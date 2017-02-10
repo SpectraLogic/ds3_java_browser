@@ -9,6 +9,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelRunningJobsTask;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.Event;
@@ -63,7 +64,7 @@ public class CloseConfirmationHandler {
                 resourceBundle.getString("closeConfirmationAlertMessage")
         );
         final Stage stage = (Stage) closeConfirmationAlert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
     /**

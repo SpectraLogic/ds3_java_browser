@@ -56,9 +56,9 @@ public class Ds3GetJob_Test {
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
-            final List<Session> sessionList = new ArrayList();
-            sessionList.add(session);
-            Mockito.when(ds3Common.getCurrentSession()).thenReturn(sessionList);
+
+            Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
+
             final MyTaskProgressView<Ds3JobTask> taskProgressView = new MyTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {

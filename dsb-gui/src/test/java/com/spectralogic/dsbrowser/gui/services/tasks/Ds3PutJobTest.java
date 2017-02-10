@@ -62,15 +62,16 @@ public class Ds3PutJobTest {
             filesList.add(file);
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
+
             Mockito.when(deepStorageBrowserPresenter.getCircle()).thenReturn(Mockito.mock(Circle.class));
             Mockito.when(deepStorageBrowserPresenter.getCount()).thenReturn(Mockito.mock(Label.class));
             Mockito.when(deepStorageBrowserPresenter.getJobButton()).thenReturn(Mockito.mock(Button.class));
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
-            final List<Session> sessionList = new ArrayList();
-            sessionList.add(session);
-            Mockito.when(ds3Common.getCurrentSession()).thenReturn(sessionList);
+
+            Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
             final MyTaskProgressView<Ds3JobTask> taskProgressView = new MyTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
+
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
@@ -127,38 +128,36 @@ public class Ds3PutJobTest {
     }
 
     @Test
-    public void getDs3ObjectPath() throws Exception{
+    public void getDs3ObjectPath() throws Exception {
         Platform.runLater(() -> {
-            final String fileName = ds3PutJob.getDs3ObjectPath(new File(file.getParent()).toPath(),file.toPath(),false,1,0);
-            Assert.assertEquals(fileName,file.getName());
+            final String fileName = ds3PutJob.getDs3ObjectPath(new File(file.getParent()).toPath(), file.toPath(), false, 1, 0);
+            Assert.assertEquals(fileName, file.getName());
         });
         Thread.sleep(2000);
 
     }
 
     @Test
-    public void getTransferRateString() throws Exception
-    {
+    public void getTransferRateString() throws Exception {
         Platform.runLater(() -> {
-            final String transferRateString = ds3PutJob.getTransferRateString(100 ,100 ,  new AtomicLong (20L), 1000 , "demo" ,0);
-            Assert.assertEquals(" Transfer Rate 100 Bytes/s Time remaining 1 minute 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/" , transferRateString);
+            final String transferRateString = ds3PutJob.getTransferRateString(100, 100, new AtomicLong(20L), 1000, "demo", 0);
+            Assert.assertEquals(" Transfer Rate 100 Bytes/s Time remaining 1 minute 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/", transferRateString);
 
-            final String transferRateStringWithTransferRateZero = ds3PutJob.getTransferRateString(0 ,100 ,  new AtomicLong (20L), 1000 , "demo" ,0);
-            Assert.assertEquals(" Transfer Rate --/s Time remaining :calculating.. 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/" , transferRateStringWithTransferRateZero);
+            final String transferRateStringWithTransferRateZero = ds3PutJob.getTransferRateString(0, 100, new AtomicLong(20L), 1000, "demo", 0);
+            Assert.assertEquals(" Transfer Rate --/s Time remaining :calculating.. 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/", transferRateStringWithTransferRateZero);
         });
         Thread.sleep(5000);
     }
 
     @Test
-    public void setPutJobTransferString() throws Exception
-    {
+    public void setPutJobTransferString() throws Exception {
         Platform.runLater(() -> {
             final String dateOfTransfer = DateFormat.formatDate(new Date());
-            final String cacheEnabledString = ds3PutJob.setPutJobTransferString(1000L,true,dateOfTransfer);
-            Assert.assertEquals("PUT job [Size: 1000 Bytes]  completed. File transferred to storage location bucket "+bucketName+" at location (BlackPearl cache) at "+dateOfTransfer + ". Waiting for job to complete..." , cacheEnabledString);
+            final String cacheEnabledString = ds3PutJob.setPutJobTransferString(1000L, true, dateOfTransfer);
+            Assert.assertEquals("PUT job [Size: 1000 Bytes]  completed. File transferred to storage location bucket " + bucketName + " at location (BlackPearl cache) at " + dateOfTransfer + ". Waiting for job to complete...", cacheEnabledString);
 
-            final String cacheDisabledString = ds3PutJob.setPutJobTransferString(1000L,false,dateOfTransfer);
-            Assert.assertEquals("PUT job [Size: 1000 Bytes] transferred to bucket"+bucketName+" at location (BlackPearl cache)  at "+dateOfTransfer+"." , cacheDisabledString);
+            final String cacheDisabledString = ds3PutJob.setPutJobTransferString(1000L, false, dateOfTransfer);
+            Assert.assertEquals("PUT job [Size: 1000 Bytes] transferred to bucket" + bucketName + " at location (BlackPearl cache)  at " + dateOfTransfer + ".", cacheDisabledString);
         });
         Thread.sleep(5000);
     }

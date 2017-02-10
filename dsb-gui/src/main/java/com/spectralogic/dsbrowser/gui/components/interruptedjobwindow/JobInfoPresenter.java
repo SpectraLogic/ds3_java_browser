@@ -8,6 +8,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -75,7 +76,7 @@ public class JobInfoPresenter implements Initializable {
         ALERT.setTitle("No network connection");
         ALERT.setHeaderText(null);
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         initListeners();
         initTreeTableView();
     }
@@ -179,7 +180,7 @@ public class JobInfoPresenter implements Initializable {
                 if (jobIDMap != null) {
                     jobIDMap.entrySet().forEach(i -> {
                         final JobInfoModel jobModel = new JobInfoModel(i.getValue().getType(), i.getKey(), i.getValue().getDate(), i.getValue().getTotalJobSize(), i.getKey(), i.getValue().getType(), "Interrupted", JobInfoModel.Type.JOBID, i.getValue().getTargetLocation(), i.getValue().getBucket());
-                        rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
+                        rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession(), workers));
                     });
                 }
                 return rootTreeItem;
@@ -272,7 +273,7 @@ public class JobInfoPresenter implements Initializable {
                 jobIDMap.entrySet().stream().forEach(i -> {
                     final FilesAndFolderMap fileAndFolder = i.getValue();
                     final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), i.getKey(), fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), i.getKey(), fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());
-                    rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
+                    rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession(), workers));
                 });
                 return null;
             }

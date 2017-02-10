@@ -54,7 +54,7 @@ public class Main extends Application {
         Injector.setModelOrService(DataFormat.class, dataFormat);
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
         final Scene mainScene = new Scene(mainView.getView());
-        primaryStage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        primaryStage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         primaryStage.setScene(mainScene);
         primaryStage.setX(ApplicationPreferences.getInstance().getX());
         primaryStage.setY(ApplicationPreferences.getInstance().getY());

@@ -57,7 +57,7 @@ public class CreateFolderPresenter implements Initializable {
             ALERT.setTitle(resourceBundle.getString("createFolderErrAlert"));
             ALERT.setHeaderText(null);
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             initGUIElements();
             folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.equals(StringConstants.EMPTY_STRING)) {

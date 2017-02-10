@@ -78,7 +78,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
 
@@ -229,8 +229,8 @@ public class Ds3GetJob extends Ds3JobTask {
             LOG.error("The job failed to process", t);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Failed ", "", t), LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
-            final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
-            final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
+            final Session session = ds3Common.getCurrentSession();
+            final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
             if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
             }

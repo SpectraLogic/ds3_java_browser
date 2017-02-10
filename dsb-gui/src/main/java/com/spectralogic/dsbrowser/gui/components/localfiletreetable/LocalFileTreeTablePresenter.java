@@ -130,7 +130,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             ALERT.setTitle("Error");
             ALERT.setHeaderText(null);
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             initGUIElements();
             initTableView();
             initListeners();
@@ -598,6 +598,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             }
                     );
         });
+
+        ds3Common.setLocalTreeTableView(treeTable);
+        ds3Common.setLocalFilePathIndicator(localPathIndicator);
 
     }
 

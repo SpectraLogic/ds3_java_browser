@@ -2,6 +2,8 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import javafx.collections.FXCollections;
@@ -19,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
@@ -127,6 +130,30 @@ public class SavedSessionStore {
 
     public void removeSession(final SavedSession sessionName) {
         this.sessions.remove(sessionName);
+    }
+
+    public void openDefaultSession(final Ds3SessionStore store) {
+        //open default session when DSB launched
+        try {
+            final List<SavedSession> defaultSession = getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
+            if (defaultSession.size() == 1) {
+                final SavedSession savedSession = defaultSession.stream().findFirst().orElse(null);
+
+                if (savedSession != null) {
+                    final NewSessionModel newModel = new NewSessionModel();
+                    newModel.setSessionName(savedSession.getName());
+                    newModel.setDefaultSession(true);
+                    newModel.setAccessKey(savedSession.getCredentials().getAccessId());
+                    newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
+                    newModel.setEndpoint(savedSession.getEndpoint());
+                    newModel.setPortno(savedSession.getPortNo());
+                    newModel.setProxyServer(savedSession.getProxyServer());
+                    store.addSession(newModel.toSession());
+                }
+            }
+        } catch (final Exception e) {
+            LOG.error("Encountered error fetching default session" + e);
+        }
     }
 
     private static class SerializedSessionStore {

@@ -14,11 +14,11 @@ import java.util.List;
 
 public final class GetStorageLocations {
 
-    private static final Image ONLINEDISK = new Image(ImageURLs.ONLINEDISK);
-    private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINEDISK);
-    private static final Image STORAGETAPES = new Image(ImageURLs.STORAGETAPES);
-    private static final Image EJECTEDTAPES = new Image(ImageURLs.EJECTEDTAPES);
-    private static final Image BLACKPEARLCACHE = new Image(ImageURLs.BLACKPEARLCACHE);
+    private static final Image ONLINEDISK = new Image(ImageURLs.ONLINE_DISK);
+    private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINE_DISK);
+    private static final Image STORAGETAPES = new Image(ImageURLs.STORAGE_TAPES);
+    private static final Image EJECTEDTAPES = new Image(ImageURLs.EJECTED_TAPES);
+    private static final Image BLACKPEARLCACHE = new Image(ImageURLs.BLACKPEARL_CACHE);
     private static final Image REPLICATION = new Image(ImageURLs.REPLICATION);
 
     public static HBox addPlacementIconsandTooltip(final BulkObject objects) {

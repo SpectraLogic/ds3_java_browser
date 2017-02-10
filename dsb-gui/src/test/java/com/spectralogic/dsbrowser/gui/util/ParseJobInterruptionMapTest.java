@@ -15,6 +15,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;

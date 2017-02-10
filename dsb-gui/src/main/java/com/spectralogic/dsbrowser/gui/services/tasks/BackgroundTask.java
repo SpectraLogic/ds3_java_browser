@@ -1,8 +1,11 @@
-package com.spectralogic.dsbrowser.gui.util;
+package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -10,7 +13,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BackgroundTask implements Runnable{
+public class BackgroundTask implements Runnable {
 
     private final static Logger LOG = LoggerFactory.getLogger(BackgroundTask.class);
     private final Ds3Common ds3Common;
@@ -22,7 +25,7 @@ public class BackgroundTask implements Runnable{
         this.ds3Common = ds3Common;
         this.workers = workers;
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
     @Override
@@ -31,8 +34,8 @@ public class BackgroundTask implements Runnable{
         ALERT.setTitle("Network connection error");
         while (true) {
             try {
-                if (ds3Common.getCurrentSession().stream().findFirst().isPresent()) {
-                    final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+                if (ds3Common.getCurrentSession() != null) {
+                    final Session session = ds3Common.getCurrentSession();
                     if (CheckNetwork.isReachable(session.getClient())) {
                         if (isAlertDisplayed) {
                             LOG.info("network is up");

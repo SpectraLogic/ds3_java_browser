@@ -3,9 +3,6 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
-import com.spectralogic.ds3client.commands.GetServiceResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectraS3Response;
 import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
@@ -125,7 +122,7 @@ public class NewSessionModel {
         Ds3Client client = null;
         try {
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             if (this.getProxyServer() != null && this.getProxyServer().equals("")) {
                 this.setProxyServer(null);
             }

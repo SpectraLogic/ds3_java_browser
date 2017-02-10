@@ -77,7 +77,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.settings = settings;
         this.resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
     @Override
@@ -230,7 +230,7 @@ public class Ds3PutJob extends Ds3JobTask {
             final String newDate = DateFormat.formatDate(new Date());
             Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph(resourceBundle.getString("putJobFailed") + SPACE + client.getConnectionDetails().getEndpoint() + resourceBundle.getString("reason") + e + SPACE + resourceBundle.getString("at") + SPACE + newDate, LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
-            final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
+            final Session session = ds3Common.getCurrentSession();
             if (session != null) {
                 final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
                 if (currentSelectedEndpoint.equals(client.getConnectionDetails().getEndpoint())) {

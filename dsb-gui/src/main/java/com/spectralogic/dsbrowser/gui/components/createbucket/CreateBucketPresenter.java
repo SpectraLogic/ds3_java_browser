@@ -64,7 +64,7 @@ public class CreateBucketPresenter implements Initializable {
         ALERT.setHeaderText(null);
         ALERT.setTitle(resourceBundle.getString("createBucketError"));
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
+        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         initGUIElements();
         //noinspection unchecked
         dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));

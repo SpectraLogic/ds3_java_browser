@@ -162,7 +162,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             }
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + " ] recovery completed. File transferred to " + filesAndFolderMapMap.getTargetLocation() + " (storage location)", LogType.SUCCESS));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
-            final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
+            final Session session = endpointInfo.getDs3Common().getCurrentSession();
             final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
             if (currentSelectedEndpoint.equals(session.getClient().getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
@@ -175,7 +175,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             LOG.error("Encountered an exception when executing a job", e);
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Encountered an exception when executing a job" + e + "-User Interruption", LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getClient().getConnectionDetails().getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), uuid);
-            final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
+            final Session session = endpointInfo.getDs3Common().getCurrentSession();
             final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
             if (currentSelectedEndpoint.equals(endpointInfo.getClient().getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
