@@ -40,7 +40,7 @@ public class CreateFolderTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final String folderName = "TEMP_FOLDER33";
+                final String folderName = "TEMP_FOLDER303";
                 final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), "TEST1",
                         "TEST1");
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
@@ -64,7 +64,7 @@ public class CreateFolderTaskTest {
                     //Releasing main thread
                     latch.countDown();
                 });
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }

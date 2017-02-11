@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
+
 public class DeepStorageBrowserPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
@@ -150,7 +152,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             cancelAll.setGraphic(CANCELALLJOBIMAGEVIEW);
             cancelAll.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
             cancelAll.setOnAction(event -> {
-                ParseJobInterruptionMap.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
+                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
             });
 
             jobButton.setTranslateX(20);

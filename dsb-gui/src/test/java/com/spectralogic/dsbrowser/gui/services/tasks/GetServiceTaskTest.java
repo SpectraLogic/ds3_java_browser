@@ -56,7 +56,7 @@ public class GetServiceTaskTest {
                 getServiceTask.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            }catch (Exception e){
+            }catch (final Exception e){
                 e.printStackTrace();
                 latch.countDown();
             }

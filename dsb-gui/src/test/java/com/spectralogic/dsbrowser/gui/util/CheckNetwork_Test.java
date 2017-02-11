@@ -57,7 +57,7 @@ public class CheckNetwork_Test {
             try {
                 successFlag = CheckNetwork.isReachable(session.getClient());
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }

@@ -44,7 +44,7 @@ public class CreateBucketTaskTest {
             try {
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
-                        "TEMP_BUCKET70",
+                        "TEMP_BUCKET0",
                         null);
 
                 workers.execute(createBucketTask);
@@ -58,7 +58,7 @@ public class CreateBucketTaskTest {
                 createBucketTask.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }

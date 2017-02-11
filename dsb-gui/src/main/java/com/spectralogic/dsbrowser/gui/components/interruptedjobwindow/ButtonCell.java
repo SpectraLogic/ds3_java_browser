@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 
 public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
@@ -66,7 +67,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                     recoverInterruptedJob.setOnSucceeded(event -> {
-                        ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
                         jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                     });
                     recoverInterruptedJob.setOnFailed(event -> {

@@ -101,7 +101,7 @@ public class Ds3PutJobTest {
                 ds3PutJob.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -128,7 +128,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -154,7 +154,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -173,7 +173,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -193,7 +193,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -213,7 +213,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -234,7 +234,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -255,7 +255,7 @@ public class Ds3PutJobTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }

@@ -88,7 +88,7 @@ public class Ds3GetJob_Test {
                 ds3GetJob.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -109,7 +109,7 @@ public class Ds3GetJob_Test {
                     successFlag = true;
                 }
                 countDownLatch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 countDownLatch.countDown();
             }
@@ -130,7 +130,7 @@ public class Ds3GetJob_Test {
                     successFlag = true;
                 }
                 countDownLatch.countDown();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 countDownLatch.countDown();
             }
@@ -151,7 +151,7 @@ public class Ds3GetJob_Test {
                 successFlag = true;
             }
             countDownLatch.countDown();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             countDownLatch.countDown();
         }
@@ -175,7 +175,7 @@ public class Ds3GetJob_Test {
                 successFlag = true;
             }
             countDownLatch.countDown();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             countDownLatch.countDown();
         }

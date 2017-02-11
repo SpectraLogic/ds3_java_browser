@@ -62,6 +62,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
 
@@ -230,7 +232,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     ds3TreeTable.setRoot(selectedItem);
                                 }
                                 ds3TreeTable.getSelectionModel().select(selectedItem);
-                                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                                 deepStorageBrowserPresenter.logText("Successfully deleted file(s)", LogType.SUCCESS);
 
                             });
@@ -507,7 +509,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     refresh(treeItem);
                                     ds3TreeTable.getSelectionModel().clearSelection();
                                     ds3TreeTable.getSelectionModel().select(treeItem);
-                                    ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                                 });
                                 putJob.setOnCancelled(e -> {
                                     LOG.info("setOnCancelled");
@@ -786,26 +788,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             ALERT.showAndWait();
             return;
         }
-    /*    final Task<PhysicalPlacement> getPhysicalPlacement = new Task<PhysicalPlacement>() {
-            @Override
-            protected PhysicalPlacement call() throws Exception {
-                final Ds3Client client = session.getClient();
-                final Ds3TreeTableValue value = values.get(0).getValue();
-                ds3TreeTable.getSelectionModel().getSelectedItem();
-                List<Ds3Object> list = null;
-                if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                    list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
-                            .collect(Collectors.toList());
-                }
-               else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
-                   calculateFiles(value.getBucketName(), value.getType(), value.getFullName()).getObjects().stream().map(item -> new Ds3Object(item.getKey(), item.getSize()))
-                            .collect(Collectors.toList());  }
-                final GetPhysicalPlacementForObjectsSpectraS3Response response = client
-                        .getPhysicalPlacementForObjectsSpectraS3(
-                                new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
-                return response.getPhysicalPlacementResult();
-            }
-        };*/
+
         final Task<PhysicalPlacement> getPhysicalPlacement = new Task<PhysicalPlacement>() {
             @Override
             protected PhysicalPlacement call() throws Exception {
@@ -909,8 +892,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                             ds3TreeTable.setRoot(selectedItem);
                         }
                         ds3TreeTable.getSelectionModel().select(selectedItem);
-                        ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
-                    });
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                });
                 } catch (final FailedRequestException fre) {
                     LOG.error("Failed to delete folder", fre);
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("Failed to delete folder : " + fre, LogType.ERROR));

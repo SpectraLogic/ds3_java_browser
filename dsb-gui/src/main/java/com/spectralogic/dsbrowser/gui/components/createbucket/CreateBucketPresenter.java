@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
@@ -106,7 +108,7 @@ public class CreateBucketPresenter implements Initializable {
                     LOG.info("Bucket is created");
                     deepStorageBrowserPresenter.logText(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setRoot(new TreeItem<>());
-                    ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                     closeDialog();
                 }));
                 createBucketTask.setOnFailed(event -> {

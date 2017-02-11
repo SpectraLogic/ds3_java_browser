@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+
 
 public class JobInfoPresenter implements Initializable {
 
@@ -219,24 +221,24 @@ public class JobInfoPresenter implements Initializable {
                         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                         recoverInterruptedJob.setOnSucceeded(event -> {
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                         });
                         recoverInterruptedJob.setOnFailed(event -> {
                             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR));
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                         });
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
                                 endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS));
-                                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                             } catch (final IOException e) {
                                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR));
                             } finally {
                                 final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
                                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, endpointInfo.getDeepStorageBrowserPresenter());
-                                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                             }
                         });
                     } catch (final Exception e) {

@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DateFormatTest {
+
     @Test
     public void formatDateTest() throws Exception {
         final Date date = new Date(1485757788120l);

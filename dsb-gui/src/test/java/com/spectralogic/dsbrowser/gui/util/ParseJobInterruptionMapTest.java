@@ -35,6 +35,7 @@ import static org.junit.Assert.*;
 
 
 public class ParseJobInterruptionMapTest {
+
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static final Workers workers = new Workers();
     private static Session session;
@@ -43,7 +44,6 @@ public class ParseJobInterruptionMapTest {
     private static final UUID jobId = UUID.randomUUID();
     private static JobInterruptionStore jobInterruptionStore;
     private boolean successFlag = false;
-
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -155,7 +155,7 @@ public class ParseJobInterruptionMapTest {
                         }
                     }
                 }
-                successFlag =  result;
+                successFlag = result;
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -226,97 +226,5 @@ public class ParseJobInterruptionMapTest {
         });
         latch.await();
         assertTrue(successFlag);
-    }
-
-    @Test
-    public void cancelTasks() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final List<File> filesList = new ArrayList<>();
-                filesList.add(file);
-                final Ds3Client ds3Client = session.getClient();
-                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
-
-                //Initiating a put job which to be cancelled
-                final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
-                        deepStorageBrowserPresenter, Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), null, settingsStore);
-                //Starting put job task
-                jobWorkers.execute(ds3PutJob);
-                ds3PutJob.setOnSucceeded(event -> {
-                    System.out.println("Put job success");
-                });
-                ds3PutJob.setOnFailed(event -> {
-                    System.out.println("Put job failed");
-                });
-                Thread.sleep(5000);
-                //Cancelling put job task
-                final CancelRunningJobsTask cancelRunningJobsTask = ParseJobInterruptionMap.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers);
-                cancelRunningJobsTask.setOnSucceeded(event -> {
-                    successFlag = true;
-                    latch.countDown();
-                });
-                cancelRunningJobsTask.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                cancelRunningJobsTask.setOnCancelled(event -> {
-                    latch.countDown();
-                });
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void cancelAllRunningJobsBySession() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final List<File> filesList = new ArrayList<>();
-                filesList.add(file);
-                final Ds3Client ds3Client = session.getClient();
-                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
-
-                //Initiating put job which to be cancelled
-                final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
-                        deepStorageBrowserPresenter, Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), null, settingsStore);
-                //Starting put job task
-                jobWorkers.execute(ds3PutJob);
-                ds3PutJob.setOnSucceeded(event -> {
-                    System.out.println("Put job success");
-                });
-
-                ds3PutJob.setOnFailed(event -> {
-                    System.out.println("Put job fail");
-                });
-                Thread.sleep(5000);
-                //Cancelling task by session
-                final CancelAllTaskBySession cancelAllRunningJobsBySession = ParseJobInterruptionMap.cancelAllRunningJobsBySession(jobWorkers,
-                        jobInterruptionStore, null, workers, session);
-                cancelAllRunningJobsBySession.setOnSucceeded(event -> {
-                    successFlag = true;
-                    latch.countDown();
-                });
-                cancelAllRunningJobsBySession.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                cancelAllRunningJobsBySession.setOnCancelled(event -> {
-                    latch.countDown();
-                });
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-       latch.await();
-       assertTrue(successFlag);
     }
 }

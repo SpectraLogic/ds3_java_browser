@@ -63,6 +63,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+
 public class Ds3PanelPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
@@ -245,7 +248,7 @@ public class Ds3PanelPresenter implements Initializable {
     private void initListeners() {
 
         ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
-        ds3Refresh.setOnAction(event -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers));
+        ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> ds3NewFolder());
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
@@ -399,7 +402,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (closedTab != null) {
                     final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
-                        ParseJobInterruptionMap.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, LOG, workers, closedSession);
+                        CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, LOG, workers, closedSession);
                         store.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() + StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
                         ds3Common.setSessionOfClosedTab(null);
@@ -464,7 +467,7 @@ public class Ds3PanelPresenter implements Initializable {
             getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
                 LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
                 CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
-                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+              RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             }));
 
         } else {
@@ -686,7 +689,7 @@ public class Ds3PanelPresenter implements Initializable {
 
             DeleteFilesPopup.show(ds3DeleteBucketTask, this, null, ds3Common);
             ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setRoot(new TreeItem<>());
-            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
         }
@@ -855,7 +858,7 @@ public class Ds3PanelPresenter implements Initializable {
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENSICON);
             if (newValue == null || newValue.isEmpty()) {
-                ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             }
         });
 
@@ -879,7 +882,7 @@ public class Ds3PanelPresenter implements Initializable {
         final Session session = getSession();
 
         if (newValue.isEmpty()) {
-            ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();

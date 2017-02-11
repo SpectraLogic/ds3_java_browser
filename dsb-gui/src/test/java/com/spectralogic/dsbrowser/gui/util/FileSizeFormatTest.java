@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class FileSizeFormatTest {
+
     @Test
     public void getFileSizeType() throws Exception {
         final String fileSizeType = FileSizeFormat.getFileSizeType(1023);
