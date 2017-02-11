@@ -6,10 +6,10 @@ import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 
-public class CreateFolderTask extends Task {
+public class CreateFolderTask extends Ds3Task {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderTask.class);
 

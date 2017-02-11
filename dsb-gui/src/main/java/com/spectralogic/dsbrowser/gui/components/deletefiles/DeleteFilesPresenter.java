@@ -7,17 +7,15 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -30,6 +28,8 @@ import java.util.ResourceBundle;
 public class DeleteFilesPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
+
+    private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
     @FXML
     private TextField deleteField;
@@ -55,19 +55,28 @@ public class DeleteFilesPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+    @Inject
+    private ResourceBundle resourceBundle;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            ALERT.setTitle(resourceBundle.getString("deleteFolderErrAlert"));
+            ALERT.setHeaderText(null);
+            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             deleteButton.setDisable(true);
             if (ds3PanelPresenter.getDs3TreeTableView() != null) {
-                ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView()
+                        .getSelectionModel().getSelectedItems();
                 if (Guard.isNullOrEmpty(selectedPanelItems)) {
                     selectedPanelItems = FXCollections.observableArrayList();
                     selectedPanelItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
                 }
                 changeLabelText(selectedPanelItems);
             } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
-                ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable
+                        .getSelectionModel().getSelectedItems();
                 if (Guard.isNullOrEmpty(selectedMenuItems)) {
                     selectedMenuItems = FXCollections.observableArrayList();
                     selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
@@ -81,7 +90,6 @@ public class DeleteFilesPresenter implements Initializable {
                     deleteButton.setDisable(true);
                 }
             });
-
             deleteField.setOnKeyReleased(event -> {
                 if (!deleteButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     deleteFiles();
@@ -109,20 +117,26 @@ public class DeleteFilesPresenter implements Initializable {
     public void deleteFiles() {
         deleteTask.setOnCancelled(event -> {
             LOG.error("Failed to delete Buckets" + deleteTask.getValue());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : " + deleteTask.getValue(), LogType.ERROR));
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : "
+                    + deleteTask.getValue(), LogType.ERROR));
             closeDialog();
         });
         deleteTask.setOnFailed(event -> {
             LOG.error("Failed to delete Buckets" + deleteTask.getValue());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : " + deleteTask.getValue(), LogType.ERROR));
-            closeDialog();
+            Platform.runLater(() -> {
+                ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : "
+                        + deleteTask.getValue(), LogType.ERROR);
+                closeDialog();
+                ALERT.setContentText(resourceBundle.getString("deleteErrLogs"));
+                ALERT.showAndWait();
+            });
         });
         deleteTask.setOnSucceeded(event -> {
             System.out.println(event.getEventType().toString());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Successfully deleted bucket", LogType.SUCCESS));
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Successfully deleted bucket",
+                    LogType.SUCCESS));
             closeDialog();
         });
-
         workers.execute(deleteTask);
     }
 

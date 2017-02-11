@@ -4,20 +4,19 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response;
-import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.DateFormat;
+import com.spectralogic.dsbrowser.gui.util.BucketUtil;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.PartialResultComparator;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -33,12 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
+import static com.spectralogic.dsbrowser.gui.util.BucketUtil.distinctByKey;
 
 public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
     private static final Logger LOG = LoggerFactory.getLogger(GetBucketTask.class);
@@ -51,9 +47,8 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
     private final Workers workers;
     private final TreeTableView ds3TreeTable;
     private final Ds3Common ds3Common;
-    private static final int PAGE_LENGTH = 1000;
-    private final ResourceBundle myResources =
-            ResourceBundle.getBundle("lang", new Locale("en_IN"));
+    private final int PAGE_LENGTH = 1000;
+    private final ResourceBundle resourceBundle;
     private final Ds3TreeTableItem ds3TreeTableItem;
 
     public GetBucketTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList, final String bucket, final
@@ -61,6 +56,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                          Ds3TreeTableItem ds3TreeTableItem, final TreeTableView ds3TreeTable,
                          final Ds3Common ds3Common) {
         partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
+        resourceBundle = ResourceBundle.getBundle("lang", new Locale("en_IN"));
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = ds3Value;
@@ -72,34 +68,11 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
 
     }
 
-    public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {
-        return this.partialResults.get();
-    }
-
-    public ReadOnlyObjectProperty<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResultsProperty() {
-        return partialResults.getReadOnlyProperty();
-    }
-
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
         try {
-            final GetBucketRequest request;
+            final GetBucketRequest request = BucketUtil.createRequest(ds3Value, bucket, ds3TreeTableItem, PAGE_LENGTH);
             //if marker is set blank for a item that means offset is 0 else set the marker
-            if (ds3Value.getMarker().equals("")) {
-                request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(PAGE_LENGTH);
-            } else {
-                request = new GetBucketRequest(bucket).withDelimiter("/").withMaxKeys(PAGE_LENGTH).withMarker(ds3Value.getMarker());
-            }
-            if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
-            } else if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
-                if (ds3TreeTableItem.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
-                } else {
-                    final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
-                    request.withPrefix(ds3ParentValue.getFullName());
-                }
-            } else {
-                request.withPrefix(ds3Value.getFullName());
-            }
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             //marker for the next request
             final String marker = bucketResponse.getListBucketResult().getNextMarker();
@@ -112,35 +85,11 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                     .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName()))))
                     .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                     .collect(Collectors.toList());
-            if (ds3ObjectListFiles.size() != 0) {
-                final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement = new GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request(bucket, ds3ObjectListFiles);
-                final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response responsePlacement = session.getClient().getPhysicalPlacementForObjectsWithFullDetailsSpectraS3(requestPlacement);
-                final List<Ds3TreeTableValue> filteredFileslist = responsePlacement
-                        .getBulkObjectListResult()
-                        .getObjects()
-                        .stream()
-                        .map(i -> {
-                            final Contents content = bucketResponse.getListBucketResult()
-                                    .getObjects()
-                                    .stream()
-                                    .filter(j -> j.getKey().equals(i.getName()))
-                                    .findFirst()
-                                    .get();
-                            final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
-                            return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File, content.getSize(), DateFormat.formatDate(content.getLastModified()), content.getOwner().getDisplayName(), false, iconsAndTooltip);
-                        }).collect(Collectors.toList());
-                filteredFiles.addAll(filteredFileslist);
+            if (!Guard.isNullOrEmpty(ds3ObjectListFiles)) {
+                filteredFiles.addAll(BucketUtil.getFilterFilesList(ds3ObjectListFiles, bucketResponse, bucket, session));
             }
             //directoryValues is used to store directories
-            final List<Ds3TreeTableValue> directoryValues = bucketResponse.getListBucketResult().getCommonPrefixes().stream().map(i ->
-            {
-                String folderName = i.getPrefix();
-                final HBox hbox = new HBox();
-                hbox.getChildren().add(new Label("----"));
-                hbox.setAlignment(Pos.CENTER);
-                return new Ds3TreeTableValue(bucket, folderName, Ds3TreeTableValue.Type.Directory, 0, "--", "--", false, hbox);
-
-            }).collect(Collectors.toList());
+            final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, bucket);
             //after getting both lists we need to merge in partialResult and need to sort
             Platform.runLater(() -> {
                 final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues
@@ -159,63 +108,40 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                 //if selected item was button then just remove that click more button and add new one
                 if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                     //clear the selection
-                    if (ds3TreeTable != null) {
+                    if (null != ds3TreeTable && null != ds3TreeTable.getSelectionModel()
+                            && null != ds3TreeTableItem.getParent()) {
                         ds3TreeTable.getSelectionModel().clearSelection();
                         ds3TreeTable.getSelectionModel().select(ds3TreeTableItem.getParent());
-                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), ds3TreeTableItem.getParent());
-                        ds3Common.getDeepStorageBrowserPresenter().logText((partialResults.get().size() - 1) + " files/folders have been loaded " +
-                                "inside " +
-                                ds3TreeTableItem.getParent().getValue().getType().toString() + " " + ds3TreeTableItem.getParent().getValue().getFullName(), LogType.SUCCESS);
+                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR
+                                + session.getEndpoint(), ds3TreeTableItem.getParent());
+                        ds3Common.getDeepStorageBrowserPresenter().logText(
+                                (partialResults.get().size() - 1) + StringConstants.SPACE + resourceBundle.getString
+                                        ("filesAndFolders") + StringConstants.SPACE +
+                                        ds3TreeTableItem.getParent().getValue().getType().toString() + StringConstants.SPACE
+                                        + ds3TreeTableItem.getParent().getValue().getFullName(), LogType.SUCCESS);
                     }
                     partialResults.get().remove(ds3TreeTableItem);
                 }
-                if (marker != null) {
+                if (!Guard.isStringNullOrEmpty(marker)) {
                     //add a new click to add more button
                     final HBox hbox = new HBox();
-                    hbox.getChildren().add(new Label(""));
+                    hbox.getChildren().add(new Label(StringConstants.EMPTY_STRING));
                     hbox.setAlignment(Pos.CENTER);
-                    final Text clickToLoadMore = new Text(myResources.getString("addMoreButton"));
+                    final Text clickToLoadMore = new Text(resourceBundle.getString("addMoreButton"));
                     clickToLoadMore.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
                     final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue
-                            (bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1, "", "", false,
+                            (bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1,
+                                    StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING, false,
                                     hbox, marker), workers, ds3Common);
                     partialResults.get().add(addMoreItem);
 
                 }
             });
-        } catch (final Throwable t) {
-            LOG.error("Encountered an error trying to get the next list of items", t);
+        } catch (final Exception e) {
+            LOG.error("Encountered an error trying to get the next list of items", e);
         }
         return partialResults.get();
     }
 
 
-    //function for distinction on the basis of some property
-    private static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
-        final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
-
-
-    private class PartialResultComparator implements Comparator<TreeItem<Ds3TreeTableValue>> {
-
-        @Override
-        public int compare(final TreeItem<Ds3TreeTableValue> o1, final TreeItem<Ds3TreeTableValue> o2) {
-            final String type1 = o1.getValue().getType().toString();
-            final String type2 = o2.getValue().getType().toString();
-            if (type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && !type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-                // Directory before non-directory
-                return -1;
-            } else if (!type1.equals(Ds3TreeTableValue.Type.Directory.toString()) && type2.equals(Ds3TreeTableValue.Type.Directory.toString())) {
-                // Non-directory after directory
-                return 1;
-            } else {
-                // Alphabetic order otherwise
-                return o1.getValue().getFullName().compareTo(o2.getValue().getFullName());
-            }
-        }
-    }
 }
-
-
-

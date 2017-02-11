@@ -42,16 +42,12 @@ public class Ds3PanelService {
     }
 
     public static List<Bucket> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem, final List<Bucket> buckets, final TreeTableView<Ds3TreeTableValue> treeTableView) {
-
         ObservableList<TreeItem<Ds3TreeTableValue>> selectedItemTemp = selectedItem;
-
         final List<Bucket> searchableBuckets = new ArrayList<>();
-
         if (null == selectedItemTemp || selectedItemTemp.size() == 0) {
             selectedItemTemp = FXCollections.observableArrayList();
             selectedItem.add(treeTableView.getRoot());
         }
-
         if (selectedItemTemp.size() != 0) {
             selectedItemTemp.stream().forEach(temp1 -> buckets.stream().forEach(bucket -> {
                 if (bucket.getName().equals(temp1.getValue().getBucketName()))
@@ -60,7 +56,6 @@ public class Ds3PanelService {
         } else {
             searchableBuckets.addAll(buckets);
         }
-
         return searchableBuckets;
     }
 
