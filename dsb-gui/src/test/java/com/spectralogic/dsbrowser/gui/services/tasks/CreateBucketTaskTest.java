@@ -8,19 +8,13 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import junit.framework.AssertionFailedError;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 
 public class CreateBucketTaskTest {
@@ -44,12 +38,11 @@ public class CreateBucketTaskTest {
             try {
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
-                        "TEMP_BUCKET0",
+                        "TEMP_BUCKET",
                         null);
-
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
-                    successFlag=true;
+                    successFlag = true;
                     latch.countDown();
                 });
                 createBucketTask.setOnFailed(event -> {

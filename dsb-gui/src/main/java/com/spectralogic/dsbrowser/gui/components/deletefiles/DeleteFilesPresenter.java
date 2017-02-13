@@ -6,9 +6,11 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -84,7 +86,7 @@ public class DeleteFilesPresenter implements Initializable {
                 changeLabelText(selectedMenuItems);
             }
             deleteField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue.equals("DELETE")) {
+                if (newValue.equals(StringConstants.DELETE)) {
                     deleteButton.setDisable(false);
                 } else {
                     deleteButton.setDisable(true);
@@ -103,37 +105,38 @@ public class DeleteFilesPresenter implements Initializable {
 
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-            deleteLabel.setText("DELETE FILE(S)");
-            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected files please type 'DELETE'");
+            deleteLabel.setText(resourceBundle.getString("deleteFiles"));
+            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFileInfo"));
         } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            deleteLabel.setText("DELETE FOLDER");
-            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected folder please type 'DELETE'");
+            deleteLabel.setText(resourceBundle.getString("deleteFolder"));
+            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFolderInfo"));
         } else {
-            deleteLabel.setText("DELETE BUCKET");
-            deleteConfirmationInfoLabel.setText("To confirm the deletion of the selected Bucket please type 'DELETE'");
+            deleteLabel.setText(resourceBundle.getString("deleteBucket"));
+            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteBucketInfo"));
         }
     }
 
     public void deleteFiles() {
         deleteTask.setOnCancelled(event -> {
-            LOG.error("Failed to delete Buckets" + deleteTask.getValue());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : "
-                    + deleteTask.getValue(), LogType.ERROR));
+            LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(
+                    resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
+                            + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR));
             closeDialog();
         });
         deleteTask.setOnFailed(event -> {
-            LOG.error("Failed to delete Buckets" + deleteTask.getValue());
+            LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
             Platform.runLater(() -> {
-                ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete Bucket : "
-                        + deleteTask.getValue(), LogType.ERROR);
+                ds3Common.getDeepStorageBrowserPresenter().logText(
+                        resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
+                                + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR);
                 closeDialog();
                 ALERT.setContentText(resourceBundle.getString("deleteErrLogs"));
                 ALERT.showAndWait();
             });
         });
         deleteTask.setOnSucceeded(event -> {
-            System.out.println(event.getEventType().toString());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Successfully deleted bucket",
+            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("deleteBucketSuccess"),
                     LogType.SUCCESS));
             closeDialog();
         });

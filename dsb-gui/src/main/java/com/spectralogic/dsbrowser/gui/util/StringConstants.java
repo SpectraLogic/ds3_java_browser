@@ -15,4 +15,11 @@ public interface StringConstants {
     String FULL_STOP = ".";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
+    String DELETE = "DELETE";
+    String COMMA = ",";
+    String CLOSING_BRACE = ")";
+    String FILE_PROPERTIES_SETTING = "filePropertiesSettings";
+    String FILE_PROPERTIES_DEFAULT = ",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}";
+    String SHOW_CACHED_JOB_SETTING = "showCachedJobSettings";
+    String SHOW_CACHED_JOB_DEFAULT = ",\"showCachedJobSettings\":{\"showCachedJobSettings\":true}}";
 }

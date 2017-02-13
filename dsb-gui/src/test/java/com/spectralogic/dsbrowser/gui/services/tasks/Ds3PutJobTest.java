@@ -37,10 +37,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class Ds3PutJobTest {
 
@@ -70,14 +67,15 @@ public class Ds3PutJobTest {
             Mockito.when(deepStorageBrowserPresenter.getLblCount()).thenReturn(Mockito.mock(Label.class));
             Mockito.when(deepStorageBrowserPresenter.getJobButton()).thenReturn(Mockito.mock(Button.class));
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
-
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
-
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "",
+                        deepStorageBrowserPresenter, Priority.URGENT.toString(),
+                        5, JobInterruptionStore.loadJobIds(),
+                        ds3Common, settingsStore);
                 taskProgressView.getTasks().add(ds3PutJob);
             } catch (final Exception io) {
                 io.printStackTrace();

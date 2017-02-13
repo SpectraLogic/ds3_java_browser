@@ -14,10 +14,7 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class CreateFolderTaskTest {
 
@@ -40,7 +37,7 @@ public class CreateFolderTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final String folderName = "TEMP_FOLDER303";
+                final String folderName = "TEMP_FOLDER";
                 final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), "TEST1",
                         "TEST1");
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel

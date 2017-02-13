@@ -14,6 +14,7 @@ public class Ds3DeleteBucketTask extends Ds3Task {
 
     private final Ds3Client ds3Client;
     private final String bucketName;
+    private String errorMsg;
 
     public Ds3DeleteBucketTask(final Ds3Client ds3Client, final String bucketName) {
         this.ds3Client = ds3Client;
@@ -27,12 +28,23 @@ public class Ds3DeleteBucketTask extends Ds3Task {
             return "Success";
         } catch (final FailedRequestException fre) {
             LOG.error("Failed to delete Buckets" + fre);
+            setErrorMsg(fre.getMessage());
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
             return fre.toString();
         } catch (final Exception e) {
             LOG.error("Failed to delete Bucket " + e);
+            setErrorMsg(e.getMessage());
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
             return e.toString();
         }
     }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(final String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
+
 }

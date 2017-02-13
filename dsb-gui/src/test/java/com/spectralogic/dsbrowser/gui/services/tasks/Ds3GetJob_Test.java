@@ -14,7 +14,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.MyTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class Ds3GetJob_Test {
@@ -57,10 +56,8 @@ public class Ds3GetJob_Test {
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
-
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
-
-            final MyTaskProgressView<Ds3JobTask> taskProgressView = new MyTaskProgressView<>();
+            final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
                 ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common);
@@ -143,18 +140,18 @@ public class Ds3GetJob_Test {
     public void getDs3Object() throws Exception {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try{
-            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-            final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
-            if (ds3ObjectList.size() == 1) {
-                successFlag = true;
+            try {
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+                final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
+                if (ds3ObjectList.size() == 1) {
+                    successFlag = true;
+                }
+                countDownLatch.countDown();
+            } catch (final Exception e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
             }
-            countDownLatch.countDown();
-        } catch (final Exception e) {
-            e.printStackTrace();
-            countDownLatch.countDown();
-        }
         });
         countDownLatch.await();
         assertTrue(successFlag);
@@ -164,21 +161,21 @@ public class Ds3GetJob_Test {
     public void addAllDescendants() throws Exception {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try{
-            final Ds3TreeTableValueCustom ds3TreeTableValueCustomFolder = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-            final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom("TEST1", "SampleFiles.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
-            final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
-            itemList.add(ds3TreeTableValueCustomFolder);
-            itemList.add(ds3TreeTableValueCustomFile);
-            final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFolder, itemList, null);
-            if (childMap.size() == 1) {
-                successFlag = true;
+            try {
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFolder = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom("TEST1", "Sample.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
+                itemList.add(ds3TreeTableValueCustomFolder);
+                itemList.add(ds3TreeTableValueCustomFile);
+                final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFolder, itemList, null);
+                if (childMap.size() == 1) {
+                    successFlag = true;
+                }
+                countDownLatch.countDown();
+            } catch (final Exception e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
             }
-            countDownLatch.countDown();
-        } catch (final Exception e) {
-            e.printStackTrace();
-            countDownLatch.countDown();
-        }
         });
         countDownLatch.await();
         assertTrue(successFlag);
