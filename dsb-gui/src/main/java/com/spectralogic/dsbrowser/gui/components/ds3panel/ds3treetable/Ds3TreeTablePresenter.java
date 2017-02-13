@@ -127,9 +127,9 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null && jobIDMap.size() > 0) {
-            deepStorageBrowserPresenter.getCount().setText("" + jobIDMap.size());
+            deepStorageBrowserPresenter.getLblCount().setText("" + jobIDMap.size());
         } else {
-            deepStorageBrowserPresenter.getCount().setText("");
+            deepStorageBrowserPresenter.getLblCount().setText("");
             deepStorageBrowserPresenter.getJobButton().setDisable(true);
         }
     }

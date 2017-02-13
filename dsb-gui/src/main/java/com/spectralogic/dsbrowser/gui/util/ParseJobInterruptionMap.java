@@ -35,7 +35,7 @@ public final class ParseJobInterruptionMap {
 
     private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMap.class);
 
-    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final MyTaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
+    public static Map<String, FilesAndFolderMap> getJobIDMap(final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints, final String endpoint, final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobWorkers, final UUID jobId) {
         if (endpoints.stream().anyMatch(i -> i.containsKey(endpoint))) {
             final Map<String, Map<String, FilesAndFolderMap>> endpointMap = endpoints.stream().filter(i -> i
                     .containsKey(endpoint)).findFirst().orElse(null);
@@ -130,11 +130,11 @@ public final class ParseJobInterruptionMap {
         if (isJobInterrupted) {
             deepStorageBrowserPresenter.getCircle().setVisible(true);
             deepStorageBrowserPresenter.getJobButton().setDisable(false);
-            deepStorageBrowserPresenter.getCount().setText(String.valueOf(size));
+            deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(size));
         } else {
             deepStorageBrowserPresenter.getCircle().setVisible(false);
             deepStorageBrowserPresenter.getJobButton().setDisable(true);
-            deepStorageBrowserPresenter.getCount().setText("");
+            deepStorageBrowserPresenter.getLblCount().setText("");
         }
     }
 

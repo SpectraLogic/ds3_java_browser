@@ -14,14 +14,14 @@ import javafx.util.Callback;
 import java.util.Optional;
 
 public class MyTaskProgressViewSkin<T extends Task<?>> extends
-        SkinBase<MyTaskProgressView<T>> {
+        SkinBase<DeepStorageBrowserTaskProgressView<T>> {
 
     private final Alert CLOSECONFIRMATIONALERT = new Alert(
             Alert.AlertType.CONFIRMATION,
             ""
     );
 
-    public MyTaskProgressViewSkin(final MyTaskProgressView<T> monitor) {
+    public MyTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
         super(monitor);
 
         final BorderPane borderPane = new BorderPane();

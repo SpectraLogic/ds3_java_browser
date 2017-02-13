@@ -220,11 +220,11 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final NoSuchElementException e) {
             LOG.error("The job failed to process", e);
-            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph(getJobFailedMessage("GET Job Failed ", "can't transfer bucket/empty folder", e), LogType.ERROR));
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Failed ", "can't transfer bucket/empty folder", e), LogType.ERROR));
         } catch (final RuntimeException e) {
             LOG.error("The job failed to process", e);
-            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph(getJobFailedMessage("GET Job Failed ", "", e), LogType.ERROR));
-        } catch (final Throwable t) {
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Failed ", "", e), LogType.ERROR));
+        } catch (final Exception t) {
             LOG.error("The job failed to process", t);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Failed ", "", t), LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
@@ -320,7 +320,10 @@ public class Ds3GetJob extends Ds3JobTask {
                     .collect(GuavaCollectors.immutableList());
             directoryValues.forEach(i -> addAllDescendants(i, nodes, path));
 
-        } catch (final IOException e) {
+        } catch (final IOException ie) {
+            LOG.error("Unable to add descendants", ie);
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Cancelled ", "", ie), LogType.ERROR));
+        } catch (final Exception e) {
             LOG.error("Unable to add descendants", e);
             Platform.runLater(() -> deepStorageBrowserPresenter.logText(getJobFailedMessage("GET Job Cancelled ", "", e), LogType.ERROR));
         }

@@ -215,7 +215,7 @@ public class Ds3PutJob extends Ds3JobTask {
             isJobFailed = true;
             final String newDate = DateFormat.formatDate(new Date());
             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph(resourceBundle.getString("putJobFailed") + SPACE + client
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText(resourceBundle.getString("putJobFailed") + SPACE + client
                     .getConnectionDetails().getEndpoint() + resourceBundle.getString("reason") + rte + SPACE + resourceBundle.getString("at") + SPACE + newDate, LogType.ERROR));
 
         } catch (final InterruptedException ie) {
@@ -227,7 +227,7 @@ public class Ds3PutJob extends Ds3JobTask {
             isJobFailed = true;
             LOG.error("Encountered an error on a put job", e);
             final String newDate = DateFormat.formatDate(new Date());
-            Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph(resourceBundle.getString("putJobFailed") + SPACE + client.getConnectionDetails().getEndpoint() + resourceBundle.getString("reason") + e + SPACE + resourceBundle.getString("at") + SPACE + newDate, LogType.ERROR));
+            Platform.runLater(() -> deepStorageBrowserPresenter.logText(resourceBundle.getString("putJobFailed") + SPACE + client.getConnectionDetails().getEndpoint() + resourceBundle.getString("reason") + e + SPACE + resourceBundle.getString("at") + SPACE + newDate, LogType.ERROR));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
             final Session session = ds3Common.getCurrentSession();
             if (session != null) {

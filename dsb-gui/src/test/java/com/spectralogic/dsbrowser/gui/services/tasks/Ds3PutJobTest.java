@@ -16,7 +16,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
-import com.spectralogic.dsbrowser.gui.util.MyTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -67,12 +67,12 @@ public class Ds3PutJobTest {
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             Mockito.when(deepStorageBrowserPresenter.getCircle()).thenReturn(Mockito.mock(Circle.class));
-            Mockito.when(deepStorageBrowserPresenter.getCount()).thenReturn(Mockito.mock(Label.class));
+            Mockito.when(deepStorageBrowserPresenter.getLblCount()).thenReturn(Mockito.mock(Label.class));
             Mockito.when(deepStorageBrowserPresenter.getJobButton()).thenReturn(Mockito.mock(Button.class));
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
 
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
-            final MyTaskProgressView<Ds3JobTask> taskProgressView = new MyTaskProgressView<>();
+            final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
 
             try {

@@ -12,12 +12,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.util.Callback;
 
-public class MyTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
+public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
 
     /**
      * Constructs a new task progress view.
      */
-    public MyTaskProgressView() {
+    public DeepStorageBrowserTaskProgressView() {
         getStyleClass().add("task-progress-view");
 
         final EventHandler<WorkerStateEvent> taskHandler = evt -> {
@@ -53,7 +53,7 @@ public class MyTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
 
     /** {@inheritDoc} */
     @Override public String getUserAgentStylesheet() {
-        return getUserAgentStylesheet(MyTaskProgressView.class, "mytaskprogressview.css");
+        return getUserAgentStylesheet(DeepStorageBrowserTaskProgressView.class, "mytaskprogressview.css");
     }
 
     @Override

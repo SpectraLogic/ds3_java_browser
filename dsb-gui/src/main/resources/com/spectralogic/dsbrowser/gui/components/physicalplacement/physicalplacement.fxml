@@ -23,7 +23,7 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementDataTable" prefHeight="127.0" prefWidth="1200.0">
+        <TableView fx:id="physicalPlacementDataTablePool" prefHeight="127.0" prefWidth="1200.0">
             <columns>
                 <TableColumn prefWidth="166.0" text="Name">
                     <cellValueFactory>

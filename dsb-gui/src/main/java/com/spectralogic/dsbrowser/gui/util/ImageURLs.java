@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.gui.util;
 
 public interface ImageURLs {
     String INTERRUPTED_JOB_IMAGE = "/images/interruption.png";
-    String CANCEL_ALL_JOBIMAGE = "/images/cross.png";
+    String CANCEL_ALL_JOB_IMAGE = "/images/cross.png";
 
     //Storage locations images
     String ONLINE_DISK = "/images/onlineDisk.png";
@@ -11,6 +11,7 @@ public interface ImageURLs {
     String EJECTED_TAPES = "/images/tapeEjected.png";
     String BLACKPEARL_CACHE = "/images/blackPearlCache.png";
     String REPLICATION = "/images/bpReplicate.png";
+    String CLOUD = "/images/publicCloud.png";
 
     String LENS_ICON = "/images/lens.png";
     String CROSS_ICON = "/images/cross.png";

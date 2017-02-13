@@ -76,7 +76,7 @@ public class SearchJob extends Task<String> {
                                                 final List<BulkObject> objects = f.getBlobs().getObjects();
                                                 if (objects != null) {
                                                     if (objects.stream().findFirst().isPresent()) {
-                                                        treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null))));
+                                                        treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, GetStorageLocations.addPlacementIconsandTooltip(objects.stream().findFirst().orElse(null).getPhysicalPlacement(),objects.stream().findFirst().orElse(null).getInCache())));
                                                     }
                                                 } else {
                                                     treeItems.add(new Ds3TreeTableValue(bucket.getName(), f.getName(), Ds3TreeTableValue.Type.File, f.getSize(), DateFormat.formatDate(f.getCreationDate()), f.getOwner(), true, null));
