@@ -31,7 +31,7 @@ public class SettingPresenter implements Initializable {
     private ComboBox<String> getJobPriority, putJobPriority;
 
     @FXML
-    private CheckBox  debugLogging;
+    private CheckBox debugLogging;
 
     @FXML
     private TextField numRolling;
@@ -47,16 +47,6 @@ public class SettingPresenter implements Initializable {
 
     @FXML
     private Tab loggingTab, performanceTab;
-
-    @Inject
-    private SettingsStore settings;
-
-    @Inject
-    private LogService logService;
-
-    private LogSettings logSettings;
-
-    private ProcessSettings processSettings;
 
     @FXML
     private Label performanceLabel, showCachedJob;
@@ -82,42 +72,6 @@ public class SettingPresenter implements Initializable {
     @FXML
     private Button browseButton;
 
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private SavedJobPrioritiesStore jobPrioritiesStore;
-
-    private JobSettings jobSettings;
-
-    private FilePropertiesSettings filePropertiesSettings;
-
-    private ShowCachedJobSettings showCachedJobSettings;
-
-    @FXML
-    private Label enableFileProperties;
-
-    @FXML
-    private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
-
-    @Override
-    public void initialize(final URL location, final ResourceBundle resources) {
-        try {
-            this.logSettings = settings.getLogSettings();
-            this.processSettings = settings.getProcessSettings();
-            this.jobSettings = jobPrioritiesStore.getJobSettings();
-            this.filePropertiesSettings = settings.getFilePropertiesSettings();
-            this.showCachedJobSettings = settings.getShowCachedJobSettings();
-                initGUIElements();
-                initPropertyPane();
-        } catch (final Throwable e) {
-            LOG.error("Failed to startup settings presenter");
-        }
-    }
-
     @FXML
     private Button saveFilePropertiesEnableButton, cancelFilePropertiesEnableButton;
 
@@ -140,8 +94,56 @@ public class SettingPresenter implements Initializable {
     private Tab fileProperties;
 
     @FXML
-    private Tooltip enableFilePropertiesTooltip,showCachedJobTooltip;
+    private Tooltip enableFilePropertiesTooltip, showCachedJobTooltip;
 
+    @FXML
+    private Label enableFileProperties;
+
+    @FXML
+    private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
+
+    @Inject
+    private ResourceBundle resourceBundle;
+
+    @Inject
+    private JobWorkers jobWorkers;
+
+    @Inject
+    private SavedJobPrioritiesStore jobPrioritiesStore;
+
+    @Inject
+    private SettingsStore settings;
+
+    @Inject
+    private LogService logService;
+
+    private JobSettings jobSettings;
+
+    private FilePropertiesSettings filePropertiesSettings;
+
+    private ShowCachedJobSettings showCachedJobSettings;
+
+    private LogSettings logSettings;
+
+    private ProcessSettings processSettings;
+
+    public SettingPresenter() {
+    }
+
+    @Override
+    public void initialize(final URL location, final ResourceBundle resources) {
+        try {
+            this.logSettings = settings.getLogSettings();
+            this.processSettings = settings.getProcessSettings();
+            this.jobSettings = jobPrioritiesStore.getJobSettings();
+            this.filePropertiesSettings = settings.getFilePropertiesSettings();
+            this.showCachedJobSettings = settings.getShowCachedJobSettings();
+            initGUIElements();
+            initPropertyPane();
+        } catch (final Exception e) {
+            LOG.error("Failed to startup settings presenter", e);
+        }
+    }
 
     public void saveFilePropertiesSettings() {
         LOG.info("Updating fileProperties settings");
@@ -190,13 +192,13 @@ public class SettingPresenter implements Initializable {
     }
 
     private void initPropertyPane() {
-        Bindings.bindBidirectional(logDirectory.textProperty(), logSettings.logLocationProperty());
-        Bindings.bindBidirectional(logSize.textProperty(), logSettings.logSizeProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
-        Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.filePropertiesEnableProperty());
-        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.filePropertiesEnableProperty());
+        Bindings.bindBidirectional(logDirectory.textProperty(), logSettings.getLogLocationProperty());
+        Bindings.bindBidirectional(logSize.textProperty(), logSettings.getLogSizeProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(numRolling.textProperty(), logSettings.getNumRolloversProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.getDebugLoggingProperty());
+        Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.getMaximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.getFilePropertiesEnableProperty());
+        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.getShowCachedJobEnableProperty());
     }
 
     private void initGUIElements() {
@@ -234,7 +236,7 @@ public class SettingPresenter implements Initializable {
         }
         putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority());
         getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority());
-        performanceFieldValue.setText("" + processSettings.getMaximumNumberOfParallelThreads());
+        performanceFieldValue.setText(String.valueOf(processSettings.getMaximumNumberOfParallelThreads()));
     }
 
     public void showFileExplorer() {

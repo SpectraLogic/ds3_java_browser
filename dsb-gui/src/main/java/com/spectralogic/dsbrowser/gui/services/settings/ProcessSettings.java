@@ -1,15 +1,16 @@
 package com.spectralogic.dsbrowser.gui.services.settings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.util.Constants;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-public class  ProcessSettings {
+public class ProcessSettings {
 
     public static final ProcessSettings DEFAULT = createDefault();
 
     public static ProcessSettings createDefault() {
-        return new ProcessSettings(10);
+        return new ProcessSettings(Constants.MAX_PARALLEL_THREAD_DEFAULT);
     }
 
     @JsonProperty("maximumNumberOfParallelThreads")
@@ -20,20 +21,14 @@ public class  ProcessSettings {
     }
 
     public ProcessSettings() {
-        // pass
-    }
-
-    public ProcessSettings copy() {
-        final ProcessSettings settings = new ProcessSettings();
-        settings.setMaximumNumberOfParallelThreads(this.getMaximumNumberOfParallelThreads());
-        return settings;
+        //Default constructor needed
     }
 
     public int getMaximumNumberOfParallelThreads() {
         return maximumNumberOfParallelThreads.get();
     }
 
-    public IntegerProperty maximumNumberOfParallelThreadsProperty() {
+    public IntegerProperty getMaximumNumberOfParallelThreadsProperty() {
         return maximumNumberOfParallelThreads;
     }
 
@@ -44,6 +39,4 @@ public class  ProcessSettings {
     public void overwrite(final ProcessSettings settings) {
         this.setMaximumNumberOfParallelThreads(settings.getMaximumNumberOfParallelThreads());
     }
-
-
 }

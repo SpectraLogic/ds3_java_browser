@@ -27,4 +27,8 @@ public interface StringConstants {
     String FILE_PROPERTIES_DEFAULT = ",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}";
     String SHOW_CACHED_JOB_SETTING = "showCachedJobSettings";
     String SHOW_CACHED_JOB_DEFAULT = ",\"showCachedJobSettings\":{\"showCachedJobSettings\":true}}";
+    String SETTING_FILE_PATH = "user.home";
+    String SETTING_FILE_FOLDER_NAME = ".dsbrowser";
+    String SETTING_FILE_NAME = "settings.json";
+    String LOG = "log";
 }

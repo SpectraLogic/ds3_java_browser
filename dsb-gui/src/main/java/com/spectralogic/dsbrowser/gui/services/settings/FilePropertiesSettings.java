@@ -1,9 +1,14 @@
 package com.spectralogic.dsbrowser.gui.services.settings;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class FilePropertiesSettings {
+
+    public FilePropertiesSettings() {
+        //Default constructor needed
+    }
 
     public static final FilePropertiesSettings DEFAULT = createDefault();
 
@@ -18,21 +23,11 @@ public class FilePropertiesSettings {
         this.filePropertiesEnable.set(filePropertiesEnable);
     }
 
-    private FilePropertiesSettings() {
-        // pass
-    }
-
-    public FilePropertiesSettings copy() {
-        final FilePropertiesSettings settings = new FilePropertiesSettings();
-        settings.setFilePropertiesEnable(this.getFilePropertiesEnable());
-        return settings;
-    }
-
     public Boolean getFilePropertiesEnable() {
         return filePropertiesEnable.get();
     }
 
-    public BooleanProperty filePropertiesEnableProperty() {
+    public BooleanProperty getFilePropertiesEnableProperty() {
         return filePropertiesEnable;
     }
 

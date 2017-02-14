@@ -5,4 +5,5 @@ public interface Constants {
     int CLOSE_DELAY = 0;
     int DURATION = 1000;
     int RETRY_AFTER_COUNT = 100;
+    int MAX_PARALLEL_THREAD_DEFAULT = 10;
 }

@@ -5,6 +5,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class ShowCachedJobSettings {
+
+    public ShowCachedJobSettings() {
+        //Default constructor needed
+    }
+
     public static final ShowCachedJobSettings DEFAULT = createDefault();
 
     public static ShowCachedJobSettings createDefault() {
@@ -18,26 +23,16 @@ public class ShowCachedJobSettings {
         this.showCachedJob.set(showCachedJob);
     }
 
-    public ShowCachedJobSettings() {
-        // pass
-    }
-
-    public ShowCachedJobSettings copy() {
-        final ShowCachedJobSettings settings = new ShowCachedJobSettings();
-        settings.setShowCachedJob(this.getShowCachedJob());
-        return settings;
-    }
-
     public Boolean getShowCachedJob() {
         return showCachedJob.get();
     }
 
-    public BooleanProperty filePropertiesEnableProperty() {
+    public BooleanProperty getShowCachedJobEnableProperty() {
         return showCachedJob;
     }
 
-    public void setShowCachedJob(final boolean filePropertiesEnable) {
-        this.showCachedJob.set(filePropertiesEnable);
+    public void setShowCachedJob(final boolean showCachedJob) {
+        this.showCachedJob.set(showCachedJob);
     }
 
     public void overwrite(final boolean settings) {
