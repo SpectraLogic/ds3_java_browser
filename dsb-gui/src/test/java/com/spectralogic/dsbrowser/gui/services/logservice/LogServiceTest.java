@@ -12,7 +12,7 @@ public class LogServiceTest {
 
     @Test
     public void updateLogBackSettings() throws Exception {
-        SettingsStore settingsStore = SettingsStore.loadSettingsStore();
+        final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
         final LogSettings logSettings = settingsStore.getLogSettings();
         final LogService logService = new LogService(logSettings);
         final String pattern = "[%thread] %logger{10} [%file:%line] %msg%n";

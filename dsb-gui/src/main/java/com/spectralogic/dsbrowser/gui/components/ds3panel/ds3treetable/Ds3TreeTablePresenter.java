@@ -19,7 +19,7 @@ import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
-import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPopup;
+import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -846,7 +846,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         workers.execute(getMetadata);
         getMetadata.setOnSucceeded(event -> Platform.runLater(() -> {
             LOG.info("Launching metadata popup");
-            MetadataPopup.show(getMetadata.getValue());
+            final MetadataView metadataView = new MetadataView(getMetadata.getValue());
+            Popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
         }));
     }
 
