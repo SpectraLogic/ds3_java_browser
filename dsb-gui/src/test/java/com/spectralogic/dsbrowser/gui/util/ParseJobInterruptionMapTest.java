@@ -135,7 +135,7 @@ public class ParseJobInterruptionMapTest {
             try {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
                         jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint,
-                        new MyTaskProgressView<>(), null);
+                        new DeepStorageBrowserTaskProgressView<>(), null);
                 final Map<String, Map<String, FilesAndFolderMap>> filesAndFolderMap1 = jobInterruptionStore
                         .getJobIdsModel()
                         .getEndpoints().get(0);

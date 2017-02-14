@@ -31,10 +31,8 @@
 
 #homeButton,#refreshButton,#localButton,#transferButton,#ds3Refresh,#ds3NewBucket,#ds3NewFolder,#ds3DeleteButton,#ds3TransferLeft
 {
-
    -fx-background-insets: 0,1,2;
    -fx-background-radius: 3,2,1;
-
 }
 
 .successText {
@@ -45,7 +43,6 @@
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-padding: 0;
-
 }
 
 .errorText {

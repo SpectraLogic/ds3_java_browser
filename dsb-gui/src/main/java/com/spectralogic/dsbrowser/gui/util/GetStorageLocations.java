@@ -9,6 +9,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class GetStorageLocations {
@@ -25,7 +27,7 @@ public final class GetStorageLocations {
     private static final AtomicInteger nearLineDiskCount = new AtomicInteger(0);
     private static final AtomicInteger replicationCount = new AtomicInteger(0);
     private static int cloudCount, azureCloud, amazoneCloud = 0;
-
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
 
     public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement, final boolean inCache) {
 
@@ -45,7 +47,7 @@ public final class GetStorageLocations {
                 ejectedTapeIcon.setImage(EJECTEDTAPES);
                 ejectedTapeIcon.setFitHeight(15);
                 ejectedTapeIcon.setFitWidth(15);
-                Tooltip.install(ejectedTapeIcon, new Tooltip(Integer.toString(ejectedTapesCount.intValue()) + " copy ejected"));
+                Tooltip.install(ejectedTapeIcon, new Tooltip(Integer.toString(ejectedTapesCount.intValue()) + resourceBundle.getString("ejected")));
                 placementIconTooltipHbox.getChildren().add(ejectedTapeIcon);
             }
             if ((storageTapeCount - ejectedTapesCount.intValue()) != 0) {
@@ -53,7 +55,7 @@ public final class GetStorageLocations {
                 storageTapeIcon.setImage(STORAGETAPES);
                 storageTapeIcon.setFitHeight(15);
                 storageTapeIcon.setFitWidth(15);
-                Tooltip.install(storageTapeIcon, new Tooltip(Integer.toString(storageTapeCount - ejectedTapesCount.intValue()) + " copy on Storage Tape"));
+                Tooltip.install(storageTapeIcon, new Tooltip(Integer.toString(storageTapeCount - ejectedTapesCount.intValue()) + resourceBundle.getString("storage")));
                 placementIconTooltipHbox.getChildren().add(storageTapeIcon);
             }
         }
@@ -70,15 +72,15 @@ public final class GetStorageLocations {
                 nearlineDiskIcon.setImage(NEARLINEDISK);
                 nearlineDiskIcon.setFitHeight(15);
                 nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue()) + " copy on Nearline Disk"));
+                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue()) + resourceBundle.getString("nearline")));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
-            if ((onlineDiskCount - nearLineDiskCount.intValue()) != 0) {
+            if ((nearLineDiskCount.intValue() - onlineDiskCount) != 0) {
                 final ImageView onlineDiskIcon = new ImageView();
                 onlineDiskIcon.setImage(ONLINEDISK);
                 onlineDiskIcon.setFitHeight(15);
                 onlineDiskIcon.setFitWidth(15);
-                Tooltip.install(onlineDiskIcon, new Tooltip(Integer.toString(onlineDiskCount - nearLineDiskCount.intValue()) + " copy on Online Disk"));
+                Tooltip.install(onlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue() - onlineDiskCount) + resourceBundle.getString("online")));
                 placementIconTooltipHbox.getChildren().add(onlineDiskIcon);
             }
         }
@@ -88,7 +90,7 @@ public final class GetStorageLocations {
             blackPearlCacheIcon.setImage(BLACKPEARLCACHE);
             blackPearlCacheIcon.setFitHeight(15);
             blackPearlCacheIcon.setFitWidth(15);
-            Tooltip.install(blackPearlCacheIcon, new Tooltip("In BlackPearl cache"));
+            Tooltip.install(blackPearlCacheIcon, new Tooltip(resourceBundle.getString("cache")));
             placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
         }
 
@@ -103,7 +105,7 @@ public final class GetStorageLocations {
                 replicationIcon.setImage(REPLICATION);
                 replicationIcon.setFitHeight(15);
                 replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(replicationCount.intValue()) + "BP Replicated copy"));
+                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(replicationCount.intValue()) + resourceBundle.getString("replication")));
                 placementIconTooltipHbox.getChildren().add(replicationIcon);
             }
         }
@@ -120,7 +122,7 @@ public final class GetStorageLocations {
             cloudIcon.setImage(CLOUD);
             cloudIcon.setFitHeight(15);
             cloudIcon.setFitWidth(15);
-            Tooltip.install(cloudIcon, new Tooltip(Integer.toString(cloudCount) + " copies on cloud"));
+            Tooltip.install(cloudIcon, new Tooltip(Integer.toString(cloudCount) + resourceBundle.getString("cloud")));
             placementIconTooltipHbox.getChildren().add(cloudIcon);
         }
 
