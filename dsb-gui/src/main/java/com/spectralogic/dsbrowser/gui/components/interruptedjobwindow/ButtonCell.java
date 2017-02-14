@@ -4,9 +4,11 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
@@ -41,9 +43,10 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final Workers workers;
     private final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private final JobInfoPresenter jobInfoPresenter;
+    private final SettingsStore settingsStore;
 
 
-    public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter) {
+    public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter, final SettingsStore settingsStore) {
         ALERT.setTitle(endpointInfo.getEndpoint());
         ALERT.setHeaderText(null);
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
@@ -53,6 +56,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         this.workers = workers;
         this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.jobInfoPresenter = jobInfoPresenter;
+        this.settingsStore = settingsStore;
         recoverButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -61,7 +65,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                     endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job recovery", LogType.INFO);
                     final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                     final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
-                    final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid), endpointInfo, jobInterruptionStore);
+                    final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid), endpointInfo, jobInterruptionStore , settingsStore.getShowCachedJobSettings().getShowCachedJob());
                     jobWorkers.execute(recoverInterruptedJob);
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());

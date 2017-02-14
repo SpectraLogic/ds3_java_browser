@@ -13,10 +13,15 @@ public interface StringConstants {
     String SESSION_SEPARATOR = "-";
     String FORWARD_SLASH = "/";
     String FULL_STOP = ".";
+    String DOUBLE_DOTS = "..";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
+    String FORWARD_ARROW = "->";
+    String JOB_COMPLETED = "COMPLETED";
+    String JOB_IN_PROGRESS = "IN_PROGRESS";
     String DELETE = "DELETE";
     String COMMA = ",";
+    String OPEN_BRACE = "(";
     String CLOSING_BRACE = ")";
     String FILE_PROPERTIES_SETTING = "filePropertiesSettings";
     String FILE_PROPERTIES_DEFAULT = ",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}";

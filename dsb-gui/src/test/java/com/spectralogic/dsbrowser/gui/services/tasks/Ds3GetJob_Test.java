@@ -79,12 +79,8 @@ public class Ds3GetJob_Test {
                     latch.countDown();
 
                 });
-                ds3GetJob.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                ds3GetJob.setOnCancelled(event -> {
-                    latch.countDown();
-                });
+                ds3GetJob.setOnFailed(event -> latch.countDown());
+                ds3GetJob.setOnCancelled(event -> latch.countDown());
             } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
@@ -163,7 +159,7 @@ public class Ds3GetJob_Test {
         Platform.runLater(() -> {
             try {
                 final Ds3TreeTableValueCustom ds3TreeTableValueCustomFolder = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom("TEST1", "Sample.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom("TEST1", "SampleFiles.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
                 final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
                 itemList.add(ds3TreeTableValueCustomFolder);
                 itemList.add(ds3TreeTableValueCustomFile);

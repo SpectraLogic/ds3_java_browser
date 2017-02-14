@@ -42,10 +42,10 @@ import static org.junit.Assert.assertTrue;
 public class Ds3PutJobTest {
 
     private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private final static String bucketName = "TEST1";
     private static Session session;
     private static File file;
     private static Ds3PutJob ds3PutJob;
-    private final static String bucketName = "TEST1";
     private boolean successFlag = false;
 
     @BeforeClass
@@ -55,7 +55,7 @@ public class Ds3PutJobTest {
             final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
             session = new NewSessionPresenter().createConnection(savedSession);
             final ClassLoader classLoader = Ds3PutJobTest.class.getClassLoader();
-            final URL url = classLoader.getResource("files/SampleFiles.txt");
+            final URL url = classLoader.getResource("files/Sample.txt");
             if (url != null) {
                 Ds3PutJobTest.file = new File(url.getFile());
             }
@@ -72,10 +72,8 @@ public class Ds3PutJobTest {
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "",
-                        deepStorageBrowserPresenter, Priority.URGENT.toString(),
-                        5, JobInterruptionStore.loadJobIds(),
-                        ds3Common, settingsStore);
+                settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
+                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
                 taskProgressView.getTasks().add(ds3PutJob);
             } catch (final Exception io) {
                 io.printStackTrace();
@@ -93,12 +91,8 @@ public class Ds3PutJobTest {
                     successFlag = true;
                     latch.countDown();
                 });
-                ds3PutJob.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                ds3PutJob.setOnCancelled(event -> {
-                    latch.countDown();
-                });
+                ds3PutJob.setOnFailed(event -> latch.countDown());
+                ds3PutJob.setOnCancelled(event -> latch.countDown());
             } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
@@ -107,6 +101,7 @@ public class Ds3PutJobTest {
         latch.await();
         assertTrue(successFlag);
     }
+
 
     @Test
     public void createFileMap() throws Exception {
@@ -180,85 +175,4 @@ public class Ds3PutJobTest {
         assertTrue(successFlag);
     }
 
-    @Test
-    public void getTransferRateString() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final String transferRateString = ds3PutJob.getTransferRateString(100, 100, new AtomicLong(20L), 1000, "demo", 0);
-                final String newTransferRateString = " Transfer Rate 100 Bytes/s Time remaining 1 minute 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/";
-                if (newTransferRateString.equals(transferRateString)) {
-                    successFlag = true;
-                }
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void getTransferRateStringWithZero() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final String transferRateStringWithTransferRateZero = ds3PutJob.getTransferRateString(0, 100, new AtomicLong(20L), 1000, "demo", 0);
-                final String newTransferRateStringWithTransferRateZero = " Transfer Rate --/s Time remaining :calculating.. 10 Bytes/1000 Bytes Transferred file -> demo to TEST1/";
-                if (newTransferRateStringWithTransferRateZero.equals(transferRateStringWithTransferRateZero)) {
-                    successFlag = true;
-                }
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void setPutJobTransferrCacheEisabledString() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final String dateOfTransfer = DateFormat.formatDate(new Date());
-                final String cacheEnabledString = ds3PutJob.setPutJobTransferString(1000L, true, dateOfTransfer);
-                final String newCacheEnabledString = "PUT job [Size: 1000 Bytes]  completed. File transferred to storage location bucket " + bucketName + " at location (BlackPearl cache) at " + dateOfTransfer + ". Waiting for job to complete...";
-                if (newCacheEnabledString.equals(cacheEnabledString)) {
-                    successFlag = true;
-                }
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void setPutJobTransferCacheDisabledString() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final String dateOfTransfer = DateFormat.formatDate(new Date());
-                final String cacheDisabledString = ds3PutJob.setPutJobTransferString(1000L, false, dateOfTransfer);
-                final String newCacheDisabledString = "PUT job [Size: 1000 Bytes] transferred to bucket" + bucketName + " at location (BlackPearl cache)  at " + dateOfTransfer + ".";
-                if (newCacheDisabledString.equals(cacheDisabledString)) {
-                    successFlag = true;
-                }
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
 }
