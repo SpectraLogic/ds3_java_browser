@@ -58,7 +58,7 @@ public class CloseConfirmationHandler {
         this.settings = settings;
         this.jobWorkers = jobWorkers;
         this.workers = workers;
-        this.resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.closeConfirmationAlert = new Alert(
                 Alert.AlertType.CONFIRMATION,
                 resourceBundle.getString("closeConfirmationAlertMessage")

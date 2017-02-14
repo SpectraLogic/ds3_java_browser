@@ -12,6 +12,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -37,7 +38,7 @@ public class RecoverInterruptedJobTest {
     private static Session session;
     private boolean successFlag = false;
     private static  RecoverInterruptedJob recoverInterruptedJob;
-    private String fileName = "Sample.txt";
+    private String fileName = SessionConstants.LOCAL_FILE;
 
 
     @BeforeClass
@@ -45,7 +46,7 @@ public class RecoverInterruptedJobTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME_BPLAB, SessionConstants.SESSION_PATH_BPLAB, SessionConstants.PORT_NO_BPLAB, null, new SavedCredentials(SessionConstants.ACCESS_ID_BPLAB, SessionConstants.SECRET_KEY_BPLAB), false);
                 session = new NewSessionPresenter().createConnection(savedSession);
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);

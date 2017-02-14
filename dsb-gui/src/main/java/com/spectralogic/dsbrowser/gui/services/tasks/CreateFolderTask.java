@@ -5,10 +5,7 @@ import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Request
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +33,7 @@ public class CreateFolderTask extends Ds3Task {
         this.folderName = folderName;
         this.ds3ObjectList = ds3ObjectList;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
-        resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+        resourceBundle = ResourceBundleProperties.getResourceBundle();
     }
 
     @Override

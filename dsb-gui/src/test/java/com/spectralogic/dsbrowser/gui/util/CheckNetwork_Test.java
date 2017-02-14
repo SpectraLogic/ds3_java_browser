@@ -30,7 +30,7 @@ public class CheckNetwork_Test {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("cmFtYW4=", "BPgjgPeP"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
         });
     }

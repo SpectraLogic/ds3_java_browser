@@ -5,6 +5,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
@@ -13,7 +14,6 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 
@@ -33,7 +33,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final ResourceBundle myResources =
-            ResourceBundle.getBundle("lang", new Locale("en_IN"));
+            ResourceBundleProperties.getResourceBundle();
 
 
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers

@@ -53,18 +53,18 @@ public class CancelJobsWorkerTest {
         Platform.runLater(() -> {
             try {
                 //Initiating session
-                final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
                 session = new NewSessionPresenter().createConnection(savedSession);
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file
                 final ClassLoader classLoader = ParseJobInterruptionMapTest.class.getClassLoader();
-                final URL url = classLoader.getResource("files/SampleFiles.txt");
+                final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
                 if (url != null) {
                     CancelJobsWorkerTest.file = new File(url.getFile());
                 }
                 final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put("SampleFiles.txt", file.toPath());
+                filesMap.put(SessionConstants.LOCAL_FILE, file.toPath());
                 //Storing a interrupted job into resource file
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
@@ -97,7 +97,7 @@ public class CancelJobsWorkerTest {
 
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "",
                         deepStorageBrowserPresenter, Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), null, settingsStore);
                 //Starting put job task
@@ -142,7 +142,7 @@ public class CancelJobsWorkerTest {
 
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "",
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "",
                         deepStorageBrowserPresenter, Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), null, settingsStore);
                 //Starting put job task

@@ -4,14 +4,13 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 
@@ -31,7 +30,7 @@ public class CreateBucketTask extends Ds3Task {
         this.bucketName = bucketName;
         this.createBucketModel = createBucketModel;
         this.ds3Client = ds3Client;
-        resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+        resourceBundle = ResourceBundleProperties.getResourceBundle();
     }
 
     @Override

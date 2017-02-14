@@ -55,18 +55,18 @@ public class PathUtilTest {
 
     @Test
     public void getLocation() throws Exception {
-        final String folderLocation1 = PathUtil.getFolderLocation("temp", "TEST1");
-        final String folderLocation2 = PathUtil.getFolderLocation("TEST1", "TEST1");
-        final String folderLocation3 = PathUtil.getFolderLocation("TEST1/", "TEST1");
+        final String folderLocation1 = PathUtil.getFolderLocation(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET);
+        final String folderLocation2 = PathUtil.getFolderLocation(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET);
+        final String folderLocation3 = PathUtil.getFolderLocation(SessionConstants.ALREADY_EXIST_BUCKET + "/", SessionConstants.ALREADY_EXIST_BUCKET);
         assertTrue(folderLocation1.equals(""));
         assertTrue(folderLocation2.equals(""));
-        assertTrue(folderLocation3.equals("TEST1/"));
+        assertTrue(folderLocation3.equals(SessionConstants.ALREADY_EXIST_BUCKET + "/"));
     }
 
     @Test
     public void getDs3ObjectList() throws Exception {
-        final String folderLocation = PathUtil.getFolderLocation("temp", "TEST1");
-        final List<Ds3Object> objectList = PathUtil.getDs3ObjectList(folderLocation, "temp");
-        assertTrue(objectList.stream().findFirst().orElse(null).getName().equals("temp/"));
+        final String folderLocation = PathUtil.getFolderLocation(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET);
+        final List<Ds3Object> objectList = PathUtil.getDs3ObjectList(folderLocation, SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET);
+        assertTrue(objectList.stream().findFirst().orElse(null).getName().equals(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET + "/"));
     }
 }

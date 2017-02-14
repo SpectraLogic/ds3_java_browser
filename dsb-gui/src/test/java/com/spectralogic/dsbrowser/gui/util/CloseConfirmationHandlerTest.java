@@ -51,11 +51,11 @@ public class CloseConfirmationHandlerTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
             handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
-            final URL url = classLoader.getResource("files/demoFile.txt");
+            final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
             if (url != null) {
                 CloseConfirmationHandlerTest.file = new File(url.getFile());
             }
@@ -203,7 +203,7 @@ public class CloseConfirmationHandlerTest {
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "TEST1", "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), null, settingsStore);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), null, settingsStore);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

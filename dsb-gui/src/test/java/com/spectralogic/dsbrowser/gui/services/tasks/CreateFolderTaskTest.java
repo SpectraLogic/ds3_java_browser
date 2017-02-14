@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
@@ -26,8 +27,8 @@ public class CreateFolderTaskTest {
     public void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080",
-                    null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
+                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
         });
     }
@@ -38,8 +39,8 @@ public class CreateFolderTaskTest {
         Platform.runLater(() -> {
             try {
                 final String folderName = "TEMP_FOLDER";
-                final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), "TEST1",
-                        "TEST1");
+                final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), SessionConstants.ALREADY_EXIST_BUCKET,
+                        SessionConstants.ALREADY_EXIST_BUCKET);
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
                         .getBucketName());
                 //Instantiating create folder task

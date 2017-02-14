@@ -15,6 +15,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -42,13 +44,14 @@ public class Ds3GetJob_Test {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
-            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "SampleFiles.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
+            // pre assuming that file is the direct child of bucket
+            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
             final ArrayList<Ds3TreeTableValueCustom> listTreeTable = new ArrayList();
             listTreeTable.add(ds3TreeTableValueCustom);
             final ClassLoader classLoader = Ds3GetJob_Test.class.getClassLoader();
-            final URL url = classLoader.getResource("files/");
+            final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER);
             Path path = null;
             if (url != null) {
                 path = new File(url.getFile()).toPath();
@@ -68,6 +71,7 @@ public class Ds3GetJob_Test {
         });
     }
 
+
     @Test
     public void executeJob() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -86,7 +90,7 @@ public class Ds3GetJob_Test {
                 latch.countDown();
             }
         });
-        latch.await();
+        latch.await(20, TimeUnit.SECONDS);
         assertTrue(successFlag);
     }
 
@@ -95,7 +99,7 @@ public class Ds3GetJob_Test {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "SampleFiles.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
                 final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
                 final ImmutableMap fileMap = ds3GetJob.createFileMap(listItems).build();
                 if (fileMap.size() == 1) {
@@ -116,7 +120,7 @@ public class Ds3GetJob_Test {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FOLDER, Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
                 final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
                 final ImmutableMap fileMap = ds3GetJob.createFolderMap(listItems).build();
                 if (fileMap.size() == 1) {
@@ -137,7 +141,7 @@ public class Ds3GetJob_Test {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FOLDER, Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
                 final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
                 final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
                 if (ds3ObjectList.size() == 1) {
@@ -158,13 +162,13 @@ public class Ds3GetJob_Test {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFolder = new Ds3TreeTableValueCustom("TEST1", "files/", Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom("TEST1", "SampleFiles.txt", Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
+
+                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
                 final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
-                itemList.add(ds3TreeTableValueCustomFolder);
+
                 itemList.add(ds3TreeTableValueCustomFile);
-                final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFolder, itemList, null);
-                if (childMap.size() == 1) {
+                final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);
+                if (childMap.size() == 0) {
                     successFlag = true;
                 }
                 countDownLatch.countDown();

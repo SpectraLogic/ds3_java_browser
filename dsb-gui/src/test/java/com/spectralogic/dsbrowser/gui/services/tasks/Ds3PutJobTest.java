@@ -17,6 +17,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -42,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 public class Ds3PutJobTest {
 
     private static final JobWorkers jobWorkers = new JobWorkers(10);
-    private final static String bucketName = "TEST1";
+    private final static String bucketName = SessionConstants.ALREADY_EXIST_BUCKET;
     private static Session session;
     private static File file;
     private static Ds3PutJob ds3PutJob;
@@ -52,10 +53,10 @@ public class Ds3PutJobTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
             final ClassLoader classLoader = Ds3PutJobTest.class.getClassLoader();
-            final URL url = classLoader.getResource("files/Sample.txt");
+            final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
             if (url != null) {
                 Ds3PutJobTest.file = new File(url.getFile());
             }

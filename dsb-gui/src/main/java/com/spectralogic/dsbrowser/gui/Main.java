@@ -37,7 +37,7 @@ public class Main extends Application {
         final SavedJobPrioritiesStore savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
         final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
-        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+        final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
         final DataFormat dataFormat = new DataFormat(resourceBundle.getString("dataFormat"));
         final JobWorkers jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");

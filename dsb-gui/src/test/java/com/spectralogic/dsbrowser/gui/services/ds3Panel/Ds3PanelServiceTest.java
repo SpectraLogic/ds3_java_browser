@@ -11,6 +11,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeTableView;
@@ -35,8 +36,8 @@ public class Ds3PanelServiceTest {
     public static void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080",
-                    null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
+                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
             session = new NewSessionPresenter().createConnection(savedSession);
         });
     }
@@ -49,11 +50,11 @@ public class Ds3PanelServiceTest {
                 //Creating empty bucket
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
-                        "EMPTY_BUCKET",
+                        SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME,
                         null);
                 workers.execute(createBucketTask);
                 //Checking is bucket empty
-                successFlag = Ds3PanelService.checkIfBucketEmpty("EMPTY_BUCKET", session);
+                successFlag = Ds3PanelService.checkIfBucketEmpty(SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME, session);
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();

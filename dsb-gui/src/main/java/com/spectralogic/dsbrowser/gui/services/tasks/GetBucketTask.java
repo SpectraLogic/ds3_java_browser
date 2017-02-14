@@ -11,10 +11,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.BucketUtil;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.PartialResultComparator;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -56,7 +53,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                          Ds3TreeTableItem ds3TreeTableItem, final TreeTableView ds3TreeTable,
                          final Ds3Common ds3Common) {
         partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
-        resourceBundle = ResourceBundle.getBundle("lang", new Locale("en_IN"));
+        resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = ds3Value;

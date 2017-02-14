@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 
 public final class Popup {
     public static void show(final Parent parent, final String title) {
-        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
+        final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
         final Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.setMaxWidth(1000);

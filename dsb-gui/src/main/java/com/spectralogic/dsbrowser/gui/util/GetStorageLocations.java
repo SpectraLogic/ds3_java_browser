@@ -27,7 +27,7 @@ public final class GetStorageLocations {
     private static final AtomicInteger nearLineDiskCount = new AtomicInteger(0);
     private static final AtomicInteger replicationCount = new AtomicInteger(0);
     private static int cloudCount, azureCloud, amazoneCloud = 0;
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
+    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement, final boolean inCache) {
 

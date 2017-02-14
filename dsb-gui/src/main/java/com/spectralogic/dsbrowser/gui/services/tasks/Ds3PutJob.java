@@ -156,6 +156,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         transferRateString = JobStatusStrings.getTransferRateString(resourceBundle, transferRate, 0, totalSent, totalJobSize, obj.substring(index, obj.length()), bucket + FORWARD_SLASH + targetDir).toString();
                     }
                     updateMessage(transferRateString);
+                    updateProgress((totalSent.get() / 2), totalJobSize);
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText(JobStatusStrings.objectSuccessfullyTransferredString(resourceBundle, obj.substring(0, obj.length()), bucket + FORWARD_SLASH + targetDir, newDate, resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS));
 
                 });

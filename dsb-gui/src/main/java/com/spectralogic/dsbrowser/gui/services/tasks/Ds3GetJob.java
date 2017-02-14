@@ -164,7 +164,11 @@ public class Ds3GetJob extends Ds3JobTask {
                     final MetadataReceivedListenerImpl metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreeModel.toString());
                     getJob.attachMetadataReceivedListener((s, metadata) -> {
                         LOG.info("Restoring metadata for {}", s);
-                        metadataReceivedListener.metadataReceived(s, metadata);
+                        try {
+                            metadataReceivedListener.metadataReceived(s, metadata);
+                        } catch (final Exception e) {
+                            LOG.error("Error in metadata receiving", e);
+                        }
                     });
                     // check whether chunk are available
                     getJob.attachWaitingForChunksListener(retryAfterSeconds -> {
@@ -203,13 +207,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     updateMessage(JobStatusStrings.jobSuccessfullyTransferredString(resourceBundle,JobRequestType.GET.toString(),FileSizeFormat.getFileSizeType(totalJobSize),fileTreeModel.toString(),DateFormat.formatDate(new Date()),null,false).toString());
                     updateProgress(totalJobSize, totalJobSize);
                     //Can't assign final.
-                    GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-                    while (response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_IN_PROGRESS)) {
-                        response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-                    }
-                    if (response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
-                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-                    }
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText(resourceBundle.getString("getJobSize") + StringConstants.SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + resourceBundle.getString("getCompleted") + StringConstants.SPACE + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS));
                 }
             } else {
