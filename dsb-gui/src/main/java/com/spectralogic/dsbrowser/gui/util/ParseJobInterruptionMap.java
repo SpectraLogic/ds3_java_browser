@@ -127,14 +127,19 @@ public final class ParseJobInterruptionMap {
 
     private static void setInterruptJobStatus(final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                                               final boolean isJobInterrupted, final int size) {
-        if (isJobInterrupted) {
-            deepStorageBrowserPresenter.getCircle().setVisible(true);
-            deepStorageBrowserPresenter.getJobButton().setDisable(false);
-            deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(size));
-        } else {
-            deepStorageBrowserPresenter.getCircle().setVisible(false);
-            deepStorageBrowserPresenter.getJobButton().setDisable(true);
-            deepStorageBrowserPresenter.getLblCount().setText("");
+        try {
+            if (isJobInterrupted) {
+                deepStorageBrowserPresenter.getCircle().setVisible(true);
+                deepStorageBrowserPresenter.getJobButton().setDisable(false);
+                deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(size));
+            } else {
+                deepStorageBrowserPresenter.getCircle().setVisible(false);
+                deepStorageBrowserPresenter.getJobButton().setDisable(true);
+                deepStorageBrowserPresenter.getLblCount().setText("");
+            }
+        }
+        catch (final Exception e) {
+            LOG.error("not able to set Job status", e);
         }
     }
 

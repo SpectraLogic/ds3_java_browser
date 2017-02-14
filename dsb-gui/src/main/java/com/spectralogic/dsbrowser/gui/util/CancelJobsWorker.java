@@ -7,7 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelRunningJobsTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
@@ -18,22 +18,22 @@ public final class CancelJobsWorker {
 
     public static void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Ds3Common ds3Common) {
         if (jobWorkers.getTasks().size() != 0) {
-            final CancelRunningJobsTask cancelRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers);
-            cancelRunningJobsTask.setOnSucceeded(event -> {
+            final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers);
+            cancelAllRunningJobsTask.setOnSucceeded(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers);
-                if (cancelRunningJobsTask.getValue() != null) {
-                    LOG.info("Cancelled job. {}", cancelRunningJobsTask.getValue());
+                if (cancelAllRunningJobsTask.getValue() != null) {
+                    LOG.info("Cancelled job. {}", cancelAllRunningJobsTask.getValue());
                 }
             });
 
         }
     }
 
-    public static CancelRunningJobsTask cancelTasks(final JobWorkers jobWorkers, final JobInterruptionStore
+    public static CancelAllRunningJobsTask cancelTasks(final JobWorkers jobWorkers, final JobInterruptionStore
             jobInterruptionStore, final Workers workers) {
-        final CancelRunningJobsTask cancelRunningJobsTask = new CancelRunningJobsTask(jobWorkers, jobInterruptionStore);
-        workers.execute(cancelRunningJobsTask);
-        return cancelRunningJobsTask;
+        final CancelAllRunningJobsTask cancelAllRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore);
+        workers.execute(cancelAllRunningJobsTask);
+        return cancelAllRunningJobsTask;
     }
 
     public static CancelAllTaskBySession cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore

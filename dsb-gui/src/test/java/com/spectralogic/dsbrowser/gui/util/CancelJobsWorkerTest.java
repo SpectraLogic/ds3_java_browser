@@ -15,7 +15,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelRunningJobsTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
@@ -110,15 +109,15 @@ public class CancelJobsWorkerTest {
                 });
                 Thread.sleep(5000);
                 //Cancelling put job task
-                final CancelRunningJobsTask cancelRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers);
-                cancelRunningJobsTask.setOnSucceeded(event -> {
+                final CancelAllRunningJobsTask cancelAllRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers);
+                cancelAllRunningJobsTask.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();
                 });
-                cancelRunningJobsTask.setOnFailed(event -> {
+                cancelAllRunningJobsTask.setOnFailed(event -> {
                     latch.countDown();
                 });
-                cancelRunningJobsTask.setOnCancelled(event -> {
+                cancelAllRunningJobsTask.setOnCancelled(event -> {
                     latch.countDown();
                 });
             } catch (final Exception e) {

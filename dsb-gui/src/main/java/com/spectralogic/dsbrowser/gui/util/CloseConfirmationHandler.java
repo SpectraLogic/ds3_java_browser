@@ -9,7 +9,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelRunningJobsTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.Event;
@@ -154,7 +154,7 @@ public class CloseConfirmationHandler {
      */
     public Task cancelAllRunningTasks(final JobWorkers jobWorkers, final Workers workers, final JobInterruptionStore jobInterruptionStore) {
         LOG.info("Cancelling all running jobs");
-        final Task cancelRunningJobsTask = new CancelRunningJobsTask(jobWorkers, jobInterruptionStore);
+        final Task cancelRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore);
         workers.execute(cancelRunningJobsTask);
         return cancelRunningJobsTask;
     }

@@ -14,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class CancelRunningJobsTask extends Task {
-    private final static Logger LOG = LoggerFactory.getLogger(CancelRunningJobsTask.class);
+public class CancelAllRunningJobsTask extends Task {
+    private final static Logger LOG = LoggerFactory.getLogger(CancelAllRunningJobsTask.class);
 
     private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
 
-    public CancelRunningJobsTask(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
+    public CancelAllRunningJobsTask(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
     }
