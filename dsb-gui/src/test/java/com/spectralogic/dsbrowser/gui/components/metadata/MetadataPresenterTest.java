@@ -9,7 +9,8 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;

@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
-import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.Event;
@@ -26,13 +25,8 @@ public class Ds3DeleteBucketTask extends Ds3Task {
         try {
             ds3Client.deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
             return "Success";
-        } catch (final FailedRequestException fre) {
-            LOG.error("Failed to delete Buckets" + fre);
-            setErrorMsg(fre.getMessage());
-            this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
-            return fre.toString();
         } catch (final Exception e) {
-            LOG.error("Failed to delete Bucket " + e);
+            LOG.error("Failed to delete Bucket ", e);
             setErrorMsg(e.getMessage());
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
             return e.toString();

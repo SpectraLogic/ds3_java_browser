@@ -19,7 +19,7 @@ public final class Platform {
         } else if (osName.contains("FreeBSD")) {
             OS_TYPE = OS.FREE_BSD;
         } else {
-            LOG.info("Unknown platform type: " + osName);
+            LOG.info("Unknown platform type:{}",  osName);
             OS_TYPE = OS.UNKNOWN;
         }
     }

@@ -1,23 +1,29 @@
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+
 import java.util.Date;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 
-public class JobStatusStrings {
+public class StringBuilderUtil {
+
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties
+            .getInstance()
+            .getLanguage()));
 
     /**
      * update title when recover job starts
      *
-     * @param resourceBundle resourceBundle
-     * @param type           type of Job
-     * @param endpointInfo   endpointInfo
-     * @param date           date
+     * @param type         type of Job
+     * @param endpointInfo endpointInfo
+     * @param date         date
      * @return string
      */
-    public static String getRecoverJobTransferringForTitle(final ResourceBundle resourceBundle, final String type, final String endpointInfo, final String date) {
+    public static String getRecoverJobTransferringForTitle(final String type, final String endpointInfo, final String date) {
         final StringBuilder builder = new StringBuilder();
         builder.append(resourceBundle.getString("recovering"))
                 .append(SPACE)
@@ -34,12 +40,11 @@ public class JobStatusStrings {
     /**
      * update title when recover job starts
      *
-     * @param resourceBundle resourceBundle
-     * @param type           type of job
-     * @param date           date
+     * @param type type of job
+     * @param date date
      * @return string
      */
-    public static String getRecoverJobTransferringForLogs(final ResourceBundle resourceBundle, final String type, final String date) {
+    public static String getRecoverJobTransferringForLogs(final String type, final String date) {
         final StringBuilder builder = new StringBuilder();
         builder.append(resourceBundle.getString("recovering"))
                 .append(SPACE)
@@ -54,11 +59,10 @@ public class JobStatusStrings {
     /**
      * get initiate string in case of put
      *
-     * @param resourceBundle resourceBundle
-     * @param bucketName     bucketName
+     * @param bucketName bucketName
      * @return String
      */
-    public static String getRecoverJobInitiateTransferTo(final ResourceBundle resourceBundle, final String bucketName) {
+    public static String getRecoverJobInitiateTransferTo(final String bucketName) {
         return new StringBuilder().append(resourceBundle.getString("initiatingTransferTo"))
                 .append(SPACE)
                 .append(bucketName).toString();
@@ -67,17 +71,16 @@ public class JobStatusStrings {
     /**
      * get initiate transfer String in case of get
      *
-     * @param resourceBundle resourceBundle
      * @param bucketName
      * @return string
      */
-    public static String getRecoverJobInitiateTransferFrom(final ResourceBundle resourceBundle, final String bucketName) {
+    public static String getRecoverJobInitiateTransferFrom(final String bucketName) {
         return new StringBuilder().append(resourceBundle.getString("initiatingTransferFrom"))
                 .append(SPACE)
                 .append(bucketName).toString();
     }
 
-    public static StringBuilder jobInitiatedString(final ResourceBundle resourceBundle, final String type, final String date, final String endPointInfo) {
+    public static StringBuilder jobInitiatedString(final String type, final String date, final String endPointInfo) {
         return new StringBuilder().append(type)
                 .append(SPACE)
                 .append(resourceBundle.getString("jobInitiated"))
@@ -91,7 +94,7 @@ public class JobStatusStrings {
                 .append(date);
     }
 
-    public static StringBuilder transferringTotalJobString(final ResourceBundle resourceBundle, final String totalJobSize, final String targetDirectory) {
+    public static StringBuilder transferringTotalJobString(final String totalJobSize, final String targetDirectory) {
         return new StringBuilder().append(resourceBundle.getString("transferring"))
                 .append(SPACE).append(totalJobSize)
                 .append(SPACE).append(resourceBundle.getString("to"))
@@ -109,7 +112,7 @@ public class JobStatusStrings {
      * @param topath        to Path
      * @return get string for transfer rate
      */
-    public static StringBuilder getTransferRateString(final ResourceBundle resourceBundle, final long transferRate, final long timeRemaining, final AtomicLong totalSent, final long totalJobSize, final String fromPath, final String topath) {
+    public static StringBuilder getTransferRateString(final long transferRate, final long timeRemaining, final AtomicLong totalSent, final long totalJobSize, final String fromPath, final String topath) {
         if (transferRate != 0) {
             return new StringBuilder().append(SPACE)
                     .append(resourceBundle.getString("transferRate"))
@@ -154,7 +157,7 @@ public class JobStatusStrings {
         }
     }
 
-    public static StringBuilder objectSuccessfullyTransferredString(final ResourceBundle resourceBundle, final String fromPath, final String toPath, final String date, final String location) {
+    public static StringBuilder objectSuccessfullyTransferredString(final String fromPath, final String toPath, final String date, final String location) {
         final StringBuilder builder = new StringBuilder();
         builder.append(resourceBundle.getString("successfullyTransfered"))
                 .append(SPACE)
@@ -174,7 +177,7 @@ public class JobStatusStrings {
         return builder;
     }
 
-    public static StringBuilder jobSuccessfullyTransferredString(final ResourceBundle resourceBundle, final String type, final String jobSize, final String toPath, final String date, final String location, final boolean isCacheEnable) {
+    public static StringBuilder jobSuccessfullyTransferredString(final String type, final String jobSize, final String toPath, final String date, final String location, final boolean isCacheEnable) {
         final StringBuilder builder = new StringBuilder();
         builder.append(type)
                 .append(resourceBundle.getString("job"))
@@ -211,7 +214,7 @@ public class JobStatusStrings {
      * @param e           Exception
      * @return String of job failure/cancelled
      */
-    public static String getJobFailedMessage(final ResourceBundle resourceBundle ,final String failureType, final String endpoint, final String reason, final Throwable e) {
+    public static String getJobFailedMessage(final String failureType, final String endpoint, final String reason, final Throwable e) {
         if (null != e) {
             return new StringBuilder()
                     .append(failureType)
@@ -237,5 +240,73 @@ public class JobStatusStrings {
         }
     }
 
+    /****************************************************
+     *StringBuilders for Search job                     *
+     ****************************************************/
 
+    public static StringBuilder bucketFoundMessage(final String searchText) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("bucketFound"))
+                .append(StringConstants.SPACE)
+                .append(searchText);
+    }
+
+    public static StringBuilder searchInBucketMessage(final String bucketName, final int size) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("searchIn"))
+                .append(StringConstants.SPACE)
+                .append(bucketName)
+                .append(StringConstants.COLON)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("found"))
+                .append(StringConstants.SPACE)
+                .append(size)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("items"));
+    }
+
+    public static StringBuilder nObjectsFoundMessage(final int n) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("searchResults"))
+                .append(StringConstants.COLON)
+                .append(StringConstants.SPACE)
+                .append(n)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("objectFound"))
+                .append(StringConstants.SPACE);
+    }
+
+    public static StringBuilder searchFailedMessage() {
+        return new StringBuilder().append(
+                resourceBundle.getString("searchFailed"))
+                .append(StringConstants.COLON)
+                .append(StringConstants.SPACE);
+    }
+
+    public static StringBuilder getItemsCountInfoMessage(final int noOfFolders, final int noOfFiles) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("contains"))
+                .append(StringConstants.SPACE)
+                .append(noOfFolders)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("folders"))
+                .append(StringConstants.SPACE)
+                .append(noOfFiles)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("files"));
+    }
+
+    public static StringBuilder getCapacityMessage(final long totalCapacity, final Ds3TreeTableValue.Type type) {
+        if (type.equals(Ds3TreeTableValue.Type.Bucket)) {
+            return new StringBuilder()
+                    .append(resourceBundle.getString("bucket("))
+                    .append(FileSizeFormat.getFileSizeType(totalCapacity))
+                    .append(StringConstants.CLOSING_BRACE);
+        } else {
+            return new StringBuilder()
+                    .append(resourceBundle.getString("folder("))
+                    .append(FileSizeFormat.getFileSizeType(totalCapacity))
+                    .append(StringConstants.CLOSING_BRACE);
+        }
+    }
 }

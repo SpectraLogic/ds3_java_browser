@@ -16,6 +16,7 @@ public interface StringConstants {
     String DOUBLE_DOTS = "..";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
+    String PERCENT = "%";
     String FORWARD_ARROW = "->";
     String JOB_COMPLETED = "COMPLETED";
     String JOB_IN_PROGRESS = "IN_PROGRESS";

@@ -19,5 +19,7 @@ public interface SessionConstants {
     String PORT_NO_BPLAB = "80";
     String ACCESS_ID_BPLAB = "dnZkbg==";
     String SECRET_KEY_BPLAB = "Wsb9EkYE";
-
+    String DATA_POLICY_NAME = "fake";
+    String DATA_POLICY_UUID = "b8ae2e65-b665-4733-bd48-f7ab760c43f3";
+    String TEXT_TO_SEARCH = "11";
 }

@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
-import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -17,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;

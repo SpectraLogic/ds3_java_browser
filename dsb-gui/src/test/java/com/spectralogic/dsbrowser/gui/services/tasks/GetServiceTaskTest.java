@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class GetServiceTaskTest {
 

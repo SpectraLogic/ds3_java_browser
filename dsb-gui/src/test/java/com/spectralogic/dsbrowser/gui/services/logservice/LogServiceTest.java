@@ -3,10 +3,9 @@ package com.spectralogic.dsbrowser.gui.services.logservice;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class LogServiceTest {
 

@@ -14,8 +14,8 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -32,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by Suman on 2/11/2017.
- */
 public class CancelJobsWorkerTest {
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static final Workers workers = new Workers();

@@ -4,7 +4,7 @@ import com.spectralogic.ds3client.models.Priority;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class PriorityFilterTest {
     @Test

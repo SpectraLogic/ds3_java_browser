@@ -41,7 +41,7 @@ public class CancelAllRunningJobsTask extends Task {
                             jobId = ds3PutJob.getJobId().toString();
                             ds3Client = ds3PutJob.getClient();
                         }
-                        LOG.info("Cancelled job: " + ds3PutJob.getJobId());
+                        LOG.info("Cancelled job:{} " , ds3PutJob.getJobId());
                     } else if (job instanceof Ds3GetJob) {
                         final Ds3GetJob ds3GetJob = (Ds3GetJob) job;
                         ds3GetJob.cancel();
@@ -49,13 +49,13 @@ public class CancelAllRunningJobsTask extends Task {
                             jobId = ds3GetJob.getJobId().toString();
                             ds3Client = ds3GetJob.getDs3Client();
                         }
-                        LOG.info("Cancelled job: " + ds3GetJob.getJobId());
+                        LOG.info("Cancelled job:{} " , ds3GetJob.getJobId());
                     } else if (job instanceof RecoverInterruptedJob) {
                         final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) job;
                         recoverInterruptedJob.cancel();
                         jobId = recoverInterruptedJob.getUuid().toString();
                         ds3Client = recoverInterruptedJob.getDs3Client();
-                        LOG.info("Cancelled job: " + recoverInterruptedJob.getUuid());
+                        LOG.info("Cancelled job:{} " , recoverInterruptedJob.getUuid());
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null);

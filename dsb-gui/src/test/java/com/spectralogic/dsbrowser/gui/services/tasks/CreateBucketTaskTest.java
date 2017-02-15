@@ -37,7 +37,8 @@ public class CreateBucketTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
+                final CreateBucketModel createBucketModel = new CreateBucketModel(SessionConstants.DATA_POLICY_NAME,
+                        UUID.fromString(SessionConstants.DATA_POLICY_UUID));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
                         SessionConstants.CREATE_BUCKET_TASK_TEST_BUCKET_NAME,
                         null);

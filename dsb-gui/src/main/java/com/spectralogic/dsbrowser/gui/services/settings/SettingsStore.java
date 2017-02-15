@@ -136,8 +136,6 @@ public class SettingsStore {
         newFile.append(settingDefault);
         try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
             writer.write(newFile.toString());
-        } catch (final IOException io) {
-            LOG.error("Failed to save setting", io);
         } catch (final Exception e) {
             LOG.error("Failed to save setting", e);
         }
