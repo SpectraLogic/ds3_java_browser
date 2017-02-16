@@ -61,9 +61,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         try {
             final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
             final String date = DateFormat.formatDate(new Date());
-            updateTitle(StringBuilderUtil.getRecoverJobTransferringForTitle(filesAndFolderMap.getType(), endpointInfo.getEndpoint(), date));
+            updateTitle(StringBuilderUtil.getRecoverJobTransferringForTitle(filesAndFolderMap.getType(), endpointInfo
+                    .getEndpoint(), date).toString());
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
-                    StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(), filesAndFolderMap.getDate()), LogType.INFO));
+                    StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
+                            filesAndFolderMap.getDate()).toString(), LogType.INFO));
             final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
             Ds3ClientHelpers.Job job = null;
             Path fileTreeModel = null;
@@ -73,12 +75,12 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 final long totalJobSize = filesAndFolderMap.getTotalJobSize();
                 if (filesAndFolderMap.getType().equals(JobRequestType.PUT.toString())) {
                     job = helpers.recoverWriteJob(uuid);
-                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferTo(job.getBucketName()));
+                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferTo(job.getBucketName()).toString());
 
                 } else if (filesAndFolderMap.getType().equals(JobRequestType.GET.toString())) {
                     job = helpers.recoverReadJob(uuid);
                     fileTreeModel = Paths.get(filesAndFolderMap.getTargetLocation());
-                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferFrom(job.getBucketName()));
+                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferFrom(job.getBucketName()).toString());
                 }
                 final AtomicLong totalSent = new AtomicLong(0L);
                 job.attachDataTransferredListener(l -> {

@@ -7,11 +7,13 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -40,8 +42,8 @@ public class CreateBucketTaskTest {
                 final CreateBucketModel createBucketModel = new CreateBucketModel(SessionConstants.DATA_POLICY_NAME,
                         UUID.fromString(SessionConstants.DATA_POLICY_UUID));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
-                        SessionConstants.CREATE_BUCKET_TASK_TEST_BUCKET_NAME,
-                        null);
+                        SessionConstants.CREATE_BUCKET_TASK_TEST_BUCKET_NAME + StringConstants.UNDER_SCORE +
+                                +Calendar.getInstance().getTimeInMillis(), null);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

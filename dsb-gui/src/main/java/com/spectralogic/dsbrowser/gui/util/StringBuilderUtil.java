@@ -11,9 +11,8 @@ import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 
 public class StringBuilderUtil {
 
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties
-            .getInstance()
-            .getLanguage()));
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang",
+            new Locale(ConfigProperties.getInstance().getLanguage()));
 
     /**
      * update title when recover job starts
@@ -23,9 +22,9 @@ public class StringBuilderUtil {
      * @param date         date
      * @return string
      */
-    public static String getRecoverJobTransferringForTitle(final String type, final String endpointInfo, final String date) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(resourceBundle.getString("recovering"))
+    public static StringBuilder getRecoverJobTransferringForTitle(final String type, final String endpointInfo, final String date) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("recovering"))
                 .append(SPACE)
                 .append(type)
                 .append(SPACE)
@@ -34,7 +33,6 @@ public class StringBuilderUtil {
                 .append(endpointInfo)
                 .append(SPACE)
                 .append(date);
-        return builder.toString();
     }
 
     /**
@@ -44,16 +42,15 @@ public class StringBuilderUtil {
      * @param date date
      * @return string
      */
-    public static String getRecoverJobTransferringForLogs(final String type, final String date) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(resourceBundle.getString("recovering"))
+    public static StringBuilder getRecoverJobTransferringForLogs(final String type, final String date) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("recovering"))
                 .append(SPACE)
                 .append(type)
                 .append(SPACE)
                 .append(resourceBundle.getString("jobOf"))
                 .append(SPACE)
                 .append(date);
-        return builder.toString();
     }
 
     /**
@@ -62,10 +59,11 @@ public class StringBuilderUtil {
      * @param bucketName bucketName
      * @return String
      */
-    public static String getRecoverJobInitiateTransferTo(final String bucketName) {
-        return new StringBuilder().append(resourceBundle.getString("initiatingTransferTo"))
+    public static StringBuilder getRecoverJobInitiateTransferTo(final String bucketName) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("initiatingTransferTo"))
                 .append(SPACE)
-                .append(bucketName).toString();
+                .append(bucketName);
     }
 
     /**
@@ -74,10 +72,11 @@ public class StringBuilderUtil {
      * @param bucketName
      * @return string
      */
-    public static String getRecoverJobInitiateTransferFrom(final String bucketName) {
-        return new StringBuilder().append(resourceBundle.getString("initiatingTransferFrom"))
+    public static StringBuilder getRecoverJobInitiateTransferFrom(final String bucketName) {
+        return new StringBuilder()
+                .append(resourceBundle.getString("initiatingTransferFrom"))
                 .append(SPACE)
-                .append(bucketName).toString();
+                .append(bucketName);
     }
 
     public static StringBuilder jobInitiatedString(final String type, final String date, final String endPointInfo) {
@@ -112,7 +111,9 @@ public class StringBuilderUtil {
      * @param topath        to Path
      * @return get string for transfer rate
      */
-    public static StringBuilder getTransferRateString(final long transferRate, final long timeRemaining, final AtomicLong totalSent, final long totalJobSize, final String fromPath, final String topath) {
+    public static StringBuilder getTransferRateString(final long transferRate, final long timeRemaining,
+                                                      final AtomicLong totalSent, final long totalJobSize,
+                                                      final String fromPath, final String topath) {
         if (transferRate != 0) {
             return new StringBuilder().append(SPACE)
                     .append(resourceBundle.getString("transferRate"))
@@ -157,7 +158,8 @@ public class StringBuilderUtil {
         }
     }
 
-    public static StringBuilder objectSuccessfullyTransferredString(final String fromPath, final String toPath, final String date, final String location) {
+    public static StringBuilder objectSuccessfullyTransferredString(final String fromPath, final String toPath,
+                                                                    final String date, final String location) {
         final StringBuilder builder = new StringBuilder();
         builder.append(resourceBundle.getString("successfullyTransfered"))
                 .append(SPACE)
@@ -177,7 +179,9 @@ public class StringBuilderUtil {
         return builder;
     }
 
-    public static StringBuilder jobSuccessfullyTransferredString(final String type, final String jobSize, final String toPath, final String date, final String location, final boolean isCacheEnable) {
+    public static StringBuilder jobSuccessfullyTransferredString(final String type, final String jobSize,
+                                                                 final String toPath, final String date,
+                                                                 final String location, final boolean isCacheEnable) {
         final StringBuilder builder = new StringBuilder();
         builder.append(type)
                 .append(resourceBundle.getString("job"))
@@ -214,7 +218,8 @@ public class StringBuilderUtil {
      * @param e           Exception
      * @return String of job failure/cancelled
      */
-    public static String getJobFailedMessage(final String failureType, final String endpoint, final String reason, final Throwable e) {
+    public static String getJobFailedMessage(final String failureType, final String endpoint, final String reason,
+                                             final Throwable e) {
         if (null != e) {
             return new StringBuilder()
                     .append(failureType)

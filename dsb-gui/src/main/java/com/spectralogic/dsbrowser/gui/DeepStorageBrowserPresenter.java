@@ -19,6 +19,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -40,8 +41,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
 
 public class DeepStorageBrowserPresenter implements Initializable {
 
@@ -113,21 +112,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             initGUIElement(); //Setting up labels from resource file
-
             LOG.info("Loading Main view");
             logText(resourceBundle.getString("loadMainView"), LogType.INFO);
-
             final SetToolTipBehavior setToolTipBehavior = new SetToolTipBehavior();
             setToolTipBehavior.setToolTilBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
-
             final Tooltip jobToolTip = new Tooltip();
             jobToolTip.setText(resourceBundle.getString("interruptedJobs"));
             final Tooltip cancelAllToolTip = new Tooltip();
             cancelAllToolTip.setText(resourceBundle.getString("cancelAllRunningJobs"));
-
             jobProgressView = new DeepStorageBrowserTaskProgressView<>();
             jobProgressView.setPrefHeight(1000);
-
             final VBox jobProgressVBox = new VBox();
             //Implementation and design of Cancel button in bottom pane
             CANCELALLJOBIMAGEVIEW.setFitHeight(15);
@@ -141,7 +135,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
             cancelAll.setOnAction(event -> {
                 CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
             });
-
             INTERRUPTEDJOBIMAGEVIEW.setFitHeight(15);
             INTERRUPTEDJOBIMAGEVIEW.setFitWidth(15);
             jobButton.setTranslateX(20);
@@ -154,9 +147,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     final Session session = ds3Common.getCurrentSession();
                     final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                     final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
-
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
-
                     if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                         jobButton.setDisable(false);
                         final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, DeepStorageBrowserPresenter.this, ds3Common));
@@ -170,7 +161,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     logText(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
                 }
             });
-
             final StackPane stackpane = new StackPane();
             stackpane.setLayoutX(45);
             stackpane.setLayoutY(1);
@@ -181,36 +171,28 @@ public class DeepStorageBrowserPresenter implements Initializable {
             circle.setFill(Color.RED);
             stackpane.getChildren().add(circle);
             stackpane.getChildren().add(lblCount);
-
             final AnchorPane anchorPane = new AnchorPane();
             anchorPane.getChildren().addAll(jobButton, stackpane, cancelAll);
             anchorPane.setMinHeight(35);
             Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
-
             jobsMenuItem.selectedProperty().setValue(true);
             logsMenuItem.selectedProperty().setValue(true);
-
             jobProgressVBox.getChildren().add(anchorPane);
             jobProgressVBox.getChildren().add(jobProgressView);
-
             jobsTab.setContent(jobProgressVBox);
             logsTab.setContent(scrollPane);
             jobSplitter.getItems().add(bottomTabPane);
             jobSplitter.setDividerPositions(0.95);
-
             jobsMenuItem.setOnAction(event -> {
                 logsORJobsMenuItemAction(jobsMenuItem, jobProgressVBox, null, jobsTab);
             });
-
             logsMenuItem.setOnAction(event -> {
                 logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
             });
-
             closeMenuItem.setOnAction(event -> {
                 final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers);
                 closeConfirmationHandler.closeConfirmationAlert(event);
             });
-
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);
             final Ds3PanelView ds3PanelView = new Ds3PanelView(this);
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
@@ -275,27 +257,29 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void logText(final String log, final LogType type) {
-        if (inlineCssTextArea != null) {
-            final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
-            inlineCssTextArea.appendText(formattedString(log));
-            final int size = inlineCssTextArea.getParagraphs().size() - 2;
-            for (int i = previousSize + 1; i <= size; i++)
-                switch (type) {
-                    case SUCCESS:
-                        inlineCssTextArea.setStyle(size,"-fx-fill: GREEN;");
-                        break;
-                    case ERROR:
-                        inlineCssTextArea.setStyle(size, "-fx-fill: RED;");
-                        break;
-                    default:
-                        inlineCssTextArea.setStyle(size, "-fx-fill: BLACK;");
-                }
-            scrollPane.setVvalue(1.0);
-        }
+        Platform.runLater(() -> {
+            if (inlineCssTextArea != null) {
+                final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
+                inlineCssTextArea.appendText(formattedString(log));
+                final int size = inlineCssTextArea.getParagraphs().size() - 2;
+                for (int i = previousSize + 1; i <= size; i++)
+                    switch (type) {
+                        case SUCCESS:
+                            inlineCssTextArea.setStyle(size, "-fx-fill: GREEN;");
+                            break;
+                        case ERROR:
+                            inlineCssTextArea.setStyle(size, "-fx-fill: RED;");
+                            break;
+                        default:
+                            inlineCssTextArea.setStyle(size, "-fx-fill: BLACK;");
+                    }
+                scrollPane.setVvalue(1.0);
+            }
+        });
     }
 
     private String formattedString(final String log) {
-        return ">> " + log + "\n";
+        return StringConstants.FORWARD_OPR + StringConstants.SPACE + log + "\n";
     }
 
     public Label getLblCount() {

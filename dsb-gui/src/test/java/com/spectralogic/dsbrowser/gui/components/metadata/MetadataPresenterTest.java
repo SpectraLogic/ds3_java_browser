@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 public class MetadataPresenterTest {
 
     @Test
-    public void testMetadata() {
+    public void testMetadataFromDsb() {
         final Metadata metadata = genMetadata(new BasicHeader("ds3-creation-time", "2017-01-01 14:44:2T"),
                 new BasicHeader("ds3-last-modified-time", "2017-01-03 14:44:2T"),
                 new BasicHeader("ds3-last-access-time", "2017-01-05 14:44:2T"),
@@ -31,7 +31,6 @@ public class MetadataPresenterTest {
                 new BasicHeader("ds3-flags", "FLAG"),
                 new BasicHeader("ds3-dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("ds3-mode", "MODE"));
-
         final MetadataPresenter metadataPresenter = new MetadataPresenter();
         final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
         metadataPresenter.createMetadataBuilder(metadata, builder);
@@ -51,7 +50,7 @@ public class MetadataPresenterTest {
     }
 
     @Test
-    public void testMetadata2() {
+    public void testMetadataFromServer() {
         final Metadata metadata = genMetadata(new BasicHeader("creation-time", "2017-01-01 14:44:2T"),
                 new BasicHeader("last-modified-time", "2017-01-03 14:44:2T"),
                 new BasicHeader("last-access-time", "2017-01-05 14:44:2T"),
@@ -71,14 +70,11 @@ public class MetadataPresenterTest {
     }
 
     private Metadata genMetadata(final Header... headers) {
-
         final ImmutableMultimap.Builder<String, String> mapBuilder = ImmutableMultimap.builder();
         for (final Header header : headers) {
             mapBuilder.put(header.getName(), header.getValue());
         }
-
         final ImmutableMultimap<String, String> map = mapBuilder.build();
-
         return new Metadata() {
             @Override
             public List<String> get(final String key) {

@@ -7,6 +7,7 @@ public interface SessionConstants {
     String ACCESS_ID = "c3VsYWJoamFpbg==";
     String SECRET_KEY = "yVBAvWTG";
     String DS3_PANEL_SERVICE_TEST_BUCKET_NAME = "EMPTY_BUCKET";
+    String DS3_PANEL_SERVICE_TEST_FOLDER_NAME = "EMPTY_FOLDER";
     String CREATE_BUCKET_TASK_TEST_BUCKET_NAME = "TEMPORARY_BUCKET";
     String ALREADY_EXIST_BUCKET = "TEST1";
     String ALREADY_EXIST_FOLDER = "Files";

@@ -8,11 +8,13 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -38,11 +40,12 @@ public class CreateFolderTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final String folderName = "TEMP_FOLDER";
+                final String folderName = SessionConstants.DS3_PANEL_SERVICE_TEST_FOLDER_NAME + StringConstants.UNDER_SCORE +
+                        +Calendar.getInstance().getTimeInMillis();
                 final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), SessionConstants.ALREADY_EXIST_BUCKET,
                         SessionConstants.ALREADY_EXIST_BUCKET);
-                final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
-                        .getBucketName());
+                final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
+                        createFolderModel.getBucketName());
                 //Instantiating create folder task
                 final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel,
                         folderName, PathUtil.getDs3ObjectList(location, folderName),

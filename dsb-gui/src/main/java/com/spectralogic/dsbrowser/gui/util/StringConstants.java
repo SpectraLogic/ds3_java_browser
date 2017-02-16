@@ -24,6 +24,7 @@ public interface StringConstants {
     String COMMA = ",";
     String OPEN_BRACE = "(";
     String CLOSING_BRACE = ")";
+    String UNDER_SCORE = "_";
     String FILE_PROPERTIES_SETTING = "filePropertiesSettings";
     String FILE_PROPERTIES_DEFAULT = ",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}";
     String SHOW_CACHED_JOB_SETTING = "showCachedJobSettings";
@@ -42,8 +43,8 @@ public interface StringConstants {
     String FLAG = "ds3-flags";
     String DACL = "ds3-dacl";
     String MODE = "ds3-mode";
-    String STR_T= "T";
-    String DATE_FORMATE = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS'Z'";
+    String STR_T = "T";
+    String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS'Z'";
     String CASE_METADATA = "ds3Metadata";
-
+    String FORWARD_OPR = ">>";
 }

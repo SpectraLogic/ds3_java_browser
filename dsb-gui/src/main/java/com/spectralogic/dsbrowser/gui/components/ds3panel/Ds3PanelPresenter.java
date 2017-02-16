@@ -868,7 +868,7 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                             ds3TreeTableView.setRoot(rootTreeItem);
                             final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView
-                                    .getColumns().stream().findFirst().orElse(null);
+                                    .getColumns().get(1);
                             if (null != ds3TreeTableValueTreeTableColumn) {
                                 ds3TreeTableValueTreeTableColumn.setVisible(true);
                             }

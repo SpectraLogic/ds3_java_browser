@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.components.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.networking.Metadata;
-import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.util.ByteFormat;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
@@ -21,7 +20,7 @@ import java.util.ResourceBundle;
 public class MetadataPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
-    private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMATE);
+    private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
     private final Calendar calendar = Calendar.getInstance();
     @FXML
     private Label objectName;

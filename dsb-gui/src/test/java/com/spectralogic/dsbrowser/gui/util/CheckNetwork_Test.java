@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -55,7 +56,7 @@ public class CheckNetwork_Test {
                 latch.countDown();
             }
         });
-        latch.await();
+        latch.await(5, TimeUnit.SECONDS);
         assertTrue(successFlag);
     }
 }

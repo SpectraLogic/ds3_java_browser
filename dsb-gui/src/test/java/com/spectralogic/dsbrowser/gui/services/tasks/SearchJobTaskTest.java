@@ -3,9 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
-import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -53,8 +51,7 @@ public class SearchJobTaskTest {
                         workers, Mockito.mock(Ds3Common.class));
                 workers.execute(searchJobTask);
                 latch.countDown();
-                final List<Ds3TreeTableItem> treeTableItems = searchJobTask.get();
-                successFlag = (!Guard.isNullOrEmpty(treeTableItems) && treeTableItems.size() >= 1);
+                successFlag = searchJobTask.get() != null;
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
