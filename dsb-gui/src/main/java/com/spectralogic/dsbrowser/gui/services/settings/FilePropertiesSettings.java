@@ -27,7 +27,7 @@ public class FilePropertiesSettings {
         return filePropertiesEnable.get();
     }
 
-    public BooleanProperty getFilePropertiesEnableProperty() {
+    public BooleanProperty filePropertiesEnableProperty() {
         return filePropertiesEnable;
     }
 

@@ -6,4 +6,5 @@ public interface Constants {
     int DURATION = 1000;
     int RETRY_AFTER_COUNT = 100;
     int MAX_PARALLEL_THREAD_DEFAULT = 10;
+    String PORT_NUMBER = "80";
 }

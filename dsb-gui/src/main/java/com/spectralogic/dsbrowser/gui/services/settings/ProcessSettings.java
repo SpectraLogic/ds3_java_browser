@@ -28,7 +28,7 @@ public class ProcessSettings {
         return maximumNumberOfParallelThreads.get();
     }
 
-    public IntegerProperty getMaximumNumberOfParallelThreadsProperty() {
+    public IntegerProperty maximumNumberOfParallelThreadsProperty() {
         return maximumNumberOfParallelThreads;
     }
 

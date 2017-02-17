@@ -27,7 +27,7 @@ public class ShowCachedJobSettings {
         return showCachedJob.get();
     }
 
-    public BooleanProperty getShowCachedJobEnableProperty() {
+    public BooleanProperty showCachedJobEnableProperty() {
         return showCachedJob;
     }
 

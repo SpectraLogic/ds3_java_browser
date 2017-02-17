@@ -35,12 +35,7 @@ import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 
 public class JobInfoPresenter implements Initializable {
 
-
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
-    private final Alert CLOSECONFIRMATIONALERT = new Alert(
-            Alert.AlertType.CONFIRMATION,
-            ""
-    );
     private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
@@ -76,14 +71,13 @@ public class JobInfoPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+    @Inject
+    private ResourceBundle resourceBundle;
+
     private Stage stage;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        ALERT.setTitle("No network connection");
-        ALERT.setHeaderText(null);
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         initListeners();
         initTreeTableView();
     }
@@ -93,17 +87,7 @@ public class JobInfoPresenter implements Initializable {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 if (jobIDMap != null && jobIDMap.size() != 0) {
-                    final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                            ButtonType.OK
-                    );
-                    final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                            ButtonType.CANCEL
-                    );
-                    exitButton.setText("Yes");
-                    cancelButton.setText("No! I don't");
-                    CLOSECONFIRMATIONALERT.setHeaderText("Are you really want to cancel all interrupted jobs");
-                    CLOSECONFIRMATIONALERT.setContentText(jobIDMap.size() + " jobs will be cancelled. You can not recover them in future.");
-                    final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
+                    final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), jobIDMap.size() + resourceBundle.getString("jobswillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         cancelAllInterruptedJobs(jobIDMap);
                         event.consume();
@@ -167,7 +151,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this,settingsStore));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -219,7 +203,7 @@ public class JobInfoPresenter implements Initializable {
             if (jobIDMap != null) {
                 jobIDMap.entrySet().forEach(i -> {
                     try {
-                        final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore,settingsStore.getShowCachedJobSettings().getShowCachedJob());
+                        final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore, settingsStore.getShowCachedJobSettings().getShowCachedJob());
                         jobWorkers.execute(recoverInterruptedJob);
                         final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());

@@ -43,7 +43,6 @@ public class CloseConfirmationHandler {
     private final SettingsStore settings;
     private final Workers workers;
     private final ResourceBundle resourceBundle;
-    private final Alert closeConfirmationAlert;
     private final JobWorkers jobWorkers;
 
     //running tasks which are not in cache
@@ -59,12 +58,6 @@ public class CloseConfirmationHandler {
         this.jobWorkers = jobWorkers;
         this.workers = workers;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
-        this.closeConfirmationAlert = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                resourceBundle.getString("closeConfirmationAlertMessage")
-        );
-        final Stage stage = (Stage) closeConfirmationAlert.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
     /**
@@ -79,20 +72,18 @@ public class CloseConfirmationHandler {
             if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
                 closeApplication(event);
             } else {
-                final Button exitButton = (Button) closeConfirmationAlert.getDialogPane().lookupButton(
-                        ButtonType.OK
-                );
-                final Button cancelButton = (Button) closeConfirmationAlert.getDialogPane().lookupButton(
-                        ButtonType.CANCEL
-                );
-                exitButton.setText(resourceBundle.getString("exitButtonText"));
-                cancelButton.setText(resourceBundle.getString("cancelButtonText"));
+                final Optional<ButtonType> closeResponse;
                 if (1 == notCachedRunningTasks.size()) {
-                    closeConfirmationAlert.setHeaderText(notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"));
+                    closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                            notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"),
+                            Alert.AlertType.CONFIRMATION, null,
+                            resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
                 } else {
-                    closeConfirmationAlert.setHeaderText(notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"));
+                    closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                            notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"),
+                            Alert.AlertType.CONFIRMATION, null,
+                            resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
                 }
-                final Optional<ButtonType> closeResponse = closeConfirmationAlert.showAndWait();
                 if (closeResponse.get().equals(ButtonType.OK)) {
                     closeApplication(event);
                 }

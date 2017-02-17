@@ -88,44 +88,33 @@ public class MetadataPresenter implements Initializable {
         nameTooltip.setText(ds3Metadata.getName());
     }
 
+    private MetadataEntry getTime(final String time, final String key) {
+        if (time.contains(StringConstants.STR_T)) {
+            return new MetadataEntry(key, time.replace(StringConstants.STR_T, StringConstants.SPACE));
+        } else {
+            final long creationTimeLong = Long.parseLong(time);
+            calendar.setTimeInMillis(creationTimeLong);
+            return new MetadataEntry(key, formatter.format(calendar.getTime()));
+        }
+    }
+
     //create metadata keys for showing on server
     public ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
         try {
             //if metadata does not contains creation time key then show all metadata got from bp server without any processing
             if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {
                 //get the creation time from server
-                String creationTime = metadata.get(StringConstants.CREATION_TIME_KEY).stream().findFirst().orElse(null);
-                if (creationTime.contains(StringConstants.STR_T)) {
-                    creationTime = creationTime.replace(StringConstants.STR_T, StringConstants.SPACE);
-                    builder.add(new MetadataEntry(StringConstants.CREATION_TIME_KEY, creationTime));
-                } else {
-                    final long creationTimeLong = Long.parseLong(creationTime);
-                    calendar.setTimeInMillis(creationTimeLong);
-                    builder.add(new MetadataEntry(StringConstants.CREATION_TIME_KEY, formatter.format(calendar.getTime())));
-                }
+                final String creationTime = metadata.get(StringConstants.CREATION_TIME_KEY).stream().findFirst().orElse(null);
+                builder.add(getTime(creationTime, StringConstants.CREATION_TIME_KEY));
                 //get the access time from server
                 if (metadata.get(StringConstants.ACCESS_TIME_KEY).size() > 0) {
-                    String accessTime = metadata.get(StringConstants.ACCESS_TIME_KEY).stream().findFirst().orElse(null);
-                    if (accessTime.contains(StringConstants.STR_T)) {
-                        accessTime = accessTime.replace(StringConstants.STR_T, StringConstants.SPACE);
-                        builder.add(new MetadataEntry(StringConstants.ACCESS_TIME_KEY, accessTime));
-                    } else {
-                        final long accessTimeLong = Long.parseLong(accessTime);
-                        calendar.setTimeInMillis(accessTimeLong);
-                        builder.add(new MetadataEntry(StringConstants.ACCESS_TIME_KEY, formatter.format(calendar.getTime())));
-                    }
+                    final String accessTime = metadata.get(StringConstants.ACCESS_TIME_KEY).stream().findFirst().orElse(null);
+                    builder.add(getTime(accessTime, StringConstants.ACCESS_TIME_KEY));
                 }
                 //get the last modified time from server
                 if (metadata.get(StringConstants.LAST_MODIFIED_KEY).size() > 0) {
-                    String modifiedTime = metadata.get(StringConstants.LAST_MODIFIED_KEY).stream().findFirst().orElse(null);
-                    if (modifiedTime.contains(StringConstants.STR_T)) {
-                        modifiedTime = modifiedTime.replace(StringConstants.STR_T, StringConstants.SPACE);
-                        builder.add(new MetadataEntry(StringConstants.LAST_MODIFIED_KEY, modifiedTime));
-                    } else {
-                        final long modifiedTimeLong = Long.parseLong(modifiedTime);
-                        calendar.setTimeInMillis(modifiedTimeLong);
-                        builder.add(new MetadataEntry(StringConstants.LAST_MODIFIED_KEY, formatter.format(calendar.getTime())));
-                    }
+                    final String modifiedTime = metadata.get(StringConstants.LAST_MODIFIED_KEY).stream().findFirst().orElse(null);
+                    builder.add(getTime(modifiedTime, StringConstants.LAST_MODIFIED_KEY));
                 }
                 //get owner sid(Windows)
                 if (metadata.get(StringConstants.OWNER).size() > 0) {

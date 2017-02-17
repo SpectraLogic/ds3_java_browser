@@ -7,7 +7,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.JobInfoView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -230,7 +230,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void showSessionPopup() {
-        NewSessionPopup.show();
+        Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
     }
 
     private void logsORJobsMenuItemAction(final CheckMenuItem menuItem, final VBox vBox, final ScrollPane pane, final Tab tab) {

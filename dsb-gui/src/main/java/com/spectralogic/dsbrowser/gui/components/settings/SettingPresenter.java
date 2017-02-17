@@ -192,13 +192,13 @@ public class SettingPresenter implements Initializable {
     }
 
     private void initPropertyPane() {
-        Bindings.bindBidirectional(logDirectory.textProperty(), logSettings.getLogLocationProperty());
-        Bindings.bindBidirectional(logSize.textProperty(), logSettings.getLogSizeProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(numRolling.textProperty(), logSettings.getNumRolloversProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.getDebugLoggingProperty());
-        Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.getMaximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.getFilePropertiesEnableProperty());
-        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.getShowCachedJobEnableProperty());
+        Bindings.bindBidirectional(logDirectory.textProperty(), logSettings.logLocationProperty());
+        Bindings.bindBidirectional(logSize.textProperty(), logSettings.logSizeProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
+        Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.filePropertiesEnableProperty());
+        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.showCachedJobEnableProperty());
     }
 
     private void initGUIElements() {

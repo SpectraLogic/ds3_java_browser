@@ -1,11 +1,13 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+@JsonIgnoreProperties
 public class SettingsModel {
     @JsonProperty("logLocation")
     private final StringProperty logLocation = new SimpleStringProperty();

@@ -70,7 +70,7 @@ public class LogSettings {
         this.logLocation.set(logLocation);
     }
 
-    public StringProperty getLogLocationProperty() {
+    public StringProperty logLocationProperty() {
         return logLocation;
     }
 
@@ -82,7 +82,7 @@ public class LogSettings {
         this.logSize.set(logSize);
     }
 
-    public IntegerProperty getLogSizeProperty() {
+    public IntegerProperty logSizeProperty() {
         return logSize;
     }
 
@@ -94,7 +94,7 @@ public class LogSettings {
         this.numRollovers.set(numRollovers);
     }
 
-    public IntegerProperty getNumRolloversProperty() {
+    public IntegerProperty numRolloversProperty() {
         return numRollovers;
     }
 
@@ -106,7 +106,7 @@ public class LogSettings {
         this.debugLogging.set(debugLogging);
     }
 
-    public BooleanProperty getDebugLoggingProperty() {
+    public BooleanProperty debugLoggingProperty() {
         return debugLogging;
     }
 
@@ -118,7 +118,7 @@ public class LogSettings {
         this.consoleLogging.set(consoleLogging);
     }
 
-    public BooleanProperty getConsoleLoggingProperty() {
+    public BooleanProperty consoleLoggingProperty() {
         return consoleLogging;
     }
 }
