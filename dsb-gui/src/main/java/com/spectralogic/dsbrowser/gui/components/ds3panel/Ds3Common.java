@@ -25,6 +25,8 @@ public class Ds3Common {
 
     private TreeTableView localTreeTableView;
 
+    private TreeTableView ds3TreeTableView;
+
     private Label localFilePathIndicator;
 
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter = new DeepStorageBrowserPresenter();
@@ -93,5 +95,13 @@ public class Ds3Common {
 
     public void setLocalFilePathIndicator(final Label localFilePathIndicator) {
         this.localFilePathIndicator = localFilePathIndicator;
+    }
+
+    public TreeTableView getDs3TreeTableView() {
+        return ds3TreeTableView;
+    }
+
+    public void setDs3TreeTableView(final TreeTableView ds3TreeTableView) {
+        this.ds3TreeTableView = ds3TreeTableView;
     }
 }
