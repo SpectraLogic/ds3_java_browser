@@ -27,6 +27,8 @@ public class SavedCredentials {
     public String getSecretKey() {
         return secretKey;
     }
-
+    public Credentials toCredentials() {
+        return new Credentials(this.accessId, this.secretKey);
+    }
 
 }
