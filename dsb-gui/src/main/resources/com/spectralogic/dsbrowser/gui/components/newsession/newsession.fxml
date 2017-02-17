@@ -54,7 +54,7 @@
                                         <Tooltip fx:id="saveSessionButtonTooltip"/>
                                     </tooltip>
                                 </Button>
-                                <Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#createSession">
+                                <Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#openSession">
                                     <tooltip>
                                         <Tooltip fx:id="openSessionButtonTooltip"/>
                                     </tooltip>

@@ -11,17 +11,17 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import javax.inject.Inject;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class MyTaskProgressViewSkin<T extends Task<?>> extends
+public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         SkinBase<DeepStorageBrowserTaskProgressView<T>> {
 
-    private final Alert CLOSECONFIRMATIONALERT = new Alert(
-            Alert.AlertType.CONFIRMATION,
-            ""
-    );
+  @Inject
+  private ResourceBundle resourceBundle;
 
-    public MyTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
+    public DeepStorageTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
         super(monitor);
 
         final BorderPane borderPane = new BorderPane();
@@ -137,17 +137,7 @@ public class MyTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void popupCancelTask(final T task, final ActionEvent evt) {
-        final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                ButtonType.OK
-        );
-        final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
-                ButtonType.CANCEL
-        );
-        exitButton.setText("Yes");
-        cancelButton.setText("No! I don't");
-        CLOSECONFIRMATIONALERT.setHeaderText("Are you really want to cancel this job");
-        CLOSECONFIRMATIONALERT.setContentText("Job will be cancelled. You can not recover this in future.");
-        final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
+        final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobwillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
         if (closeResponse.get().equals(ButtonType.OK)) {
             if (task != null) {
                 task.cancel();

@@ -1,9 +1,11 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -25,7 +27,7 @@ public class CheckNetwork_Test {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = new NewSessionPresenter().createConnection(savedSession);
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
         });
     }
 

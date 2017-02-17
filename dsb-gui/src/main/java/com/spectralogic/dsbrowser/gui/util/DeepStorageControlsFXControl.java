@@ -3,9 +3,9 @@ package com.spectralogic.dsbrowser.gui.util;
 import impl.org.controlsfx.version.VersionChecker;
 import javafx.scene.control.Control;
 
-public abstract class MyControlsFXControl extends Control {
+public abstract class DeepStorageControlsFXControl extends Control {
 
-    public MyControlsFXControl() {
+    public DeepStorageControlsFXControl() {
         VersionChecker.doVersionCheck();
     }
 

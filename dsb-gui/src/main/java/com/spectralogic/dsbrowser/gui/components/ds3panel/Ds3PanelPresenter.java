@@ -22,7 +22,7 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTabl
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
@@ -804,7 +804,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void newSessionDialog() {
-        NewSessionPopup.show();
+        Popup.show(new NewSessionView().getView(),resourceBundle.getString("sessionsMenuItem"));
     }
 
     private void initTab() {
