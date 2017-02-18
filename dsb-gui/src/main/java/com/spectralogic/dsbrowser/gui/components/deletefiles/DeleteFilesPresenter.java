@@ -7,10 +7,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
-import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,8 +27,6 @@ import java.util.ResourceBundle;
 public class DeleteFilesPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
-
-    private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
     @FXML
     private TextField deleteField;
@@ -63,10 +58,6 @@ public class DeleteFilesPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            ALERT.setTitle(resourceBundle.getString("deleteFolderErrAlert"));
-            ALERT.setHeaderText(null);
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             deleteButton.setDisable(true);
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = null;
             if (ds3Common.getDs3TreeTableView() != null) {
@@ -128,9 +119,8 @@ public class DeleteFilesPresenter implements Initializable {
             Platform.runLater(() -> {
                 printLog(LogType.ERROR);
                 closeDialog();
-                ALERT.setContentText(resourceBundle.getString("deleteErrLogs"));
-                ALERT.showAndWait();
             });
+            Ds3Alert.show(resourceBundle.getString("deleteFolderErrAlert"), resourceBundle.getString("deleteErrLogs"), Alert.AlertType.ERROR);
         });
         deleteTask.setOnSucceeded(event -> {
             printLog(LogType.SUCCESS);

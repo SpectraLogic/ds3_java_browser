@@ -46,6 +46,18 @@ public interface StringConstants {
     String CASE_METADATA = "ds3Metadata";
     String ROOT_LOCATION = "My Computer";
     String FORWARD_OPR = ">>";
+    String CASE_BUCKETWITHDATAPOLOCY = "createBucketWithDataPoliciesModel";
+    String CASE_CREATEFOLDER = "createFolderModel";
+    String CASE_DEEPSTORAGEBROWSER = "deepStorageBrowserPresenter";
+    String CASE_DELETETASK = "deleteTask";
+    String CASE_DS3TREETABLEPRESENTER = "ds3TreeTablePresenter";
+    String CASE_DS3PANELPRESENTER = "ds3PanelPresenter";
+    String CASE_DS3COMMON = "ds3Common";
+    String CASE_SESSION = "session";
     String SUCCESS = "Success";
     String VALUE = "value";
+    String CASE_ENDPOINT = "endpointInfo";
+    String SIMPLE_DATE_FORMAT="M/dd/yyyy HH:mm:ss";
+    String CASE_DS3PHYSICALPLACEMENT="ds3PhysicalPlacement";
+
 }

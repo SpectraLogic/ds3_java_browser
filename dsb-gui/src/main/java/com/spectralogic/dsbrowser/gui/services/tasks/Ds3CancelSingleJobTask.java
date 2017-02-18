@@ -27,9 +27,9 @@ public class Ds3CancelSingleJobTask extends Task {
     private final String uuid;
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
-    private String jobType;
+    private final String jobType;
 
-    public Ds3CancelSingleJobTask(final String uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore , final String jobType) {
+    public Ds3CancelSingleJobTask(final String uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final String jobType) {
         this.jobType = jobType;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.uuid = uuid;
@@ -41,10 +41,10 @@ public class Ds3CancelSingleJobTask extends Task {
     protected CancelJobSpectraS3Response call() throws Exception {
         try {
             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS));
+            endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS);
         } catch (final Exception e) {
             LOG.error("Unable to cancel " + jobType + "  job", e);
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR));
+            endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR);
             fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
         } finally {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());

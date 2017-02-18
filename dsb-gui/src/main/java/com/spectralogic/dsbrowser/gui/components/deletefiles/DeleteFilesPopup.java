@@ -11,8 +11,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
+import java.util.ResourceBundle;
+
 public final class DeleteFilesPopup {
-    public static void show(final Ds3Task deleteTask, final Ds3PanelPresenter ds3PanelPresenter, final Ds3TreeTablePresenter ds3TreeTablePresenter, final Ds3Common ds3Common) {
+    public static void show(final Ds3Task deleteTask, final Ds3PanelPresenter ds3PanelPresenter, final Ds3TreeTablePresenter ds3TreeTablePresenter, final Ds3Common ds3Common, final ResourceBundle resourceBundle) {
         final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3TreeTablePresenter, ds3PanelPresenter, ds3Common);
         if (ds3PanelPresenter != null) {
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
@@ -20,25 +22,25 @@ public final class DeleteFilesPopup {
                 selectedPanelItems = FXCollections.observableArrayList();
                 selectedPanelItems.add(ds3Common.getDs3TreeTableView().getRoot());
             }
-            changeLabelText(selectedPanelItems, deleteView);
+            changeLabelText(selectedPanelItems, deleteView,resourceBundle);
         } else if (ds3TreeTablePresenter != null) {
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
             if (Guard.isNullOrEmpty(selectedMenuItems)) {
                 selectedMenuItems = FXCollections.observableArrayList();
                 selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
             }
-            changeLabelText(selectedMenuItems, deleteView);
+            changeLabelText(selectedMenuItems, deleteView,resourceBundle);
         }
     }
 
     private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
-                                        final DeleteFilesView deleteView) {
+                                        final DeleteFilesView deleteView,final ResourceBundle resourceBundle) {
         if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-            Popup.show(deleteView.getView(), "Delete File(s)");
+            Popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
         } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            Popup.show(deleteView.getView(), "Delete Folder");
+            Popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"));
         } else {
-            Popup.show(deleteView.getView(), "Delete Bucket");
+            Popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"));
         }
 
     }

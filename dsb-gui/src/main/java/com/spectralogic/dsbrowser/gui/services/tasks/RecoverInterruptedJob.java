@@ -60,9 +60,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final String date = DateFormat.formatDate(new Date());
             updateTitle(StringBuilderUtil.getRecoverJobTransferringForTitle(filesAndFolderMap.getType(), endpointInfo
                     .getEndpoint(), date).toString());
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
+            endpointInfo.getDeepStorageBrowserPresenter().logText(
                     StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
-                            filesAndFolderMap.getDate()).toString(), LogType.INFO));
+                            filesAndFolderMap.getDate()).toString(), LogType.INFO);
 
             if (filesAndFolderMap != null) {
                 final Map<String, Path> filesMap = filesAndFolderMap.getFiles();
@@ -75,13 +75,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 job.attachObjectCompletedListener(s -> {
                     LOG.info("Object Transfer Completed{}", s);
                     getTransferRates(jobStartInstant, totalSent, totalJobSize, s, filesAndFolderMap.getTargetLocation());
-
-                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
+                    endpointInfo.getDeepStorageBrowserPresenter().logText(
                             resourceBundle.getString("successfullyTransferred")
                                     + StringConstants.SPACE + s + StringConstants.SPACE
                                     + resourceBundle.getString("to") + StringConstants.SPACE
-                                    + filesAndFolderMap.getTargetLocation(), LogType.SUCCESS));
-
+                                    + filesAndFolderMap.getTargetLocation(), LogType.SUCCESS);
                 });
                 // check whether chunk are available
                 addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation().toString());
@@ -98,8 +96,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                             } else {
                                 if (filesAndFolderMap.isNonAdjacent()) {
                                     return new FileObjectGetter(Paths.get(filesAndFolderMap.getTargetLocation())).buildChannel(obj);
-                                }
-                                else {
+                                } else {
                                     final String skipPath = getSkipPath(obj, foldersMap);
                                     if (Guard.isStringNullOrEmpty(skipPath)) {
                                         return new FileObjectGetter(Paths.get(filesAndFolderMap.getTargetLocation())).buildChannel(obj);
@@ -145,28 +142,28 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                         response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
                     }
                 }
-                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("jobSize")
+                endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("jobSize")
                         + StringConstants.SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + StringConstants.SPACE
                         + resourceBundle.getString("recoveryCompleted") + StringConstants.SPACE
                         + filesAndFolderMap.getTargetLocation() + StringConstants.SPACE
-                        + resourceBundle.getString("storageLocation"), LogType.SUCCESS));
-                removeJobIdAndUpdateJobsBtn(jobInterruptionStore , uuid);
+                        + resourceBundle.getString("storageLocation"), LogType.SUCCESS);
+                removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
             } else {
                 LOG.info("There is no interrupted job to be recovered");
             }
         } catch (final FailedRequestException e) {
             isJobFailed = true;
             LOG.error("Request to black pearl failed", e);
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("jobNotfound"), LogType.INFO));
+            endpointInfo.getDeepStorageBrowserPresenter().logText(
+                    resourceBundle.getString("jobNotfound"), LogType.INFO);
             cancel();
         } catch (final Exception e) {
             isJobFailed = true;
             LOG.error("Encountered an exception when executing a job", e);
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
+            endpointInfo.getDeepStorageBrowserPresenter().logText(
                     resourceBundle.getString("encounteredException") + e
-                            + resourceBundle.getString("userInterruption"), LogType.ERROR));
-            updateInterruptedJobsBtn(jobInterruptionStore , uuid);
+                            + resourceBundle.getString("userInterruption"), LogType.ERROR);
+            updateInterruptedJobsBtn(jobInterruptionStore, uuid);
         }
     }
 

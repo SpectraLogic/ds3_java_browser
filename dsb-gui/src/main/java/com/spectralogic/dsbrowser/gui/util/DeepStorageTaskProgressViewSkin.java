@@ -30,7 +30,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         // list view
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
-        listView.setPlaceholder(new Label("No tasks running"));
+        listView.setPlaceholder(new Label(resourceBundle.getString("notaskRunning")));
         listView.setCellFactory(param -> new TaskCell());
         listView.setFocusTraversable(false);
 
@@ -63,7 +63,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
 
             cancelButton = new Button("Cancel");
             cancelButton.getStyleClass().add("task-cancel-button");
-            cancelButton.setTooltip(new Tooltip("Cancel Task"));
+            cancelButton.setTooltip(new Tooltip(resourceBundle.getString("cancelTask")));
             cancelButton.setOnAction(evt -> {
                popupCancelTask(task,evt);
             });

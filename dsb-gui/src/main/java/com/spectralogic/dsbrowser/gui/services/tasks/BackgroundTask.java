@@ -3,9 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -13,25 +11,24 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ResourceBundle;
+
 public class BackgroundTask implements Runnable {
 
     private final static Logger LOG = LoggerFactory.getLogger(BackgroundTask.class);
     private final Ds3Common ds3Common;
     private final Workers workers;
     private boolean isAlertDisplayed = false;
-    private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public BackgroundTask(final Ds3Common ds3Common, final Workers workers) {
         this.ds3Common = ds3Common;
         this.workers = workers;
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
     }
 
     @Override
     public void run() {
-        ALERT.setHeaderText(null);
-        ALERT.setTitle("Network connection error");
+
         while (true) {
             try {
                 if (ds3Common.getCurrentSession() != null) {
@@ -48,13 +45,11 @@ public class BackgroundTask implements Runnable {
                     } else {
                         LOG.error("network is not reachable");
                         if (!isAlertDisplayed) {
+                            final String msg = resourceBundle.getString("host") + session.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
                             Platform.runLater(() -> {
-                                final String msg = "Host " + session.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection";
                                 dumpTheStack(msg);
-                                ALERT.setContentText(msg);
-                                ALERT.showAndWait();
                             });
-
+                            Ds3Alert.show(resourceBundle.getString("networkConError"), msg, Alert.AlertType.ERROR);
                             isAlertDisplayed = true;
                         }
                     }

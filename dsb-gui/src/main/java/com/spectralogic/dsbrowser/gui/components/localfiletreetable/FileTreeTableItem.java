@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -24,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 
@@ -37,6 +40,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private boolean accessedChildren = false;
     private boolean error = false;
     private final Workers workers;
+    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
         super(fileTreeModel);
@@ -86,7 +90,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             accessedChildren = true;
             final ObservableList<TreeItem<FileTreeModel>> children = super.getChildren();
             final Node previousGraphics = super.getGraphic();
-            final ImageView processImage = new ImageView("/images/loading.gif");
+            final ImageView processImage = new ImageView(ImageURLs.CHILD_LOADER);
             processImage.setFitHeight(20);
             processImage.setFitWidth(20);
             super.setGraphic(processImage);
@@ -134,10 +138,10 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
         } catch (final AccessDeniedException ae) {
             LOG.error("Could not access file", ae);
-            setError("Invalid permissions");
+            setError(resourceBundle.getString("invalidPermission"));
         } catch (final IOException e) {
             LOG.error("Failed to get children for " + path.toString(), e);
-            setError("Failed to get children");
+            setError(resourceBundle.getString("failedToGetChildren"));
         }
     }
 

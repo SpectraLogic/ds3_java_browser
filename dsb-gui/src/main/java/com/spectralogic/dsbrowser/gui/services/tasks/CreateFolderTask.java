@@ -42,14 +42,12 @@ public class CreateFolderTask extends Ds3Task {
                     ds3ObjectList));
         } catch (final Exception e) {
             LOG.error("Failed to create folder", e);
-            Platform.runLater(() -> {
-                if (null != deepStorageBrowserPresenter) {
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("createFolderErr")
-                            + StringConstants.SPACE + folderName.trim() + StringConstants.SPACE
-                            + resourceBundle.getString("txtReason")
-                            + StringConstants.SPACE + e, LogType.ERROR);
-                }
-            });
+            if (null != deepStorageBrowserPresenter) {
+                deepStorageBrowserPresenter.logText(resourceBundle.getString("createFolderErr")
+                        + StringConstants.SPACE + folderName.trim() + StringConstants.SPACE
+                        + resourceBundle.getString("txtReason")
+                        + StringConstants.SPACE + e, LogType.ERROR);
+            }
             throw e;
         }
     }

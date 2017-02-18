@@ -29,7 +29,7 @@ public abstract class DeepStorageControlsFXControl extends Control {
          * For more information please see RT-40658
          */
         if (stylesheet == null) {
-            stylesheet = clazz.getResource("/"+fileName).toExternalForm();
+            stylesheet = clazz.getResource(StringConstants.FORWARD_SLASH+fileName).toExternalForm();
         }
 
         return stylesheet;

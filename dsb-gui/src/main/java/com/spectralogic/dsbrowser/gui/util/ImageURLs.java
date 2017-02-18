@@ -25,4 +25,5 @@ public interface ImageURLs {
     String FILE_ICON = "/images/file.png";
     String CHILD_LOADER = "/images/loading.gif";
     String DEEP_STORAGE_BROWSER = "/images/deep_storage_browser.png";
+    String BUCKET_ICON="/images/bucket.png";
 }
