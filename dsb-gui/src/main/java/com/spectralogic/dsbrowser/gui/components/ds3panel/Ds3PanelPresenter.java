@@ -5,8 +5,6 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -22,7 +20,7 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTabl
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
@@ -348,22 +346,16 @@ public class Ds3PanelPresenter implements Initializable {
                 final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) task;
                 jobId = recoverInterruptedJob.getUuid();
             }
-            final Session session = getSession();
-            if (session != null) {
+            if (getSession() != null) {
                 final UUID finalJobId = jobId;
                 if (finalJobId != null) {
-                    final Task<ModifyJobPriorityModel> getJobPriority = new Task<ModifyJobPriorityModel>() {
-                        @Override
-                        protected ModifyJobPriorityModel call() throws Exception {
-                            final Ds3Client client = session.getClient();
-                            final GetJobSpectraS3Response jobSpectraS3 = client.getJobSpectraS3(new GetJobSpectraS3Request(finalJobId));
-                            return new ModifyJobPriorityModel(finalJobId, jobSpectraS3.getMasterObjectListResult().getPriority().toString(), session);
-                        }
-                    };
-                    workers.execute(getJobPriority);
-                    getJobPriority.setOnSucceeded(eventPriority -> Platform.runLater(() -> {
+
+                    final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
+
+                    workers.execute(jobPriorityTask);
+                    jobPriorityTask.setOnSucceeded(eventPriority -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
-                        ModifyJobPriorityPopUp.show(getJobPriority.getValue());
+                        ModifyJobPriorityPopUp.show((ModifyJobPriorityModel) jobPriorityTask.getValue(), resourceBundle);
                     }));
                 } else {
                     LOG.info("Job is not started yet");
@@ -706,7 +698,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void newSessionDialog() {
-        NewSessionPopup.show();
+        Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
     }
 
     private void initTab() {

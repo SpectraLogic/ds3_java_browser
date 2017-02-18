@@ -8,6 +8,7 @@ import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -40,7 +41,7 @@ public class RecoverInterruptedJobTest {
     private static Session session;
     private static RecoverInterruptedJob recoverInterruptedJob;
     private boolean successFlag = false;
-    private String fileName = SessionConstants.LOCAL_FILE;
+    private final String fileName = SessionConstants.LOCAL_FILE;
 
 
     @BeforeClass
@@ -49,7 +50,7 @@ public class RecoverInterruptedJobTest {
         Platform.runLater(() -> {
             try {
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME_BPLAB, SessionConstants.SESSION_PATH_BPLAB, SessionConstants.PORT_NO_BPLAB, null, new SavedCredentials(SessionConstants.ACCESS_ID_BPLAB, SessionConstants.SECRET_KEY_BPLAB), false);
-                session = new NewSessionPresenter().createConnection(savedSession);
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 Mockito.when(deepStorageBrowserPresenter.getCircle()).thenReturn(Mockito.mock(Circle.class));
@@ -118,8 +119,7 @@ public class RecoverInterruptedJobTest {
                     successFlag = true;
                     latch.countDown();
                 }
-            }
-            catch (final Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }

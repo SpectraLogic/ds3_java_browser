@@ -289,4 +289,30 @@ public final class Ds3PanelService {
             }
         }
     }
+
+    /**
+     * check if bucket contains files or folders
+     *
+     * @param bucketName
+     * @param treeItem
+     * @return true if bucket is empty else return false
+     */
+    public static boolean checkIfBucketEmpty(final String bucketName, final Session session, final TreeItem<Ds3TreeTableValue> treeItem) {
+        try {
+            final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/").withMaxKeys(1);
+            if (null != treeItem && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+                request.withPrefix(treeItem.getValue().getFullName());
+            final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
+            final ListBucketResult listBucketResult = bucketResponse.getListBucketResult();
+            return (listBucketResult.getObjects().size() == 0 && listBucketResult.getCommonPrefixes().size() == 0)
+                    || (listBucketResult.getObjects().size() == 1 && listBucketResult.getNextMarker() == null);
+
+
+        } catch (final Exception e) {
+            LOG.error("could not get bucket response", e);
+            return false;
+        }
+
+    }
+
 }

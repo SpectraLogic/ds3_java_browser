@@ -7,9 +7,11 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -29,9 +31,6 @@ import static org.junit.Assert.assertTrue;
 
 
 public class ParseJobInterruptionMapTest {
-
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
-    private static final Workers workers = new Workers();
     private static Session session;
     private static String endpoint;
     private static File file;
@@ -47,7 +46,7 @@ public class ParseJobInterruptionMapTest {
             try {
                 //Initiating session
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new NewSessionPresenter().createConnection(savedSession);
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file
@@ -63,7 +62,7 @@ public class ParseJobInterruptionMapTest {
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
                 jobIdMap.put(jobId.toString(), filesAndFolderMap);
                 final Map<String, Map<String, FilesAndFolderMap>> endPointMap = new HashMap<>();
-                endPointMap.put(session.getEndpoint() + ":" + session.getPortNo(), jobIdMap);
+                endPointMap.put(session.getEndpoint() + StringConstants.COLON + session.getPortNo(), jobIdMap);
                 final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpointMapList = new ArrayList<>();
                 endpointMapList.add(endPointMap);
                 final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);

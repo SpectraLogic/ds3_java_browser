@@ -48,7 +48,6 @@ public class SavedSession {
         return credentials;
     }
 
-
     public Boolean getDefaultSession() {
         return defaultSession;
     }

@@ -47,4 +47,6 @@ public interface StringConstants {
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS'Z'";
     String CASE_METADATA = "ds3Metadata";
     String FORWARD_OPR = ">>";
+    String SUCCESS = "Success";
+    String VALUE = "value";
 }

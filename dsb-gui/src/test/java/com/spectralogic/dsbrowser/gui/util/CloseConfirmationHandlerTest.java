@@ -4,6 +4,9 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -18,7 +21,6 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -27,7 +29,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
@@ -44,13 +45,14 @@ public class CloseConfirmationHandlerTest {
     private static CloseConfirmationHandler handler;
     private static File file;
     private boolean successFlag = false;
+    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
 
     @BeforeClass
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = new NewSessionPresenter().createConnection(savedSession);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
             final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
@@ -85,7 +87,7 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setSecretKey("yVBAvWTG");
                 newSessionModel.setProxyServer(null);
                 final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
-                savedSessionStorePrevious.saveSession(newSessionModel.toSession());
+                savedSessionStorePrevious.saveSession(createConnectionTask.createConnection(newSessionModel));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session

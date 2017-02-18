@@ -51,7 +51,6 @@ public class Session implements Closeable {
         return proxyServer;
     }
 
-
     public Boolean getDefaultSession() {
         return defaultSession;
     }

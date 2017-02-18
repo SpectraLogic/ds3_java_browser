@@ -68,23 +68,15 @@ public class DeleteFilesPresenter implements Initializable {
             final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
             stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             deleteButton.setDisable(true);
+            ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = null;
             if (ds3PanelPresenter.getDs3TreeTableView() != null) {
-                ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView()
-                        .getSelectionModel().getSelectedItems();
-                if (Guard.isNullOrEmpty(selectedPanelItems)) {
-                    selectedPanelItems = FXCollections.observableArrayList();
-                    selectedPanelItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
-                }
-                changeLabelText(selectedPanelItems);
+                selectedItems = ds3PanelPresenter
+                        .getDs3TreeTableView().getSelectionModel().getSelectedItems();
             } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
-                ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable
-                        .getSelectionModel().getSelectedItems();
-                if (Guard.isNullOrEmpty(selectedMenuItems)) {
-                    selectedMenuItems = FXCollections.observableArrayList();
-                    selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
-                }
-                changeLabelText(selectedMenuItems);
+                selectedItems = ds3TreeTablePresenter
+                        .ds3TreeTable.getSelectionModel().getSelectedItems();
             }
+            callToChangeLabelText(selectedItems);
             deleteField.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue.equals(StringConstants.DELETE)) {
                     deleteButton.setDisable(false);
@@ -98,16 +90,25 @@ public class DeleteFilesPresenter implements Initializable {
                 }
             });
 
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             LOG.error("Encountered an error making the delete file presenter", e);
         }
     }
 
+    private void callToChangeLabelText(ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
+        if (Guard.isNullOrEmpty(selectedItems)) {
+            selectedItems = FXCollections.observableArrayList();
+            selectedItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
+        }
+        changeLabelText(selectedItems);
+    }
+
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
-        if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+        final TreeItem<Ds3TreeTableValue> valueTreeItem = selectedItems.stream().findFirst().orElse(null);
+        if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             deleteLabel.setText(resourceBundle.getString("deleteFiles"));
             deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFileInfo"));
-        } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
+        } else if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
             deleteLabel.setText(resourceBundle.getString("deleteFolder"));
             deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFolderInfo"));
         } else {
@@ -119,25 +120,20 @@ public class DeleteFilesPresenter implements Initializable {
     public void deleteFiles() {
         deleteTask.setOnCancelled(event -> {
             LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
-                            + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR));
+            printLog(LogType.ERROR);
             closeDialog();
         });
         deleteTask.setOnFailed(event -> {
             LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
             Platform.runLater(() -> {
-                ds3Common.getDeepStorageBrowserPresenter().logText(
-                        resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
-                                + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR);
+                printLog(LogType.ERROR);
                 closeDialog();
                 ALERT.setContentText(resourceBundle.getString("deleteErrLogs"));
                 ALERT.showAndWait();
             });
         });
         deleteTask.setOnSucceeded(event -> {
-            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("deleteBucketSuccess"),
-                    LogType.SUCCESS));
+            printLog(LogType.SUCCESS);
             closeDialog();
         });
         workers.execute(deleteTask);
@@ -151,5 +147,16 @@ public class DeleteFilesPresenter implements Initializable {
     private void closeDialog() {
         final Stage popupStage = (Stage) deleteField.getScene().getWindow();
         popupStage.close();
+    }
+
+    private void printLog(final LogType type) {
+        if (type.equals(LogType.ERROR)) {
+            ds3Common.getDeepStorageBrowserPresenter().logText(
+                    resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
+                            + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR);
+        } else {
+            ds3Common.getDeepStorageBrowserPresenter().logText(
+                    resourceBundle.getString("deleteBucketSuccess"), LogType.SUCCESS);
+        }
     }
 }

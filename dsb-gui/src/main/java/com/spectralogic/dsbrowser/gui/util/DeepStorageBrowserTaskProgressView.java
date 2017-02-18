@@ -12,7 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.util.Callback;
 
-public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends MyControlsFXControl {
+public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends DeepStorageControlsFXControl {
 
     /**
      * Constructs a new task progress view.
@@ -58,7 +58,7 @@ public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends MyCon
 
     @Override
     protected Skin<?> createDefaultSkin() {
-        return new MyTaskProgressViewSkin<>(this);
+        return new DeepStorageTaskProgressViewSkin<>(this);
     }
 
     private final ObservableList<T> tasks = FXCollections
