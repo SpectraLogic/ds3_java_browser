@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ public class ModifyJobPriorityModel {
     private final Session session;
 
     public ModifyJobPriorityModel() {
-        this(null, "", null);
+        this(null, StringConstants.EMPTY_STRING, null);
     }
 
     public ModifyJobPriorityModel(final UUID jobID, final String currentPriority, final Session session) {

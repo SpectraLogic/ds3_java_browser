@@ -62,7 +62,7 @@ public class ParseJobInterruptionMapTest {
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
                 jobIdMap.put(jobId.toString(), filesAndFolderMap);
                 final Map<String, Map<String, FilesAndFolderMap>> endPointMap = new HashMap<>();
-                endPointMap.put(session.getEndpoint() + ":" + session.getPortNo(), jobIdMap);
+                endPointMap.put(session.getEndpoint() + StringConstants.COLON + session.getPortNo(), jobIdMap);
                 final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpointMapList = new ArrayList<>();
                 endpointMapList.add(endPointMap);
                 final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);

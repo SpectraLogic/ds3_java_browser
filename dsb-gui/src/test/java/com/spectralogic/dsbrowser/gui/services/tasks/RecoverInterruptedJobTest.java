@@ -119,8 +119,7 @@ public class RecoverInterruptedJobTest {
                     successFlag = true;
                     latch.countDown();
                 }
-            }
-            catch (final Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
