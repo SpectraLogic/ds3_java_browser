@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
@@ -8,7 +7,6 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +27,7 @@ public class CancelAllRunningJobsTask extends Task {
     protected Object call() throws Exception {
         LOG.info("Starting cancel all the running jobs");
         if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
-            final ImmutableList<Ds3JobTask> ds3Jobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
-            ds3Jobs.forEach(job -> {
+            jobWorkers.getTasks().forEach(job -> {
                 try {
                     String jobId = StringConstants.EMPTY_STRING;
                     Ds3Client ds3Client = null;
@@ -39,7 +36,7 @@ public class CancelAllRunningJobsTask extends Task {
                         ds3PutJob.cancel();
                         if (ds3PutJob.getJobId() != null) {
                             jobId = ds3PutJob.getJobId().toString();
-                            ds3Client = ds3PutJob.getClient();
+                            ds3Client = ds3PutJob.getDs3Client();
                         }
                         LOG.info("Cancelled job:{} " , ds3PutJob.getJobId());
                     } else if (job instanceof Ds3GetJob) {

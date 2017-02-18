@@ -3,7 +3,6 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -29,10 +28,8 @@ import java.util.stream.Collectors;
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
-
-    private final ObservableList<SavedSession> sessions;
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask();
-
+    private final ObservableList<SavedSession> sessions;
     private boolean dirty = false;
 
     private SavedSessionStore(final List<SavedSession> sessionList) {
@@ -104,27 +101,33 @@ public class SavedSessionStore {
     }
 
     public boolean isSessionUpdated(final SavedSession savedSession, final Session session) {
-        if (!savedSession.getName().equals(session.getSessionName()))
+        if (!savedSession.getName().equals(session.getSessionName())) {
             return true;
-        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
-            return true;
-        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey()))
-            return true;
-        if (!savedSession.getEndpoint().equals(session.getEndpoint()))
-            return true;
-        if (!savedSession.getPortNo().equals(session.getPortNo()))
-            return true;
-        if (savedSession.getProxyServer() == null && session.getProxyServer() != null )
-            return  true;
-        if (savedSession.getProxyServer() != null && session.getProxyServer() == null )
-            return  true;
-        if (savedSession.getProxyServer() != null && session.getProxyServer() != null) {
-            if (!savedSession.getProxyServer().equals(session.getProxyServer()))
-                return true;
         }
-        if (savedSession.getDefaultSession() == null || !savedSession.getDefaultSession().equals(session.getDefaultSession()))
+        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId())) {
             return true;
-        return false;
+        }
+        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
+            return true;
+        }
+        if (!savedSession.getEndpoint().equals(session.getEndpoint())) {
+            return true;
+        }
+        if (!savedSession.getPortNo().equals(session.getPortNo())) {
+            return true;
+        }
+        if (savedSession.getProxyServer() == null && session.getProxyServer() != null) {
+            return true;
+        }
+        if (savedSession.getProxyServer() != null && session.getProxyServer() == null) {
+            return true;
+        }
+        if (savedSession.getProxyServer() != null && session.getProxyServer() != null) {
+            if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
+                return true;
+            }
+        }
+        return savedSession.getDefaultSession() == null || !savedSession.getDefaultSession().equals(session.getDefaultSession());
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {

@@ -62,8 +62,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
-
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
 
@@ -294,7 +292,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void initTreeTableView() {
-        ds3Common.getDs3PanelPresenter().setDs3TreeTableView(ds3TreeTable);
+        ds3Common.setDs3TreeTableView(ds3TreeTable);
         fullPath.setText(resourceBundle.getString("fullPath"));
         fileName.setText(resourceBundle.getString("fileName"));
         ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -491,7 +489,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 final String targetDir = value.getDirectoryName();
                                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                                final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+                                final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
                                 jobWorkers.execute(putJob);
                                 putJob.setOnSucceeded(e -> {
                                     LOG.info("Succeed");
@@ -517,7 +515,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                         try {
                                             session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
                                             //  deepStorageBrowserPresenter.logText("PUT Job Cancelled. Response code:" + cancelJobSpectraS3Response.getResponse().getStatusCode(), LogType.SUCCESS);
-                                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                                         } catch (final IOException e1) {
                                             LOG.error("Failed to cancel job", e1);
                                         }
@@ -554,7 +552,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
                     ds3TreeTable.getSelectionModel().select(row.getIndex());
                     ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
-                    ds3Common.getDs3PanelPresenter().setDs3TreeTableView(ds3TreeTable);
+                    ds3Common.setDs3TreeTableView(ds3TreeTable);
                     if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                         if (checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), row.getTreeItem()))
                             ds3TreeTable.setPlaceholder(null);

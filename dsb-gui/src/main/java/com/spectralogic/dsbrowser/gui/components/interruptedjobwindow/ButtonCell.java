@@ -6,7 +6,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.CancelSelectedInterruptedJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
@@ -61,9 +61,9 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 });
                 recoverInterruptedJob.setOnCancelled(event -> {
                     if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                        final CancelSelectedInterruptedJob cancelSelectedInterruptedJob = new CancelSelectedInterruptedJob(uuid, endpointInfo, jobInterruptionStore);
-                        workers.execute(cancelSelectedInterruptedJob);
-                        cancelSelectedInterruptedJob.setOnSucceeded(eventCancel -> {
+                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore , resourceBundle.getString("recover"));
+                        workers.execute(ds3CancelSingleJobTask);
+                        ds3CancelSingleJobTask.setOnSucceeded(eventCancel -> {
                                     LOG.info("Cancellation of recovered job success");
                                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                                 }
@@ -87,9 +87,9 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         cancelButton.setOnAction(t -> {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
-                final CancelSelectedInterruptedJob cancelSelectedInterruptedJob = new CancelSelectedInterruptedJob(uuid, endpointInfo, jobInterruptionStore);
-                workers.execute(cancelSelectedInterruptedJob);
-                cancelSelectedInterruptedJob.setOnSucceeded(event -> {
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore , resourceBundle.getString("recover"));
+                workers.execute(ds3CancelSingleJobTask);
+                ds3CancelSingleJobTask.setOnSucceeded(event -> {
                             LOG.info("Cancellation of interrupted job failed");
                             jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                         }

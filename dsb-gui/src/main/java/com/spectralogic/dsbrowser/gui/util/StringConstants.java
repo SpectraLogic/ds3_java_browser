@@ -12,14 +12,12 @@ public interface StringConstants {
     String DOUBLE_SLASH = "\\";
     String SESSION_SEPARATOR = "-";
     String FORWARD_SLASH = "/";
-    String FULL_STOP = ".";
     String DOUBLE_DOTS = "..";
     String FOUR_DASH = "----";
     String TWO_DASH = "--";
     String PERCENT = "%";
     String FORWARD_ARROW = "->";
     String JOB_COMPLETED = "COMPLETED";
-    String JOB_IN_PROGRESS = "IN_PROGRESS";
     String DELETE = "DELETE";
     String COMMA = ",";
     String OPEN_BRACE = "(";
@@ -46,6 +44,7 @@ public interface StringConstants {
     String STR_T = "T";
     String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS'Z'";
     String CASE_METADATA = "ds3Metadata";
+    String ROOT_LOCATION = "My Computer";
     String FORWARD_OPR = ">>";
     String SUCCESS = "Success";
     String VALUE = "value";

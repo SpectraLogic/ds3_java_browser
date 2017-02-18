@@ -69,8 +69,8 @@ public class DeleteFilesPresenter implements Initializable {
             stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             deleteButton.setDisable(true);
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = null;
-            if (ds3PanelPresenter.getDs3TreeTableView() != null) {
-                selectedItems = ds3PanelPresenter
+            if (ds3Common.getDs3TreeTableView() != null) {
+                selectedItems = ds3Common
                         .getDs3TreeTableView().getSelectionModel().getSelectedItems();
             } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
                 selectedItems = ds3TreeTablePresenter
@@ -98,7 +98,7 @@ public class DeleteFilesPresenter implements Initializable {
     private void callToChangeLabelText(ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         if (Guard.isNullOrEmpty(selectedItems)) {
             selectedItems = FXCollections.observableArrayList();
-            selectedItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
+            selectedItems.add(ds3Common.getDs3TreeTableView().getRoot());
         }
         changeLabelText(selectedItems);
     }

@@ -60,11 +60,12 @@ public class Ds3GetJob_Test {
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
+            Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
-                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common);
+                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common);
                 taskProgressView.getTasks().add(ds3GetJob);
             } catch (final IOException io) {
                 io.printStackTrace();
@@ -80,7 +81,9 @@ public class Ds3GetJob_Test {
             try {
                 jobWorkers.execute(ds3GetJob);
                 ds3GetJob.setOnSucceeded(event -> {
-                    successFlag = true;
+                    if (!ds3GetJob.isJobFailed()) {
+                        successFlag = true;
+                    }
                     latch.countDown();
 
                 });
@@ -169,7 +172,7 @@ public class Ds3GetJob_Test {
 
                 itemList.add(ds3TreeTableValueCustomFile);
                 final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);
-                if (childMap.size() == 0) {
+                if (childMap.size() == 0 || (childMap.size() == 1 && childMap.get(SessionConstants.ALREADY_EXIST_FILES) == null)) {
                     successFlag = true;
                 }
                 countDownLatch.countDown();

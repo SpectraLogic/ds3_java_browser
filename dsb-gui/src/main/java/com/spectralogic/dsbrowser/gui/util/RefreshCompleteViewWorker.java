@@ -74,9 +74,15 @@ public final class RefreshCompleteViewWorker {
     private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {
         final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane();
         if (null != ds3SessionTabPane) {
-            final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-            return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView)
-                    .findFirst().orElse(null);
+            try {
+                final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
+                return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView)
+                        .findFirst().orElse(null);
+            }
+            catch (final Exception e) {
+                LOG.error("Tab pane is not present", e);
+                return null;
+            }
         } else {
             LOG.info("TabPane is null");
             return null;

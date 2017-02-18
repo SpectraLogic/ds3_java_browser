@@ -4,11 +4,8 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
-import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -16,11 +13,14 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
@@ -41,11 +42,11 @@ import static org.junit.Assert.assertTrue;
 public class CloseConfirmationHandlerTest {
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static final Workers workers = new Workers();
+    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private static Session session;
     private static CloseConfirmationHandler handler;
     private static File file;
     private boolean successFlag = false;
-    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
 
     @BeforeClass
     public static void setConnection() {
@@ -203,7 +204,9 @@ public class CloseConfirmationHandlerTest {
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), null, settingsStore);
+                final Ds3Common ds3Common = new Ds3Common();
+                ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
