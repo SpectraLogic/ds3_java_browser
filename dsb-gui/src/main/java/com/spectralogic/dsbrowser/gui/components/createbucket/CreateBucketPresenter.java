@@ -107,7 +107,7 @@ public class CreateBucketPresenter implements Initializable {
                 createBucketTask.setOnSucceeded(event -> Platform.runLater(() -> {
                     LOG.info("Bucket is created");
                     deepStorageBrowserPresenter.logText(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
-                    ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setRoot(new TreeItem<>());
+                    ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
                     closeDialog();
                 }));

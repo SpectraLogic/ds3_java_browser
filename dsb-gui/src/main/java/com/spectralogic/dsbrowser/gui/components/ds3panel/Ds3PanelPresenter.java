@@ -237,9 +237,9 @@ public class Ds3PanelPresenter implements Initializable {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
-        ds3NewFolder.setOnAction(event -> ds3NewFolder());
+        ds3NewFolder.setOnAction(event -> Ds3PanelService.createFolderPrompt(ds3Common));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
-        ds3NewBucket.setOnAction(event -> ds3NewBucket());
+        ds3NewBucket.setOnAction(event -> Ds3PanelService.createBucketPrompt(ds3Common, workers));
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
@@ -259,6 +259,7 @@ public class Ds3PanelPresenter implements Initializable {
                             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView1 = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
                             final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
                                     .stream().collect(GuavaCollectors.immutableList());
+                            ds3Common.setDs3TreeTableView(ds3TreeTableView1);
                             ds3Common.setCurrentTabPane(ds3SessionTabPane);
                             final String info = ds3TreeTableView1.getExpandedItemCount() + StringConstants
                                     .SPACE + resourceBundle.getString("items") + StringConstants.SPACE + StringConstants.COMMA
@@ -418,38 +419,6 @@ public class Ds3PanelPresenter implements Initializable {
             infoLabel.setVisible(true);
             capacityLabel.setText(resourceBundle.getString("infoLabel"));
             infoLabel.setText(resourceBundle.getString("infoLabel"));
-        }
-    }
-
-    private void ds3NewBucket() {
-        LOG.info("Create Bucket Prompt");
-        final Session session = getSession();
-        if (session != null) {
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
-            final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
-
-                @Override
-                protected CreateBucketWithDataPoliciesModel call() throws Exception {
-                    final Ds3Client client = session.getClient();
-                    final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
-                    final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
-                            new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText(resourceBundle.getString
-                            ("dataPolicyRetrieved"), LogType.SUCCESS));
-                    return dataPoliciesList.stream().findFirst().orElse(null);
-                }
-            };
-            workers.execute(getDataPolicies);
-            getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
-                CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-            }));
-
-        } else {
-            ALERT.setContentText(resourceBundle.getString("invalidSession"));
-            ALERT.showAndWait();
         }
     }
 
@@ -701,58 +670,11 @@ public class Ds3PanelPresenter implements Initializable {
             }
         };
         DeleteFilesPopup.show(deleteFilesTask, this, null, ds3Common);
-        values.forEach(file -> refresh(file.getParent()));
+        values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
         ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
         ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
-    }
-
-    private void ds3NewFolder() {
-        LOG.info("Create New Folder Prompt");
-        final Session session = getSession();
-        if (session != null) {
-            @SuppressWarnings("unchecked")
-            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
-            ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                    .stream().collect(GuavaCollectors.immutableList());
-            final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
-            if (Guard.isNullOrEmpty(values) && null == selectedRoot) {
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("selectLocation"), LogType.ERROR);
-                ALERT.setContentText(resourceBundle.getString("locationNotSelected"));
-                ALERT.showAndWait();
-                return;
-            } else if (Guard.isNullOrEmpty(values)) {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                values = builder.add(selectedRoot).build().asList();
-
-            }
-            if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-                LOG.info("You can not create folder here. Please refresh your view");
-                ALERT.setContentText(resourceBundle.getString("cantCreateFolderHere"));
-                ALERT.showAndWait();
-                return;
-            }
-            if (values.size() > 1) {
-                LOG.info("Only a single location can be selected to create empty folder");
-                ALERT.setContentText(resourceBundle.getString("selectSingleLocation"));
-                ALERT.showAndWait();
-                return;
-            }
-            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-            if (ds3TreeTableValueTreeItem != null) {
-                //Can not assign final as assigning value again in next step
-                final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
-                final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue)
-                        .map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-                CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)), deepStorageBrowserPresenter);
-                refresh(ds3TreeTableValueTreeItem);
-            }
-
-        } else {
-            ALERT.setContentText(resourceBundle.getString("invalidSession"));
-            ALERT.showAndWait();
-        }
     }
 
     private void initTabPane() {
@@ -775,26 +697,6 @@ public class Ds3PanelPresenter implements Initializable {
         });
     }
 
-    private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
-        LOG.info("Running refresh of row");
-        deepStorageBrowserPresenter.logText(resourceBundle.getString("runningRefresh"), LogType.INFO);
-        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
-            final Ds3TreeTableItem item;
-            if (modifiedTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                item = (Ds3TreeTableItem) modifiedTreeItem.getParent();
-            } else {
-                item = (Ds3TreeTableItem) modifiedTreeItem;
-            }
-            if (item.isExpanded()) {
-                item.refresh();
-            } else if (item.isAccessedChildren()) {
-                item.setExpanded(true);
-                item.refresh();
-            } else {
-                item.setExpanded(true);
-            }
-        }
-    }
 
     private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();

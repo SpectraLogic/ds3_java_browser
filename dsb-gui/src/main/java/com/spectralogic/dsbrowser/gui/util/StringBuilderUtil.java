@@ -246,7 +246,7 @@ public class StringBuilderUtil {
     }
 
     /****************************************************
-     *StringBuilders for Search job                     *
+     * StringBuilders for Search job                     *
      ****************************************************/
 
     public static StringBuilder bucketFoundMessage(final String searchText) {
@@ -313,5 +313,9 @@ public class StringBuilderUtil {
                     .append(FileSizeFormat.getFileSizeType(totalCapacity))
                     .append(StringConstants.CLOSING_BRACE);
         }
+    }
+
+    public static String setSelectedItemCount(final int expandedItemCount, final int selectedItemCount) {
+        return expandedItemCount + " item(s), " + selectedItemCount + " item(s) selected";
     }
 }

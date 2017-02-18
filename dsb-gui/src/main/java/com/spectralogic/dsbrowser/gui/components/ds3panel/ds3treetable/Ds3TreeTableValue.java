@@ -12,7 +12,7 @@ public class Ds3TreeTableValue implements Serializable {
     private final Type type;
     private final long size;
     private final String lastModified;
-    private final HBox physicalPlacementHBox;
+    private final transient HBox physicalPlacementHBox;
     private final String owner;
     private final boolean searchOn;
     private String marker = "";

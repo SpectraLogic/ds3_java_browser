@@ -25,7 +25,7 @@ public class Ds3Common {
 
     private TreeTableView localTreeTableView;
 
-    private TreeTableView ds3TreeTableView;
+    private  TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
 
     private Label localFilePathIndicator;
 
@@ -97,11 +97,11 @@ public class Ds3Common {
         this.localFilePathIndicator = localFilePathIndicator;
     }
 
-    public TreeTableView getDs3TreeTableView() {
+    public  TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
         return ds3TreeTableView;
     }
 
-    public void setDs3TreeTableView(final TreeTableView ds3TreeTableView) {
+    public void setDs3TreeTableView(final  TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
         this.ds3TreeTableView = ds3TreeTableView;
     }
 }

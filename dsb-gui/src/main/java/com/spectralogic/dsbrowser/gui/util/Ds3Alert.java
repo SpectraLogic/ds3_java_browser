@@ -35,7 +35,6 @@ public final class Ds3Alert {
         );
         exitButton.setText(exitButtonText);
         cancelButton.setText(cancelButtonText);
-        final Optional<ButtonType> closeResponse = ALERT.showAndWait();
-        return closeResponse;
+        return  ALERT.showAndWait();
     }
 }
