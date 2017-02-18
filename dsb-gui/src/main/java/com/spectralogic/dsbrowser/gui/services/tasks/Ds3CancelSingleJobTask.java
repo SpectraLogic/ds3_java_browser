@@ -20,15 +20,17 @@ import java.util.ResourceBundle;
 
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
-public class CancelSelectedInterruptedJob extends Task {
+public class Ds3CancelSingleJobTask extends Task {
 
-    private final Logger LOG = LoggerFactory.getLogger(CancelSelectedInterruptedJob.class);
+    private final Logger LOG = LoggerFactory.getLogger(Ds3CancelSingleJobTask.class);
     private final ResourceBundle resourceBundle;
     private final String uuid;
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
+    private String jobType;
 
-    public CancelSelectedInterruptedJob(final String uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore) {
+    public Ds3CancelSingleJobTask(final String uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore , final String jobType) {
+        this.jobType = jobType;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
@@ -41,7 +43,7 @@ public class CancelSelectedInterruptedJob extends Task {
             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS));
         } catch (final Exception e) {
-            LOG.error("Unable to cancel recover job", e);
+            LOG.error("Unable to cancel " + jobType + "  job", e);
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR));
             fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
         } finally {

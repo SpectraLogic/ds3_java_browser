@@ -67,12 +67,13 @@ public class Ds3PutJobTest {
             Mockito.when(deepStorageBrowserPresenter.getJobButton()).thenReturn(Mockito.mock(Button.class));
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
+            Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", deepStorageBrowserPresenter, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
                 taskProgressView.getTasks().add(ds3PutJob);
             } catch (final Exception io) {
                 io.printStackTrace();
@@ -87,7 +88,9 @@ public class Ds3PutJobTest {
             try {
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
-                    successFlag = true;
+                    if (!ds3PutJob.isJobFailed()) {
+                        successFlag = true;
+                    }
                     latch.countDown();
                 });
                 ds3PutJob.setOnFailed(event -> latch.countDown());
@@ -109,13 +112,12 @@ public class Ds3PutJobTest {
             try {
                 final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
                 final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
-                final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
                 final List<File> filesList = new ArrayList<>();
                 filesList.add(file);
                 final ImmutableList<Path> paths = filesList.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
                 final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
                 final ImmutableList<Path> files = paths.stream().filter(path -> !Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-                ds3PutJob.createFileMap(files, directories, partOfDirBuilder, expandedPaths, fileMap);
+                final ImmutableMap.Builder<String, Path> fileMap = ds3PutJob.createFileMap(files, directories, partOfDirBuilder, expandedPaths);
                 if (fileMap.build().size() == 1) {
                     successFlag = true;
                 }
@@ -132,7 +134,6 @@ public class Ds3PutJobTest {
     @Test
     public void createFolderMap() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
         Platform.runLater(() -> {
             try {
                 final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
@@ -141,7 +142,7 @@ public class Ds3PutJobTest {
                 filesList.add(new File(file.getParent()));
                 final ImmutableList<Path> paths = filesList.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
                 final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-                ds3PutJob.createFolderMap(directories, expandedPaths, folderMap, partOfDirBuilder);
+                final ImmutableMap.Builder<String, Path> folderMap = ds3PutJob.createFolderMap(directories, expandedPaths, partOfDirBuilder);
                 if (folderMap.build().size() == 1) {
                     successFlag = true;
                 }

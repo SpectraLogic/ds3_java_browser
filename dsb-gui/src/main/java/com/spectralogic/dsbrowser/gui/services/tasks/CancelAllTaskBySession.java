@@ -34,15 +34,15 @@ public class CancelAllTaskBySession extends Task {
                 Ds3Client ds3Client = null;
                 if (i instanceof Ds3PutJob) {
                     final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
-                    if (ds3PutJob.getClient().getConnectionDetails().getCredentials()
+                    if (ds3PutJob.getDs3Client().getConnectionDetails().getCredentials()
                             .getClientId()
                             .equals(session.getClient().getConnectionDetails().getCredentials().getClientId())
-                            && ds3PutJob.getClient().getConnectionDetails().getCredentials().getKey()
+                            && ds3PutJob.getDs3Client().getConnectionDetails().getCredentials().getKey()
                             .equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
                         ds3PutJob.cancel();
                         if (ds3PutJob.getJobId() != null) {
                             jobId = ds3PutJob.getJobId().toString();
-                            ds3Client = ds3PutJob.getClient();
+                            ds3Client = ds3PutJob.getDs3Client();
                         }
                     }
                 } else if (i instanceof Ds3GetJob) {

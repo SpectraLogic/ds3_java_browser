@@ -52,4 +52,9 @@ public final class DateFormat {
         }
 
     }
+
+    public static String formatDate(final long timeInMillis) {
+        final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss", Locale.US);
+        return sdf.format(new Date(timeInMillis));
+    }
 }

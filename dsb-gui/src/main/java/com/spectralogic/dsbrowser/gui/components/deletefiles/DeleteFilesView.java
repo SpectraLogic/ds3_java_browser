@@ -7,15 +7,11 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 
 public class DeleteFilesView extends FXMLView {
-    public DeleteFilesView(final Ds3Task deleteTask, final Ds3TreeTablePresenter ds3TreeTablePresenter, final Ds3PanelPresenter ds3PanelPresenter, final Ds3Common ds3Common) {
+    public DeleteFilesView(final Ds3Task deleteTask, final Ds3Common ds3Common) {
         super(name -> {
             switch (name) {
                 case "deleteTask":
                     return deleteTask;
-                case "ds3TreeTablePresenter":
-                    return ds3TreeTablePresenter;
-                case "ds3PanelPresenter":
-                    return ds3PanelPresenter;
                 case "ds3Common":
                     return ds3Common;
                 default:

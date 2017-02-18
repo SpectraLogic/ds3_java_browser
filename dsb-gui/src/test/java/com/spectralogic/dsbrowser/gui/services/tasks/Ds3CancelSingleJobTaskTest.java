@@ -13,6 +13,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -30,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * THERE MUST BE AN INTERRUPTED JOB IN LOCAL FILE SYSTEM TO SUCCESSFULLY RUN THIS TEST CASE
  */
-public class CancelSelectedInterruptedJobTest {
+public class Ds3CancelSingleJobTaskTest {
 
     private static final Workers workers = new Workers();
     private static Session session;
@@ -79,15 +80,15 @@ public class CancelSelectedInterruptedJobTest {
                 );
                 final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
                 Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
-                final CancelSelectedInterruptedJob cancelSelectedInterruptedJob = new CancelSelectedInterruptedJob(jobIdKey, endPointInfo, jobInterruptionStore);
-                workers.execute(cancelSelectedInterruptedJob);
-                cancelSelectedInterruptedJob.setOnSucceeded(event -> {
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKey, endPointInfo, jobInterruptionStore , ResourceBundleProperties.getResourceBundle().getString("recover"));
+                workers.execute(ds3CancelSingleJobTask);
+                ds3CancelSingleJobTask.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();
 
                 });
-                cancelSelectedInterruptedJob.setOnFailed(event -> latch.countDown());
-                cancelSelectedInterruptedJob.setOnCancelled(event -> latch.countDown());
+                ds3CancelSingleJobTask.setOnFailed(event -> latch.countDown());
+                ds3CancelSingleJobTask.setOnCancelled(event -> latch.countDown());
             } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();

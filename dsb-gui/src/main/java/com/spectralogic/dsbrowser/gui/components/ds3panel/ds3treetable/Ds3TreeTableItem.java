@@ -89,7 +89,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
-        ds3Common.getDs3PanelPresenter().calculateFiles(ds3Common.getDs3PanelPresenter().getDs3TreeTableView());
+        ds3Common.getDs3PanelPresenter().calculateFiles(ds3Common.getDs3TreeTableView());
         buildChildren(list);
     }
 
@@ -128,8 +128,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         workers.execute(getBucketTask);
         getBucketTask.setOnSucceeded(event -> {
             super.setGraphic(previousGraphics);
-            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3PanelPresenter().getDs3TreeTableView() != null)
-                ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setPlaceholder(null);
+            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
+                ds3Common.getDs3TreeTableView().setPlaceholder(null);
         });
         getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
         getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));

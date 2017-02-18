@@ -2,8 +2,6 @@ package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
@@ -49,12 +47,6 @@ public class DeleteFilesPresenter implements Initializable {
     private Ds3Task deleteTask;
 
     @Inject
-    private Ds3PanelPresenter ds3PanelPresenter;
-
-    @Inject
-    private Ds3TreeTablePresenter ds3TreeTablePresenter;
-
-    @Inject
     private Ds3Common ds3Common;
 
     @Inject
@@ -69,12 +61,9 @@ public class DeleteFilesPresenter implements Initializable {
             stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             deleteButton.setDisable(true);
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = null;
-            if (ds3PanelPresenter.getDs3TreeTableView() != null) {
-                selectedItems = ds3PanelPresenter
+            if (ds3Common.getDs3TreeTableView() != null) {
+                selectedItems = ds3Common
                         .getDs3TreeTableView().getSelectionModel().getSelectedItems();
-            } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
-                selectedItems = ds3TreeTablePresenter
-                        .ds3TreeTable.getSelectionModel().getSelectedItems();
             }
             callToChangeLabelText(selectedItems);
             deleteField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -98,7 +87,7 @@ public class DeleteFilesPresenter implements Initializable {
     private void callToChangeLabelText(ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         if (Guard.isNullOrEmpty(selectedItems)) {
             selectedItems = FXCollections.observableArrayList();
-            selectedItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
+            selectedItems.add(ds3Common.getDs3TreeTableView().getRoot());
         }
         changeLabelText(selectedItems);
     }

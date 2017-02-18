@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
@@ -16,6 +14,8 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
@@ -222,7 +222,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     .map(i -> new File(i.getValue().getPath().toString()))
                     .collect(Collectors.toList());
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
             jobWorkers.execute(putJob);
             putJob.setOnSucceeded(event -> {
                 LOG.info("Succeed");
@@ -238,7 +238,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     if (putJob.getJobId() != null) {
                         session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
                         deepStorageBrowserPresenter.logText("PUT Job Cancelled.", LogType.SUCCESS);
-                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(),
+                                putJob.getDs3Client().getConnectionDetails().getEndpoint(),
+                                deepStorageBrowserPresenter);
                         refreshBlackPearlSideItem(treeItem);
                     }
                 } catch (final IOException e1) {
@@ -350,8 +352,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
                 final Session session = getSession(db.getString());
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-                final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+                final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient()
+                        , priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
                 jobWorkers.execute(getJob);
                 getJob.setOnSucceeded(e -> {
                     LOG.info("Get Job completed successfully");
@@ -421,8 +423,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
                             final Session session = getSession(db.getString());
                             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-                            final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                                    deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+                            final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient()
+                                    , priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
                             jobWorkers.execute(getJob);
                             getJob.setOnSucceeded(e -> {
                                 LOG.info("Get Job completed successfully");

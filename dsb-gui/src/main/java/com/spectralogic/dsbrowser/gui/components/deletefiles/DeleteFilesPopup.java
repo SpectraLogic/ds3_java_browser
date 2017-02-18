@@ -10,24 +10,19 @@ import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
 
 public final class DeleteFilesPopup {
-    public static void show(final Ds3Task deleteTask, final Ds3PanelPresenter ds3PanelPresenter, final Ds3TreeTablePresenter ds3TreeTablePresenter, final Ds3Common ds3Common) {
-        final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3TreeTablePresenter, ds3PanelPresenter, ds3Common);
-        if (ds3PanelPresenter != null) {
-            ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
+    public static void show(final Ds3Task deleteTask, final Ds3Common ds3Common) {
+        final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3Common);
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
+        if (ds3TreeTableView != null) {
+            ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
             if (Guard.isNullOrEmpty(selectedPanelItems)) {
                 selectedPanelItems = FXCollections.observableArrayList();
-                selectedPanelItems.add(ds3PanelPresenter.getDs3TreeTableView().getRoot());
+                selectedPanelItems.add(ds3Common.getDs3TreeTableView().getRoot());
             }
             changeLabelText(selectedPanelItems, deleteView);
-        } else if (ds3TreeTablePresenter != null) {
-            ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
-            if (Guard.isNullOrEmpty(selectedMenuItems)) {
-                selectedMenuItems = FXCollections.observableArrayList();
-                selectedMenuItems.add(ds3TreeTablePresenter.ds3TreeTable.getRoot());
-            }
-            changeLabelText(selectedMenuItems, deleteView);
         }
     }
 

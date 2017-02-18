@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 
 import java.util.Date;
@@ -317,5 +318,44 @@ public class StringBuilderUtil {
 
     public static String setSelectedItemCount(final int expandedItemCount, final int selectedItemCount) {
         return expandedItemCount + " item(s), " + selectedItemCount + " item(s) selected";
+    }
+
+    public static  StringBuilder getJobCompleted(final long totalJobSize , final Ds3Client ds3Client) {
+        return new StringBuilder().append(resourceBundle.getString("getJobSize"))
+                .append(StringConstants.SPACE)
+                .append(FileSizeFormat.getFileSizeType(totalJobSize))
+                .append(resourceBundle.getString("getCompleted"))
+                .append(StringConstants.SPACE)
+                .append(ds3Client.getConnectionDetails().getEndpoint())
+                .append(StringConstants.SPACE)
+                .append(DateFormat.formatDate(new Date()));
+
+    }
+
+    public static StringBuilder jobCancelled(final String jobType) {
+        return new StringBuilder()
+                .append(jobType)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("jobCancelled"))
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("at"))
+                .append(StringConstants.SPACE)
+                .append(DateFormat.formatDate(new Date()));
+    }
+
+    public static StringBuilder jobFailed(final String jobType , final String endPoint , final Exception e) {
+        return new StringBuilder()
+                .append(jobType)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("jobFailed"))
+                .append(StringConstants.SPACE)
+                .append(endPoint)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("reason"))
+                .append(e).append(StringConstants.SPACE)
+                .append(resourceBundle.getString("at"))
+                .append(StringConstants.SPACE)
+                .append(DateFormat.formatDate(new Date()));
+
     }
 }

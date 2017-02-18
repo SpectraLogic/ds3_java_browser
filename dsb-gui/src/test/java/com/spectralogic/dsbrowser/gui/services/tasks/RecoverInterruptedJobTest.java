@@ -92,7 +92,7 @@ public class RecoverInterruptedJobTest {
             try {
                 jobWorkers.execute(recoverInterruptedJob);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    if (!recoverInterruptedJob.isFailed()) {
+                    if (!recoverInterruptedJob.isJobFailed()) {
                         successFlag = true;
                     }
                     latch.countDown();

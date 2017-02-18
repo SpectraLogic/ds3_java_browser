@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -13,7 +12,6 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -27,9 +25,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.spectralogic.ds3client.models.JobRequestType.PUT;
 import static com.spectralogic.ds3client.models.RequestType.GET;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
@@ -39,14 +37,13 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
-    private final Ds3Client ds3Client;
     private final ResourceBundle resourceBundle;
     private final boolean isCacheJobEnable;
-    private boolean isFailed = false;
 
     public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final boolean isCacheJobEnable) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
+        this.ds3Common = endpointInfo.getDs3Common();
         this.jobInterruptionStore = jobInterruptionStore;
         ds3Client = endpointInfo.getClient();
         this.isCacheJobEnable = isCacheJobEnable;
@@ -66,64 +63,31 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
                     StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
                             filesAndFolderMap.getDate()).toString(), LogType.INFO));
-            final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
-            Ds3ClientHelpers.Job job = null;
-            Path fileTreeModel = null;
+
             if (filesAndFolderMap != null) {
                 final Map<String, Path> filesMap = filesAndFolderMap.getFiles();
                 final Map<String, Path> foldersMap = filesAndFolderMap.getFolders();
                 final long totalJobSize = filesAndFolderMap.getTotalJobSize();
-                if (filesAndFolderMap.getType().equals(JobRequestType.PUT.toString())) {
-                    job = helpers.recoverWriteJob(uuid);
-                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferTo(job.getBucketName()).toString());
 
-                } else if (filesAndFolderMap.getType().equals(JobRequestType.GET.toString())) {
-                    job = helpers.recoverReadJob(uuid);
-                    fileTreeModel = Paths.get(filesAndFolderMap.getTargetLocation());
-                    updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferFrom(job.getBucketName()).toString());
-                }
-                final AtomicLong totalSent = new AtomicLong(0L);
-                job.attachDataTransferredListener(l -> {
-                    updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
-                    totalSent.addAndGet(l);
-                });
+                getJob(filesAndFolderMap);
+                final AtomicLong totalSent = addDataTransferListener(totalJobSize);
+
                 job.attachObjectCompletedListener(s -> {
                     LOG.info("Object Transfer Completed{}", s);
+                    getTransferRates(jobStartInstant, totalSent, totalJobSize, s, filesAndFolderMap.getTargetLocation());
+
                     Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
                             resourceBundle.getString("successfullyTransferred")
                                     + StringConstants.SPACE + s + StringConstants.SPACE
                                     + resourceBundle.getString("to") + StringConstants.SPACE
                                     + filesAndFolderMap.getTargetLocation(), LogType.SUCCESS));
-                    final long transferRate = getTransferRate(jobStartInstant, totalSent);
-                    if (transferRate != 0) {
-                        final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
-                        updateMessage(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining, totalSent,
-                                totalJobSize, s, filesAndFolderMap.getTargetLocation()).toString());
-                    } else {
-                        updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent,
-                                totalJobSize, s, filesAndFolderMap.getTargetLocation()).toString());
-                    }
 
                 });
-                final Path finalFileTreeModel = fileTreeModel;
                 // check whether chunk are available
-                job.attachWaitingForChunksListener(retryAfterSeconds -> {
-                    LOG.info("Chunk is not available retry time:{}", retryAfterSeconds);
-                    for (int retryTimeRemaining = retryAfterSeconds; retryTimeRemaining >= 0; retryTimeRemaining--) {
-                        try {
-                            updateMessage(resourceBundle.getString("noAvailableChunks") + StringConstants.SPACE
-                                    + retryTimeRemaining + StringConstants.SPACE + resourceBundle.getString("seconds"));
-                            Thread.sleep(1000);
-                        } catch (final Exception e) {
-                            LOG.error("Exception in attachWaitingForChunksListener", e);
-                        }
-                    }
-                    updateMessage(resourceBundle.getString("transferring") + StringConstants.SPACE
-                            + filesAndFolderMap.getType() + StringConstants.SPACE + resourceBundle.getString("jobOf")
-                            + StringConstants.SPACE + endpointInfo.getEndpoint() + StringConstants.SPACE + date);
-                });
+                addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation().toString());
+
                 job.transfer(obj -> {
-                            if (filesAndFolderMap.getType().equals(JobRequestType.PUT.toString())) {
+                            if (filesAndFolderMap.getType().equals(PUT.toString())) {
                                 if (!Guard.isMapNullOrEmpty(filesMap) && filesMap.containsKey(obj)) {
                                     return new FileObjectPutter(filesMap.get(obj)).buildChannel(StringConstants.EMPTY_STRING);
                                 } else {
@@ -132,15 +96,16 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 }
 
                             } else {
-                                if (filesAndFolderMap.isNonAdjacent())
-                                    return new FileObjectGetter(finalFileTreeModel).buildChannel(obj);
+                                if (filesAndFolderMap.isNonAdjacent()) {
+                                    return new FileObjectGetter(Paths.get(filesAndFolderMap.getTargetLocation())).buildChannel(obj);
+                                }
                                 else {
                                     final String skipPath = getSkipPath(obj, foldersMap);
                                     if (Guard.isStringNullOrEmpty(skipPath)) {
-                                        return new FileObjectGetter(finalFileTreeModel).buildChannel(obj);
+                                        return new FileObjectGetter(Paths.get(filesAndFolderMap.getTargetLocation())).buildChannel(obj);
                                     } else {
                                         return new PrefixRemoverObjectChannelBuilder(
-                                                new FileObjectGetter(finalFileTreeModel), skipPath)
+                                                new FileObjectGetter(Paths.get(filesAndFolderMap.getTargetLocation())), skipPath)
                                                 .buildChannel(obj.substring((StringConstants.FORWARD_SLASH + skipPath).length()));
                                     }
                                 }
@@ -148,35 +113,33 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                             }
                         }
                 );
+
                 Platform.runLater(() -> {
                     if (filesAndFolderMap.getType().equals(GET.toString())) {
                         updateMessage(resourceBundle.getString("recovering") + StringConstants.SPACE
-                                + filesAndFolderMap.getType() + StringConstants.SPACE
                                 + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                                 FileSizeFormat.getFileSizeType(totalJobSize), filesAndFolderMap.getTargetLocation(),
                                 DateFormat.formatDate(new Date()), null, false).toString());
                         endpointInfo.getDeepStorageBrowserPresenter().logText(
                                 resourceBundle.getString("recovering") + StringConstants.SPACE
-                                        + filesAndFolderMap.getType() + StringConstants.SPACE
                                         + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                                         FileSizeFormat.getFileSizeType(totalJobSize), filesAndFolderMap.getTargetLocation(),
                                         DateFormat.formatDate(new Date()), null, false).toString(), LogType.SUCCESS);
                     } else {
                         updateMessage(resourceBundle.getString("recovering") + StringConstants.SPACE
-                                + filesAndFolderMap.getType() + StringConstants.SPACE
-                                + StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize),
-                                filesAndFolderMap.getTargetLocation()).toString());
+                                + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
+                                filesAndFolderMap.getTargetLocation(), DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable));
                         endpointInfo.getDeepStorageBrowserPresenter().logText(
                                 resourceBundle.getString("recovering") + StringConstants.SPACE
-                                        + filesAndFolderMap.getType() + StringConstants.SPACE
-                                        + StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize),
-                                        filesAndFolderMap.getTargetLocation()).toString(), LogType.SUCCESS);
+                                        + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
+                                        filesAndFolderMap.getTargetLocation(), DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable), LogType.SUCCESS);
                     }
                     updateProgress(totalJobSize, totalJobSize);
                 });
+
                 //Can not assign final.
                 GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
-                if (isCacheJobEnable && filesAndFolderMap.getType().equals(JobRequestType.PUT.toString())) {
+                if (isCacheJobEnable && filesAndFolderMap.getType().equals(PUT.toString())) {
                     while (!response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
                         Thread.sleep(60000);
                         response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
@@ -187,23 +150,35 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                         + resourceBundle.getString("recoveryCompleted") + StringConstants.SPACE
                         + filesAndFolderMap.getTargetLocation() + StringConstants.SPACE
                         + resourceBundle.getString("storageLocation"), LogType.SUCCESS));
-                setButtonAndCountNumber();
+                removeJobIdAndUpdateJobsBtn(jobInterruptionStore , uuid);
             } else {
                 LOG.info("There is no interrupted job to be recovered");
             }
         } catch (final FailedRequestException e) {
-            isFailed = true;
+            isJobFailed = true;
             LOG.error("Request to black pearl failed", e);
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
                     resourceBundle.getString("jobNotfound"), LogType.INFO));
             cancel();
         } catch (final Exception e) {
-            isFailed = true;
+            isJobFailed = true;
             LOG.error("Encountered an exception when executing a job", e);
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText(
                     resourceBundle.getString("encounteredException") + e
                             + resourceBundle.getString("userInterruption"), LogType.ERROR));
-            setButtonAndCountNumber();
+            updateInterruptedJobsBtn(jobInterruptionStore , uuid);
+        }
+    }
+
+    private void getJob(final FilesAndFolderMap filesAndFolderMap) throws Exception {
+        final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
+        if (filesAndFolderMap.getType().equals(PUT.toString())) {
+            job = helpers.recoverWriteJob(uuid);
+            updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferTo(job.getBucketName()).toString());
+
+        } else if (filesAndFolderMap.getType().equals(JobRequestType.GET.toString())) {
+            job = helpers.recoverReadJob(uuid);
+            updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferFrom(job.getBucketName()).toString());
         }
     }
 
@@ -214,45 +189,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         return Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
     }
 
-    private long getTransferRate(final Instant jobStartInstant, final AtomicLong totalSent) {
-        final Instant currentTime = Instant.now();
-        final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
-        long transferRate = 0;
-        if (timeElapsedInSeconds != 0) {
-            transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-        }
-        return transferRate;
-    }
-
-    private void setButtonAndCountNumber() {
-        Map<String, FilesAndFolderMap> jobIDMap = null;
-        if (isFailed) {
-            jobIDMap = ParseJobInterruptionMap.getJobIDMap(
-                    jobInterruptionStore.getJobIdsModel().getEndpoints(),
-                    endpointInfo.getClient().getConnectionDetails().getEndpoint(),
-                    endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), uuid);
-        } else {
-            jobIDMap = ParseJobInterruptionMap.removeJobID(
-                    jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(),
-                    endpointInfo.getDeepStorageBrowserPresenter());
-        }
-        final Session session = endpointInfo.getDs3Common().getCurrentSession();
-        final String currentSelectedEndpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
-        if (currentSelectedEndpoint.equals(session.getClient().getConnectionDetails().getEndpoint())) {
-            ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
-        }
-    }
-
-    public Ds3Client getDs3Client() {
-        return ds3Client;
-    }
-
     public UUID getUuid() {
         return uuid;
-    }
-
-    public boolean isFailed() {
-        return isFailed;
     }
 
     /**
@@ -265,8 +203,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     public String getSkipPath(final String obj, final Map<String, Path> foldersMap) {
         final File file = new File(obj);
         if (Guard.isMapNullOrEmpty(foldersMap)) {
-            if (file.getParent() != null)
+            if (file.getParent() != null) {
                 return file.getParent();
+            }
         }
         return StringConstants.EMPTY_STRING;
     }

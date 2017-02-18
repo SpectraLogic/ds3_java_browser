@@ -259,6 +259,7 @@ public class Ds3PanelPresenter implements Initializable {
                                     .stream().collect(GuavaCollectors.immutableList());
                             ds3Common.setDs3TreeTableView(ds3TreeTableView1);
                             ds3Common.setCurrentTabPane(ds3SessionTabPane);
+                            ds3Common.setDs3TreeTableView(ds3TreeTableView1);
                             final String info = ds3TreeTableView1.getExpandedItemCount() + StringConstants
                                     .SPACE + resourceBundle.getString("items") + StringConstants.SPACE + StringConstants.COMMA
                                     + ds3TreeTableView1.getSelectionModel().getSelectedItems().size() +
@@ -284,9 +285,10 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                         } else {
                             setBlank(true);
+                            disableSearch(true);
                         }
                     } catch (final Exception e) {
-                        LOG.error("Not able to parse", e);
+                        LOG.error("Not able to parse: {}", e);
                     }
                 }
         );
@@ -390,7 +392,7 @@ public class Ds3PanelPresenter implements Initializable {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
             } catch (final Exception e) {
-                LOG.error("Failed to remove session", e);
+                LOG.error("Failed to remove session: {}", e);
             }
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
@@ -478,7 +480,7 @@ public class Ds3PanelPresenter implements Initializable {
                         .equals(resourceBundle.getString("defaultPolicyText"))) ?
                         savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
                 final Ds3GetJob getJob = new Ds3GetJob(selectedItemsAtSourceLocationListCustom, localPath, session.getClient(),
-                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
+                        priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                         jobInterruptionStore, ds3Common);
                 jobWorkers.execute(getJob);
                 getJob.setOnSucceeded(event -> {
@@ -505,7 +507,7 @@ public class Ds3PanelPresenter implements Initializable {
                 });
 
             } catch (final Exception e) {
-                LOG.error("Failed to get data from black pearl", e);
+                LOG.error("Failed to get data from black pearl: {}", e);
                 deepStorageBrowserPresenter.logText(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
                 ALERT.setContentText(resourceBundle.getString("somethingWentWrong"));
                 ALERT.showAndWait();
@@ -616,8 +618,8 @@ public class Ds3PanelPresenter implements Initializable {
             });
         } else {
             final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(session.getClient(), bucketName);
-            DeleteFilesPopup.show(ds3DeleteBucketTask, this, null, ds3Common);
-            ds3Common.getDs3PanelPresenter().getDs3TreeTableView().setRoot(new TreeItem<>());
+            DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
+            ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
@@ -661,7 +663,7 @@ public class Ds3PanelPresenter implements Initializable {
                 return null;
             }
         };
-        DeleteFilesPopup.show(deleteFilesTask, this, null, ds3Common);
+        DeleteFilesPopup.show(deleteFilesTask, ds3Common);
         values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
@@ -736,6 +738,7 @@ public class Ds3PanelPresenter implements Initializable {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         final Session session = getSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
+            setVisibilityOfItemsInfo(true);
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
@@ -745,6 +748,8 @@ public class Ds3PanelPresenter implements Initializable {
                 final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
                 rootTreeItem.setExpanded(true);
                 ds3TreeTableView.setShowRoot(false);
+                setVisibilityOfItemsInfo(false);
+
                 final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets, newValue, session, workers, ds3Common);
                 workers.execute(searchJobTask);
                 searchJobTask.setOnSucceeded(event -> {
@@ -756,7 +761,7 @@ public class Ds3PanelPresenter implements Initializable {
                             ds3Common.getDeepStorageBrowserPresenter().logText(
                                     StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-                            treeTableItems.stream().forEach(value -> rootTreeItem.getChildren().add(value));
+                            treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
                             if (rootTreeItem.getChildren().size() == 0) {
                                 ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
                             }
@@ -775,12 +780,13 @@ public class Ds3PanelPresenter implements Initializable {
                 });
                 searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
             } catch (final Exception e) {
-                LOG.error("Could not complete search", e);
+                LOG.error("Could not complete search: {}", e);
             }
         }
     }
 
     public void disableSearch(final boolean disable) {
+        ds3PanelSearch.setText(StringConstants.EMPTY_STRING);
         ds3PanelSearch.setDisable(disable);
     }
 
@@ -815,8 +821,9 @@ public class Ds3PanelPresenter implements Initializable {
     //Method for calculating no. of files and capacity of selected tree item
     public void calculateFiles(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
         //if a task for calculating of items is already running and cancel that task
-        if (itemsTask != null)
+        if (itemsTask != null) {
             itemsTask.cancel(true);
+        }
         try {
             ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTableView.getSelectionModel().getSelectedItems();
             final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
@@ -827,6 +834,7 @@ public class Ds3PanelPresenter implements Initializable {
             //start a new task for calculating
             itemsTask = new GetNoOfItemsTask(ds3TreeTableView, ds3Common, selectedItems);
             workers.execute(itemsTask);
+
             itemsTask.setOnSucceeded(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                         .stream().collect(GuavaCollectors.immutableList());
@@ -895,13 +903,6 @@ public class Ds3PanelPresenter implements Initializable {
         return paneItems;
     }
 
-    public TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
-        return ds3TreeTableView;
-    }
-
-    public void setDs3TreeTableView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
-        this.ds3TreeTableView = ds3TreeTableView;
-    }
 
 }
 

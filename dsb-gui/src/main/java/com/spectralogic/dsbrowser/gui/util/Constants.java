@@ -7,4 +7,6 @@ public interface Constants {
     int RETRY_AFTER_COUNT = 100;
     int MAX_PARALLEL_THREAD_DEFAULT = 10;
     String PORT_NUMBER = "80";
+    int PROGRESS_BAR_SIZE = 90;
+
 }
