@@ -13,7 +13,7 @@
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
-                <Button fx:id="ds3ParentDir">
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3ParentDir">
                     <tooltip>
                         <Tooltip fx:id="ds3ParentDirToolTip"/>
                     </tooltip>
@@ -24,8 +24,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3Refresh">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3Refresh">
                     <tooltip>
                         <Tooltip fx:id="ds3RefreshToolTip"/>
                     </tooltip>
@@ -36,8 +36,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3NewBucket" mnemonicParsing="false">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3NewBucket" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3NewBucketToolTip"/>
                     </tooltip>
@@ -48,8 +48,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3NewFolder">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3NewFolder">
                     <tooltip>
                         <Tooltip fx:id="ds3NewFolderToolTip"/>
                     </tooltip>
@@ -60,8 +60,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3DeleteButton" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3DeleteButtonToolTip"/>
                     </tooltip>
@@ -72,9 +72,9 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
 
-                <Button fx:id="ds3TransferLeft" mnemonicParsing="false">
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3TransferLeft" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3TransferLeftToolTip"/>
                     </tooltip>
@@ -85,7 +85,7 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
 
                 <AnchorPane prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                             AnchorPane.topAnchor="0.0">
@@ -145,7 +145,7 @@
                                     <children>
                                         <Label fx:id="createNewSessionLabel"
                                                text="Create a New Session to Access a Black Pearl"/>
-                                        <Button fx:id="newSessionButton" mnemonicParsing="false"
+                                        <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="newSessionButton" mnemonicParsing="false"
                                                 onAction="#newSessionDialog"/>
                                     </children>
                                 </VBox>

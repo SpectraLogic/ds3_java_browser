@@ -131,7 +131,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 try {
                                     size = Files.size(file.toPath());
                                 } catch (final IOException e) {
-                                    LOG.error(e.toString());
+                                    LOG.error("file not found", e);
                                 }
                                 final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(),  StringConstants.TWO_DASH, size, file.getPath(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.File,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);

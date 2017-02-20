@@ -14,6 +14,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -52,7 +53,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
     Session session, final Ds3TreeTableValue ds3Value, final boolean leaf, final Workers workers, final
                          Ds3TreeTableItem ds3TreeTableItem, final TreeTableView ds3TreeTable,
                          final Ds3Common ds3Common) {
-        partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
+        this.partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
         resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.bucket = bucket;
         this.session = session;
@@ -64,6 +65,15 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
         this.ds3Common = ds3Common;
 
     }
+
+    public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {
+        return this.partialResults.get();
+    }
+
+    public ReadOnlyObjectProperty<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResultsProperty() {
+        return partialResults.getReadOnlyProperty();
+    }
+
 
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
@@ -98,10 +108,16 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                         .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common))
                         .filter(distinctByKey(p -> p.getValue().getFullName()))
                         .collect(GuavaCollectors.immutableList());
-                partialResults.get().clear();
+                //if selected item is not load more then clear partial result list so that items will not appear twice
+                if(ds3Value.getType() != Ds3TreeTableValue.Type.Loader) {
+                    partialResults.get().clear();
+                }
+
                 partialResults.get().addAll(directoryItems);
                 partialResults.get().addAll(fileItems);
                 Collections.sort(partialResults.get(), new PartialResultComparator());
+                ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR
+                        + session.getEndpoint(), ds3TreeTableItem);
                 //if selected item was button then just remove that click more button and add new one
                 if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                     //clear the selection

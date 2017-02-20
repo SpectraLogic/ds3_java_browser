@@ -672,6 +672,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
         workers.execute(getServiceTask);
         ds3TreeTable.setRoot(rootTreeItem);
+
         ds3TreeTable.expandedItemCountProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
@@ -1023,6 +1024,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setPlaceholder(new StackPane(progress));
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
         ds3TreeTable.setRoot(rootTreeItem);
+
         workers.execute(getServiceTask);
         progress.progressProperty().bind(getServiceTask.progressProperty());
         getServiceTask.setOnSucceeded(event -> {

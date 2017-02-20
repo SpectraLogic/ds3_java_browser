@@ -6,17 +6,12 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ResourceBundle;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -25,9 +20,9 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
+    private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
     private TreeTableView ds3TreeTable;
-    private final Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers
@@ -40,14 +35,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
-    }
-
-    public boolean isAccessedChildren() {
-        return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
@@ -67,6 +54,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
+    public boolean isAccessedChildren() {
+        return accessedChildren;
+    }
+
+    public void setAccessedChildren(final boolean accessedChildren) {
+        this.accessedChildren = accessedChildren;
+    }
 
     public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
