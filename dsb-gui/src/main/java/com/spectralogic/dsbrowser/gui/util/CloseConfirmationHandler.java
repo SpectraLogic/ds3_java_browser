@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -10,6 +9,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.Event;
@@ -100,7 +100,8 @@ public class CloseConfirmationHandler {
      */
     private void closeApplication(final Event closeEvent) {
         LOG.info("Closing the application and canceling all running tasks");
-        setPreferences(primaryStage.getX(), primaryStage.getY(), primaryStage.getWidth(), primaryStage.getHeight());
+        setPreferences(primaryStage.getX(), primaryStage.getY(),
+                primaryStage.getWidth(), primaryStage.getHeight(), primaryStage.isMaximized());
         Injector.forgetAll();
         saveSessionStore(savedSessionStore);
         saveJobPriorities(savedJobPrioritiesStore);
@@ -155,13 +156,15 @@ public class CloseConfirmationHandler {
      * @param width  width
      * @param height height
      */
-    public void setPreferences(final double x, final double y, final double width, final double height) {
+    public void setPreferences(final double x, final double y, final double width, final double height
+            , final boolean isWindowMaximized) {
         LOG.info("Setting up windows preferences");
         final Preferences preferences = Preferences.userRoot().node(NODE_NAME);
         preferences.putDouble(WINDOW_POSITION_X, x);
         preferences.putDouble(WINDOW_POSITION_Y, y);
         preferences.putDouble(WINDOW_WIDTH, width);
         preferences.putDouble(WINDOW_HEIGHT, height);
+        preferences.putBoolean(WINDOW_MAXIMIZED, isWindowMaximized);
     }
 
     /**

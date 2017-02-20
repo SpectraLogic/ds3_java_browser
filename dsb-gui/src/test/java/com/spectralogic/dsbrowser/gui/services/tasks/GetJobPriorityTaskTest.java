@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -51,23 +52,35 @@ public class GetJobPriorityTaskTest {
                 final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = jobInterruptionStore.getJobIdsModel()
                         .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint() + StringConstants
                                 .COLON + session.getPortNo())).findFirst().orElse(null);
-                final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                final String jobId = stringFilesAndFolderMapMap.entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
+                if (!Guard.isMapNullOrEmpty(endPointsMap)) {
 
-                //Getting priority of the jobId
-                final GetJobPriorityTask getJobPriorityTask = new GetJobPriorityTask(session, UUID.fromString(jobId));
-                workers.execute(getJobPriorityTask);
+                    final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                    final String jobId = stringFilesAndFolderMapMap.entrySet().stream()
+                            .map(Map.Entry::getKey)
+                            .findFirst()
+                            .orElse(null);
+                    if (!Guard.isStringNullOrEmpty(jobId)) {
+                        //Getting priority of the jobId
+                        final GetJobPriorityTask getJobPriorityTask = new GetJobPriorityTask(session, UUID.fromString(jobId));
+                        workers.execute(getJobPriorityTask);
 
-                //Validating test case
-                getJobPriorityTask.setOnSucceeded(event -> {
+                        //Validating test case
+                        getJobPriorityTask.setOnSucceeded(event -> {
+                            successFlag = true;
+                            latch.countDown();
+                        });
+                        getJobPriorityTask.setOnFailed(event -> latch.countDown());
+                        getJobPriorityTask.setOnCancelled(event -> latch.countDown());
+                    } else {
+                        successFlag = true;
+                        latch.countDown();
+                        latch.countDown();
+                    }
+                } else {
                     successFlag = true;
                     latch.countDown();
-                });
-                getJobPriorityTask.setOnFailed(event -> latch.countDown());
-                getJobPriorityTask.setOnCancelled(event -> latch.countDown());
+                    latch.countDown();
+                }
             } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();

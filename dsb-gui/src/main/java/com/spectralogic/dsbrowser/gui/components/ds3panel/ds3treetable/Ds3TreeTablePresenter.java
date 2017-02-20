@@ -21,7 +21,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
-import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -46,13 +45,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,6 +309,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                         ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(path);
                     }
                     manageItemsCount(selectedItem);
+                } else {
+                    ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                    ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
                 }
                 final String info = ds3TreeTable.getExpandedItemCount() + " item(s), " + ds3TreeTable.getSelectionModel().getSelectedItems().size() + " item(s) selected";
                 ds3PanelPresenter.getPaneItems().setVisible(true);
@@ -749,7 +749,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         } else {
             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
             ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
-            ds3Common.getDs3PanelPresenter().getInfoLabel().setText("Calculating.......");
+            ds3Common.getDs3PanelPresenter().getInfoLabel().setText(resourceBundle.getString("infoLabel"));
             ds3Common.getDs3PanelPresenter().getCapacityLabel().setText(resourceBundle.getString("infoLabel"));
             ds3PanelPresenter.calculateFiles(ds3TreeTable);
         }

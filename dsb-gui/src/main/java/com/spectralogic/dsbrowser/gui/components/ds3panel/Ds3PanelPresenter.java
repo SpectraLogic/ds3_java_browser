@@ -50,7 +50,6 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +170,6 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Encountered error fetching default session", e);
             }
-
         } catch (final Exception e) {
             LOG.error("Encountered error when creating Ds3PanelPresenter", e);
             throw e;
@@ -204,13 +202,17 @@ public class Ds3PanelPresenter implements Initializable {
             if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
                 getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                 getDs3PathIndicator().setTooltip(null);
+                capacityLabel.setText(StringConstants.EMPTY_STRING);
+                capacityLabel.setVisible(false);
+                infoLabel.setText(StringConstants.EMPTY_STRING);
+                infoLabel.setVisible(false);
             } else {
                 getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
             }
             ds3Common.getDs3PanelPresenter().getTreeTableView()
                     .setRoot(ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent());
-            ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false)
-            );
+            ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getChildren().forEach(treeItem ->
+                    treeItem.setExpanded(false));
             try {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
@@ -258,8 +260,6 @@ public class Ds3PanelPresenter implements Initializable {
                                     .SPACE + resourceBundle.getString("items") + StringConstants.SPACE + StringConstants.COMMA
                                     + ds3TreeTableView1.getSelectionModel().getSelectedItems().size() +
                                     StringConstants.SPACE + resourceBundle.getString("itemsSelected");
-                            getPaneItems().setVisible(true);
-                            getPaneItems().setText(info);
                             if (Guard.isNullOrEmpty(values)) {
                                 setBlank(true);
                             } else {
@@ -277,6 +277,9 @@ public class Ds3PanelPresenter implements Initializable {
                                     calculateFiles(ds3TreeTableView1);
                                 }
                             }
+                            getPaneItems().setVisible(true);
+                            getPaneItems().setText(info);
+
                         } else {
                             setBlank(true);
                             disableSearch(true);
@@ -400,9 +403,11 @@ public class Ds3PanelPresenter implements Initializable {
         if (isSetBlank) {
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
+            paneItems.setVisible(false);
             capacityLabel.setVisible(false);
             infoLabel.setVisible(false);
         } else {
+            paneItems.setVisible(true);
             capacityLabel.setVisible(true);
             infoLabel.setVisible(true);
             capacityLabel.setText(resourceBundle.getString("infoLabel"));

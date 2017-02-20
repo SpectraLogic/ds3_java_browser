@@ -9,16 +9,13 @@ import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +27,8 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
-    private final HBox hbox = createHBox();
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final HBox hbox = createHBox();
 
 
     public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter, final SettingsStore settingsStore) {

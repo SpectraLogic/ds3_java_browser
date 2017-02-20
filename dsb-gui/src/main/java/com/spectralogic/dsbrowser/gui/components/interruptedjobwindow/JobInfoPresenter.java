@@ -1,16 +1,15 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.gui.Main;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,7 +82,9 @@ public class JobInfoPresenter implements Initializable {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 if (jobIDMap != null && jobIDMap.size() != 0) {
-                    final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), jobIDMap.size() + resourceBundle.getString("jobswillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
+                    final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle
+                            .getString("confirmation"), jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString
+                            ("jobsWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         cancelAllInterruptedJobs(jobIDMap);
                         event.consume();

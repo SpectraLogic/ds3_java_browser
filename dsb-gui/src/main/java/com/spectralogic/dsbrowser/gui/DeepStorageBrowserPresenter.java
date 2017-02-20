@@ -40,6 +40,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DeepStorageBrowserPresenter implements Initializable {
@@ -133,7 +134,19 @@ public class DeepStorageBrowserPresenter implements Initializable {
             cancelAll.setGraphic(CANCELALLJOBIMAGEVIEW);
             cancelAll.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
             cancelAll.setOnAction(event -> {
-                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
+                final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+                        resourceBundle.getString("confirmation"), jobWorkers.getTasks().size()
+                                + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
+                        Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"),
+                        resourceBundle.getString("exitBtnJobCancelConfirm"),
+                        resourceBundle.getString("cancelBtnJobCancelConfirm"));
+                if (closeResponse.get().equals(ButtonType.OK)) {
+                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
+                    event.consume();
+                }
+                if (closeResponse.get().equals(ButtonType.CANCEL)) {
+                    event.consume();
+                }
             });
             INTERRUPTEDJOBIMAGEVIEW.setFitHeight(15);
             INTERRUPTEDJOBIMAGEVIEW.setFitWidth(15);
@@ -151,7 +164,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                         jobButton.setDisable(false);
                         final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, DeepStorageBrowserPresenter.this, ds3Common));
-                        Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") + endpoint);
+                        Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") +
+                                StringConstants.SPACE + endpoint);
                     } else {
                         jobButton.setDisable(true);
                     }

@@ -39,5 +39,8 @@ public class ApplicationPreferences {
         return pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
     }
 
+    public boolean isWindowMaximized() {
+        return pref.getBoolean(WINDOW_MAXIMIZED, false);
+    }
 
 }

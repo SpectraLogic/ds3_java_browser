@@ -5,6 +5,7 @@ public interface StringConstants {
     String WINDOW_POSITION_Y = "Window_Position_Y";
     String WINDOW_WIDTH = "Window_Width";
     String WINDOW_HEIGHT = "Window_Height";
+    String WINDOW_MAXIMIZED = "Window_Maximized";
     String NODE_NAME = "ViewSwitcher";
     String SPACE = " ";
     String COLON = ":";
@@ -57,7 +58,7 @@ public interface StringConstants {
     String SUCCESS = "Success";
     String VALUE = "value";
     String CASE_ENDPOINT = "endpointInfo";
-    String SIMPLE_DATE_FORMAT="M/dd/yyyy HH:mm:ss";
-    String CASE_DS3PHYSICALPLACEMENT="ds3PhysicalPlacement";
+    String SIMPLE_DATE_FORMAT = "M/dd/yyyy HH:mm:ss";
+    String CASE_DS3PHYSICALPLACEMENT = "ds3PhysicalPlacement";
 
 }
