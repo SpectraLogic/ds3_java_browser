@@ -19,6 +19,7 @@ import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDa
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
@@ -26,18 +27,18 @@ import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -95,71 +96,6 @@ public final class Ds3PanelService {
         } catch (final Exception e) {
             LOG.error("Something went wrong!", e);
             return null;
-        }
-    }
-
-    public static void createBucketPrompt(final Ds3Common ds3Common, final Workers workers) {
-        LOG.info("Create Bucket Prompt");
-        final Session session = ds3Common.getCurrentSession();
-        if (session != null) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
-            final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
-
-                @Override
-                protected CreateBucketWithDataPoliciesModel call() throws Exception {
-                    final Ds3Client client = session.getClient();
-                    final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
-                            getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
-                    final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
-                            new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
-                    Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
-                            ("dataPolicyRetrieved"), LogType.SUCCESS));
-                    return dataPoliciesList.stream().findFirst().orElse(null);
-                }
-            };
-            workers.execute(getDataPolicies);
-            getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
-                CreateBucketPopup.show(getDataPolicies.getValue(), ds3Common.getDeepStorageBrowserPresenter());
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-            }));
-
-        } else {
-            Ds3Alert.show(null, resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void createFolderPrompt(final Ds3Common ds3Common) {
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
-        final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        if (values.isEmpty()) {
-            ds3Common.getDeepStorageBrowserPresenter().logText("Select bucket/folder where you want to create an empty folder.", LogType.ERROR);
-            Ds3Alert.show(null, "Location is not selected", Alert.AlertType.ERROR);
-            return;
-        } else if (values.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-            values = builder.add(root).build().asList();
-        }
-        if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-            LOG.error("You can not create folder here. Please refresh your view");
-            Ds3Alert.show(null, "You can not create folder here. Please refresh your view", Alert.AlertType.ERROR);
-            return;
-        }
-        if (values.size() > 1) {
-            LOG.error("Only a single location can be selected to create empty folder");
-            Ds3Alert.show(null, "Only a single location can be selected to create empty folder", Alert.AlertType.ERROR);
-            return;
-        }
-        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-        if (ds3TreeTableValueTreeItem != null) {
-            //Can not assign final as assigning value again in next step
-            final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
-            final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-            CreateFolderPopup.show(new CreateFolderModel(ds3Common.getCurrentSession().getClient(), location, buckets.stream().findFirst().orElse(null)), ds3Common.getDeepStorageBrowserPresenter());
-            refresh(ds3TreeTableValueTreeItem);
         }
     }
 
@@ -231,7 +167,7 @@ public final class Ds3PanelService {
         workers.execute(getPhysicalPlacement);
         getPhysicalPlacement.setOnSucceeded(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
-            PhysicalPlacementPopup.show(getPhysicalPlacement.getValue());
+            PhysicalPlacementPopup.show(getPhysicalPlacement.getValue(), resourceBundle);
         }));
     }
 
@@ -312,6 +248,66 @@ public final class Ds3PanelService {
             LOG.error("could not get bucket response", e);
             return false;
         }
+
+    }
+
+    public static void filterChanged(final Ds3Common ds3Common, final Workers workers) {
+        final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
+        final String newValue = ds3PanelPresenter.getSearchedText();
+        ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
+        ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(resourceBundle.getString("searching"));
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
+        final Session session = ds3Common.getCurrentSession();
+        if (Guard.isStringNullOrEmpty(newValue)) {
+            setVisibilityOfItemsInfo(true, ds3Common);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+        } else {
+            try {
+                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
+                final List<Bucket> searchableBuckets = Ds3PanelService.setSearchableBucket(selectedItem, session,
+                        ds3TreeTableView);
+                final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
+                rootTreeItem.setExpanded(true);
+                ds3TreeTableView.setShowRoot(false);
+                setVisibilityOfItemsInfo(false, ds3Common);
+
+                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets, newValue, session, workers, ds3Common);
+                workers.execute(searchJobTask);
+                searchJobTask.setOnSucceeded(event -> {
+                    LOG.info("Search completed!");
+                    Platform.runLater(() -> {
+                        try {
+                            final List<Ds3TreeTableItem> treeTableItems = searchJobTask.get();
+                            ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
+                            ds3Common.getDeepStorageBrowserPresenter().logText(
+                                    StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
+                            treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
+                            treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
+                            if (rootTreeItem.getChildren().size() == 0) {
+                                ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
+                            }
+                            ds3TreeTableView.setRoot(rootTreeItem);
+                            final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView
+                                    .getColumns().get(1);
+                            if (null != ds3TreeTableValueTreeTableColumn) {
+                                ds3TreeTableValueTreeTableColumn.setVisible(true);
+                            }
+                        } catch (final Exception e) {
+                            LOG.error("Search failed", e);
+                            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
+                        }
+                    });
+                });
+                searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
+            } catch (final Exception e) {
+                LOG.error("Could not complete search: {}", e);
+            }
+        }
+    }
+
+    private static void setVisibilityOfItemsInfo(boolean visibility, final Ds3Common ds3Common) {
+        ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(visibility);
+        ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(visibility);
 
     }
 

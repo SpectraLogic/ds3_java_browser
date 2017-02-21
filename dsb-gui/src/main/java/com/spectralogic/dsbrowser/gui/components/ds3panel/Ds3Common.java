@@ -27,7 +27,7 @@ public class Ds3Common {
 
     private Label localFilePathIndicator;
 
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter = new DeepStorageBrowserPresenter();
+    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     private Ds3PanelPresenter ds3PanelPresenter;
 

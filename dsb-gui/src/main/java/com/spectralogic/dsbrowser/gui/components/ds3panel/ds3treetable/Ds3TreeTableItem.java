@@ -12,6 +12,10 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ResourceBundle;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -37,6 +41,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.setGraphic(getIcon(value.getType())); // sets the default icon
     }
 
+    public boolean isAccessedChildren() {
+        return accessedChildren;
+    }
+
+    public void setAccessedChildren(final boolean accessedChildren) {
+        this.accessedChildren = accessedChildren;
+    }
+
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch (type) {
             case Bucket:
@@ -54,13 +66,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
-    public boolean isAccessedChildren() {
-        return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
-    }
 
     public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;

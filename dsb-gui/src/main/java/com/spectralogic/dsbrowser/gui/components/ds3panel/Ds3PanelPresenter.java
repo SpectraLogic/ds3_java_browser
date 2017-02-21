@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPrio
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -64,7 +65,6 @@ import java.util.stream.Stream;
 public class Ds3PanelPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
-    private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     private final Image LENS_ICON = new Image(ImageURLs.LENS_ICON);
     private final Image CROSS_ICON = new Image(ImageURLs.CROSS_ICON);
@@ -155,10 +155,6 @@ public class Ds3PanelPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Loading Ds3PanelPresenter");
-            ALERT.setTitle(resourceBundle.getString("error"));
-            ALERT.setHeaderText(null);
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             ds3PathIndicator = makeSelectable(ds3PathIndicator);
             ds3PathIndicator.setTooltip(null);
             initMenuItems();
@@ -235,9 +231,9 @@ public class Ds3PanelPresenter implements Initializable {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
-        ds3NewFolder.setOnAction(event -> Ds3PanelService.createFolderPrompt(ds3Common));
+        ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
-        ds3NewBucket.setOnAction(event -> Ds3PanelService.createBucketPrompt(ds3Common, workers));
+        ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers));
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
@@ -553,7 +549,7 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
             if (Guard.isNullOrEmpty(values) && null == selectedRoot) {
                 LOG.info("No files selected");
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
+                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noFiles"), Alert.AlertType.INFORMATION);
                 return;
             } else if (Guard.isNullOrEmpty(values)) {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -609,7 +605,7 @@ public class Ds3PanelPresenter implements Initializable {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteFilledBucketAlert"), Alert.AlertType.ERROR);
         } else {
             final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(session.getClient(), bucketName);
-            DeleteFilesPopup.show(ds3DeleteBucketTask, this, null, ds3Common);
+            DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
             ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
@@ -651,8 +647,10 @@ public class Ds3PanelPresenter implements Initializable {
                 return null;
             }
         };
-        DeleteFilesPopup.show(deleteFilesTask, this, null, ds3Common);
-        values.forEach(file -> refresh(file.getParent()));
+
+        DeleteFilesPopup.show(deleteFilesTask, ds3Common);
+        values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
+
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
         ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
@@ -679,26 +677,6 @@ public class Ds3PanelPresenter implements Initializable {
         });
     }
 
-    private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
-        LOG.info("Running refresh of row");
-        deepStorageBrowserPresenter.logText(resourceBundle.getString("runningRefresh"), LogType.INFO);
-        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
-            final Ds3TreeTableItem item;
-            if (modifiedTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                item = (Ds3TreeTableItem) modifiedTreeItem.getParent();
-            } else {
-                item = (Ds3TreeTableItem) modifiedTreeItem;
-            }
-            if (item.isExpanded()) {
-                item.refresh();
-            } else if (item.isAccessedChildren()) {
-                item.setExpanded(true);
-                item.refresh();
-            } else {
-                item.setExpanded(true);
-            }
-        }
-    }
 
     private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();

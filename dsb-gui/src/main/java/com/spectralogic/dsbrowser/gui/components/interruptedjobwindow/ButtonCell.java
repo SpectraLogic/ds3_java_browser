@@ -27,8 +27,8 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
-    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     private final HBox hbox = createHBox();
+    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
 
     public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter, final SettingsStore settingsStore) {

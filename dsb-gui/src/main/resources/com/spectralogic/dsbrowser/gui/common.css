@@ -47,4 +47,10 @@ table-row-cell:focused{
     -fx-padding: 0;
  }
 
+.addMoreButtonCSS {
+ -fx-font-weight: bold;
+}
 
+.normalItemCSS {
+-fx-font-weight: normal
+}

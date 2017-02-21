@@ -45,7 +45,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
     private final Workers workers;
     private final TreeTableView ds3TreeTable;
     private final Ds3Common ds3Common;
-    private final int PAGE_LENGTH = 1000;
+    private final int PAGE_LENGTH = 10;
     private final ResourceBundle resourceBundle;
     private final Ds3TreeTableItem ds3TreeTableItem;
 
