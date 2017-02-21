@@ -111,7 +111,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
-     private String fileRootItem = StringConstants.ROOT_LOCATION;
+    private String fileRootItem = StringConstants.ROOT_LOCATION;
 
     private TreeItem<FileTreeModel> currentRootTreeItem;
 
@@ -157,11 +157,26 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void transferToBlackPearl() {
         try {
+            //Check whether any file selected or not
             final ObservableList<TreeItem<FileTreeModel>> currentSelection = treeTable.getSelectionModel().getSelectedItems();
             if (currentSelection.isEmpty()) {
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
                 return;
             }
+
+            //Checking if destination selected or not
+            final TreeTableView ds3TreeTable = ds3Common.getDs3TreeTableView();
+            final Label localFilePathIndicator = ds3Common.getDs3PanelPresenter().getDs3PathIndicator();
+            final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination = ds3TreeTable.getSelectionModel().getSelectedItems();
+            if (localFilePathIndicator.getText().equals(StringConstants.EMPTY_STRING)) {
+                if (Guard.isNullOrEmpty(selectedItemsAtDestination)) {
+                    LOG.info("Location not selected");
+                    Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sourceFileSelectError"), Alert.AlertType.INFORMATION);
+                    return;
+                }
+            }
+
+            //Getting transferable values
             final ObservableList<javafx.scene.Node> list = deepStorageBrowserPresenter.getBlackPearl().getChildren();
             final VBox vbox = (VBox) list.stream().filter(i -> i instanceof VBox).findFirst().get();
             final ObservableList<javafx.scene.Node> children = vbox.getChildren();
@@ -187,11 +202,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
             }
             if (values.size() > 1) {
-                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
                 return;
             }
             if (values.stream().findFirst().get().getValue().isSearchOn()) {
-                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
                 return;
             }
             final TreeItem<Ds3TreeTableValue> treeItem = values.get(0);

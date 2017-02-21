@@ -424,6 +424,20 @@ public class Ds3PanelPresenter implements Initializable {
         final Session session = getSession();
         if (null != session && null != ds3Common) {
             try {
+
+                final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
+                ImmutableList<TreeItem<Ds3TreeTableValue>> selectedItemsAtSourceLocation = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                        .stream().collect(GuavaCollectors.immutableList());
+                final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
+                if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation) && (null == root || null == root.getValue())) {
+                    LOG.info("Files not selected");
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
+                    return;
+                } else if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation)) {
+                    final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
+                    selectedItemsAtSourceLocation = builder.add(root).build().asList();
+                }
+
                 final TreeTableView<FileTreeModel> treeTable = ds3Common.getLocalTreeTableView();
                 final Label localFilePathIndicator = ds3Common.getLocalFilePathIndicator();
                 final String fileRootItem = localFilePathIndicator.getText();
@@ -441,19 +455,7 @@ public class Ds3PanelPresenter implements Initializable {
                 }
                 final List<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
                         .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
-                @SuppressWarnings("unchecked")
-                final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
-                ImmutableList<TreeItem<Ds3TreeTableValue>> selectedItemsAtSourceLocation = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                        .stream().collect(GuavaCollectors.immutableList());
-                final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
-                if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation) && root == null) {
-                    LOG.info("Files not selected");
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
-                    return;
-                } else if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation)) {
-                    final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                    selectedItemsAtSourceLocation = builder.add(root).build().asList();
-                }
+
                 //Getting selected item at source location
                 final List<Ds3TreeTableValue> selectedItemsAtSourceLocationList = selectedItemsAtSourceLocation.stream()
                         .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());

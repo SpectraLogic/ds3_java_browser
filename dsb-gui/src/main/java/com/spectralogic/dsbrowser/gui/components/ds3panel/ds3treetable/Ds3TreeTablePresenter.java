@@ -1,14 +1,9 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
-import com.spectralogic.ds3client.commands.DeleteObjectsResponse;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.models.DeleteResult;
-import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -26,7 +21,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -37,18 +31,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -469,7 +463,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     row.getTreeItem().setExpanded(true);
                     ds3TreeTable.setShowRoot(false);
                     ds3TreeTable.setRoot(row.getTreeItem());
-
+                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                 }
             } else if (event.getButton().name().equals("SECONDARY")) {
                 try {
@@ -556,7 +550,7 @@ public class Ds3TreeTablePresenter implements Initializable {
      *
      * @param disabled disable flag
      */
-    private void disableContextMenu(boolean disabled) {
+    private void disableContextMenu(final boolean disabled) {
         deleteBucket.setDisable(disabled);
         deleteFolder.setDisable(disabled);
         deleteFile.setDisable(disabled);
