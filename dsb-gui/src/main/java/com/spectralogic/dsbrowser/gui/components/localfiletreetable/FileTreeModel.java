@@ -1,13 +1,13 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
+
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.nio.file.Path;
 
-public class FileTreeModel {
+public class FileTreeModel extends BaseTreeModel {
     final private Path path;
-    final private String name;
-    final private Type type;
     final private long size;
     final private int depth;
     private final String lastModified;
@@ -49,16 +49,15 @@ public class FileTreeModel {
         if (depth < 0) {
             //get volume name from volume letter
             final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
-            if (!fileSystemView.getSystemDisplayName(new File(path.toString())).isEmpty())
+            if (!fileSystemView.getSystemDisplayName(new File(path.toString())).isEmpty()) {
                 return fileSystemView.getSystemDisplayName(new File(path.toString()));
-            else
+            }
+            else {
                 return path.toString();
+            }
         } else {
             return path.getName(depth).toString();
         }
     }
 
-    public enum Type {
-        File, Directory, Media_Device, File_System, Error
-    }
 }

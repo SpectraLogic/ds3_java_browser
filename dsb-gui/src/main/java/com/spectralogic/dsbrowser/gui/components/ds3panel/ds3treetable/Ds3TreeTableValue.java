@@ -1,16 +1,15 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
 
 import java.io.Serializable;
 
-public class Ds3TreeTableValue implements Serializable {
+public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
 
     private final String bucketName;
-    private final String name;
     private final String fullName;
-    private final Type type;
     private final long size;
     private final String lastModified;
     private final transient HBox physicalPlacementHBox;
@@ -48,15 +47,6 @@ public class Ds3TreeTableValue implements Serializable {
         this.fullPath = getPathExcludeName(bucketName, fullName);
     }
 
-
-    public boolean isSearchOn() {
-        return searchOn;
-    }
-
-    public HBox getPhysicalPlacementHBox() {
-        return physicalPlacementHBox;
-    }
-
     private static String getLastPart(final String name, final Type type) {
         if (type == Type.Bucket) {
             return name;
@@ -78,6 +68,14 @@ public class Ds3TreeTableValue implements Serializable {
             stringBuilder.append(fullPath.substring(0, index));
         }
         return stringBuilder.toString();
+    }
+
+    public boolean isSearchOn() {
+        return searchOn;
+    }
+
+    public HBox getPhysicalPlacementHBox() {
+        return physicalPlacementHBox;
     }
 
     public String getName() {
@@ -151,7 +149,5 @@ public class Ds3TreeTableValue implements Serializable {
         this.logicalCapacity = logicalCapacity;
     }
 
-    public enum Type {
-        File, Directory, Bucket, Loader
-    }
+
 }

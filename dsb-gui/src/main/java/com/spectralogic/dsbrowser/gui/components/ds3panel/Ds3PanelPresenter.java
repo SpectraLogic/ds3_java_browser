@@ -1,23 +1,16 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
-import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
-import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderPopup;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider;
+import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
@@ -41,7 +34,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -51,7 +43,6 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,7 +121,7 @@ public class Ds3PanelPresenter implements Initializable {
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     @Inject
-    private LocalFileTreeTableProvider provider;
+    private FileTreeTableProvider provider;
 
     @Inject
     private DataFormat dataFormat;

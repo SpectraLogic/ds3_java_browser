@@ -14,7 +14,7 @@ public interface SessionConstants {
     String ALREADY_EXIST_FILES = "Sample.txt";
     String FOLDER_INSIDE_EXISTING_BUCKET = "temp";
     String LOCAL_FOLDER = "files/";
-    String LOCAL_FILE = "Sample.txt";
+    String LOCAL_FILE = "SampleFiles.txt";
     String SESSION_NAME_BPLAB = "BPLAB";
     String SESSION_PATH_BPLAB = "bplab.spectralogic.com";
     String PORT_NO_BPLAB = "80";

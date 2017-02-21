@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -34,28 +35,27 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableItem.class);
 
-    private final LocalFileTreeTableProvider provider;
+    private final FileTreeTableProvider provider;
     private final boolean leaf;
     private final FileTreeModel fileTreeModel;
     private boolean accessedChildren = false;
-    private boolean error = false;
     private final Workers workers;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
+    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
-        this.leaf = isLeaf(fileTreeModel.getPath());
+        this.leaf = getLeaf(fileTreeModel.getPath());
         this.provider = provider;
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
     }
 
-    private static boolean isLeaf(final Path path) {
+    private boolean getLeaf(final Path path) {
         return !Files.isDirectory(path);
     }
 
-    private Node getGraphicType(final FileTreeModel fileTreeModel) {
+    public Node getGraphicType(final FileTreeModel fileTreeModel) {
         final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
         try {
             final javax.swing.Icon icon = fileSystemView.getSystemIcon(new File(fileTreeModel.getPath().toString()));
@@ -73,7 +73,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
     }
 
-    private FontAwesomeIconView getGraphicFont(final FileTreeModel fileTreeModel) {
+    public FontAwesomeIconView getGraphicFont(final FileTreeModel fileTreeModel) {
         switch (fileTreeModel.getType()) {
             case File_System:
                 return Icon.getIcon(FontAwesomeIcon.FILE);
@@ -94,20 +94,25 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             processImage.setFitHeight(20);
             processImage.setFitWidth(20);
             super.setGraphic(processImage);
-            final Task buildChildren = new Task() {
-                @Override
-                protected Object call() throws Exception {
-                    buildChildren(children);
-                    return null;
-                }
-            };
-            workers.execute(buildChildren);
+            final Task buildChildren = BuildChildrenTask(children);
             buildChildren.setOnSucceeded(event -> {
                 LOG.info("Success");
                 super.setGraphic(previousGraphics);
             });
         }
         return super.getChildren();
+    }
+
+    private Task BuildChildrenTask(final ObservableList<TreeItem<FileTreeModel>> children) {
+        final Task buildChildren = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                buildChildren(children);
+                return null;
+            }
+        };
+        workers.execute(buildChildren);
+        return buildChildren;
     }
 
     @Override
@@ -126,27 +131,28 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             return;
         }
         final Path path = fileTreeModel.getPath();
-        if (path != null && !isLeaf(path)) try {
-            final List<FileTreeTableItem> fileChildren = provider
-                    .getListForDir(fileTreeModel)
-                    .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
-                    .collect(Collectors.toList());
-            fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
-            ));
-            children.setAll(fileChildren);
+        if (path != null && !getLeaf(path)) {
+            try {
+                final List<FileTreeTableItem> fileChildren = provider
+                        .getListForDir(fileTreeModel)
+                        .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
+                        .collect(Collectors.toList());
+                fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
+                ));
+                children.setAll(fileChildren);
 
 
-        } catch (final AccessDeniedException ae) {
-            LOG.error("Could not access file", ae);
-            setError(resourceBundle.getString("invalidPermission"));
-        } catch (final IOException e) {
-            LOG.error("Failed to get children for " + path.toString(), e);
-            setError(resourceBundle.getString("failedToGetChildren"));
+            } catch (final AccessDeniedException ae) {
+                LOG.error("Could not access file", ae);
+                setError(resourceBundle.getString("invalidPermission"));
+            } catch (final IOException e) {
+                LOG.error("Failed to get children for " + path.toString(), e);
+                setError(resourceBundle.getString("failedToGetChildren"));
+            }
         }
     }
 
     private void setError(final String errorMessage) {
-        this.error = true;
         final Node node = Icon.getIcon(FontAwesomeIcon.EXCLAMATION_CIRCLE, Paint.valueOf("RED"));
         final Tooltip errorTip = new Tooltip(errorMessage);
         Tooltip.install(node, errorTip);

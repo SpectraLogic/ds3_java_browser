@@ -60,5 +60,6 @@ public interface StringConstants {
     String CASE_ENDPOINT = "endpointInfo";
     String SIMPLE_DATE_FORMAT = "M/dd/yyyy HH:mm:ss";
     String CASE_DS3PHYSICALPLACEMENT = "ds3PhysicalPlacement";
+    String TYPE = "Type";
 
 }

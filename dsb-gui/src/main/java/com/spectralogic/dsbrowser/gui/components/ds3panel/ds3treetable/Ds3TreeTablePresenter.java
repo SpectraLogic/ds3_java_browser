@@ -121,7 +121,6 @@ public class Ds3TreeTablePresenter implements Initializable {
      */
     private void initContextMenu() {
         contextMenu = new ContextMenu();
-
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
         deleteFile.setOnAction(event -> ds3DeleteObject());
 
@@ -200,7 +199,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setContextMenu(contextMenu);
 
         ds3TreeTable.setRowFactory(view -> setTreeTableViewRowBehaviour());
-        ds3TreeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common));
+        ds3TreeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common.getDs3TreeTableView()));
 
         final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
