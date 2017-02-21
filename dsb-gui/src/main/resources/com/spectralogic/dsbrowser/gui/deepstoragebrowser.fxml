@@ -3,13 +3,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.fxmisc.richtext.InlineCssTextArea?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity"
-            prefHeight="400.0" prefWidth="600.0" stylesheets="@common.css"
-            xmlns="http://javafx.com/javafx/8"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" minHeight="500.0" minWidth="700.0"
+            prefHeight="400.0" prefWidth="1000.0" stylesheets="@common.css" xmlns="http://javafx.com/javafx/8"
             fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter" fx:id="borderPane">
     <top>
-        <MenuBar BorderPane.alignment="CENTER">
+        <MenuBar BorderPane.alignment="CENTER" minWidth="500.0" minHeight="20.0">
             <menus>
                 <Menu fx:id="fileMenu" mnemonicParsing="false">
                     <items>
@@ -46,11 +44,11 @@
             <items>
                 <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
                     <items>
-                        <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                        <AnchorPane fx:id="fileSystem" minHeight="0.0" minWidth="300.0" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                     AnchorPane.topAnchor="0.0"/>
 
-                        <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0"
+                        <AnchorPane fx:id="blackPearl" minHeight="0.0" minWidth="400.0" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                     AnchorPane.topAnchor="0.0"/>
                     </items>
@@ -59,18 +57,17 @@
         </SplitPane>
     </center>
     <bottom>
-        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
+        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER" minHeight="40.0"  prefHeight="30.0">
             <children>
-                <TabPane fx:id="bottomTabPane" prefHeight="0" prefWidth="433.0" tabClosingPolicy="UNAVAILABLE">
+                <TabPane fx:id="bottomTabPane" prefHeight="20.0" prefWidth="500.0" minHeight="20.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
                         <Tab text="Jobs" fx:id="jobsTab">
                             <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="200.0"/>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0" prefWidth="300.0"/>
                             </content>
                         </Tab>
                         <Tab text="Logs" fx:id="logsTab">
                             <content>
-
                                 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" pannable="true"
                                             vbarPolicy="AS_NEEDED">
                                     <content>
@@ -81,11 +78,9 @@
                                     </content>
                                 </ScrollPane>
                             </content>
-
                         </Tab>
                     </tabs>
                 </TabPane>
-
             </children>
         </HBox>
     </bottom>

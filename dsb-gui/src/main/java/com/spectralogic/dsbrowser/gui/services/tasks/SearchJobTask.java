@@ -43,24 +43,20 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             final List<Ds3TreeTableItem> list = new ArrayList<>();
             searchableBuckets.forEach(bucket -> {
                 if (bucket.getName().contains(searchText)) {
-                    printLog(StringBuilderUtil.bucketFoundMessage(searchText).toString(), LogType.INFO);
+                    printLog(StringBuilderUtil.bucketFoundMessage("'"+searchText+"'",bucket.getName()).toString(), LogType.SUCCESS);
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                             0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
                     list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common));
                 } else {
                     final List<DetailedS3Object> detailedDs3Objects = getDetailedDs3Objects(bucket.getName());
-                    if (!Guard.isNullOrEmpty(detailedDs3Objects)) {
+                    if (Guard.isNotNullAndNotEmpty(detailedDs3Objects)) {
                         final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucket.getName());
-                        if (!Guard.isNullOrEmpty(treeTableItems)) {
+                        if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
                             list.addAll(treeTableItems);
                             printLog(StringBuilderUtil.searchInBucketMessage(bucket.getName(), list.size()).toString(),
-                                    LogType.INFO);
+                                    LogType.SUCCESS);
                         }
-                    } else {
-                        LOG.error("Search failed, DetailedS3Object was null");
-                        printLog(StringBuilderUtil.searchFailedMessage().toString(), LogType.ERROR);
                     }
-
                 }
             });
             return list;

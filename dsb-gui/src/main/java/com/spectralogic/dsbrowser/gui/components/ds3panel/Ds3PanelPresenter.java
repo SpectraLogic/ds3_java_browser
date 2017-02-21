@@ -572,7 +572,6 @@ public class Ds3PanelPresenter implements Initializable {
         } else {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
         }
-
     }
 
     /**

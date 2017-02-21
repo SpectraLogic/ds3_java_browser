@@ -62,7 +62,7 @@ public class CreateConnectionTask {
             LOG.error("Encountered a networking error: {}", ioe);
             Ds3Alert.show(resourceBundle.getString("networkError"), resourceBundle.getString("networkErrorMessage"), Alert.AlertType.ERROR);
         } catch (final RuntimeException rte) {
-            LOG.error("Authentication error. Please check your credentials: {}", rte);
+            LOG.error("Something went wrong.", rte);
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("authenticationAlert"), Alert.AlertType.ERROR);
         }
         return null;

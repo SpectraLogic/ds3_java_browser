@@ -30,6 +30,8 @@ public class Main extends Application {
     @Override
     public void start(final Stage primaryStage) throws Exception {
         PrimaryStageModel.getInstance().setPrimaryStage(primaryStage);
+        primaryStage.setMinHeight(600.0);
+        primaryStage.setMinWidth(700.0);
         final SettingsStore settings = SettingsStore.loadSettingsStore();
         // Create the log service before any logging has started..
         final LogService logService = new LogService(settings.getLogSettings());

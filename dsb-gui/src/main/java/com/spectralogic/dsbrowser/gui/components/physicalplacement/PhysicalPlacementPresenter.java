@@ -56,7 +56,6 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     public SortedList getStoragePools(final List<Pool> listPool) {
         final ImmutableList.Builder<PhysicalPlacementPoolEntryModel> physicalPlacementPoolEntryBuilder = ImmutableList.builder();
-        // listPool  = ;
         SortedList poolSortedList = null;
         if (Guard.isNotNullAndNotEmpty(listPool)) {
             for (final Pool pool : listPool) {

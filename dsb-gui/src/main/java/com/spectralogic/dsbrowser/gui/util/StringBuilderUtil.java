@@ -250,25 +250,30 @@ public class StringBuilderUtil {
      * StringBuilders for Search job                     *
      ****************************************************/
 
-    public static StringBuilder bucketFoundMessage(final String searchText) {
+    public static StringBuilder bucketFoundMessage(final String searchText, final String bucketName) {
         return new StringBuilder()
                 .append(resourceBundle.getString("bucketFound"))
                 .append(StringConstants.SPACE)
-                .append(searchText);
+                .append(searchText)
+                .append(StringConstants.SPACE)
+                .append(StringConstants.IE)
+                .append(StringConstants.SPACE)
+                .append(bucketName);
     }
 
     public static StringBuilder searchInBucketMessage(final String bucketName, final int size) {
         return new StringBuilder()
-                .append(resourceBundle.getString("searchIn"))
-                .append(StringConstants.SPACE)
-                .append(bucketName)
-                .append(StringConstants.COLON)
-                .append(StringConstants.SPACE)
                 .append(resourceBundle.getString("found"))
                 .append(StringConstants.SPACE)
                 .append(size)
                 .append(StringConstants.SPACE)
-                .append(resourceBundle.getString("items"));
+                .append(resourceBundle.getString("items"))
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("in"))
+                .append(StringConstants.SPACE)
+                .append(bucketName)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("bucket"));
     }
 
     public static StringBuilder nObjectsFoundMessage(final int n) {
@@ -320,7 +325,7 @@ public class StringBuilderUtil {
         return expandedItemCount + " item(s), " + selectedItemCount + " item(s) selected";
     }
 
-    public static  StringBuilder getJobCompleted(final long totalJobSize , final Ds3Client ds3Client) {
+    public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client) {
         return new StringBuilder().append(resourceBundle.getString("getJobSize"))
                 .append(StringConstants.SPACE)
                 .append(FileSizeFormat.getFileSizeType(totalJobSize))
@@ -343,7 +348,7 @@ public class StringBuilderUtil {
                 .append(DateFormat.formatDate(new Date()));
     }
 
-    public static StringBuilder jobFailed(final String jobType , final String endPoint , final Exception e) {
+    public static StringBuilder jobFailed(final String jobType, final String endPoint, final Exception e) {
         return new StringBuilder()
                 .append(jobType)
                 .append(StringConstants.SPACE)

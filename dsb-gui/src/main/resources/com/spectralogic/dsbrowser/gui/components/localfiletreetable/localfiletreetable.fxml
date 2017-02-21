@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="286.0" stylesheets="@../../common.css"
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="200.0" stylesheets="@../../common.css"
       AnchorPane.bottomAnchor="0.0"
       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
       xmlns="http://javafx.com/javafx/8"
@@ -91,22 +91,22 @@
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                        VBox.vgrow="ALWAYS">
             <columns>
-                <TreeTableColumn minWidth="100.0" prefWidth="200.0" text="Name" fx:id="nameColumn">
+                <TreeTableColumn minWidth="60.0" prefWidth="200.0" text="Name" fx:id="nameColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="name"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn prefWidth="100.0" text="Type">
+                <TreeTableColumn prefWidth="100.0" minWidth="50.0" text="Type">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn prefWidth="100.0" text="Size" fx:id="sizeColumn">
+                <TreeTableColumn prefWidth="100.0" text="Size" minWidth="50.0" fx:id="sizeColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="size"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn prefWidth="100.0" text="Date Modified">
+                <TreeTableColumn prefWidth="100.0" minWidth="70.0" text="Date Modified">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="lastModified"/>
                     </cellValueFactory>
@@ -116,6 +116,5 @@
                 <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
             </columnResizePolicy>
         </TreeTableView>
-
     </children>
 </VBox>

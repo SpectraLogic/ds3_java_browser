@@ -8,9 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
-/**
- * Created by Suman on 2/8/2017.
- */
 public class SetToolTipBehavior {
     private final static Logger LOG = LoggerFactory.getLogger(SetToolTipBehavior.class);
 

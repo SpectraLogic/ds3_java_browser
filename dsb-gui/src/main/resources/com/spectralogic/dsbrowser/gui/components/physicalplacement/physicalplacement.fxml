@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="475.0" prefWidth="1567.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="2000.0" prefHeight="475.0" prefWidth="2000.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
     <children>
         <HBox prefHeight="100.0" prefWidth="200.0">
             <children>
@@ -144,7 +141,7 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementReplication" editable="true" prefHeight="175.0" prefWidth="1200.0">
+        <TableView fx:id="physicalPlacementReplication" editable="true" prefHeight="150.0" prefWidth="1200.0">
             <columns>
                 <TableColumn prefWidth="103.0" sortable="true" text="AccessControlReplication">
                     <cellValueFactory>

@@ -131,9 +131,9 @@
             </children>
         </Pane>
         <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB"
-                 VBox.vgrow="ALWAYS">
+                 VBox.vgrow="ALWAYS" >
             <tabs>
-                <Tab fx:id="addNewTab" closable="false">
+                <Tab fx:id="addNewTab" closable="false" >
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

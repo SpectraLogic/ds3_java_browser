@@ -11,7 +11,7 @@ public interface SessionConstants {
     String CREATE_BUCKET_TASK_TEST_BUCKET_NAME = "TEMPORARY_BUCKET";
     String ALREADY_EXIST_BUCKET = "TEST1";
     String ALREADY_EXIST_FOLDER = "Files";
-    String ALREADY_EXIST_FILES = "Sample.txt";
+    String ALREADY_EXIST_FILES = "SampleFiles.txt";
     String FOLDER_INSIDE_EXISTING_BUCKET = "temp";
     String LOCAL_FOLDER = "files/";
     String LOCAL_FILE = "SampleFiles.txt";
