@@ -55,10 +55,15 @@ public class Main extends Application {
         final Scene mainScene = new Scene(mainView.getView());
         primaryStage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         primaryStage.setScene(mainScene);
-        primaryStage.setX(ApplicationPreferences.getInstance().getX());
-        primaryStage.setY(ApplicationPreferences.getInstance().getY());
-        primaryStage.setWidth(ApplicationPreferences.getInstance().getWidth());
-        primaryStage.setHeight(ApplicationPreferences.getInstance().getHeight());
+
+        if (ApplicationPreferences.getInstance().isWindowMaximized()) {
+            primaryStage.setMaximized(true);
+        } else {
+            primaryStage.setX(ApplicationPreferences.getInstance().getX());
+            primaryStage.setY(ApplicationPreferences.getInstance().getY());
+            primaryStage.setWidth(ApplicationPreferences.getInstance().getWidth());
+            primaryStage.setHeight(ApplicationPreferences.getInstance().getHeight());
+        }
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
         final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(primaryStage, savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settings, jobWorkers, workers);

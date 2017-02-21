@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
+import com.spectralogic.dsbrowser.gui.util.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
@@ -40,7 +41,7 @@ public class AboutPresenter implements Initializable {
         buildVersion.setText(resourceBundle.getString("buildVersion"));
         hyperlink.setOnAction(event -> {
             try {
-                Desktop.getDesktop().browse(new URI("http://www.apache.org/licenses/LICENSE-2.0"));
+                Desktop.getDesktop().browse(new URI(Constants.APACHE_URL));
             } catch (final IOException|URISyntaxException e) {
                 LOG.error("Failed to open apache license in a browser", e);
             }

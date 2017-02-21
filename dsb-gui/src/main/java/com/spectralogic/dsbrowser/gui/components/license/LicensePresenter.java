@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.license;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.dsbrowser.gui.util.Constants;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +21,6 @@ public class LicensePresenter implements Initializable {
     }
 
     private ImmutableList<LicenseModel> getModels() {
-        return ImmutableList.of(new LicenseModel("ds3_java_sdk", "Apache 2"));
+        return ImmutableList.of(new LicenseModel(Constants.LIBRARY_NAME, Constants.LICENSE));
     }
 }

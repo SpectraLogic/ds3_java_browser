@@ -13,7 +13,7 @@
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
-                <Button fx:id="parentDirectoryButton">
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="parentDirectoryButton">
                     <tooltip>
                         <Tooltip fx:id="parentDirectoryButtonTooltip"/>
                     </tooltip>
@@ -24,8 +24,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="homeButton">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="homeButton">
                     <tooltip>
                         <Tooltip fx:id="homeButtonTooltip"/>
                     </tooltip>
@@ -36,8 +36,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="refreshButton">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="refreshButton">
                     <tooltip>
                         <Tooltip fx:id="refreshButtonTooltip"/>
                     </tooltip>
@@ -48,8 +48,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="toMyComputer">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="toMyComputer">
                     <tooltip>
                         <Tooltip fx:id="toMyComputerTooltip"/>
                     </tooltip>
@@ -60,8 +60,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="transferButton">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="transferButton">
                     <tooltip>
                         <Tooltip fx:id="transferButtonTooltip"/>
                     </tooltip>
@@ -72,7 +72,7 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
 
             </items>
         </ToolBar>

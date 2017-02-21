@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -16,10 +17,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
@@ -30,14 +28,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,13 +51,11 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.spectralogic.dsbrowser.gui.util.StringConstants.ROOT_LOCATION;
+
 public class LocalFileTreeTablePresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
-
-    private static final String ROOT_LOCATION = "My Computer";
-
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
@@ -117,7 +111,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
-    private String fileRootItem = ROOT_LOCATION;
+     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
     private TreeItem<FileTreeModel> currentRootTreeItem;
 
@@ -127,10 +121,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Starting LocalFileTreeTablePresenter");
-            ALERT.setTitle("Error");
-            ALERT.setHeaderText(null);
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
             initGUIElements();
             initTableView();
             initListeners();
@@ -157,8 +147,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void goToParentDirectory() {
         if (!localPathIndicator.getText().equals(ROOT_LOCATION)) {
-            if (Paths.get(fileRootItem).getParent() != null) {
-                changeRootDir(Paths.get(fileRootItem).getParent().toString());
+            if (Paths.get(ROOT_LOCATION).getParent() != null) {
+                changeRootDir(Paths.get(ROOT_LOCATION).getParent().toString());
             } else {
                 changeRootDir(ROOT_LOCATION);
             }
@@ -169,8 +159,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         try {
             final ObservableList<TreeItem<FileTreeModel>> currentSelection = treeTable.getSelectionModel().getSelectedItems();
             if (currentSelection.isEmpty()) {
-                ALERT.setContentText("Select files to transfer");
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
                 return;
             }
             final ObservableList<javafx.scene.Node> list = deepStorageBrowserPresenter.getBlackPearl().getChildren();
@@ -186,26 +175,23 @@ public class LocalFileTreeTablePresenter implements Initializable {
             //Finding root in case of double click to get selected items
             final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
             if (root == null) {
-                if (values.isEmpty()) {
-                    ALERT.setContentText("Select destination location.");
-                    ALERT.showAndWait();
+                if (Guard.isNullOrEmpty(values)) {
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("selectDestination"), Alert.AlertType.ERROR);
                     return;
                 }
             }
             //If values is empty we have to assign it with root
-            else if (values.isEmpty()) {
+            else if (Guard.isNullOrEmpty(values)) {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(root).build().asList();
 
             }
             if (values.size() > 1) {
-                ALERT.setContentText("Multiple destination not allowed. Please select one.");
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
                 return;
             }
             if (values.stream().findFirst().get().getValue().isSearchOn()) {
-                ALERT.setContentText("Operation not allowed here");
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
                 return;
             }
             final TreeItem<Ds3TreeTableValue> treeItem = values.get(0);

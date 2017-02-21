@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class LocalFileTreeTableProvider {
     public Stream<FileTreeModel> getRoot(final String rootDir) {
         File[] files = null;
 
-        if (rootDir.equals("My Computer")) {
+        if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
             files = File.listRoots();
 
         } else {
@@ -52,12 +53,12 @@ public class LocalFileTreeTableProvider {
                     size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);
-                final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
+                final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT);
                 lastModified = sdf.format(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
             }
-            if (rootDir.equals("My Computer")) {
+            if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
                 return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
             }
             return new FileTreeModel(file.toPath(), type, size, Paths.get(rootDir).getNameCount(), lastModified);
@@ -88,19 +89,19 @@ public class LocalFileTreeTableProvider {
                 if (type == FileTreeModel.Type.Directory) {
                     final String size = FileSizeFormat.getFileSizeType(0);
                     final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                    final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
+                    final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT);
                     final String lastModified = sdf.format(fileModifiedTime.toMillis());
                     return new FileTreeModel(filePath, type, 0, newDepth, lastModified);
                 } else {
                     final String size = FileSizeFormat.getFileSizeType(Files.size(filePath));
                     final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                    final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss");
+                    final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT);
                     final String lastModified = sdf.format(fileModifiedTime.toMillis());
                     return new FileTreeModel(filePath, type, Files.size(filePath), newDepth, lastModified);
                 }
             } catch (final IOException e) {
                 LOG.error("Failed to get file size for: " + filePath.toString(), e);
-                return new FileTreeModel(filePath, FileTreeModel.Type.Error, 0, newDepth, "");
+                return new FileTreeModel(filePath, FileTreeModel.Type.Error, 0, newDepth, StringConstants.EMPTY_STRING);
             }
         });
     }

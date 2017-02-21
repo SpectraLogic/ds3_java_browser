@@ -49,26 +49,26 @@
 
                         <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                             <children>
-                                <Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">
                                     <tooltip>
                                         <Tooltip fx:id="saveSessionButtonTooltip"/>
                                     </tooltip>
-                                </Button>
-                                <Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#openSession">
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#openSession">
                                     <tooltip>
                                         <Tooltip fx:id="openSessionButtonTooltip"/>
                                     </tooltip>
-                                </Button>
-                                <Button fx:id="cancelSessionButton" mnemonicParsing="false" onAction="#cancelSession">
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSessionButton" mnemonicParsing="false" onAction="#cancelSession">
                                     <tooltip>
                                         <Tooltip fx:id="cancelSessionButtonTooltip"/>
                                     </tooltip>
-                                </Button>
-                                <Button fx:id="deleteSessionButton" mnemonicParsing="false" onAction="#deleteSession">
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="deleteSessionButton" mnemonicParsing="false" onAction="#deleteSession">
                                     <tooltip>
                                         <Tooltip fx:id="deleteSessionButtonTooltip"/>
                                     </tooltip>
-                                </Button>
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
                             </children>
                             <padding>
                                 <Insets right="15.0"/>

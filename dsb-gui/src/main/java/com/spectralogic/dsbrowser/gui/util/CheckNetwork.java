@@ -10,8 +10,6 @@ import java.net.URLConnection;
 
 public final class CheckNetwork {
     private static final Logger LOG = LoggerFactory.getLogger(CheckNetwork.class);
-    private final static String HTTPS_PREFIX = "https";
-    private final static String HTTP_PREFIX = "http";
 
     /**
      * Tests to see if the non-secure data path port is reachable
@@ -35,9 +33,9 @@ public final class CheckNetwork {
      * Formats an URL string so that it always starts with 'http'
      */
     public static String formatUrl(final String endpoint) {
-        if (endpoint.startsWith(HTTPS_PREFIX)) {
-            return endpoint.replace(HTTPS_PREFIX, HTTP_PREFIX);
-        } else if (endpoint.startsWith(HTTP_PREFIX)) {
+        if (endpoint.startsWith(Constants.HTTPS_PREFIX)) {
+            return endpoint.replace(Constants.HTTPS_PREFIX, Constants.HTTP_PREFIX);
+        } else if (endpoint.startsWith(Constants.HTTP_PREFIX)) {
             return endpoint;
         } else {
             return "http://" + endpoint;

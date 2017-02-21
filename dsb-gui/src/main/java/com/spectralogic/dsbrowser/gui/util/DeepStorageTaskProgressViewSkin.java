@@ -11,15 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         SkinBase<DeepStorageBrowserTaskProgressView<T>> {
 
-  @Inject
-  private ResourceBundle resourceBundle;
+    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public DeepStorageTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
         super(monitor);
@@ -30,7 +28,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         // list view
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
-        listView.setPlaceholder(new Label("No tasks running"));
+        listView.setPlaceholder(new Label(resourceBundle.getString("notaskRunning")));
         listView.setCellFactory(param -> new TaskCell());
         listView.setFocusTraversable(false);
 
@@ -63,9 +61,9 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
 
             cancelButton = new Button("Cancel");
             cancelButton.getStyleClass().add("task-cancel-button");
-            cancelButton.setTooltip(new Tooltip("Cancel Task"));
+            cancelButton.setTooltip(new Tooltip(resourceBundle.getString("cancelTask")));
             cancelButton.setOnAction(evt -> {
-               popupCancelTask(task,evt);
+                popupCancelTask(task, evt);
             });
 
             final VBox vbox = new VBox();
@@ -123,8 +121,8 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
                         borderPane.setLeft(graphic);
                     }
                 } else {
-                	/*
-                	 * Really needed. The application might have used a graphic
+                    /*
+                     * Really needed. The application might have used a graphic
                 	 * factory before and then disabled it. In this case the border
                 	 * pane might still have an old graphic in the left position.
                 	 */
@@ -137,13 +135,13 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void popupCancelTask(final T task, final ActionEvent evt) {
-        final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobwillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
+        final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
         if (closeResponse.get().equals(ButtonType.OK)) {
             if (task != null) {
                 task.cancel();
             }
-        }else if (closeResponse.get().equals(ButtonType.CANCEL)) {
-               evt.consume();
+        } else if (closeResponse.get().equals(ButtonType.CANCEL)) {
+            evt.consume();
         }
     }
 

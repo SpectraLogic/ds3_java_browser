@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
 
 import java.io.Serializable;
@@ -71,7 +72,7 @@ public class Ds3TreeTableValue implements Serializable {
     private static String getPathExcludeName(final String bucketName, final String fullPath) {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(bucketName);
-        stringBuilder.append("/");
+        stringBuilder.append(StringConstants.FORWARD_SLASH);
         final int index = fullPath.lastIndexOf("/");
         if (index != -1) {
             stringBuilder.append(fullPath.substring(0, index));
@@ -116,7 +117,7 @@ public class Ds3TreeTableValue implements Serializable {
             case Directory:
                 return getFullName();
             case Bucket:
-                return "";
+                return StringConstants.EMPTY_STRING;
             default:
                 return getParentDir(this.getFullName());
         }
@@ -125,7 +126,7 @@ public class Ds3TreeTableValue implements Serializable {
     private String getParentDir(final String fullName) {
         final int index = fullName.lastIndexOf('/');
         if (index < 0) {
-            return "";
+            return StringConstants.EMPTY_STRING;
         }
         return fullName.substring(0, index);
     }

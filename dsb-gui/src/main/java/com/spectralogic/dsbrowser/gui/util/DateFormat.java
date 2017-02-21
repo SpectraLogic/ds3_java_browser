@@ -7,7 +7,7 @@ import java.util.Locale;
 public final class DateFormat {
 
     public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss", Locale.US);
+        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
         if (date == null)
             return StringConstants.EMPTY_STRING;
         return sdf.format(date);
@@ -54,7 +54,7 @@ public final class DateFormat {
     }
 
     public static String formatDate(final long timeInMillis) {
-        final SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy HH:mm:ss", Locale.US);
+        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
         return sdf.format(new Date(timeInMillis));
     }
 }

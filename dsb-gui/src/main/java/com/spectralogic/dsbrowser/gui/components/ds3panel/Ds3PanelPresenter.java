@@ -264,8 +264,6 @@ public class Ds3PanelPresenter implements Initializable {
                                     .SPACE + resourceBundle.getString("items") + StringConstants.SPACE + StringConstants.COMMA
                                     + ds3TreeTableView1.getSelectionModel().getSelectedItems().size() +
                                     StringConstants.SPACE + resourceBundle.getString("itemsSelected");
-                            getPaneItems().setVisible(true);
-                            getPaneItems().setText(info);
                             if (Guard.isNullOrEmpty(values)) {
                                 setBlank(true);
                             } else {
@@ -283,6 +281,9 @@ public class Ds3PanelPresenter implements Initializable {
                                     calculateFiles(ds3TreeTableView1);
                                 }
                             }
+                            getPaneItems().setVisible(true);
+                            getPaneItems().setText(info);
+
                         } else {
                             setBlank(true);
                             disableSearch(true);
@@ -406,9 +407,11 @@ public class Ds3PanelPresenter implements Initializable {
         if (isSetBlank) {
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
+            paneItems.setVisible(false);
             capacityLabel.setVisible(false);
             infoLabel.setVisible(false);
         } else {
+            paneItems.setVisible(true);
             capacityLabel.setVisible(true);
             infoLabel.setVisible(true);
             capacityLabel.setText(resourceBundle.getString("infoLabel"));
@@ -432,14 +435,12 @@ public class Ds3PanelPresenter implements Initializable {
                 if (fileRootItem.equals(resourceBundle.getString("myComputer"))) {
                     if (Guard.isNullOrEmpty(selectedItemsAtDestination)) {
                         LOG.info("Location not selected");
-                        ALERT.setContentText(resourceBundle.getString("sourceFileSelectError"));
-                        ALERT.showAndWait();
+                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sourceFileSelectError"), Alert.AlertType.INFORMATION);
                         return;
                     }
                 }
                 if (selectedItemsAtDestination.size() > 1) {
-                    ALERT.setContentText(resourceBundle.getString("multipleDestError"));
-                    ALERT.showAndWait();
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
                     return;
                 }
                 final List<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
@@ -451,8 +452,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
                 if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation) && root == null) {
                     LOG.info("Files not selected");
-                    ALERT.setContentText(resourceBundle.getString("fileSelectError"));
-                    ALERT.showAndWait();
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
                     return;
                 } else if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation)) {
                     final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -509,12 +509,11 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to get data from black pearl: {}", e);
                 deepStorageBrowserPresenter.logText(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
-                ALERT.setContentText(resourceBundle.getString("somethingWentWrong"));
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("somethingWentWrong"), Alert.AlertType.ERROR);
+
             }
         } else {
-            ALERT.setContentText(resourceBundle.getString("invalidSession"));
-            ALERT.showAndWait();
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
         }
 
     }
@@ -554,8 +553,7 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
             if (Guard.isNullOrEmpty(values) && null == selectedRoot) {
                 LOG.info("No files selected");
-                ALERT.setContentText(resourceBundle.getString("noFiles"));
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
                 return;
             } else if (Guard.isNullOrEmpty(values)) {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -563,15 +561,13 @@ public class Ds3PanelPresenter implements Initializable {
             }
             if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
                 LOG.info("You can not delete from here. Please go to specific location and delete object(s)");
-                ALERT.setContentText(resourceBundle.getString("canNotDeleteFromLocation"));
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("canNotDeleteFromLocation"), Alert.AlertType.INFORMATION);
                 return;
             }
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
                 LOG.info("You can only recursively delete a folder.  Please select the folder to delete, " +
                         "Right click, and select 'Delete Folder...'");
-                ALERT.setContentText(resourceBundle.getString("canRecursivelyDelete"));
-                ALERT.showAndWait();
+                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("canRecursivelyDelete"), Alert.AlertType.INFORMATION);
                 return;
             }
             if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
@@ -585,8 +581,7 @@ public class Ds3PanelPresenter implements Initializable {
                 deleteFiles(session, values);
             }
         } else {
-            ALERT.setContentText(resourceBundle.getString("invalidSession"));
-            ALERT.showAndWait();
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
         }
 
     }
@@ -605,20 +600,16 @@ public class Ds3PanelPresenter implements Initializable {
         if (buckets.size() > 1) {
             deepStorageBrowserPresenter.logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
             LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-            ALERT.setContentText(resourceBundle.getString("multiBucketNotAllowed"));
-            ALERT.showAndWait();
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.ERROR);
             return;
         }
         final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
         if (!Ds3PanelService.checkIfBucketEmpty(value.getValue().getBucketName(), getSession())) {
-            Platform.runLater(() -> {
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                ALERT.setContentText(resourceBundle.getString("failedToDeleteBucketAlert"));
-                ALERT.showAndWait();
-            });
+            deepStorageBrowserPresenter.logText(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteFilledBucketAlert"), Alert.AlertType.ERROR);
         } else {
             final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(session.getClient(), bucketName);
-            DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
+            DeleteFilesPopup.show(ds3DeleteBucketTask, this, null, ds3Common);
             ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
@@ -649,22 +640,19 @@ public class Ds3PanelPresenter implements Initializable {
             protected Object call() throws Exception {
                 try {
                     getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(GuavaCollectors.immutableList())));
-                    Platform.runLater(() -> {
-                        // deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
-                        deepStorageBrowserPresenter.logText(resourceBundle.getString("successFullyDeleteFiles"),
-                                LogType.SUCCESS);
-                    });
+                    // deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
+                    deepStorageBrowserPresenter.logText(resourceBundle.getString("successFullyDeleteFiles"),
+                            LogType.SUCCESS);
                 } catch (final Exception e) {
                     LOG.error("Failed to delete objects", e);
-                    Platform.runLater(() -> deepStorageBrowserPresenter.logText(resourceBundle.getString("deleteFailedError") + e, LogType.ERROR));
-                    ALERT.setContentText(resourceBundle.getString("deleteFailedError"));
-                    ALERT.showAndWait();
+                    deepStorageBrowserPresenter.logText(resourceBundle.getString("deleteFailedError") + e, LogType.ERROR);
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("deleteFailedError"), Alert.AlertType.ERROR);
                 }
                 return null;
             }
         };
-        DeleteFilesPopup.show(deleteFilesTask, ds3Common);
-        values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
+        DeleteFilesPopup.show(deleteFilesTask, this, null, ds3Common);
+        values.forEach(file -> refresh(file.getParent()));
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         ds3TreeTableView.getSelectionModel().clearSelection();
         ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
@@ -691,6 +679,26 @@ public class Ds3PanelPresenter implements Initializable {
         });
     }
 
+    private void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+        LOG.info("Running refresh of row");
+        deepStorageBrowserPresenter.logText(resourceBundle.getString("runningRefresh"), LogType.INFO);
+        if (modifiedTreeItem instanceof Ds3TreeTableItem) {
+            final Ds3TreeTableItem item;
+            if (modifiedTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                item = (Ds3TreeTableItem) modifiedTreeItem.getParent();
+            } else {
+                item = (Ds3TreeTableItem) modifiedTreeItem;
+            }
+            if (item.isExpanded()) {
+                item.refresh();
+            } else if (item.isAccessedChildren()) {
+                item.setExpanded(true);
+                item.refresh();
+            } else {
+                item.setExpanded(true);
+            }
+        }
+    }
 
     private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
@@ -773,8 +781,7 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                         } catch (final Exception e) {
                             LOG.error("Search failed", e);
-                            Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(
-                                    StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR));
+                            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
                         }
                     });
                 });

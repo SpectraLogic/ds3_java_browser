@@ -5,36 +5,25 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ResourceBundle;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
-
-    private static final int PAGE_LENGTH = 1000;
-
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
     private final boolean leaf;
     private final Workers workers;
+    private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
     private TreeTableView ds3TreeTable;
-    private final Ds3Common ds3Common;
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final ResourceBundle myResources =
-            ResourceBundleProperties.getResourceBundle();
-
 
     public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers
             workers, final Ds3Common ds3Common) {
@@ -48,22 +37,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.setGraphic(getIcon(value.getType())); // sets the default icon
     }
 
-    public boolean isAccessedChildren() {
-        return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
-    }
-
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
         switch (type) {
             case Bucket:
-                return new ImageView("/images/bucket.png");
+                return new ImageView(ImageURLs.BUCKET_ICON);
             case Directory:
-                return new ImageView("/images/folder.png");
+                return new ImageView(ImageURLs.FOLDER_ICON);
             case File:
-                return new ImageView("/images/file.png");
+                return new ImageView(ImageURLs.FILE_ICON);
             default:
                 return null;
         }
@@ -73,6 +54,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
     }
 
+    public boolean isAccessedChildren() {
+        return accessedChildren;
+    }
+
+    public void setAccessedChildren(final boolean accessedChildren) {
+        this.accessedChildren = accessedChildren;
+    }
 
     public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
@@ -83,7 +71,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         if (super.getValue() != null) {
             String path = super.getValue().getFullName();
             if (!super.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
-                path = super.getValue().getBucketName() + "/" + path;
+                path = super.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
         }
@@ -119,7 +107,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     // query black pearl in the background and then update the main thread after
     private void buildChildren(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList) {
         final Node previousGraphics = super.getGraphic();
-        final ImageView processImage = new ImageView("/images/loading.gif");
+        final ImageView processImage = new ImageView(ImageURLs.CHILD_LOADER);
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
         super.setGraphic(processImage);

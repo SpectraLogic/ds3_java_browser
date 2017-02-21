@@ -17,10 +17,10 @@ public final class FileSizeFormat {
     public static String getFileSizeType(final long size) {
 
         if (size == 0) {
-            return "--";
+            return StringConstants.TWO_DASH;
         }
         else if(size == -1)
-            return "";
+            return StringConstants.EMPTY_STRING;
         else if (size < sizeKb)
             return dfbytes.format(size) + " Bytes";
         else if (size < sizeMo)
@@ -39,7 +39,7 @@ public final class FileSizeFormat {
 
     public static long convertSizeToByte(final String size) {
 
-        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", ""));
+        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", StringConstants.EMPTY_STRING));
 
         if (size.contains("KB")) {
             return new Double(aFloat * sizeKb).longValue();

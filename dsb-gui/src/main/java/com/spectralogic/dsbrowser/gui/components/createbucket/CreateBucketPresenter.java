@@ -5,8 +5,10 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,13 +23,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
-
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
-
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TextField bucketNameField;
@@ -62,10 +60,6 @@ public class CreateBucketPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
-        ALERT.setHeaderText(null);
-        ALERT.setTitle(resourceBundle.getString("createBucketError"));
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
         initGUIElements();
         //noinspection unchecked
         dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
@@ -111,29 +105,19 @@ public class CreateBucketPresenter implements Initializable {
                     closeDialog();
                 }));
                 createBucketTask.setOnFailed(event -> {
-                    Platform.runLater(() -> {
-                        ALERT.setContentText(resourceBundle.getString("createBucketErrorAlert"));
-                        ALERT.showAndWait();
-                    });
+                    Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
                 });
             } else {
                 LOG.info("Data policy not found");
-                Platform.runLater(() -> {
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
-                    ALERT.setContentText(resourceBundle.getString("dataPolicyNotFoundErr"));
-                    ALERT.showAndWait();
-                });
+                deepStorageBrowserPresenter.logText(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
+                Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("dataPolicyNotFoundErr"), Alert.AlertType.ERROR);
             }
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
-            Platform.runLater(() -> {
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
-                ALERT.setContentText(resourceBundle.getString("createBucketFailedErrAlert"));
-                ALERT.showAndWait();
-            });
+            deepStorageBrowserPresenter.logText(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
         }
-
     }
 
     public void cancelCreateBucket() {
