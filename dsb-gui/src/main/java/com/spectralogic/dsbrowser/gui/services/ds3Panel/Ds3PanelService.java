@@ -263,7 +263,13 @@ public final class Ds3PanelService {
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
         } else {
             try {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
+                final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
+                if (Guard.isNullOrEmpty(selectedItem) && (root != null && root.getValue() != null)) {
+                    selectedItem = FXCollections.observableArrayList();
+                    selectedItem.add(root);
+                }
+
                 final List<Bucket> searchableBuckets = Ds3PanelService.setSearchableBucket(selectedItem, session,
                         ds3TreeTableView);
                 final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
@@ -305,7 +311,7 @@ public final class Ds3PanelService {
         }
     }
 
-    private static void setVisibilityOfItemsInfo(boolean visibility, final Ds3Common ds3Common) {
+    private static void setVisibilityOfItemsInfo(final boolean visibility, final Ds3Common ds3Common) {
         ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(visibility);
         ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(visibility);
 

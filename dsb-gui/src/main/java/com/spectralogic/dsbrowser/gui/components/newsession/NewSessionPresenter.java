@@ -184,7 +184,7 @@ public class NewSessionPresenter implements Initializable {
         LOG.info("Creating new session");
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
         if (!NewSessionModelValidation.validationNewSession(model)) {
-            if (model.getDefaultSession()) {
+            if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item ->
                         item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());
                 if (Guard.isNotNullAndNotEmpty(defaultSession) && !model.getSessionName().equals(defaultSession.get(0).getName())) {
@@ -202,6 +202,7 @@ public class NewSessionPresenter implements Initializable {
                             }
                         }
                     }
+
                 }
             }
             final Session session = createConnectionTask.createConnection(newSessionModel);

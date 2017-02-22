@@ -37,7 +37,9 @@ public final class Ds3Alert {
                 ButtonType.CANCEL
         );
         exitButton.setText(exitButtonText);
+        exitButton.defaultButtonProperty().bind(exitButton.focusedProperty());
         cancelButton.setText(cancelButtonText);
+        cancelButton.defaultButtonProperty().bind(cancelButton.focusedProperty());
         return  ALERT.showAndWait();
     }
 }

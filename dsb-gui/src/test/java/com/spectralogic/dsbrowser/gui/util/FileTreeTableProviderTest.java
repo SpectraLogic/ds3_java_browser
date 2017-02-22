@@ -22,16 +22,6 @@ public class FileTreeTableProviderTest {
         assertTrue(com.spectralogic.ds3client.utils.Guard.isNotNullAndNotEmpty(listRoot));
     }
 
-    @Test
-    public void getPathType() throws Exception {
-        final ClassLoader classLoader = FileTreeTableProviderTest.class.getClassLoader();
-        final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        Path path = null;
-        if (url != null) {
-            path = new File(url.getFile()).toPath();
-        }
-        Assert.assertEquals(FileTreeTableProvider.getPathType(path), FileTreeModel.Type.File);
-    }
 
     /**
      * TEST CASE PRE ASSUMING THAT FOLDER CONTAINS ONLY FILES

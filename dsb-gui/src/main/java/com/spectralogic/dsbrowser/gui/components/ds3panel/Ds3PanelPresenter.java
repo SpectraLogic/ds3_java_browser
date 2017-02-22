@@ -702,63 +702,11 @@ public class Ds3PanelPresenter implements Initializable {
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                filterChanged(ds3PanelSearch.getText());
+                Ds3PanelService.filterChanged(ds3Common , workers);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {
             disableMenu(true);
-        }
-    }
-
-    public void filterChanged(final String newValue) {
-        ds3PathIndicator.setText(resourceBundle.getString("searching"));
-        ds3PathIndicatorTooltip.setText(resourceBundle.getString("searching"));
-        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
-        final Session session = getSession();
-        if (Guard.isStringNullOrEmpty(newValue)) {
-            setVisibilityOfItemsInfo(true);
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-        } else {
-            try {
-                final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = getTreeTableView().getSelectionModel().getSelectedItems();
-                final List<Bucket> searchableBuckets = Ds3PanelService.setSearchableBucket(selectedItem, session,
-                        getTreeTableView());
-                final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-                rootTreeItem.setExpanded(true);
-                ds3TreeTableView.setShowRoot(false);
-                setVisibilityOfItemsInfo(false);
-
-                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets, newValue, session, workers, ds3Common);
-                workers.execute(searchJobTask);
-                searchJobTask.setOnSucceeded(event -> {
-                    LOG.info("Search completed!");
-                    Platform.runLater(() -> {
-                        try {
-                            final List<Ds3TreeTableItem> treeTableItems = searchJobTask.get();
-                            ds3PathIndicator.setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            ds3Common.getDeepStorageBrowserPresenter().logText(
-                                    StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
-                            treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-                            treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
-                            if (rootTreeItem.getChildren().size() == 0) {
-                                ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
-                            }
-                            ds3TreeTableView.setRoot(rootTreeItem);
-                            final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView
-                                    .getColumns().get(1);
-                            if (null != ds3TreeTableValueTreeTableColumn) {
-                                ds3TreeTableValueTreeTableColumn.setVisible(true);
-                            }
-                        } catch (final Exception e) {
-                            LOG.error("Search failed", e);
-                            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
-                        }
-                    });
-                });
-                searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
-            } catch (final Exception e) {
-                LOG.error("Could not complete search: {}", e);
-            }
         }
     }
 

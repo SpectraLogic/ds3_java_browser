@@ -18,15 +18,6 @@ public class FileTreeTableProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableProvider.class);
 
-    static BaseTreeModel.Type getPathType(final Path path) {
-        LOG.info("Get path Type ::" + path.toString());
-        if (Files.isDirectory(path)) {
-            return FileTreeModel.Type.Directory;
-        } else {
-            return FileTreeModel.Type.File;
-        }
-    }
-
     public Stream<FileTreeModel> getRoot(final String rootDir) {
         final File[] files;
         if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
@@ -38,27 +29,7 @@ public class FileTreeTableProvider {
         if (files == null) {
             return null;
         }
-        return Arrays.stream(files).map(file -> {
-            final FileTreeModel.Type type = getRootType(file);
-            final Path path = file.toPath();
-            long size = 0;
-            String lastModified = StringConstants.EMPTY_STRING;
-            try {
-                if ((type == FileTreeModel.Type.Media_Device) || (type == FileTreeModel.Type.Directory)) {
-                    size = 0;
-                } else {
-                    size = Files.size(path);
-                }
-                final FileTime modifiedTime = Files.getLastModifiedTime(path);
-                lastModified = DateFormat.formatDate(modifiedTime.toMillis());
-            } catch (final IOException e) {
-                LOG.error("Failed to get the size of " + path.toString(), e);
-            }
-            if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
-                return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
-            }
-            return new FileTreeModel(file.toPath(), type, size, Paths.get(rootDir).getNameCount(), lastModified);
-        }).filter(p -> p != null);
+        return getDirectChildren(files , rootDir);
     }
 
     private FileTreeModel.Type getRootType(final File file) {
@@ -82,7 +53,7 @@ public class FileTreeTableProvider {
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
             try {
-                final FileTreeModel.Type type = getPathType(filePath);
+                final FileTreeModel.Type type = getRootType(filePath.toFile());
                 final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
                 final String lastModified = DateFormat.formatDate(fileModifiedTime.toMillis());
                 long size = 0;
@@ -95,5 +66,29 @@ public class FileTreeTableProvider {
                 return new FileTreeModel(filePath, FileTreeModel.Type.Error, 0, newDepth, "");
             }
         });
+    }
+
+    private Stream<FileTreeModel> getDirectChildren(final File[] files , final String rootDir) {
+         return Arrays.stream(files).map(file -> {
+            final FileTreeModel.Type type = getRootType(file);
+            final Path path = file.toPath();
+            long size = 0;
+            String lastModified = StringConstants.EMPTY_STRING;
+            try {
+                if ((type == FileTreeModel.Type.Media_Device) || (type == FileTreeModel.Type.Directory)) {
+                    size = 0;
+                } else {
+                    size = Files.size(path);
+                }
+                final FileTime modifiedTime = Files.getLastModifiedTime(path);
+                lastModified = DateFormat.formatDate(modifiedTime.toMillis());
+            } catch (final IOException e) {
+                LOG.error("Failed to get the size of " + path.toString(), e);
+            }
+            if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
+                return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
+            }
+            return new FileTreeModel(file.toPath(), type, size, Paths.get(rootDir).getNameCount(), lastModified);
+        }).filter(p -> p != null);
     }
 }

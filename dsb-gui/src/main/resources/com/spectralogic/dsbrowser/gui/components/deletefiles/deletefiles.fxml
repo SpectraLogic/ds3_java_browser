@@ -23,9 +23,9 @@
         <HBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
               minWidth="-Infinity" prefHeight="29.0" prefWidth="339.0" spacing="10.0">
             <children>
-                <Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="deleteButton" mnemonicParsing="false" text="Delete"
                         onAction="#deleteFiles"/>
-                <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelDelete" text="Cancel"/>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button cancelButton="true" mnemonicParsing="false" onAction="#cancelDelete" text="Cancel"/>
             </children>
             <VBox.margin>
                 <Insets bottom="10.0" right="10.0"/>

@@ -39,8 +39,8 @@
                                         <TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" prefHeight="18.0" prefWidth="150.0" GridPane.columnIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                             <children>
-                                                <Button fx:id="saveSettingsButton" mnemonicParsing="false" onAction="#saveLogSettings" />
-                                                <Button fx:id="cancelSettingsButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsButton" mnemonicParsing="false" onAction="#saveLogSettings" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0" />
@@ -53,7 +53,7 @@
                                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                                     </padding>
                                 </GridPane>
-                                <Button fx:id="browseButton" layoutX="465.0" layoutY="15.0" mnemonicParsing="false" onAction="#showFileExplorer" prefWidth="25.0" />
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="browseButton" layoutX="465.0" layoutY="15.0" mnemonicParsing="false" onAction="#showFileExplorer" prefWidth="25.0" />
                             </children>
                         </AnchorPane>
 
@@ -79,8 +79,8 @@
                                         <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <children>
-                                                <Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#saveLogSettings" />
-                                                <Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#saveLogSettings" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0" />
@@ -126,8 +126,8 @@
                                         <!--<TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" GridPane.columnIndex="1" />-->
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                             <children>
-                                                <Button fx:id="saveSettingsJobButton" mnemonicParsing="false" onAction="#saveJobSettings" />
-                                                <Button fx:id="cancelSettingsJobButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsJobButton" mnemonicParsing="false" onAction="#saveJobSettings" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsJobButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0" />
@@ -172,8 +172,8 @@
                                         <CheckBox fx:id="filePropertiesCheckbox" alignment="CENTER" mnemonicParsing="false" GridPane.columnIndex="1" />
                                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <Button fx:id="saveFilePropertiesEnableButton" mnemonicParsing="false" onAction="#saveFilePropertiesSettings" prefWidth="70.0" />
-                                                <Button fx:id="cancelFilePropertiesEnableButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" prefWidth="80.0" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveFilePropertiesEnableButton" mnemonicParsing="false" onAction="#saveFilePropertiesSettings" prefWidth="70.0" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelFilePropertiesEnableButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" prefWidth="80.0" />
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0" />

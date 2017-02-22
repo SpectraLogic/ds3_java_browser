@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
@@ -67,25 +68,28 @@ public class CreateService {
 
     @SuppressWarnings("unchecked")
     public static void createFolderPrompt(final Ds3Common ds3Common) {
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        if (values.isEmpty()) {
-            ds3Common.getDeepStorageBrowserPresenter().logText("Select bucket/folder where you want to create an empty folder.", LogType.ERROR);
-            Ds3Alert.show(null, "Location is not selected", Alert.AlertType.ERROR);
-            return;
-        } else if (values.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-            values = builder.add(root).build().asList();
-        }
+
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.error("You can not create folder here. Please refresh your view");
             Ds3Alert.show(null, "You can not create folder here. Please refresh your view", Alert.AlertType.ERROR);
             return;
         }
-        if (values.size() > 1) {
+        else if (values.size() > 1) {
             LOG.error("Only a single location can be selected to create empty folder");
             Ds3Alert.show(null, "Only a single location can be selected to create empty folder", Alert.AlertType.ERROR);
+            return;
+        }
+
+        else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
+            values = builder.add(root).build().asList();
+        }
+        else if (Guard.isNullOrEmpty(values)) {
+            ds3Common.getDeepStorageBrowserPresenter().logText("Select bucket/folder where you want to create an empty folder.", LogType.ERROR);
+            Ds3Alert.show(null, "Location is not selected", Alert.AlertType.ERROR);
             return;
         }
         final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
