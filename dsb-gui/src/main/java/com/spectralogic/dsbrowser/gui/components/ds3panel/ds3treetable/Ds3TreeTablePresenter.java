@@ -578,6 +578,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3PanelPresenter.getDs3PathIndicator().setText(path);
                 ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(path);
                 manageItemsCount(selectedItem);
+            } else {
+                ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
+                ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
             }
             final String info = StringBuilderUtil.setSelectedItemCount(ds3TreeTable.getExpandedItemCount(), ds3TreeTable.getSelectionModel().getSelectedItems().size());
             ds3PanelPresenter.getPaneItems().setVisible(true);

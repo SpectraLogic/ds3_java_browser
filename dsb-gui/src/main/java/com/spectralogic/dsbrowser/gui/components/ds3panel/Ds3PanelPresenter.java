@@ -132,11 +132,7 @@ public class Ds3PanelPresenter implements Initializable {
     @Inject
     private SavedSessionStore savedSessionStore;
 
-    private TreeTableView<Ds3TreeTableValue> ds3TreeTableView = null;
-
     private GetNoOfItemsTask itemsTask;
-    private ObservableList<TreeItem<Ds3TreeTableValue>> selectedItemTemp;
-
 
     public Ds3PanelPresenter() {
         super();
@@ -196,6 +192,10 @@ public class Ds3PanelPresenter implements Initializable {
             if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
                 getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                 getDs3PathIndicator().setTooltip(null);
+                capacityLabel.setText(StringConstants.EMPTY_STRING);
+                capacityLabel.setVisible(false);
+                infoLabel.setText(StringConstants.EMPTY_STRING);
+                infoLabel.setVisible(false);
             } else {
                 getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
             }
@@ -334,8 +334,7 @@ public class Ds3PanelPresenter implements Initializable {
                 jobId = recoverInterruptedJob.getUuid();
             }
             if (getSession() != null) {
-                final UUID finalJobId = jobId;
-                if (finalJobId != null) {
+                if (jobId != null) {
 
                     final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
 
@@ -550,7 +549,7 @@ public class Ds3PanelPresenter implements Initializable {
             LOG.info("Going delete the folder");
             final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
             if (treeItem != null) {
-                DeleteService.deleteFolder(ds3Common, values, workers);
+                DeleteService.deleteFolder(ds3Common, values);
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going delete the bucket");

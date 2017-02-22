@@ -4,15 +4,19 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
-import com.spectralogic.dsbrowser.gui.util.*;
-import javafx.application.Platform;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
+import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -22,9 +26,9 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class DeleteFilesPresenter implements Initializable {
+public class DeleteItemPresenter implements Initializable {
 
-    private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(DeleteItemPresenter.class);
 
     @FXML
     private TextField deleteField;
@@ -66,7 +70,7 @@ public class DeleteFilesPresenter implements Initializable {
             });
             deleteField.setOnKeyReleased(event -> {
                 if (!deleteButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
-                    deleteFiles();
+                    deleteItems();
                 }
             });
 
@@ -97,23 +101,13 @@ public class DeleteFilesPresenter implements Initializable {
         }
     }
 
-    public void deleteFiles() {
-        deleteTask.setOnCancelled(event -> {
-            LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
-            printLog(LogType.ERROR);
-            closeDialog();
-        });
-        deleteTask.setOnFailed(event -> {
-            LOG.error("Failed to delete Buckets", ((Ds3DeleteBucketTask) deleteTask).getErrorMsg());
-            Platform.runLater(() -> {
-                printLog(LogType.ERROR);
-                closeDialog();
-            });
-            Ds3Alert.show(resourceBundle.getString("deleteFolderErrAlert"), resourceBundle.getString("deleteErrLogs"), Alert.AlertType.ERROR);
-        });
+    public void deleteItems() {
+
+        deleteTask.setOnCancelled(event -> constructMessageForLog());
+        deleteTask.setOnFailed(event -> constructMessageForLog());
         deleteTask.setOnSucceeded(event -> {
-            printLog(LogType.SUCCESS);
-            closeDialog();
+            DeleteService.managePathIndicator(ds3Common, workers);
+            printLog(LogType.SUCCESS, resourceBundle.getString("deleteSuccess"), null);
         });
         workers.execute(deleteTask);
     }
@@ -128,14 +122,35 @@ public class DeleteFilesPresenter implements Initializable {
         popupStage.close();
     }
 
-    private void printLog(final LogType type) {
+    private void constructMessageForLog() {
+        String message = null;
+        String alertMessage = null;
+
+        if (deleteTask instanceof Ds3DeleteBucketTask) {
+            alertMessage = resourceBundle.getString("deleteBucketErr");
+            message = alertMessage + StringConstants.SPACE
+                    + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg();
+        } else if (deleteTask instanceof Ds3DeleteFolderTask) {
+            alertMessage = resourceBundle.getString("folderDeleteFailed");
+            message = alertMessage + StringConstants.SPACE
+                    + ((Ds3DeleteFolderTask) deleteTask).getErrorMsg();
+        } else if (deleteTask instanceof Ds3DeleteFilesTask) {
+            alertMessage = resourceBundle.getString("deleteFailedError");
+            message = alertMessage + StringConstants.SPACE
+                    + ((Ds3DeleteFilesTask) deleteTask).getErrorMsg();
+        }
+
+        printLog(LogType.ERROR, message, alertMessage);
+    }
+
+    private void printLog(final LogType type, final String message, final String alertMessage) {
+        ds3Common.getDeepStorageBrowserPresenter().logText(message, type);
+        closeDialog();
         if (type.equals(LogType.ERROR)) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("deleteBucketErr") + StringConstants.SPACE
-                            + ((Ds3DeleteBucketTask) deleteTask).getErrorMsg(), LogType.ERROR);
+            LOG.error("Failed to delete selected item(s) ", message);
+            Ds3Alert.show(null, alertMessage, Alert.AlertType.INFORMATION);
         } else {
-            ds3Common.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("deleteBucketSuccess"), LogType.SUCCESS);
+            LOG.error("Success to delete selected item(s):{} ", message);
         }
     }
 }

@@ -38,19 +38,24 @@ public class Ds3DeleteBucketTaskTest {
     public void deleteBucket() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final Ds3DeleteBucketTask deleteBucketTask = new Ds3DeleteBucketTask(session.getClient(),
-                    "EMPTY_BUCKET");
-            workers.execute(deleteBucketTask);
-            deleteBucketTask.setOnSucceeded(event -> {
-                successFlag = true;
+            try {
+                final Ds3DeleteBucketTask deleteBucketTask = new Ds3DeleteBucketTask(session.getClient(),
+                        SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME);
+                workers.execute(deleteBucketTask);
+                deleteBucketTask.setOnSucceeded(event -> {
+                    successFlag = true;
+                    latch.countDown();
+                });
+                deleteBucketTask.setOnFailed(event -> {
+                    latch.countDown();
+                });
+                deleteBucketTask.setOnCancelled(event -> {
+                    latch.countDown();
+                });
+            } catch (final Exception e) {
+                e.printStackTrace();
                 latch.countDown();
-            });
-            deleteBucketTask.setOnFailed(event -> {
-                latch.countDown();
-            });
-            deleteBucketTask.setOnCancelled(event -> {
-                latch.countDown();
-            });
+            }
         });
         latch.await();
         assertTrue(successFlag);
