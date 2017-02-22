@@ -26,6 +26,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -122,13 +123,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3DeleteObject());
+        deleteFile.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3DeleteObject());
+        deleteFolder.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3DeleteObject());
+        deleteBucket.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers));
@@ -143,40 +144,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
-    }
-
-    private void ds3DeleteObject() {
-        LOG.info("Got delete bucket event");
-
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
-
-        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
-        if (values.isEmpty()) {
-            if (root == null) {
-                LOG.info("No files selected");
-                return;
-            } else {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                values = builder.add(root).build().asList();
-            }
-        }
-
-        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
-            LOG.info("Going delete the folder");
-            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            if (treeItem != null) {
-                DeleteService.deleteFolder(ds3Common, values, workers);
-            }
-        } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
-            LOG.info("Going delete the bucket");
-            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            if (treeItem != null) {
-                DeleteService.deleteBucket(ds3Common, values, workers);
-            }
-        } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
-            LOG.info("Going delete the file(s)");
-            DeleteService.deleteFiles(ds3Common, values, workers);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -300,24 +267,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             row.setOnContextMenuRequested(event -> setContextMenuBehaviour());
 
-            row.setOnDragDetected(event ->
-                    {
-                        LOG.info("Drag detected...");
-                        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
-                        final List<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(Collectors.toList());
-                        final List<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(Collectors.toList());
-                        if (!selectedI.isEmpty()) {
-                            LOG.info("Starting drag and drop event");
-                            final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
-                            final ClipboardContent content = new ClipboardContent();
-                            content.put(dataFormat, selected);
-                            content.putString(session.getSessionName() + "-" + session.getEndpoint());
-                            content.putFilesByPath(selected.stream().map(Ds3TreeTableValueCustom::getName).collect(GuavaCollectors.immutableList()));
-                            db.setContent(content);
-                        }
-                        event.consume();
-                    }
-            );
+            row.setOnDragDetected(this::handleDragDetectedEvent);
 
             row.setOnDragOver(event ->
                     {
@@ -634,4 +584,22 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3PanelPresenter.getPaneItems().setText(info);
         }
     }
+
+    private void handleDragDetectedEvent(final Event event) {
+        LOG.info("Drag detected...");
+        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+        final List<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(Collectors.toList());
+        final List<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(Collectors.toList());
+        if (!Guard.isNullOrEmpty(selectedI)) {
+            LOG.info("Starting drag and drop event");
+            final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
+            final ClipboardContent content = new ClipboardContent();
+            content.put(dataFormat, selected);
+            content.putString(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint());
+            content.putFilesByPath(selected.stream().map(Ds3TreeTableValueCustom::getName).collect(GuavaCollectors.immutableList()));
+            db.setContent(content);
+        }
+        event.consume();
+    }
+
 }

@@ -1,22 +1,19 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.commands.DeleteObjectsRequest;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
-import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -50,7 +47,10 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class Ds3PanelPresenter implements Initializable {
@@ -219,7 +219,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void initListeners() {
-        ds3DeleteButton.setOnAction(event -> ds3DeleteObjects());
+        ds3DeleteButton.setOnAction(event -> ds3DeleteObject());
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
@@ -247,10 +247,7 @@ public class Ds3PanelPresenter implements Initializable {
                             ds3Common.setDs3TreeTableView(ds3TreeTableView1);
                             ds3Common.setCurrentTabPane(ds3SessionTabPane);
                             ds3Common.setDs3TreeTableView(ds3TreeTableView1);
-                            final String info = ds3TreeTableView1.getExpandedItemCount() + StringConstants
-                                    .SPACE + resourceBundle.getString("items") + StringConstants.SPACE + StringConstants.COMMA
-                                    + ds3TreeTableView1.getSelectionModel().getSelectedItems().size() +
-                                    StringConstants.SPACE + resourceBundle.getString("itemsSelected");
+                            final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView1.getExpandedItemCount(), ds3TreeTableView1.getSelectionModel().getSelectedItems().size()).toString();
                             if (Guard.isNullOrEmpty(values)) {
                                 setBlank(true);
                             } else {
@@ -533,120 +530,38 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    private void ds3DeleteObjects() {
-        final Session session = getSession();
-        if (session != null) {
-            ds3TreeTableView = getTreeTableView();
-            ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                    .stream().collect(GuavaCollectors.immutableList());
-            final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
-            if (Guard.isNullOrEmpty(values) && null == selectedRoot) {
-                LOG.info("No files selected");
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noFiles"), Alert.AlertType.INFORMATION);
-                return;
-            } else if (Guard.isNullOrEmpty(values)) {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                values = builder.add(selectedRoot).build().asList();
-            }
-            if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-                LOG.info("You can not delete from here. Please go to specific location and delete object(s)");
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("canNotDeleteFromLocation"), Alert.AlertType.INFORMATION);
-                return;
-            }
-            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
-                LOG.info("You can only recursively delete a folder.  Please select the folder to delete, " +
-                        "Right click, and select 'Delete Folder...'");
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("canRecursivelyDelete"), Alert.AlertType.INFORMATION);
-                return;
-            }
-            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
-                final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-                if (treeItem != null) {
-                    final String bucketName = treeItem.getValue().getBucketName();
-                    deleteBucket(session, bucketName, values);
-                }
-            }
-            if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
-                deleteFiles(session, values);
-            }
-        } else {
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
-        }
-    }
-
-    /**
-     * Delete a Single Selected Spectra S3 bucket
-     *
-     * @param session    session object
-     * @param bucketName bucket name
-     * @param values     selected items
-     */
-    private void deleteBucket(final Session session, final String bucketName, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void ds3DeleteObject() {
         LOG.info("Got delete bucket event");
-        final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue)
-                .map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-        if (buckets.size() > 1) {
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
-            LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.ERROR);
-            return;
-        }
-        final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
-        if (!Ds3PanelService.checkIfBucketEmpty(value.getValue().getBucketName(), getSession())) {
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteFilledBucketAlert"), Alert.AlertType.ERROR);
-        } else {
-            final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(session.getClient(), bucketName);
-            DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
-            ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-            ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
-        }
-    }
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
 
-    /**
-     * Delete multiple selected files
-     *
-     * @param session session object
-     * @param values  selected items
-     */
-    private void deleteFiles(final Session session, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
-        LOG.info("Got delete files event");
-        final Ds3Task deleteFilesTask = new Ds3Task(session.getClient()) {
-
-            final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
-                    .stream()
-                    .map(TreeItem::getValue)
-                    .collect(GuavaCollectors.immutableList())
-            );
-
-            final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue)
-                    .map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    getClient().deleteObjects(new DeleteObjectsRequest(buckets.get(0), filesToDelete.stream().map(Ds3TreeTableValue::getFullName).collect(GuavaCollectors.immutableList())));
-                    // deepStorageBrowserPresenter.logText("Delete response code: " + response.getStatusCode(), LogType.SUCCESS);
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("successFullyDeleteFiles"),
-                            LogType.SUCCESS);
-                } catch (final Exception e) {
-                    LOG.error("Failed to delete objects", e);
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("deleteFailedError") + e, LogType.ERROR);
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("deleteFailedError"), Alert.AlertType.ERROR);
-                }
-                return null;
+        final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
+        if (Guard.isNullOrEmpty(values)) {
+            if (root == null) {
+                LOG.info("No files selected");
+                return;
+            } else {
+                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
+                values = builder.add(root).build().asList();
             }
-        };
+        }
 
-        DeleteFilesPopup.show(deleteFilesTask, ds3Common);
-        values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
-
-        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
-        ds3TreeTableView.getSelectionModel().clearSelection();
-        ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-        ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
+        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
+            LOG.info("Going delete the folder");
+            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
+            if (treeItem != null) {
+                DeleteService.deleteFolder(ds3Common, values, workers);
+            }
+        } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
+            LOG.info("Going delete the bucket");
+            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
+            if (treeItem != null) {
+                DeleteService.deleteBucket(ds3Common, values, workers);
+            }
+        } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
+            LOG.info("Going delete the file(s)");
+            DeleteService.deleteFiles(ds3Common, values, workers);
+        }
     }
 
     private void initTabPane() {
@@ -702,7 +617,7 @@ public class Ds3PanelPresenter implements Initializable {
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                Ds3PanelService.filterChanged(ds3Common , workers);
+                Ds3PanelService.filterChanged(ds3Common, workers);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {

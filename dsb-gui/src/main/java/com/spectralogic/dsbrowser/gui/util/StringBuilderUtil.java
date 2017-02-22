@@ -363,4 +363,14 @@ public class StringBuilderUtil {
                 .append(DateFormat.formatDate(new Date()));
 
     }
+
+    public static StringBuilder getPaneItemsString(final int expandedItemCount,final int size) {
+        return new StringBuilder().append(expandedItemCount)
+                .append(SPACE)
+                .append(resourceBundle.getString("items"))
+                .append(SPACE)
+                .append(size)
+                .append(SPACE)
+                .append(resourceBundle.getString("itemsSelected"));
+    }
 }
