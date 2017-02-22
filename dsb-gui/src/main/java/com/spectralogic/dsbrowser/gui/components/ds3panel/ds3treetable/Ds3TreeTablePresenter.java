@@ -489,6 +489,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (Guard.isNullOrEmpty(selectedItems)) {
             selectedItems = FXCollections.observableArrayList();
             selectedItems.add(ds3TreeTable.getRoot());
+            createBucket.setDisable(false);
         } else if (selectedItems.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.error("You can not delete from here. Please go to specific location and delete object(s)");
             deleteFile.setDisable(false);

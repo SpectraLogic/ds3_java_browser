@@ -19,12 +19,24 @@ public class SessionModelService {
 
     public static NewSessionModel copy(final NewSessionModel model) {
         final NewSessionModel newModel = new NewSessionModel();
-        newModel.setSessionName(model.getSessionName());
-        newModel.setEndpoint(model.getEndpoint());
-        newModel.setAccessKey(model.getAccessKey());
-        newModel.setPortno(model.getPortNo());
-        newModel.setSecretKey(model.getSecretKey());
-        newModel.setProxyServer(model.getProxyServer());
+        if (model.getSessionName() != null) {
+            newModel.setSessionName(model.getSessionName().trim());
+        }
+        if (model.getEndpoint() != null) {
+            newModel.setEndpoint(model.getEndpoint().trim());
+        }
+        if (model.getAccessKey() != null) {
+            newModel.setAccessKey(model.getAccessKey().trim());
+        }
+        if (model.getPortNo() != null) {
+            newModel.setPortno(model.getPortNo().trim());
+        }
+        if (model.getSecretKey() != null) {
+            newModel.setSecretKey(model.getSecretKey().trim());
+        }
+        if (model.getProxyServer() != null) {
+            newModel.setProxyServer(model.getProxyServer().trim());
+        }
         newModel.setDefaultSession(model.getDefaultSession());
         return newModel;
     }

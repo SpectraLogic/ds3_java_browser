@@ -285,6 +285,7 @@ public final class Ds3PanelService {
                         try {
                             final List<Ds3TreeTableItem> treeTableItems = searchJobTask.get();
                             ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
+                            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3Common.getDeepStorageBrowserPresenter().logText(
                                     StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));

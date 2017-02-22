@@ -213,7 +213,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         } else {
             getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-            getDs3PathIndicatorTooltip().setText(null);
+            getDs3PathIndicator().setTooltip(null);
 
         }
     }
@@ -533,19 +533,17 @@ public class Ds3PanelPresenter implements Initializable {
         LOG.info("Got delete bucket event");
         final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
-
         final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
         if (Guard.isNullOrEmpty(values)) {
-            if (root == null) {
+            if (root.getValue() == null) {
                 LOG.info("No files selected");
+                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
                 return;
             } else {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(root).build().asList();
             }
-        }
-
-        if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
+        } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             LOG.info("Going delete the folder");
             final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
             if (treeItem != null) {

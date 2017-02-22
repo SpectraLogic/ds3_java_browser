@@ -183,7 +183,7 @@ public class NewSessionPresenter implements Initializable {
     public void saveSession() {
         LOG.info("Creating new session");
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
-        if (!NewSessionModelValidation.validationNewSession(model)) {
+        if (!NewSessionModelValidation.validationNewSession(newSessionModel)) {
             if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item ->
                         item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());
@@ -201,6 +201,10 @@ public class NewSessionPresenter implements Initializable {
                                 LOG.error("Unable to save saved session:{} ", e);
                             }
                         }
+                    }
+                    else {
+                        newSessionModel.setDefaultSession(false);
+                        model.setDefaultSession(false);
                     }
 
                 }
