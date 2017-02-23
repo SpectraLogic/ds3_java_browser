@@ -7,17 +7,15 @@ import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.HeadObjectRequest;
 import com.spectralogic.ds3client.commands.HeadObjectResponse;
-import com.spectralogic.ds3client.commands.spectrads3.*;
+import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
+import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
-import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
-import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
-import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -50,7 +48,7 @@ public final class Ds3PanelService {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     /**
-     * check if bucket contains files or folders
+     * check if bucket contains or folders
      *
      * @param bucketName bucketName
      * @return true if bucket is empty else return false
@@ -123,7 +121,7 @@ public final class Ds3PanelService {
         ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        if (tempValues.isEmpty()) {
+        if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
             LOG.error("Nothing selected");
             Ds3Alert.show(null, "Nothing selected !!", Alert.AlertType.INFORMATION);
             return;
@@ -200,30 +198,6 @@ public final class Ds3PanelService {
             final MetadataView metadataView = new MetadataView(getMetadata.getValue());
             Popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
         }));
-    }
-
-    private static class GetDirectoryObjects extends Task<ListBucketResult> {
-        final String bucketName, directoryFullName;
-        final Ds3Common ds3Common;
-
-        public GetDirectoryObjects(final String bucketName, final String directoryFullName, final Ds3Common ds3Common) {
-            this.bucketName = bucketName;
-            this.directoryFullName = directoryFullName;
-            this.ds3Common = ds3Common;
-        }
-
-        @Override
-        protected ListBucketResult call() throws Exception {
-            try {
-                final GetBucketRequest request = new GetBucketRequest(bucketName);
-                request.withPrefix(directoryFullName);
-                final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
-                return bucketResponse.getListBucketResult();
-            } catch (final Exception e) {
-                LOG.error("unable to get bucket response", e);
-                return null;
-            }
-        }
     }
 
     /**
@@ -316,6 +290,30 @@ public final class Ds3PanelService {
         ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(visibility);
         ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(visibility);
 
+    }
+
+    private static class GetDirectoryObjects extends Task<ListBucketResult> {
+        final String bucketName, directoryFullName;
+        final Ds3Common ds3Common;
+
+        public GetDirectoryObjects(final String bucketName, final String directoryFullName, final Ds3Common ds3Common) {
+            this.bucketName = bucketName;
+            this.directoryFullName = directoryFullName;
+            this.ds3Common = ds3Common;
+        }
+
+        @Override
+        protected ListBucketResult call() throws Exception {
+            try {
+                final GetBucketRequest request = new GetBucketRequest(bucketName);
+                request.withPrefix(directoryFullName);
+                final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
+                return bucketResponse.getListBucketResult();
+            } catch (final Exception e) {
+                LOG.error("unable to get bucket response", e);
+                return null;
+            }
+        }
     }
 
 }

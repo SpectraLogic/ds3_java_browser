@@ -157,7 +157,7 @@ public class SavedSessionStore {
         }
     }
 
-    private static class SerializedSessionStore {
+    public static class SerializedSessionStore {
         @JsonProperty("sessions")
         private final List<SavedSession> sessions;
 

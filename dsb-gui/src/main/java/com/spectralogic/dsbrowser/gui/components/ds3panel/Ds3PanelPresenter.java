@@ -383,6 +383,7 @@ public class Ds3PanelPresenter implements Initializable {
                 addNewTab.setTooltip(null);
             }
         }
+    }
 
     private void setBlank(final boolean isSetBlank) {
         if (isSetBlank) {

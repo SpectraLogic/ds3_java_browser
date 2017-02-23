@@ -20,7 +20,7 @@ public class JsonMappingTest {
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
         final SavedCredentials savedCredentials = new SavedCredentials("c3VsYWJo", "vFSV6Zf5");
-        final SavedSession savedSession = new SavedSession("Sulabh", "192.168.11.193","8080", null, savedCredentials);
+        final SavedSession savedSession = new SavedSession("Sulabh", "192.168.11.193","8080", null, savedCredentials,false);
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
@@ -36,7 +36,7 @@ public class JsonMappingTest {
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
         final SavedCredentials savedCredentials = new SavedCredentials("c3VsYWJo", "vFSV6Zf5");
         final SavedSession savedSession = new SavedSession("Sulabh", "192.168.11.193",
-                "8080", null, savedCredentials);
+                "8080", null, savedCredentials , false);
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
