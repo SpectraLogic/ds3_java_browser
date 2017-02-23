@@ -11,7 +11,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -29,7 +28,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         // list view
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
-        listView.setPlaceholder(new Label(resourceBundle.getString("notaskRunning")));
+        listView.setPlaceholder(new Label(resourceBundle.getString("noTaskRunning")));
         listView.setCellFactory(param -> new TaskCell());
         listView.setFocusTraversable(false);
 
@@ -105,7 +104,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
             if (empty || task == null) {
                 getStyleClass().setAll("task-list-cell-empty");
                 setGraphic(null);
-            } else if (task != null) {
+            } else {
                 getStyleClass().setAll("task-list-cell");
                 progressBar.progressProperty().bind(task.progressProperty());
                 titleText.textProperty().bind(task.titleProperty());

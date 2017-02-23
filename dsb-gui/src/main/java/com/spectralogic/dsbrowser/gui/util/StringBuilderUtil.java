@@ -321,8 +321,16 @@ public class StringBuilderUtil {
         }
     }
 
-    public static String setSelectedItemCount(final int expandedItemCount, final int selectedItemCount) {
-        return expandedItemCount + " item(s), " + selectedItemCount + " item(s) selected";
+    public static StringBuilder getSelectedItemCountInfo(final int expandedItemCount, final int selectedItemCount) {
+        return new StringBuilder()
+                .append(expandedItemCount)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("items"))
+                .append(StringConstants.COMMA)
+                .append(StringConstants.SPACE)
+                .append(selectedItemCount)
+                .append(StringConstants.SPACE)
+                .append(resourceBundle.getString("itemsSelected"));
     }
 
     public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client) {
@@ -364,7 +372,7 @@ public class StringBuilderUtil {
 
     }
 
-    public static StringBuilder getPaneItemsString(final int expandedItemCount,final int size) {
+    public static StringBuilder getPaneItemsString(final int expandedItemCount, final int size) {
         return new StringBuilder().append(expandedItemCount)
                 .append(SPACE)
                 .append(resourceBundle.getString("items"))

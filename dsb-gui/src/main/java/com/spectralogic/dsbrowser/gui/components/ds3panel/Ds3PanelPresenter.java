@@ -349,6 +349,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
     }
+
     private void closeTab(final Tab closedTab) {
         {
             try {
@@ -537,7 +538,7 @@ public class Ds3PanelPresenter implements Initializable {
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {
                 LOG.info("No files selected");
-                Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
                 return;
             } else {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();

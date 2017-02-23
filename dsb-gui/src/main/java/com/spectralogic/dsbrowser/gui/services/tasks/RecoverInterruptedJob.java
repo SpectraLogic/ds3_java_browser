@@ -155,7 +155,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             isJobFailed = true;
             LOG.error("Request to black pearl failed", e);
             endpointInfo.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("jobNotfound"), LogType.INFO);
+                    resourceBundle.getString("jobNotFound"), LogType.INFO);
             cancel();
         } catch (final Exception e) {
             isJobFailed = true;

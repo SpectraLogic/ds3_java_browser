@@ -24,6 +24,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -103,6 +104,10 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
 
+    final ObservableMap<Integer, Node> disclosureNodeMap = FXCollections.observableHashMap();
+
+    private boolean isFirstTime = true;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -121,7 +126,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setOnDragEntered(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragOver(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragDropped(event -> {
-            handleDropEvent(event , null);
+            handleDropEvent(event, null);
             event.consume();
         });
     }
@@ -191,9 +196,16 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setRoot(rootTreeItem);
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
-            final String info = ds3TreeTable.getExpandedItemCount() + " item(s), " + ds3TreeTable.getSelectionModel().getSelectedItems().size() + " item(s) selected";
+            final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
+                    ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
             ds3PanelPresenter.getPaneItems().setVisible(true);
             ds3PanelPresenter.getPaneItems().setText(info);
+            //Make Select All menu item disable if current visible item is Bucket or empty else enable it
+            if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
+                ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(true);
+            } else {
+                ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
+            }
         });
 
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
@@ -206,14 +218,11 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
 
-            children.forEach(i -> i.expandedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
-                    final BooleanProperty bb = (BooleanProperty) observable;
-                    final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                    ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
-                    ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
-                }
+            children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                final BooleanProperty bb = (BooleanProperty) observable;
+                final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
+                ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
             }));
 
             fileName.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, String>() {
@@ -278,35 +287,41 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             row.setOnDragDetected(this::handleDragDetectedEvent);
 
-            row.setOnDragOver(event ->
-                    {
-                        setDragOverBehaviour(event , row);
-                    }
-            );
+            row.setOnDragOver(event -> setDragOverBehaviour(event, row));
 
-            row.setOnDragEntered(event ->
-                    {
-                        setDragEnteredBehaviour(event , row);
-                    }
-            );
+            row.setOnDragEntered(event -> setDragEnteredBehaviour(event, row));
 
-            row.setOnDragExited(event ->
-                    {
-                        row.setEffect(null);
-                        event.consume();
-                    }
-            );
+            row.setOnDragExited(event -> {
+                row.setEffect(null);
+                event.consume();
+            });
 
-            row.setOnDragDropped(event -> handleDropEvent(event, row)
-
-            );
+            row.setOnDragDropped(event -> handleDropEvent(event, row));
             row.setOnMouseClicked(event -> setBehaviorOnMouseClick(event, row));
             row.setContextMenu(contextMenu);
+
+            //Set item property listener on row for maintaining expand property
+            row.treeItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (null != ds3TreeTable.getRoot().getValue()) {
+                    //Set disclosure node of row to null if it is child of bucket
+                    row.setDisclosureNode(null);
+                    isFirstTime = false;
+                } else {
+                    if (isFirstTime && null != row.getDisclosureNode()) {
+                        //Put disclosure nodes into disclosureNodeMap so that
+                        // we can use this to set on row to make it expandable
+                        disclosureNodeMap.put(row.getIndex(), row.getDisclosureNode());
+                    } else if (null != disclosureNodeMap.get(row.getIndex())) {
+                        //Set disclosure node on row to make it expandable in case of bucket
+                        row.setDisclosureNode(disclosureNodeMap.get(row.getIndex()));
+                    }
+                }
+            });
             return row;
         }
     }
 
-    private void setDragEnteredBehaviour(final DragEvent event,final TreeTableRow<Ds3TreeTableValue> row) {
+    private void setDragEnteredBehaviour(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
         if (selectedItem != null) {
             final InnerShadow is = new InnerShadow();
@@ -316,7 +331,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         event.consume();
     }
 
-    private void setDragOverBehaviour(final DragEvent event,final TreeTableRow<Ds3TreeTableValue> row) {
+    private void setDragOverBehaviour(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
         if (selectedItem != null) {
             if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
@@ -333,10 +348,9 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private TreeItem<Ds3TreeTableValue> getSelectedItem(final TreeTableRow<Ds3TreeTableValue> row) {
         final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
-        if((row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null) && root.getValue() != null){
+        if ((row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null) && root.getValue() != null) {
             return root;
-        }
-        else if(row != null){
+        } else if (row != null) {
             return row.getTreeItem();
         }
         return null;
@@ -352,13 +366,14 @@ public class Ds3TreeTablePresenter implements Initializable {
         {
             LOG.info("Got drop event");
             final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
-            if (selectedItem != null) {
+            if (null != selectedItem) {
                 if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
                     LOG.info("Expanding closed row");
                     selectedItem.setExpanded(true);
                 }
             }
-            if (!selectedItem.getValue().isSearchOn()) {
+            if (null != selectedItem && null != selectedItem.getValue() &&
+                    !selectedItem.getValue().isSearchOn()) {
                 final Dragboard db = event.getDragboard();
                 if (db.hasFiles()) {
                     LOG.info("Drop event contains files");
@@ -614,7 +629,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
                 ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
             }
-            final String info = StringBuilderUtil.setSelectedItemCount(ds3TreeTable.getExpandedItemCount(), ds3TreeTable.getSelectionModel().getSelectedItems().size());
+            final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
+                    ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
             ds3PanelPresenter.getPaneItems().setVisible(true);
             ds3PanelPresenter.getPaneItems().setText(info);
         }

@@ -4,6 +4,7 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.JobInfoView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
@@ -21,6 +22,8 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -75,7 +78,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private ScrollPane scrollPane;
 
     @FXML
-    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, selectAllInFolderItem, selectAllInBucketItem;
+    private MenuItem aboutMenuItem, closeMenuItem, sessionsMenuItem, settingsMenuItem, selectAllItem;
 
     @FXML
     private Menu fileMenu, helpMenu, viewMenu, editMenu;
@@ -225,12 +228,12 @@ public class DeepStorageBrowserPresenter implements Initializable {
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
         viewMenu.setText(resourceBundle.getString("viewMenu"));
         editMenu.setText(resourceBundle.getString("editMenu"));
-        selectAllInBucketItem.setText(resourceBundle.getString("selectAllInBucketItem"));
-        selectAllInFolderItem.setText(resourceBundle.getString("selectAllInFolderItem"));
+        selectAllItem.setText(resourceBundle.getString("selectAllItem"));
         jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
         helpMenu.setText(resourceBundle.getString("helpMenu"));
         aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
+        selectAllItem.setDisable(true);
     }
 
     public void showSettingsPopup() {
@@ -245,6 +248,27 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public void showSessionPopup() {
         Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
+    }
+
+    public MenuItem getSelectAllMenuItem() {
+        return selectAllItem;
+    }
+
+    public void selectAllItemsInPane() {
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
+        if (null != ds3TreeTable && null != ds3TreeTable.getRoot().getParent()) {
+
+            final ObservableList<String> rowNameList = FXCollections.observableArrayList();
+
+            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            //Selecting all the items of selected root(All visible items)
+            ds3TreeTable.getRoot().getChildren().forEach((child) -> {
+                if (!rowNameList.contains(child.getValue().getName())) {
+                    rowNameList.add(child.getValue().getName());
+                    ds3TreeTable.getSelectionModel().select(child);
+                }
+            });
+        }
     }
 
     private void logsORJobsMenuItemAction(final CheckMenuItem menuItem, final VBox vBox, final ScrollPane pane, final Tab tab) {

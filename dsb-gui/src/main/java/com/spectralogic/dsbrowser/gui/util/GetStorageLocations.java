@@ -71,7 +71,7 @@ public final class GetStorageLocations {
                 nearlineDiskIcon.setImage(NEARLINEDISK);
                 nearlineDiskIcon.setFitHeight(15);
                 nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue()) + resourceBundle.getString("nearline")));
+                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue()) + resourceBundle.getString("nearLine")));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
             if ((nearLineDiskCount.intValue() - onlineDiskCount) != 0) {
