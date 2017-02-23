@@ -27,12 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
 
-public class CreateService {
+public final class CreateService {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
-
 
     public static void createBucketPrompt(final Ds3Common ds3Common, final Workers workers) {
         LOG.info("Create Bucket Prompt");
@@ -48,8 +47,8 @@ public class CreateService {
                             getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                     final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                             new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
-                    Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
-                            ("dataPolicyRetrieved"), LogType.SUCCESS));
+                 ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
+                            ("dataPolicyRetrieved"), LogType.SUCCESS);
                     return dataPoliciesList.stream().findFirst().orElse(null);
                 }
             };
@@ -66,7 +65,6 @@ public class CreateService {
 
     }
 
-    @SuppressWarnings("unchecked")
     public static void createFolderPrompt(final Ds3Common ds3Common) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
@@ -74,22 +72,22 @@ public class CreateService {
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.error("You can not create folder here. Please refresh your view");
-            Ds3Alert.show(null, "You can not create folder here. Please refresh your view", Alert.AlertType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cantCreateFolderHere"), Alert.AlertType.ERROR);
             return;
         }
         else if (values.size() > 1) {
             LOG.error("Only a single location can be selected to create empty folder");
-            Ds3Alert.show(null, "Only a single location can be selected to create empty folder", Alert.AlertType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("selectSingleLocation"), Alert.AlertType.ERROR);
             return;
         }
 
         else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-            values = builder.add(root).build().asList();
+            values = builder.add(root).build();
         }
         else if (Guard.isNullOrEmpty(values)) {
-            ds3Common.getDeepStorageBrowserPresenter().logText("Select bucket/folder where you want to create an empty folder.", LogType.ERROR);
-            Ds3Alert.show(null, "Location is not selected", Alert.AlertType.ERROR);
+            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("selectLocation"), LogType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("locationNotSelected"), Alert.AlertType.ERROR);
             return;
         }
         final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);

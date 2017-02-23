@@ -402,7 +402,6 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-
     private Session getSession() {
         return ds3Common.getCurrentSession();
     }
@@ -424,7 +423,6 @@ public class Ds3PanelPresenter implements Initializable {
                     final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                     selectedItemsAtSourceLocation = builder.add(root).build().asList();
                 }
-
                 final TreeTableView<FileTreeModel> treeTable = ds3Common.getLocalTreeTableView();
                 final Label localFilePathIndicator = ds3Common.getLocalFilePathIndicator();
                 final String fileRootItem = localFilePathIndicator.getText();
@@ -495,12 +493,10 @@ public class Ds3PanelPresenter implements Initializable {
                 LOG.error("Failed to get data from black pearl: {}", e);
                 deepStorageBrowserPresenter.logText(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("somethingWentWrong"), Alert.AlertType.ERROR);
-
             }
         } else {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
         }
-
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,

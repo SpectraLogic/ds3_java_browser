@@ -26,6 +26,8 @@ public final class RefreshCompleteViewWorker {
                     session.getEndpoint(), LogType.INFO);
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
+            ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(null);
+            ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
             //invisible column of full path
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView.getColumns().get(1);

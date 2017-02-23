@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class DeleteService {
+public final class DeleteService {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteService.class);
 
@@ -69,9 +69,7 @@ public class DeleteService {
                     ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
                 }
             }
-
         }
-
     }
 
     /**

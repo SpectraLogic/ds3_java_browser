@@ -19,7 +19,7 @@ subprojects {
     }
 
     dependencies {
-        compile 'com.google.guava:guava:21.0'
+        compile 'com.google.guava:guava:21.0' //22.0
         compile 'com.spectralogic.ds3:ds3-sdk:3.4.0'
         compile 'com.spectralogic.ds3:ds3-metadata:3.4.0'
         compile 'com.airhacks:afterburner.fx:1.6.2' //need to be 1.7.0
