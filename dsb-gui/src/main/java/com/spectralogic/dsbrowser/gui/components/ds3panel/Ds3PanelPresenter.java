@@ -349,7 +349,6 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
     }
-
     private void closeTab(final Tab closedTab) {
         {
             try {
@@ -384,7 +383,6 @@ public class Ds3PanelPresenter implements Initializable {
                 addNewTab.setTooltip(null);
             }
         }
-    }
 
     private void setBlank(final boolean isSetBlank) {
         if (isSetBlank) {
@@ -525,6 +523,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
+
             treeTable.setRoot(rootTreeItem);
         }
     }

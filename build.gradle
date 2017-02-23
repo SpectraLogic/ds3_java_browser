@@ -1,6 +1,6 @@
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.0.40'
+    version = '2.0.45'
 }
 
 subprojects {
@@ -30,10 +30,7 @@ subprojects {
         compile 'ch.qos.logback:logback-core:1.1.9'
         compile 'org.fxmisc.richtext:richtextfx:0.6.10'
         compile 'net.java.dev.jna:jna-platform:4.2.2'
-
         compile 'net.java.dev.jna:jna:4.2.2'
-
-
 
         testCompile('org.mockito:mockito-core:1.10.19') {
             exclude group: 'org.hamcrest'// https://mvnrepository.com/artifact/net.java.dev.jna/jna
