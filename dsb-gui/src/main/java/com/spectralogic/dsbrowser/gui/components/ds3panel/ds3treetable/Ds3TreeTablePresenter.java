@@ -196,15 +196,21 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setRoot(rootTreeItem);
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
-            final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
-                    ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
-            ds3PanelPresenter.getPaneItems().setVisible(true);
-            ds3PanelPresenter.getPaneItems().setText(info);
-            //Make Select All menu item disable if current visible item is Bucket or empty else enable it
-            if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
-                ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(true);
-            } else {
-                ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
+            if(ds3Common.getCurrentSession() != null) {
+                final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
+                        ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
+                ds3PanelPresenter.getPaneItems().setVisible(true);
+                ds3PanelPresenter.getPaneItems().setText(info);
+                //Make Select All menu item disable if current visible item is Bucket or empty else enable it
+                if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
+                    ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(true);
+                } else {
+                    ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
+                }
+            }
+            else {
+                ds3PanelPresenter.setBlank(true);
+                ds3PanelPresenter.disableSearch(true);
             }
         });
 
@@ -607,6 +613,12 @@ public class Ds3TreeTablePresenter implements Initializable {
         @Override
         public void changed(final ObservableValue observable, final Object oldValue,
                             final Object newValue) {
+
+            if(ds3Common.getCurrentSession() == null) {
+                ds3Common.getDs3PanelPresenter().setBlank(true);
+                ds3Common.getDs3PanelPresenter().disableSearch(true);
+                return;
+            }
             //noinspection unchecked
             TreeItem<Ds3TreeTableValue> selectedItem = (TreeItem<Ds3TreeTableValue>) newValue;
 

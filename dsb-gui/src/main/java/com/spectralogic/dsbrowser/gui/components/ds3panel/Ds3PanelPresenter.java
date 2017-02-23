@@ -269,6 +269,7 @@ public class Ds3PanelPresenter implements Initializable {
                             getPaneItems().setText(info);
 
                         } else {
+                            ds3Common.setCurrentSession(null);
                             setBlank(true);
                             disableSearch(true);
                         }
@@ -361,8 +362,6 @@ public class Ds3PanelPresenter implements Initializable {
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
                         ds3Common.setSessionOfClosedTab(null);
-                        ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-                        ds3PathIndicatorTooltip.setText(null);
                         deepStorageBrowserPresenter.logText(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
@@ -378,22 +377,22 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to remove session: {}", e);
             }
-            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-            ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
             if (store.size() == 0) {
+                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
                 addNewTab.setTooltip(null);
             }
         }
     }
 
-    private void setBlank(final boolean isSetBlank) {
+    public void setBlank(final boolean isSetBlank) {
         if (isSetBlank) {
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-            ds3PathIndicatorTooltip.setText(StringConstants.EMPTY_STRING);
+            ds3PathIndicator.setTooltip(null);
             paneItems.setVisible(false);
             capacityLabel.setVisible(false);
             infoLabel.setVisible(false);
         } else {
+            ds3PathIndicator.setTooltip(ds3PathIndicatorTooltip);
             paneItems.setVisible(true);
             capacityLabel.setVisible(true);
             infoLabel.setVisible(true);

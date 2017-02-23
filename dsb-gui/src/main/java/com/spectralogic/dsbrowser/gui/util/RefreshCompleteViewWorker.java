@@ -55,7 +55,7 @@ public final class RefreshCompleteViewWorker {
                                         final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
                                         ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
                                     }));
-                            final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + "-" + session.getEndpoint());
+                            final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint());
                             if (rootTreeItem.getChildren().stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
                                 final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = rootTreeItem.getChildren().stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
                                 ds3TreeTableValueTreeItem.setExpanded(false);
@@ -64,6 +64,10 @@ public final class RefreshCompleteViewWorker {
                                     ds3TreeTableValueTreeItem.setExpanded(true);
                                 }
                             }
+                        }
+                        else {
+                            ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
+                            ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
                         }
                     });
                 }

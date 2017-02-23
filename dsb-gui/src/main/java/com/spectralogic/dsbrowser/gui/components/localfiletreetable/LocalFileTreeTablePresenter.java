@@ -199,6 +199,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final ClipboardContent content = new ClipboardContent();
                             content.putFilesByPath(selectedItems
                                     .stream()
+                                    .filter(item -> item.getValue() != null)
                                     .map(i -> i.getValue().getPath().toString())
                                     .collect(Collectors.toList()));
                             db.setContent(content);
