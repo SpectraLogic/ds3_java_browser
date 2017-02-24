@@ -416,7 +416,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
                 if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation) && (null == root || null == root.getValue())) {
                     LOG.info("Files not selected");
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelectError"), Alert.AlertType.ERROR);
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelect"), Alert.AlertType.ERROR);
                     return;
                 } else if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation)) {
                     final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();

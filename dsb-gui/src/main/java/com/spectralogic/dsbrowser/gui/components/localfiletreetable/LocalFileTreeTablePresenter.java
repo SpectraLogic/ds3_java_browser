@@ -257,7 +257,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     .stream().collect(GuavaCollectors.immutableList());
             //Finding root in case of double click to get selected items
             final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
-            if (root == null && Guard.isNullOrEmpty(values)) {
+            if ((root == null || null == root.getValue()) && Guard.isNullOrEmpty(values)) {
                     Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("selectDestination"), Alert.AlertType.INFORMATION);
                     return;
             }

@@ -49,7 +49,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                Ds3Alert.show(null, resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
             }
             final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
@@ -58,7 +58,7 @@ public final class DeleteService {
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     Platform.runLater(() -> {
                         ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                        Ds3Alert.show(null, resourceBundle.getString("failedToDeleteBucket"), Alert.AlertType.INFORMATION);
+                        Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteBucket"), Alert.AlertType.INFORMATION);
                     });
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
@@ -90,7 +90,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                Ds3Alert.show(null, resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
             }
             final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
@@ -139,17 +139,21 @@ public final class DeleteService {
     public static void managePathIndicator(final Ds3Common ds3Common, final Workers workers) {
         Platform.runLater(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
-            final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
-                    .findFirst().get().getParent();
-            if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
-                ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-                ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
-            } else {
-                ds3TreeTable.setRoot(selectedItem);
+            try {
+                final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
+                        .findFirst().get().getParent();
+                if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
+                    ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
+                    ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
+                } else {
+                    ds3TreeTable.setRoot(selectedItem);
+                }
+                ds3TreeTable.getSelectionModel().select(selectedItem);
+            } catch (final Exception e) {
+                LOG.error("No Item found", e);
             }
-            ds3TreeTable.getSelectionModel().select(selectedItem);
             ds3TreeTable.getSelectionModel().clearSelection();
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
         });

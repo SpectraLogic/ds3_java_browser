@@ -21,7 +21,7 @@ public final class DeleteFilesPopup {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public static void show(final Ds3Task deleteTask, final Ds3Common ds3Common) {
-        final DeleteFilesView deleteView = new DeleteFilesView(deleteTask, ds3Common);
+        final DeleteItemView deleteView = new DeleteItemView(deleteTask, ds3Common);
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
         if (ds3TreeTableView != null) {
 
@@ -42,10 +42,10 @@ public final class DeleteFilesPopup {
     }
 
     private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
-                                        final DeleteFilesView deleteView) {
-        if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                                        final DeleteItemView deleteView) {
+        if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.File)) {
             Popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
-        } else if (selectedItems.get(0).getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
+        } else if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.Directory)) {
             Popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"));
         } else {
             Popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"));

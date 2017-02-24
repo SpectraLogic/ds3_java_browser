@@ -3,8 +3,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.fxmisc.richtext.InlineCssTextArea?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" minHeight="500.0" minWidth="700.0"
-            prefHeight="400.0" prefWidth="1000.0" stylesheets="@common.css" xmlns="http://javafx.com/javafx/8"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="1000.0" stylesheets="@common.css" xmlns="http://javafx.com/javafx/8"
             fx:controller="com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter" fx:id="borderPane">
     <top>
         <MenuBar BorderPane.alignment="CENTER" minWidth="500.0" minHeight="20.0">
@@ -55,7 +56,7 @@
         </SplitPane>
     </center>
     <bottom>
-        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER" minHeight="40.0" prefHeight="30.0">
+        <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
             <children>
                 <TabPane fx:id="bottomTabPane" prefHeight="20.0" prefWidth="500.0" minHeight="20.0"
                          tabClosingPolicy="UNAVAILABLE">

@@ -18,7 +18,7 @@ public class NewSessionModelValidation {
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("enterDataPathAddress"), Alert.AlertType.ERROR);
             return true;
-        } else if (!SessionValidation.validatePort(model.getPortNo())) {
+        } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("enterValidPort"), Alert.AlertType.ERROR);
             return true;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {

@@ -8,8 +8,6 @@ public class ApplicationPreferences {
 
     private static final double DEFAULT_X = 10;
     private static final double DEFAULT_Y = 10;
-    private static final double DEFAULT_WIDTH = 800;
-    private static final double DEFAULT_HEIGHT = 600;
     private static final Preferences pref = Preferences.userRoot().node(NODE_NAME);
     private static ApplicationPreferences prefInstance;
 
@@ -32,11 +30,11 @@ public class ApplicationPreferences {
     }
 
     public double getWidth() {
-        return pref.getDouble(WINDOW_WIDTH, DEFAULT_WIDTH);
+        return pref.getDouble(WINDOW_WIDTH, Constants.MIN_WIDTH);
     }
 
     public double getHeight() {
-        return pref.getDouble(WINDOW_HEIGHT, DEFAULT_HEIGHT);
+        return pref.getDouble(WINDOW_HEIGHT, Constants.MIN_HEIGHT);
     }
 
     public boolean isWindowMaximized() {

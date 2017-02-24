@@ -13,5 +13,6 @@ public interface Constants {
     int PROGRESS_BAR_SIZE = 90;
     String HTTPS_PREFIX = "https";
     String HTTP_PREFIX = "http";
-
+    double MIN_HEIGHT = 600.0;
+    double MIN_WIDTH = 720.0;
 }
