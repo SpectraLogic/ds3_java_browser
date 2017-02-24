@@ -43,7 +43,7 @@ public class BackgroundTask implements Runnable {
                         }
 
                     } else {
-                        LOG.error("network is not reachable");
+                        LOG.info("network is not reachable");
                         if (!isAlertDisplayed) {
                             final String msg = resourceBundle.getString("host") + session.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
                             Platform.runLater(() -> {
@@ -54,10 +54,10 @@ public class BackgroundTask implements Runnable {
                         }
                     }
                 } else {
-                    LOG.error("No Connection..");
+                    LOG.info("No Connection..");
                 }
                 Thread.sleep(3000);
-            } catch (final Throwable e) {
+            } catch (final Exception e) {
                 LOG.error("Encountered an error when attempting to verify that the bp is reachable", e);
             }
         }

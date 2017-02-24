@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 
 public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
-    private final Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();

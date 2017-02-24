@@ -19,7 +19,6 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -47,7 +46,6 @@ public class Ds3GetJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
-    private final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private UUID jobId;
 
     public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {
@@ -60,7 +58,6 @@ public class Ds3GetJob extends Ds3JobTask {
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Common = ds3Common;
-        this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
     }
 
@@ -328,7 +325,9 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final IOException e) {
             LOG.error("Unable to add descendants", e);
-           ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage("GET Job Cancelled", ds3Client.getConnectionDetails().getEndpoint(), "", e), LogType.ERROR);
+            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage("GET Job " +
+                    "Cancelled", ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e), LogType
+                    .ERROR);
         }
         return map;
     }

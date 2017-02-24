@@ -13,6 +13,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
 
 public final class BucketUtil {
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
+    private final static Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
 
     //Get bucket request used to get Bucket data
     public static GetBucketRequest createRequest(final Ds3TreeTableValue ds3Value, final String bucket,

@@ -162,7 +162,6 @@ public class Ds3PanelPresenter implements Initializable {
 
         } catch (final Exception e) {
             LOG.error("Encountered error when creating Ds3PanelPresenter", e);
-            throw e;
         }
     }
 
@@ -297,6 +296,7 @@ public class Ds3PanelPresenter implements Initializable {
             button.setOnAction(event -> modifyJobPriority(task));
             return button;
         });
+
     }
 
     private void createTabAndSetBehaviour(final Session newSession) {
@@ -575,6 +575,7 @@ public class Ds3PanelPresenter implements Initializable {
                 // if it is not already in the saved session store
             }
         });
+
     }
 
 

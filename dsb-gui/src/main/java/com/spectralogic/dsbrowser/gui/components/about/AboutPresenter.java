@@ -19,7 +19,7 @@ import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 
 public class AboutPresenter implements Initializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
 
     @FXML
     private Label copyRightLabel1, copyRightLabel2;

@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobInfoListTreeTableItem.class);
+    private final static Logger LOG = LoggerFactory.getLogger(JobInfoListTreeTableItem.class);
 
     private final String jobId;
     private final JobInfoModel modelValue;

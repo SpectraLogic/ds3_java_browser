@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 public class MetadataPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
     private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
     private final Calendar calendar = Calendar.getInstance();
     @FXML

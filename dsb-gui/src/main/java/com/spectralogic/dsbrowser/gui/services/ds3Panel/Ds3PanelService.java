@@ -122,7 +122,7 @@ public final class Ds3PanelService {
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
-            LOG.error("Nothing selected");
+            LOG.info("Nothing selected");
             Ds3Alert.show(null, "Nothing selected !!", Alert.AlertType.INFORMATION);
             return;
         } else if (tempValues.isEmpty()) {
@@ -132,7 +132,7 @@ public final class Ds3PanelService {
         }
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
-            LOG.error("Only a single object can be selected to view physical placement ");
+            LOG.info("Only a single object can be selected to view physical placement ");
             Ds3Alert.show(null, "Only a single object can be selected to view physical placement", Alert.AlertType.INFORMATION);
             return;
         }
@@ -174,12 +174,12 @@ public final class Ds3PanelService {
         final TreeTableView ds3TreeTableView = ds3Common.getDs3TreeTableView();
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3TreeTableView.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
-            LOG.error("No files selected");
+            LOG.info("No files selected");
             Ds3Alert.show(null, "No files selected", Alert.AlertType.ERROR);
             return;
         }
         if (values.size() > 1) {
-            LOG.error("Only a single object can be selected to view metadata ");
+            LOG.info("Only a single object can be selected to view metadata ");
             Ds3Alert.show(null, "Only a single object can be selected to view metadata ", Alert.AlertType.INFORMATION);
             return;
         }

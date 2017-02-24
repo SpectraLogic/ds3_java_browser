@@ -177,8 +177,6 @@ public class CloseConfirmationHandler {
         if (savedSessionStore != null) {
             try {
                 SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-            } catch (final IOException e) {
-                LOG.error("Failed to save session information to the local filesystem", e);
             } catch (final Exception ex) {
                 LOG.error("General Exception while saving session information to the local filesystem", ex);
             }
@@ -195,9 +193,7 @@ public class CloseConfirmationHandler {
         if (savedJobPrioritiesStore != null) {
             try {
                 SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            } catch (final IOException e) {
-                LOG.error("Failed to save job settings information to the local filesystem", e);
-            } catch (final Exception ex) {
+            }  catch (final Exception ex) {
                 LOG.error("General Exception while saving job settings information to the local filesystem", ex);
             }
         }
@@ -213,8 +209,6 @@ public class CloseConfirmationHandler {
         if (jobInterruptionStore != null) {
             try {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
-            } catch (final IOException e) {
-                LOG.error("Failed to save job ids", e);
             } catch (final Exception ex) {
                 LOG.error("General Exception while saving job Ids to the local filesystem", ex);
             }
@@ -231,8 +225,6 @@ public class CloseConfirmationHandler {
         if (settings != null) {
             try {
                 SettingsStore.saveSettingsStore(settings);
-            } catch (final IOException e) {
-                LOG.error("Failed to save settings information to the local filesystem", e);
             } catch (final Exception ex) {
                 LOG.error("General Exception while saving settings information to the local filesystem", ex);
             }

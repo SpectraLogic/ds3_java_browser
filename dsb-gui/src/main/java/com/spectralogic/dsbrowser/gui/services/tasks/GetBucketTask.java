@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import static com.spectralogic.dsbrowser.gui.util.BucketUtil.distinctByKey;
 
 public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
-    private static final Logger LOG = LoggerFactory.getLogger(GetBucketTask.class);
+    private final static Logger LOG = LoggerFactory.getLogger(GetBucketTask.class);
 
     private final ReadOnlyObjectWrapper<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResults;
     private final String bucket;

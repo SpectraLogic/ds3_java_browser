@@ -39,9 +39,6 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
             if (!selectedItems.isEmpty()) {
                 for (int i = 0; i < selectedItems.size(); i++) {
                     for (int j = 0; j < selectedItems.size(); j++) {
-                        /*if (selectedItems.get(i) == null || selectedItems.get(i).getValue() == null) {
-                            Thread.sleep(1000);
-                        }*/
                         if (null != selectedItems.get(i).getValue() && selectedItems.get(i).getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                             if (i != j && selectedItems.get(j).getValue().getBucketName()
                                     .equals(selectedItems.get(i).getValue().getBucketName())) {
@@ -125,7 +122,7 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
                 }
             }
         } catch (final Exception e) {
-            LOG.error("Exception while getting count of items inside a folder");
+            LOG.error("Exception while getting count of items inside a folder", e);
         }
         return filesCountModel;
 

@@ -53,7 +53,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 public class LocalFileTreeTablePresenter implements Initializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;

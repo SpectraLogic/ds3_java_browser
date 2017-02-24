@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -14,7 +13,7 @@ import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -44,7 +43,7 @@ public class CreateBucketTaskTest {
                         UUID.fromString(SessionConstants.DATA_POLICY_UUID));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
                         SessionConstants.CREATE_BUCKET_TASK_TEST_BUCKET_NAME + StringConstants.UNDER_SCORE +
-                                +Calendar.getInstance().getTimeInMillis(), null);
+                                +LocalDateTime.now().getSecond(), null);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

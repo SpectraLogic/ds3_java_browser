@@ -63,7 +63,7 @@ public class JobWorkers {
             final Ds3JobTask task = (Ds3JobTask) event.getSource();
             this.tasks.remove(task);
         } else {
-            LOG.error("Unknown worker");
+            LOG.info("Unknown worker");
         }
     }
 

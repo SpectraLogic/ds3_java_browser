@@ -32,7 +32,7 @@ import static com.spectralogic.ds3client.models.RequestType.GET;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;

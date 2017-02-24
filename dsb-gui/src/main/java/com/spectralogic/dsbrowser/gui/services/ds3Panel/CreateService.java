@@ -71,12 +71,12 @@ public final class CreateService {
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-            LOG.error("You can not create folder here. Please refresh your view");
+            LOG.info("You can not create folder here. Please refresh your view");
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cantCreateFolderHere"), Alert.AlertType.ERROR);
             return;
         }
         else if (values.size() > 1) {
-            LOG.error("Only a single location can be selected to create empty folder");
+            LOG.info("Only a single location can be selected to create empty folder");
             Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("selectSingleLocation"), Alert.AlertType.ERROR);
             return;
         }

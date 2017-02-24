@@ -22,7 +22,7 @@ public class CreateConnectionTask {
     @Inject
     private ResourceBundle resourceBundle;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
+    private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
     public Session createConnection(final NewSessionModel newSessionModel) {
         Ds3Client client = null;

@@ -22,7 +22,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 public class Ds3CancelSingleJobTask extends Task {
 
-    private final Logger LOG = LoggerFactory.getLogger(Ds3CancelSingleJobTask.class);
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3CancelSingleJobTask.class);
     private final ResourceBundle resourceBundle;
     private final String uuid;
     private final EndpointInfo endpointInfo;

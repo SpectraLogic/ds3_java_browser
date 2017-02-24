@@ -117,7 +117,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             setTreeTableViewBehaviour();
         } catch (final Exception e) {
             LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
-            throw e;
         }
     }
 
@@ -196,7 +195,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setRoot(rootTreeItem);
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
-            if(ds3Common.getCurrentSession() != null) {
+            if (ds3Common.getCurrentSession() != null) {
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItems().setVisible(true);
@@ -207,8 +206,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 } else {
                     ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
                 }
-            }
-            else {
+            } else {
                 ds3PanelPresenter.setBlank(true);
                 ds3PanelPresenter.disableSearch(true);
             }
@@ -403,7 +401,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                     });
                     putJob.setOnFailed(e -> {
-                        LOG.error("setOnFailed");
+                        LOG.info("setOnFailed");
                         Ds3PanelService.refresh(selectedItem);
                         ds3TreeTable.getSelectionModel().clearSelection();
                         ds3TreeTable.getSelectionModel().select(selectedItem);
@@ -512,7 +510,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             selectedItems.add(ds3TreeTable.getRoot());
             createBucket.setDisable(false);
         } else if (selectedItems.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-            LOG.error("You can not delete from here. Please go to specific location and delete object(s)");
+            LOG.info("You can not delete from here. Please go to specific location and delete object(s)");
             deleteFile.setDisable(false);
         } else {
             final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = selectedItems.stream().findFirst().orElse(null);
@@ -614,7 +612,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         public void changed(final ObservableValue observable, final Object oldValue,
                             final Object newValue) {
 
-            if(ds3Common.getCurrentSession() == null) {
+            if (ds3Common.getCurrentSession() == null) {
                 ds3Common.getDs3PanelPresenter().setBlank(true);
                 ds3Common.getDs3PanelPresenter().disableSearch(true);
                 return;

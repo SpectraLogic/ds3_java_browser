@@ -63,7 +63,7 @@ public class CreateFolderPresenter implements Initializable {
                 }
             });
 
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             LOG.error("Encountered an error making the create folder presenter", e);
         }
     }

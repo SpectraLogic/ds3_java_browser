@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 
 public class ModifyJobPriorityPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(ModifyJobPriorityPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ModifyJobPriorityPresenter.class);
 
     @FXML
     private ComboBox<Priority> modifyJobPriorityComboBox;

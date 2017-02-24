@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
-    private final Logger LOG = LoggerFactory.getLogger(SearchJobTask.class);
+    private final static Logger LOG = LoggerFactory.getLogger(SearchJobTask.class);
     private final List<Bucket> searchableBuckets;
     private final String searchText;
     private final Session session;

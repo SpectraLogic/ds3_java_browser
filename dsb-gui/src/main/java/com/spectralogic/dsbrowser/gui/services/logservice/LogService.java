@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 
 public class LogService {
 
-    final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
 
     private LogSettings logSettings;
     private final String pattern = "%date %level [%thread] %logger{10} [%file:%line] %msg%n";

@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class PhysicalPlacementPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
 
     @FXML
     private TableView<PhysicalPlacementPoolEntryModel> physicalPlacementDataTablePool;

@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -15,7 +14,7 @@ import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -41,8 +40,8 @@ public class CreateFolderTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final String folderName = SessionConstants.DS3_PANEL_SERVICE_TEST_FOLDER_NAME + StringConstants.UNDER_SCORE +
-                        +Calendar.getInstance().getTimeInMillis();
+                final String folderName = SessionConstants.DS3_PANEL_SERVICE_TEST_FOLDER_NAME
+                        + StringConstants.UNDER_SCORE + LocalDateTime.now().getSecond();
                 final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), SessionConstants.ALREADY_EXIST_BUCKET,
                         SessionConstants.ALREADY_EXIST_BUCKET);
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
