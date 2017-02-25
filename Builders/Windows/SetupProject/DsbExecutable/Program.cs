@@ -1,16 +1,30 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.Win32;
 
 namespace DsbExecutable
 {
     public static class Program
     {
+        private enum Status
+        {
+            NotFound,
+            Ok
+        }
         public static void Main()
         {
-            const string root = @"HKEY_CURRENT_USER\Software\Spectra Logic\BlackPearl Eon Browser";
-            var installFolderValue = (string)Registry.GetValue(root, "InstallFolder", null);
-            var versionValue = (string)Registry.GetValue(root, "Version", null);
+            string installFolderValue;
+            string versionValue;
 
+            var status = GetRegKeys(RegistryHive.CurrentUser, out installFolderValue, out versionValue);
+            if (status == Status.NotFound)
+            {
+                status = GetRegKeys(RegistryHive.LocalMachine, out installFolderValue, out versionValue);
+                if (status == Status.NotFound)
+                {
+                    throw new Exception("Failed to get registry keys for current user and local machine");
+                }
+            }
             var p = new Process();
             var info = new ProcessStartInfo
             {
@@ -27,7 +41,6 @@ namespace DsbExecutable
             {
                 if (!sw.BaseStream.CanWrite) return;
 
-                sw.WriteLine(@"echo off");
                 sw.WriteLine(@"cd " + "\"" + installFolderValue + "\"");
                 sw.WriteLine(@"set VERSION=" + versionValue);
                 sw.WriteLine(@"set JAVA_HOME=Java\jre1.8.0_121");
@@ -35,6 +48,17 @@ namespace DsbExecutable
                 sw.WriteLine(@"set CLASSPATH=distributions\dsb-gui-%VERSION%\lib\*");
                 sw.WriteLine("START %JAVA_EXE% -classpath %CLASSPATH% com.spectralogic.dsbrowser.gui.Main");
             }
+        }
+
+        private static Status GetRegKeys(RegistryHive registryHive, out string installFolderValue, out string versionValue)
+        {
+            var key = RegistryKey.OpenBaseKey(registryHive, RegistryView.Registry64)
+                .OpenSubKey("Software\\Spectra Logic\\BlackPearl Eon Browser");
+
+            installFolderValue = (string)key?.GetValue("InstallFolder", null);
+            versionValue = (string)key?.GetValue("Version", null);
+
+            return string.IsNullOrWhiteSpace(installFolderValue) ? Status.NotFound : Status.Ok;
         }
     }
 }

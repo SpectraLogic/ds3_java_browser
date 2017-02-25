@@ -30,6 +30,8 @@
     <DefineConstants>Version=2.0.45;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE57</SuppressIces>
+    <SuppressValidation>False</SuppressValidation>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DsbFiles.wxs" />
