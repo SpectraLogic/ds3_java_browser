@@ -59,7 +59,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final Ds3Client client = endpointInfo.getClient();
             final String date = DateFormat.formatDate(new Date());
             updateTitle("Recovering " + filesAndFolderMapMap.getType() + " job of " + endpointInfo.getEndpoint() + " " + date);
-            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Recovering " + filesAndFolderMapMap.getType() + " job of " + filesAndFolderMapMap.getDate(), LogType.INFO));
+            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Recovering " +
+                    filesAndFolderMapMap.getType() + " job of " + filesAndFolderMapMap.getDate() +
+                    " whose id is " + getUuid(), LogType.INFO));
             final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(client, 100);
 
             Ds3ClientHelpers.Job job = null;
