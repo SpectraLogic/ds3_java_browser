@@ -13,10 +13,13 @@ import org.slf4j.LoggerFactory;
 public class BackgroundTask implements Runnable{
 
     private final static Logger LOG = LoggerFactory.getLogger(BackgroundTask.class);
+    private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+    private final static long FIVE_MINUTE_DELAY_IN_MILLIS = 1000 * 60 * 5;
+
     private final Ds3Common ds3Common;
     private final Workers workers;
+
     private boolean isAlertDisplayed = false;
-    private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
 
     public BackgroundTask(final Ds3Common ds3Common, final Workers workers) {
         this.ds3Common = ds3Common;
@@ -38,8 +41,6 @@ public class BackgroundTask implements Runnable{
                             LOG.info("network is up");
                             Platform.runLater(() -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers));
                             isAlertDisplayed = false;
-                        } else {
-                            LOG.info("network is working");
                         }
 
                     } else {
@@ -58,7 +59,7 @@ public class BackgroundTask implements Runnable{
                 } else {
                     LOG.error("No Connection..");
                 }
-                Thread.sleep(3000);
+                Thread.sleep(FIVE_MINUTE_DELAY_IN_MILLIS);
             } catch (final Throwable e) {
                 LOG.error("Encountered an error when attempting to verify that the bp is reachable", e);
             }
