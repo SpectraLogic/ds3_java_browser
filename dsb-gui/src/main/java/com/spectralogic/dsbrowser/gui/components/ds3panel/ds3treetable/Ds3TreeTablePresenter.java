@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -104,7 +105,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
 
-    final ObservableMap<Integer, Node> disclosureNodeMap = FXCollections.observableHashMap();
+    private final ObservableMap<Integer, Node> disclosureNodeMap = FXCollections.observableHashMap();
 
     private boolean isFirstTime = true;
 
@@ -234,13 +235,14 @@ public class Ds3TreeTablePresenter implements Initializable {
                 @Override
                 protected void updateItem(final String item, final boolean empty) {
                     super.updateItem(item, empty);
-                    if (!empty && item.equals(resourceBundle.getString("addMoreButton")))
-                        setStyle("-fx-font-weight: bold");
-                    else if (!empty)
-                        setStyle("-fx-font-weight: normal");
-                    setText(item);
+                    final Label label = new Label(item);
+                    if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
+                        label.getStyleClass().add("styleBold");
+                    } else if (!empty) {
+                        label.getStyleClass().add("styleNormal");
+                    }
+                    setGraphic(label);
                 }
-
             });
 
             sizeColumn.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, Number>() {
@@ -457,20 +459,12 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
                 ds3Common.setDs3TreeTableView(ds3TreeTable);
                 if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                    if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session, row.getTreeItem()))
+                    if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
                         ds3TreeTable.setPlaceholder(null);
                     row.getTreeItem().setExpanded(true);
                     ds3TreeTable.setShowRoot(false);
                     ds3TreeTable.setRoot(row.getTreeItem());
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                }
-            } else if (event.getButton().name().equals("SECONDARY")) {
-                try {
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        loadMore(row.getTreeItem());
-                    }
-                } catch (final Exception e) {
-                    LOG.error("Unable to get value of selected item", e);
                 }
             } else {
                 try {
@@ -596,13 +590,15 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param endpoint endpoint of the session
      */
     private void checkInterruptedJob(final String endpoint) {
-        final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-        if (!Guard.isMapNullOrEmpty(jobIDMap)) {
-            ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(String.valueOf(jobIDMap.size()));
-        } else {
-            ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(StringConstants.EMPTY_STRING);
-            ds3Common.getDeepStorageBrowserPresenter().getJobButton().setDisable(true);
+        if (jobInterruptionStore.getJobIdsModel().getEndpoints() != null) {
+            final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), null);
+            if (!Guard.isMapNullOrEmpty(jobIDMap)) {
+                ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(String.valueOf(jobIDMap.size()));
+            } else {
+                ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(StringConstants.EMPTY_STRING);
+                ds3Common.getDeepStorageBrowserPresenter().getJobButton().setDisable(true);
+            }
         }
     }
 
@@ -649,8 +645,8 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void handleDragDetectedEvent(final Event event) {
         LOG.info("Drag detected...");
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
-        final List<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(Collectors.toList());
-        final List<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(Collectors.toList());
+        final ImmutableList<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
+        final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
         if (!Guard.isNullOrEmpty(selectedI)) {
             LOG.info("Starting drag and drop event");
             final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);

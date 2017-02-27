@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Main extends Application {
@@ -38,7 +39,7 @@ public class Main extends Application {
         final SavedJobPrioritiesStore savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
         final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
-        final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
         final DataFormat dataFormat = new DataFormat(resourceBundle.getString("dataFormat"));
         final JobWorkers jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
@@ -53,6 +54,7 @@ public class Main extends Application {
         Injector.setModelOrService(JobInterruptionStore.class, jobInterruptionStore);
         Injector.setModelOrService(ResourceBundle.class, resourceBundle);
         Injector.setModelOrService(DataFormat.class, dataFormat);
+
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
         final Scene mainScene = new Scene(mainView.getView());
         primaryStage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));

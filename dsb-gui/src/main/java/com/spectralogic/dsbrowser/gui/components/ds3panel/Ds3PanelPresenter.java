@@ -170,6 +170,7 @@ public class Ds3PanelPresenter implements Initializable {
         final TextField textField = new TextField(label.getText());
         textField.setEditable(false);
         textField.getStyleClass().add("selectableClass");
+
         // the invisible label is a hack to get the textField to size like a label.
         final Label invisibleLabel = new Label();
         invisibleLabel.textProperty().bind(label.textProperty());
@@ -224,6 +225,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
         ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers));
+
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
@@ -235,6 +237,7 @@ public class Ds3PanelPresenter implements Initializable {
                 });
             }
         });
+
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
                     try {
                         if (newTab.getContent() instanceof VBox) {
@@ -277,6 +280,7 @@ public class Ds3PanelPresenter implements Initializable {
                     }
                 }
         );
+
         ds3SessionTabPane.getTabs().addListener((ListChangeListener<Tab>) c -> {
             if (c.next() && c.wasRemoved()) {
                 if (ds3SessionTabPane.getTabs().size() == 1) {
@@ -287,6 +291,7 @@ public class Ds3PanelPresenter implements Initializable {
                 disableMenu(false);
             }
         });
+
         deepStorageBrowserPresenter.getJobProgressView().setGraphicFactory(task -> {
             final ImageView imageView = new ImageView();
             imageView.setImage(new Image(ImageURLs.SETTINGS_ICON));
@@ -437,13 +442,13 @@ public class Ds3PanelPresenter implements Initializable {
                     Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
                     return;
                 }
-                final List<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
+                final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
                         .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
 
                 //Getting selected item at source location
-                final List<Ds3TreeTableValue> selectedItemsAtSourceLocationList = selectedItemsAtSourceLocation.stream()
+                final ImmutableList<Ds3TreeTableValue> selectedItemsAtSourceLocationList = selectedItemsAtSourceLocation.stream()
                         .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
-                final List<Ds3TreeTableValueCustom> selectedItemsAtSourceLocationListCustom =
+                final ImmutableList<Ds3TreeTableValueCustom> selectedItemsAtSourceLocationListCustom =
                         selectedItemsAtSourceLocationList.stream()
                                 .map(v -> new Ds3TreeTableValueCustom(v.getBucketName(),
                                         v.getFullName(), v.getType(), v.getSize(), v.getLastModified(),

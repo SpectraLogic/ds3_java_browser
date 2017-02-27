@@ -19,6 +19,7 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
+import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -40,12 +41,13 @@ public class Ds3GetJob extends Ds3JobTask {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
     private final List<Ds3TreeTableValueCustom> list;
     private final Path fileTreeModel;
-    private final ArrayList<Ds3TreeTableValueCustom> nodes;
+    private final List<Ds3TreeTableValueCustom> nodes;
     private final String jobPriority;
     private final Map<Path, Path> map;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
+    private final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private UUID jobId;
 
     public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {
@@ -301,7 +303,7 @@ public class Ds3GetJob extends Ds3JobTask {
      * @param nodes filtered nodes
      * @param path  path
      */
-    public Map<Path, Path> addAllDescendants(final Ds3TreeTableValueCustom value, final ArrayList nodes, final Path path) {
+    public Map<Path, Path> addAllDescendants(final Ds3TreeTableValueCustom value, final List nodes, final Path path) {
         try {
             LOG.info("adding up all descendants");
             final GetBucketRequest request = new GetBucketRequest(value.getBucketName()).withDelimiter("/").withMaxKeys(1000000);
@@ -325,9 +327,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final IOException e) {
             LOG.error("Unable to add descendants", e);
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage("GET Job " +
-                    "Cancelled", ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e), LogType
-                    .ERROR);
+           ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage("GET Job Cancelled", ds3Client.getConnectionDetails().getEndpoint(), "", e), LogType.ERROR);
         }
         return map;
     }

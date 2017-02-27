@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -162,7 +162,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 if (ds3Common.getCurrentSession() != null) {
                     final Session session = ds3Common.getCurrentSession();
                     final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
-                    final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
+                    final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
                     if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                         jobButton.setDisable(false);

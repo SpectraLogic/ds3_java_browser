@@ -1,3 +1,12 @@
 .table-row-cell:focused{
     -fx-background-insets: 0;
 }
+
+.styleBold {
+    -fx-font-weight: bolder;
+        -fx-text-fill: black;
+}
+.styleNormal {
+    -fx-font-weight: normal;
+        -fx-text-fill: black;
+}
