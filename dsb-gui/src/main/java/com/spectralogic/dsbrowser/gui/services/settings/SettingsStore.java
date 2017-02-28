@@ -110,7 +110,7 @@ public class SettingsStore {
                 if (!e.contains("filePropertiesSettings")) {
                     StringBuilder newFile = new StringBuilder(e);
                     newFile.deleteCharAt(newFile.length() - 1);
-                    newFile = newFile.append(",\"filePropertiesSettings\":{\"filePropertiesEnable\":true}}");//file property is true by default..adding this new setting to the file
+                    newFile = newFile.append(",\"filePropertiesSettings\":{\"filePropertiesEnable\":false}}");//file property is true by default..adding this new setting to the file
                     try (final BufferedWriter writer = Files.newBufferedWriter(PATH)) {
                         writer.write(newFile.toString());
                     } catch (final IOException ex) {

@@ -8,7 +8,7 @@ public class FilePropertiesSettings {
     public static final FilePropertiesSettings DEFAULT = createDefault();
 
     private static FilePropertiesSettings createDefault() {
-        return new FilePropertiesSettings(Boolean.TRUE);
+        return new FilePropertiesSettings(Boolean.FALSE);
     }
 
     @JsonProperty("filePropertiesEnable")
@@ -24,11 +24,11 @@ public class FilePropertiesSettings {
 
     public FilePropertiesSettings copy() {
         final FilePropertiesSettings settings = new FilePropertiesSettings();
-        settings.setFilePropertiesEnable(this.getFilePropertiesEnable());
+        settings.setFilePropertiesEnable(this.isFilePropertiesEnabled());
         return settings;
     }
 
-    public Boolean getFilePropertiesEnable() {
+    public Boolean isFilePropertiesEnabled() {
         return filePropertiesEnable.get();
     }
 

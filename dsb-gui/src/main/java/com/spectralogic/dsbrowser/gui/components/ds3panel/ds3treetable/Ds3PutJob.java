@@ -171,11 +171,11 @@ public class Ds3PutJob extends Ds3JobTask {
                     }
                 });
                 //store meta data to server
-                final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
+                final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
                 if (isFilePropertiesEnable) {
                     job.withMetadata(new MetadataAccessImpl(fileMapper));
-                    job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 }
+                job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
                 updateProgress(totalJobSize, totalJobSize);
                 updateMessage("Files [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] transferred to" + " bucket -" + bucket + " at location - " + targetDir + ". (BlackPearl cache). Waiting for the storage target allocation.");
                 updateProgress(totalJobSize, totalJobSize);
