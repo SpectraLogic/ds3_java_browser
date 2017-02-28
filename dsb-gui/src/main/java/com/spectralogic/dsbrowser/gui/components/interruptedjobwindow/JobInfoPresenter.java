@@ -249,18 +249,20 @@ public class JobInfoPresenter implements Initializable {
         treeTableView.setPlaceholder(new StackPane(progress));
         final Task getJobIDs = new Task() {
             @Override
-            protected Object call() throws Exception {
+            protected Optional<Object> call() throws Exception {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                if (jobIDMap.size() == 0) {
-                    Platform.runLater(() -> stage.close());
+                if (jobIDMap == null) {
+                    if (jobIDMap.size() == 0) {
+                        Platform.runLater(() -> stage.close());
+                    }
+                    jobIDMap.entrySet().stream().forEach(i -> {
+                        final FilesAndFolderMap fileAndFolder = i.getValue();
+                        final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), i.getKey(), fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), i.getKey(), fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());
+                        rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession(), workers));
+                    });
                 }
-                jobIDMap.entrySet().stream().forEach(i -> {
-                    final FilesAndFolderMap fileAndFolder = i.getValue();
-                    final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), i.getKey(), fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), i.getKey(), fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());
-                    rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession(), workers));
-                });
-                return null;
+                return Optional.empty();
             }
         };
         workers.execute(getJobIDs);

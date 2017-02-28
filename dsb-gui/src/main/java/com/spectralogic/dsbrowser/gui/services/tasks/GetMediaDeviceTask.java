@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class GetMediaDeviceTask extends Task{
@@ -23,13 +24,13 @@ public class GetMediaDeviceTask extends Task{
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<Object> call() throws Exception {
         rootItems.forEach(ftm ->
                 {
                     final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
                     rootTreeItem.getChildren().add(newRootTreeItem);
                 }
         );
-        return null;
+        return Optional.empty();
     }
 }

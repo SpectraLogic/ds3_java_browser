@@ -7,6 +7,8 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.Event;
 
+import java.util.Optional;
+
 public class Ds3DeleteFolderTask extends Ds3Task {
 
     private final Ds3Client ds3Client;
@@ -22,16 +24,16 @@ public class Ds3DeleteFolderTask extends Ds3Task {
 
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<Object> call() throws Exception {
 
         try {
             ds3Client.deleteFolderRecursivelySpectraS3(
                     new DeleteFolderRecursivelySpectraS3Request(bucketName, fullName));
-            return StringConstants.SUCCESS;
+            return Optional.of(StringConstants.SUCCESS);
         } catch (final Exception e) {
             errorMsg = e.getMessage();
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
-            return null;
+            return Optional.empty();
         }
     }
 

@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPrio
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class GetJobPriorityTask extends Ds3Task {
@@ -19,10 +20,10 @@ public class GetJobPriorityTask extends Ds3Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<Object> call() throws Exception {
         final Ds3Client client = session.getClient();
         final GetJobSpectraS3Response jobSpectraS3 = client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-        return new ModifyJobPriorityModel(jobId,
-                jobSpectraS3.getMasterObjectListResult().getPriority().toString(), session);
+        return Optional.of(new ModifyJobPriorityModel(jobId,
+                jobSpectraS3.getMasterObjectListResult().getPriority().toString(), session));
     }
 }

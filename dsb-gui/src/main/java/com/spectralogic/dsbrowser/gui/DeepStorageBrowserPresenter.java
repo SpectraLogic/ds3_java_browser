@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -162,7 +163,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 if (ds3Common.getCurrentSession() != null) {
                     final Session session = ds3Common.getCurrentSession();
                     final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
-                    final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
+                    final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
                     if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                         jobButton.setDisable(false);

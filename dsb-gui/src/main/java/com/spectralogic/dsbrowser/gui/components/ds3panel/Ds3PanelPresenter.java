@@ -243,13 +243,13 @@ public class Ds3PanelPresenter implements Initializable {
                         if (newTab.getContent() instanceof VBox) {
                             final VBox vbox = (VBox) newTab.getContent();
                             @SuppressWarnings("unchecked")
-                            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView1 = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
-                            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
+                            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
+                            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                                     .stream().collect(GuavaCollectors.immutableList());
-                            ds3Common.setDs3TreeTableView(ds3TreeTableView1);
+                            ds3Common.setDs3TreeTableView(ds3TreeTableView);
                             ds3Common.setCurrentTabPane(ds3SessionTabPane);
-                            ds3Common.setDs3TreeTableView(ds3TreeTableView1);
-                            final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView1.getExpandedItemCount(), ds3TreeTableView1.getSelectionModel().getSelectedItems().size()).toString();
+
+                            final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
                             if (Guard.isNullOrEmpty(values)) {
                                 setBlank(true);
                             } else {
@@ -264,7 +264,7 @@ public class Ds3PanelPresenter implements Initializable {
                                         ds3PathIndicator.setText(value.getBucketName());
                                         ds3PathIndicatorTooltip.setText(value.getBucketName());
                                     }
-                                    calculateFiles(ds3TreeTableView1);
+                                    calculateFiles(ds3TreeTableView);
                                 }
                             }
                             getPaneItems().setVisible(true);

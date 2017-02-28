@@ -47,7 +47,6 @@ public class Ds3GetJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
-    private final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private UUID jobId;
 
     public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {

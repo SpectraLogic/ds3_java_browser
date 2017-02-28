@@ -284,10 +284,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final String targetDir = value.getDirectoryName();
                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                 final Session session = ds3Common.getCurrentSession();
-                final List<File> files = currentSelection
+                final ImmutableList<File> files = currentSelection
                         .stream()
                         .map(i -> new File(i.getValue().getPath().toString()))
-                        .collect(Collectors.toList());
+                        .collect(GuavaCollectors.immutableList());
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
                 startPutJob(session.getClient(), files, bucket, targetDir,
                         ds3Common.getDeepStorageBrowserPresenter(), priority,

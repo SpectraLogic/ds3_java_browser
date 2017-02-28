@@ -11,6 +11,8 @@ import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 
 public class CancelAllTaskBySession extends Task {
     private final static Logger LOG = LoggerFactory.getLogger(CancelAllTaskBySession.class);
@@ -27,7 +29,7 @@ public class CancelAllTaskBySession extends Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<Object> call() throws Exception {
         tasks.forEach(i -> {
             try {
                 String jobId = StringConstants.EMPTY_STRING;
@@ -69,6 +71,6 @@ public class CancelAllTaskBySession extends Task {
                 LOG.error("Failed to cancel job", e);
             }
         });
-        return null;
+        return Optional.empty();
     }
 }

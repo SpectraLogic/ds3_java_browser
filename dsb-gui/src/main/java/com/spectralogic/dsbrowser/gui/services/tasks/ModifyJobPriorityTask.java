@@ -6,6 +6,8 @@ import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPrio
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
+import java.util.Optional;
+
 public class ModifyJobPriorityTask extends Ds3Task {
 
     private final ModifyJobPriorityModel value;
@@ -17,9 +19,9 @@ public class ModifyJobPriorityTask extends Ds3Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<Object> call() throws Exception {
         value.getSession().getClient().modifyJobSpectraS3(
                 new ModifyJobSpectraS3Request(value.getJobID()).withPriority(newPriority));
-        return StringConstants.SUCCESS;
+        return Optional.of(StringConstants.SUCCESS);
     }
 }

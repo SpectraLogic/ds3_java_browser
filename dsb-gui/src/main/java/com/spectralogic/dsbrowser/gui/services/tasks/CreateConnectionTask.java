@@ -9,18 +9,18 @@ import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 public class CreateConnectionTask {
-    @Inject
-    private ResourceBundle resourceBundle;
+
+    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 

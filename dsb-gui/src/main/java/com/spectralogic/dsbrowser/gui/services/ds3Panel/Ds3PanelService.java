@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public final class Ds3PanelService {
 
@@ -196,7 +197,7 @@ public final class Ds3PanelService {
                     LOG.info("Search completed!");
                     Platform.runLater(() -> {
                         try {
-                            final ImmutableList<Ds3TreeTableItem> treeTableItems = searchJobTask.get().stream().collect(GuavaCollectors.immutableList());
+                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
                             ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3Common.getDeepStorageBrowserPresenter().logText(

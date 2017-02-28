@@ -12,6 +12,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public final class ParseJobInterruptionMap {
     private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMap.class);
 
     public static Map<String, FilesAndFolderMap> getJobIDMap(
-            final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints,
+            final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints,
             final String endpoint, final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobWorkers,
             final UUID jobId) {
         if (!Guard.isNullOrEmpty(endpoints) && endpoints.stream().anyMatch(i -> i.containsKey(endpoint))
@@ -59,7 +60,7 @@ public final class ParseJobInterruptionMap {
     public static Map<String, FilesAndFolderMap> removeJobID(final JobInterruptionStore jobInterruptionStore,
                                                              final String uuid, final String endpoint,
                                                              final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
-        final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints();
+        final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
         if (!Guard.isNullOrEmpty(completeArrayList)
                 && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
             try {
@@ -73,7 +74,7 @@ public final class ParseJobInterruptionMap {
         }
         if (deepStorageBrowserPresenter != null && jobInterruptionStore.getJobIdsModel().getEndpoints() != null) {
             final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpointsMap = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
-            return getJobIDMap(endpointsMap,endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
+            return getJobIDMap(endpointsMap, endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
         }
         return null;
     }
@@ -81,7 +82,7 @@ public final class ParseJobInterruptionMap {
     public static void removeJobIdFromFile(final JobInterruptionStore jobInterruptionStore,
                                            final String uuid, final String endpoint) throws Exception {
         final Map<String, FilesAndFolderMap> jobIdMap;
-        final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints();
+        final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
         final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = completeArrayList.stream().filter(i
                 -> i.containsKey(endpoint)).findFirst().orElse(null);
         if (!Guard.isMapNullOrEmpty(endpointsImmutableMap)) {
@@ -142,7 +143,7 @@ public final class ParseJobInterruptionMap {
                                          final String jobType, final String bucket) {
         if (jobInterruptionStore != null && jobInterruptionStore.getJobIdsModel() != null) {
             try {
-                final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints();
+                final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
                 boolean isNonAdjacent = false;
                 if (!Guard.isMapNullOrEmpty(filesMap) && !Guard.isMapNullOrEmpty(foldersMap)) {
                     isNonAdjacent = true;

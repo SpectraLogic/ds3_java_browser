@@ -8,6 +8,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -149,7 +150,9 @@ public class SavedSessionStore {
             if (defaultSession.size() == 1) {
                 final SavedSession savedSession = defaultSession.stream().findFirst().orElse(null);
                 if (savedSession != null) {
-                    store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true)));
+                    Platform.runLater(() -> {
+                        store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true)));
+                    });
                 }
             }
         } catch (final Exception e) {

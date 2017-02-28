@@ -7,11 +7,13 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 public class SortPolicyCallback implements javafx.util.Callback {
     private final static Logger LOG = LoggerFactory.getLogger(SortPolicyCallback.class);
@@ -44,14 +46,16 @@ public class SortPolicyCallback implements javafx.util.Callback {
 
                     ds3TreeTable.getRoot().getChildren().removeAll(ds3TreeTable.getRoot().getChildren());
                     ds3TreeTable.getRoot().getChildren().addAll(treeItems);
-                    if (loaderList.stream().findFirst().orElse(null) != null) {
-                        ds3TreeTable.getRoot().getChildren().add(loaderList.stream().findFirst().get());
+                    final Optional<TreeItem<BaseTreeModel>> first = loaderList.stream().findFirst();
+                    if (first.isPresent()) {
+                        ds3TreeTable.getRoot().getChildren().add(first.get());
                     }
 
                     treeItems.forEach(i -> {
                         if (i.isExpanded()) {
-                            if (param1.getSortOrder().stream().findFirst().isPresent())
-                                sortChild(i, comparator, param1.getSortOrder().stream().findFirst().get().getText());
+                            final Optional<TreeTableColumn<BaseTreeModel, ?>> firstElement = param1.getSortOrder().stream().findFirst();
+                            if (firstElement.isPresent())
+                                sortChild(i, comparator, firstElement.get().getText());
                             else
                                 sortChild(i, comparator, StringConstants.EMPTY_STRING);
                         }

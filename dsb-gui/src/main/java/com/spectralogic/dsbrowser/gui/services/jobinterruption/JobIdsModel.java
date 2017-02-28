@@ -1,8 +1,8 @@
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,14 +14,14 @@ public class JobIdsModel {
 
     private static JobIdsModel createDefault() {
         final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
-        final List<Map<String, Map<String, FilesAndFolderMap>>> abc = new ArrayList<>();
-        return new JobIdsModel(abc.stream().collect(GuavaCollectors.immutableList()));
+        final List<Map<String, Map<String, FilesAndFolderMap>>> jobIdModels = new ArrayList<>();
+        return new JobIdsModel(jobIdModels);
     }
 
     @JsonProperty("endpoints")
-    private ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
+    private List<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
 
-    public JobIdsModel(final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
+    public JobIdsModel(final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
         this.endpoints = endpoints;
     }
 
@@ -29,11 +29,11 @@ public class JobIdsModel {
         this(null);
     }
 
-    public void setEndpoints(final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
+    public void setEndpoints(final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints) {
         this.endpoints = endpoints;
     }
 
-    public ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> getEndpoints() {
+    public List<Map<String, Map<String, FilesAndFolderMap>>> getEndpoints() {
         return endpoints;
     }
 

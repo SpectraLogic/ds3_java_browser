@@ -3,15 +3,16 @@ package com.spectralogic.dsbrowser.gui.components.createfolder;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
-import com.spectralogic.dsbrowser.gui.util.*;
-import javafx.application.Platform;
+import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.gui.util.PathUtil;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -92,9 +93,7 @@ public class CreateFolderPresenter implements Initializable {
             });
             createFolderTask.setOnCancelled(event -> this.closeDialog());
             createFolderTask.setOnFailed(event -> {
-                Platform.runLater(() -> {
-                    this.closeDialog();
-                });
+                this.closeDialog();
                 Ds3Alert.show(resourceBundle.getString("createFolderErrAlert"), resourceBundle.getString("createFolderErrLogs"), Alert.AlertType.ERROR);
             });
         } catch (final Exception e) {

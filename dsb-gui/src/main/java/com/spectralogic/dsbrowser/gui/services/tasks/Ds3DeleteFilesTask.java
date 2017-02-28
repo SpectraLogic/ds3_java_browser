@@ -11,6 +11,7 @@ import javafx.event.Event;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class Ds3DeleteFilesTask extends Ds3Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Optional<String> call() throws Exception {
         try {
             int deleteSize = 0;
             final Set<String> bucketSet = bucketObjectsMap.keySet();
@@ -39,15 +40,15 @@ public class Ds3DeleteFilesTask extends Ds3Task {
                                 .collect(Collectors.toList())));
                 deleteSize++;
                 if (deleteSize == bucketSet.size()) {
-                    return StringConstants.SUCCESS;
+                    return Optional.of(StringConstants.SUCCESS);
                 }
             }
         } catch (final Exception e) {
             errorMsg = e.getMessage();
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
-            return null;
+            return Optional.empty();
         }
-        return null;
+        return Optional.empty();
     }
 
 

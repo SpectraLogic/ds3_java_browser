@@ -62,7 +62,7 @@ public class CreateBucketPresenter implements Initializable {
         LOG.info("Initializing Create Bucket form");
         initGUIElements();
         //noinspection unchecked
-        dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
+        dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(CreateBucketModel::getDataPolicy).collect(Collectors.toList()));
         bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
                 createBucketButton.setDisable(false);

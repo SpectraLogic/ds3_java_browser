@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
 
@@ -95,7 +96,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
         super.setGraphic(processImage);
         final Task getChildren = new Task() {
             @Override
-            protected Object call() throws Exception {
+            protected Optional<Object> call() throws Exception {
                 if (modelValue.getType().equals(JobInfoModel.Type.JOBID)) {
                     value.getFiles().entrySet().stream().forEach(i -> {
                         long size = 0;
@@ -104,11 +105,11 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         } catch (final IOException e) {
                             LOG.error("Unable to get children", e);
                         }
-                        final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, size, i.getValue().toString(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.File,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                        final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, size, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.File, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
                     value.getFolders().entrySet().stream().forEach(i -> {
-                        final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(),  StringConstants.TWO_DASH, 0, i.getValue().toString(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.Directory,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                        final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, 0, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.Directory, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
 
@@ -124,7 +125,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         for (final File file : files) {
                             final FileTreeModel.Type type = getRootType(file);
                             if (type == FileTreeModel.Type.Directory) {
-                                final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(),  StringConstants.TWO_DASH, 0, file.getPath(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.Directory,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                                final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), StringConstants.TWO_DASH, 0, file.getPath(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.Directory, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);
                             } else {
                                 long size = 0;
@@ -133,7 +134,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                                 } catch (final IOException e) {
                                     LOG.error("file not found", e);
                                 }
-                                final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(),  StringConstants.TWO_DASH, size, file.getPath(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.File,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                                final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), StringConstants.TWO_DASH, size, file.getPath(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.File, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                 list.add(jobListTreeTableItem);
                             }
                         }
@@ -145,11 +146,11 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                             final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();
                             detailedS3Objects.forEach(file -> {
                                 if (file.getType() == S3ObjectType.FOLDER) {
-                                    final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(),  StringConstants.TWO_DASH, 0, file.getName(), modelValue.getJobType(),  StringConstants.TWO_DASH, JobInfoModel.Type.Directory,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                                    final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), StringConstants.TWO_DASH, 0, file.getName(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.Directory, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                     list.add(jobListTreeTableItem);
                                 } else {
                                     final long size = file.getSize();
-                                    final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(),  StringConstants.TWO_DASH, size, file.getName(), modelValue.getJobType(), "--", JobInfoModel.Type.File,  StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
+                                    final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(file.getName(), modelValue.getJobId(), StringConstants.TWO_DASH, size, file.getName(), modelValue.getJobType(), "--", JobInfoModel.Type.File, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                                     list.add(jobListTreeTableItem);
                                 }
                             });
@@ -158,7 +159,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         }
                     }
                 }
-                return null;
+                return Optional.empty();
             }
         };
         workers.execute(getChildren);

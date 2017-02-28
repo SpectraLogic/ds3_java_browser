@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
@@ -308,7 +307,10 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             //Set item property listener on row for maintaining expand property
             row.treeItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (null != ds3TreeTable.getRoot().getValue()) {
+                if (ds3TreeTable == null) {
+                    ds3TreeTable = ds3Common.getDs3TreeTableView();
+                }
+                if (null != ds3TreeTable.getRoot() && null != ds3TreeTable.getRoot().getValue()) {
                     //Set disclosure node of row to null if it is child of bucket
                     row.setDisclosureNode(null);
                     isFirstTime = false;
