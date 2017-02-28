@@ -12,23 +12,21 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
-import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
-import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.settings.FilePropertiesSettings;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -48,9 +46,9 @@ import java.util.stream.Collectors;
 
 public class Ds3GetJob extends Ds3JobTask {
 
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
+    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
     private final ImmutableSet.Builder<String> partOfDirBuilder;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final List<Ds3TreeTableValueCustom> list;
@@ -58,19 +56,22 @@ public class Ds3GetJob extends Ds3JobTask {
     private final Ds3Client ds3Client;
     private final ArrayList<Ds3TreeTableValueCustom> nodes;
     private final String jobPriority;
-    final Map<Path, Path> map;
-    private UUID jobId;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
-    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private final Ds3Common ds3Common;
+    private final Map<Path, Path> map;
+    private final FilePropertiesSettings filePropertiesSettings;
 
-    public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {
+    private ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
+    private UUID jobId;
+
+    public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common, final FilePropertiesSettings filePropertiesSettings) {
         this.list = list;
         this.fileTreeModel = fileTreeModel;
         this.ds3Client = client;
-        partOfDirBuilder = ImmutableSet.builder();
-        nodes = new ArrayList<>();
+        this.filePropertiesSettings = filePropertiesSettings;
+        this.partOfDirBuilder = ImmutableSet.builder();
+        this.nodes = new ArrayList<>();
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.jobPriority = jobPriority;
         this.map = new HashMap<>();
@@ -111,9 +112,9 @@ public class Ds3GetJob extends Ds3JobTask {
                     if (value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
                         if (Paths.get(value.getFullName()).getParent() != null) {
                             folderMap.put(value.getFullName(), Paths.get(value.getFullName()).getParent());
-                            addAllDescendents(value, nodes, Paths.get(value.getFullName()).getParent());
+                            addAllDescendants(value, nodes, Paths.get(value.getFullName()).getParent());
                         } else {
-                            addAllDescendents(value, nodes, null);
+                            addAllDescendants(value, nodes, null);
                             folderMap.put(value.getFullName(), Paths.get("/"));
                         }
                     }
@@ -171,12 +172,14 @@ public class Ds3GetJob extends Ds3JobTask {
                     });
 
                     //get meta data saved on server
-                    LOG.info("Registering metadata receiver");
-                    final MetadataReceivedListenerImpl metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreeModel.toString());
-                    getJob.attachMetadataReceivedListener((s, metadata) -> {
-                        LOG.info("Restoring metadata for {}", s);
-                        metadataReceivedListener.metadataReceived(s, metadata);
-                    });
+                    if (filePropertiesSettings.isFilePropertiesEnabled()) {
+                        LOG.info("Registering metadata receiver");
+                        final MetadataReceivedListenerImpl metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreeModel.toString());
+                        getJob.attachMetadataReceivedListener((s, metadata) -> {
+                            LOG.info("Restoring metadata for {}", s);
+                            metadataReceivedListener.metadataReceived(s, metadata);
+                        });
+                    }
 
                     getJob.transfer(l -> {
                         final File file = new File(l);
@@ -242,7 +245,7 @@ public class Ds3GetJob extends Ds3JobTask {
         }
     }
 
-    private void addAllDescendents(final Ds3TreeTableValueCustom value, final ArrayList nodes, final Path path) {
+    private void addAllDescendants(final Ds3TreeTableValueCustom value, final ArrayList nodes, final Path path) {
         try {
             final GetBucketRequest request = new GetBucketRequest(value.getBucketName()).withDelimiter("/");
             // Don't include the prefix if the item we are looking up from is the base bucket
@@ -262,7 +265,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     .getCommonPrefixes().stream().map(CommonPrefixes::getPrefix)
                     .map(c -> new Ds3TreeTableValueCustom(value.getBucketName(), c, Ds3TreeTableValue.Type.Directory, 0, "", "--", false))
                     .collect(GuavaCollectors.immutableList());
-            directoryValues.forEach(i -> addAllDescendents(i, nodes, path));
+            directoryValues.forEach(i -> addAllDescendants(i, nodes, path));
 
         } catch (final IOException e) {
             Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job Cancelled. Response code:" + ds3Client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString(), LogType.ERROR));

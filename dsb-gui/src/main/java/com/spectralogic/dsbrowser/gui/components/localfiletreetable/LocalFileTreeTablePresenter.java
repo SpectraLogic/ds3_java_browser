@@ -369,7 +369,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
 
                 final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+                        deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore.getFilePropertiesSettings());
 
                 jobWorkers.execute(getJob);
 
@@ -456,7 +456,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
 
                             final Ds3GetJob getJob = new Ds3GetJob(list, localPath, session.getClient(),
-                                    deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+                                    deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore.getFilePropertiesSettings());
 
                             jobWorkers.execute(getJob);
 
