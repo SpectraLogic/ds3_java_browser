@@ -6,20 +6,19 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -90,9 +89,12 @@ public class CreateBucketPresenter implements Initializable {
     public void createBucket() {
         LOG.info("Create Bucket called");
         try {
-            final CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream()
-                    .filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().orElse(null);
-            if (null != dataPolicy) {
+            final Optional<CreateBucketModel> first = createBucketWithDataPoliciesModel.getDataPolicies().stream()
+                    .filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst();
+
+            if (first.isPresent()) {
+                final CreateBucketModel dataPolicy = first.get();
+
                 final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
                         createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(),
                         deepStorageBrowserPresenter);
@@ -112,6 +114,7 @@ public class CreateBucketPresenter implements Initializable {
                 deepStorageBrowserPresenter.logText(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
                 Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("dataPolicyNotFoundErr"), Alert.AlertType.ERROR);
             }
+
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
