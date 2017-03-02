@@ -246,8 +246,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void transferToBlackPearl() {
         try {
-            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
-            if (ds3TreeTableView == null) {
+            if (ds3Common.getCurrentSession() == null) {
                 Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noSession"), Alert.AlertType.INFORMATION);
                 return;
             }
@@ -256,6 +255,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("fileSelect"), Alert.AlertType.INFORMATION);
                 return;
             }
+            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
             ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
             //Finding root in case of double click to get selected items
