@@ -256,8 +256,9 @@ public class Ds3PanelPresenter implements Initializable {
                                     setBlank(true);
                                 } else {
                                     setBlank(false);
-                                    final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-                                    if (ds3TreeTableValueTreeItem != null) {
+                                    final Optional<TreeItem<Ds3TreeTableValue>> ds3TreeTableValueTreeItemElement = values.stream().findFirst();
+                                    if (ds3TreeTableValueTreeItemElement.isPresent()) {
+                                        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = ds3TreeTableValueTreeItemElement.get();
                                         final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
                                         if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
                                             ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
