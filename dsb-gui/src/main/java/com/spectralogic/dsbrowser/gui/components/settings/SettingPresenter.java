@@ -6,6 +6,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
+import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -153,20 +154,24 @@ public class SettingPresenter implements Initializable {
             } else {
                 settings.setFilePropertiesSettings(false);
             }
-
+            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("filePropertiesSettingsUpdated"), Alert.AlertType.INFORMATION);
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
-        closeDialog();
+    }
+
+    public void savePerformanceSettings() {
+        LOG.info("Updating maximum number of Threads");
+        settings.setProcessSettings(processSettings);
+        jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
+        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("performanceSettingsUpdated"), Alert.AlertType.INFORMATION);
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settings");
         settings.setLogSettings(logSettings);
-        settings.setProcessSettings(processSettings);
         logService.setLogSettings(logSettings);
-        jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        closeDialog();
+        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("loggingSettingsUpdated"), Alert.AlertType.INFORMATION);
     }
 
     public void saveJobSettings() {
@@ -180,10 +185,10 @@ public class SettingPresenter implements Initializable {
             } else {
                 settings.setShowCachedJobSettings(false);
             }
+            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("jobsSettingsUpdated"), Alert.AlertType.INFORMATION);
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }
-        closeDialog();
     }
 
     public void closeDialog() {

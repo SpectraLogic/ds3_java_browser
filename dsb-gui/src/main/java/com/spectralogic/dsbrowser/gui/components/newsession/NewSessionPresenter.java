@@ -153,8 +153,19 @@ public class NewSessionPresenter implements Initializable {
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("selectToDeleteSession"), Alert.AlertType.ERROR);
         } else {
-            savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionDeletedSuccess"), Alert.AlertType.INFORMATION);
+            if (Guard.isNotNullAndNotEmpty(store.getObservableList())) {
+                store.getObservableList().forEach(openSession -> {
+                    if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
+                        Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cannotdeletesession"), Alert.AlertType.ERROR);
+                    } else {
+                        savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
+                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionDeletedSuccess"), Alert.AlertType.INFORMATION);
+                    }
+                });
+            } else {
+                savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
+                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionDeletedSuccess"), Alert.AlertType.INFORMATION);
+            }
         }
     }
 
@@ -216,7 +227,7 @@ public class NewSessionPresenter implements Initializable {
                 final int previousSize = savedSessionStore.getSessions().size();
                 final int i = savedSessionStore.saveSession(session);
                 if (i == -1) {
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noNewChanges"), Alert.AlertType.ERROR);
+                    Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noNewChanges"), Alert.AlertType.INFORMATION);
                 } else if (i == -2) {
                     Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("alreadyExistSession"), Alert.AlertType.ERROR);
                 } else {

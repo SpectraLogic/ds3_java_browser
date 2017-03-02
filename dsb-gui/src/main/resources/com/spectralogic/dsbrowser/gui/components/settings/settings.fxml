@@ -79,7 +79,7 @@
                                         <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <children>
-                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#saveLogSettings" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#savePerformanceSettings" />
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
                                             </children>
                                             <GridPane.margin>

@@ -133,13 +133,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
+        deleteFile.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
+        deleteFolder.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject());
+        deleteBucket.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers));

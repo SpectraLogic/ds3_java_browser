@@ -218,7 +218,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     @SuppressWarnings("unchecked")
     private void initListeners() {
-        ds3DeleteButton.setOnAction(event -> ds3DeleteObject());
+        ds3DeleteButton.setOnAction(event -> ds3DeleteObject(true));
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
@@ -537,7 +537,7 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    public void ds3DeleteObject() {
+    public void ds3DeleteObject(final boolean isButtonEvent) {
         LOG.info("Got delete bucket event");
         final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
@@ -551,14 +551,18 @@ public class Ds3PanelPresenter implements Initializable {
                 values = builder.add(root).build().asList();
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
-            LOG.info("Going delete the folder");
-            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            DeleteService.deleteFolder(ds3Common, values);
+            if (isButtonEvent) {
+                LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select \'Delete Folder...\'");
+                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("canRecursivelyDelete"), Alert.AlertType.ERROR);
+            } else {
+                LOG.info("Going to delete the folder");
+                DeleteService.deleteFolder(ds3Common, values);
+            }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
-            LOG.info("Going delete the bucket");
+            LOG.info("Going to delete the bucket");
             DeleteService.deleteBucket(ds3Common, values, workers);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
-            LOG.info("Going delete the file(s)");
+            LOG.info("Going to delete the file(s)");
             DeleteService.deleteFiles(ds3Common, values, workers);
         }
     }
