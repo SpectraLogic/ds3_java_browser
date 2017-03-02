@@ -7,6 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import javafx.beans.property.BooleanProperty;
+import javafx.scene.Node;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -14,6 +15,8 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 public final class RefreshCompleteViewWorker {
     private final static Logger LOG = LoggerFactory.getLogger(RefreshCompleteViewWorker.class);
@@ -64,8 +67,7 @@ public final class RefreshCompleteViewWorker {
                                     ds3TreeTableValueTreeItem.setExpanded(true);
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
                         }
@@ -77,22 +79,25 @@ public final class RefreshCompleteViewWorker {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {
         final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane();
         if (null != ds3SessionTabPane) {
             try {
                 final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-                return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView)
-                        .findFirst().orElse(null);
-            }
-            catch (final Exception e) {
+                final Optional<Node> first = vbox.getChildren().stream().filter(i -> i instanceof TreeTableView)
+                        .findFirst();
+                if (first.isPresent()) {
+                    return (TreeTableView<Ds3TreeTableValue>) first.get();
+                }
+            } catch (final Exception e) {
                 LOG.error("Tab pane is not present", e);
-                return null;
             }
         } else {
             LOG.info("TabPane is null");
-            return null;
         }
+
+        return null;
     }
 
 }

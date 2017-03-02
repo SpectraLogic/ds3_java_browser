@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     private final static Logger LOG = LoggerFactory.getLogger(SearchJobTask.class);
@@ -43,7 +44,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             final List<Ds3TreeTableItem> list = new ArrayList<>();
             searchableBuckets.forEach(bucket -> {
                 if (bucket.getName().contains(searchText)) {
-                    printLog(StringBuilderUtil.bucketFoundMessage("'"+searchText+"'",bucket.getName()).toString(), LogType.SUCCESS);
+                    printLog(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucket.getName()).toString(), LogType.SUCCESS);
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                             0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
                     list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common));
@@ -134,8 +135,9 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
      * @return HBox
      */
     private HBox getConfiguredHBox(final List<BulkObject> objects) {
-        final BulkObject bulkObject = objects.stream().findFirst().orElse(null);
-        if (null != bulkObject) {
+        final Optional<BulkObject> first = objects.stream().findFirst();
+        if (first.isPresent()) {
+            final BulkObject bulkObject = first.get();
             return GetStorageLocations.addPlacementIconsandTooltip(bulkObject.getPhysicalPlacement(), bulkObject.getInCache());
         }
         return null;

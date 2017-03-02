@@ -45,11 +45,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 public class LocalFileTreeTablePresenter implements Initializable {
 
@@ -258,8 +257,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             //Finding root in case of double click to get selected items
             final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
             if ((root == null || null == root.getValue()) && Guard.isNullOrEmpty(values)) {
-                    Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("selectDestination"), Alert.AlertType.INFORMATION);
-                    return;
+                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("selectDestination"), Alert.AlertType.INFORMATION);
+                return;
             }
             //If values is empty we have to assign it with root
             else if (Guard.isNullOrEmpty(values)) {
@@ -270,12 +269,18 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
                 return;
             }
-            if (values.stream().findFirst().get().getValue().isSearchOn()) {
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
-                return;
-            }
-            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            if (null != treeItem) {
+
+            final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
+
+            if (first.isPresent()) {
+
+                final TreeItem<Ds3TreeTableValue> treeItem = first.get();
+
+                if (treeItem.getValue().isSearchOn()) {
+                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
+                    return;
+                }
+
                 if (!treeItem.isExpanded()) {
                     treeItem.setExpanded(true);
                 }
@@ -292,9 +297,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 startPutJob(session.getClient(), files, bucket, targetDir,
                         ds3Common.getDeepStorageBrowserPresenter(), priority,
                         jobInterruptionStore, ds3Common, settingsStore, treeItem);
+
+
             } else {
                 LOG.info("No item selected from server side");
             }
+
         } catch (final Exception e) {
             LOG.error("Failed to transfer data to black pearl", e);
             ds3Common.getDeepStorageBrowserPresenter().logText("Failed to transfer data to black pearl: " + e, LogType.ERROR);
@@ -306,8 +314,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) treeItem;
             ds3TreeTableItem.refresh();
-        }
-        else {
+        } else {
             LOG.info("selected tree item is not the instance of Ds3TreeItem");
         }
     }
@@ -514,8 +521,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private Session getSession(final String sessionName) {
-        return store.getSessions().filter(sessions -> (sessions.getSessionName()
-                + StringConstants.SESSION_SEPARATOR + sessions.getEndpoint()).equals(sessionName)).findFirst().orElse(null);
+
+        final Optional<Session> first = store.getSessions().filter(sessions -> (sessions.getSessionName()
+                + StringConstants.SESSION_SEPARATOR + sessions.getEndpoint()).equals(sessionName)).findFirst();
+        if (first.isPresent()) {
+            return first.get();
+        } else {
+            return null;
+        }
     }
 
     /**

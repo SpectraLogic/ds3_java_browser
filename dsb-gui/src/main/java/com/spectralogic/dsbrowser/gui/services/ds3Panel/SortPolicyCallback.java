@@ -88,8 +88,12 @@ public class SortPolicyCallback implements javafx.util.Callback {
                 FXCollections.sort(treeItems, comparator);
                 o1.getChildren().removeAll(o1.getChildren());
                 o1.getChildren().addAll(treeItems);
-                if (loaderList.stream().findFirst().orElse(null) != null)
-                    o1.getChildren().add(loaderList.stream().findFirst().get());
+                final Optional<TreeItem<BaseTreeModel>> first = loaderList.stream().findFirst();
+
+                if (first.isPresent()) {
+                    o1.getChildren().add(first.get());
+                }
+
                 if (!type.equals(StringConstants.TYPE)) {
                     FXCollections.sort(o1.getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
                 }

@@ -32,29 +32,33 @@ public final class ParseJobInterruptionMap {
             final UUID jobId) {
         if (!Guard.isNullOrEmpty(endpoints) && endpoints.stream().anyMatch(i -> i.containsKey(endpoint))
                 && !Guard.isStringNullOrEmpty(endpoint)) {
-            final Map<String, Map<String, FilesAndFolderMap>> endpointMap = endpoints.stream().filter(i -> i
-                    .containsKey(endpoint)).findFirst().orElse(null);
-            final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
-            final HashMap<String, FilesAndFolderMap> collect = jobIDMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
-            final ObservableList<Ds3JobTask> tasks = jobWorkers.getTasks();
-            tasks.forEach(i -> {
-                UUID uuid = null;
-                if (i instanceof Ds3PutJob) {
-                    uuid = ((Ds3PutJob) i).getJobId();
-                } else if (i instanceof Ds3GetJob) {
-                    uuid = ((Ds3GetJob) i).getJobId();
-                } else if (i instanceof RecoverInterruptedJob) {
-                    uuid = ((RecoverInterruptedJob) i).getUuid();
-                }
-                if (uuid != null && uuid != jobId && collect.containsKey(uuid.toString())) {
-                    collect.remove(uuid.toString());
-                }
-            });
-            return collect;
+
+            final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = endpoints.stream().filter(i -> i
+                    .containsKey(endpoint)).findFirst();
+            if (first.isPresent()) {
+                final Map<String, Map<String, FilesAndFolderMap>> endpointMap = first.get();
+                final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
+                final HashMap<String, FilesAndFolderMap> collect = jobIDMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
+                final ObservableList<Ds3JobTask> tasks = jobWorkers.getTasks();
+                tasks.forEach(i -> {
+                    UUID uuid = null;
+                    if (i instanceof Ds3PutJob) {
+                        uuid = ((Ds3PutJob) i).getJobId();
+                    } else if (i instanceof Ds3GetJob) {
+                        uuid = ((Ds3GetJob) i).getJobId();
+                    } else if (i instanceof RecoverInterruptedJob) {
+                        uuid = ((RecoverInterruptedJob) i).getUuid();
+                    }
+                    if (uuid != null && uuid != jobId && collect.containsKey(uuid.toString())) {
+                        collect.remove(uuid.toString());
+                    }
+                });
+                return collect;
+            }
         } else {
             LOG.info("No endpoint present");
-            return null;
         }
+        return null;
     }
 
     public static Map<String, FilesAndFolderMap> removeJobID(final JobInterruptionStore jobInterruptionStore,
@@ -83,28 +87,31 @@ public final class ParseJobInterruptionMap {
                                            final String uuid, final String endpoint) throws Exception {
         final Map<String, FilesAndFolderMap> jobIdMap;
         final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
-        final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = completeArrayList.stream().filter(i
-                -> i.containsKey(endpoint)).findFirst().orElse(null);
-        if (!Guard.isMapNullOrEmpty(endpointsImmutableMap)) {
-            final HashMap<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsImmutableMap.entrySet()
-                    .stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
-            completeArrayList.remove(endpointsImmutableMap);
-            if (endpointHashMap.containsKey(endpoint)) {
-                jobIdMap = endpointHashMap.get(endpoint)
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
-                if (jobIdMap.containsKey(uuid)) {
-                    jobIdMap.remove(uuid);
+        final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = completeArrayList.stream().filter(i
+                -> i.containsKey(endpoint)).findFirst();
+        if (first.isPresent()) {
+            final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = first.get();
+            if (!Guard.isMapNullOrEmpty(endpointsImmutableMap)) {
+                final HashMap<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsImmutableMap.entrySet()
+                        .stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
+                completeArrayList.remove(endpointsImmutableMap);
+                if (endpointHashMap.containsKey(endpoint)) {
+                    jobIdMap = endpointHashMap.get(endpoint)
+                            .entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
+                    if (jobIdMap.containsKey(uuid)) {
+                        jobIdMap.remove(uuid);
+                    }
+                    endpointHashMap.put(endpoint, jobIdMap);
                 }
-                endpointHashMap.put(endpoint, jobIdMap);
+                completeArrayList.add(endpointHashMap);
+                jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
+            } else {
+                LOG.info("No endpoint present");
             }
-            completeArrayList.add(endpointHashMap);
-            jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
-        } else {
-            LOG.info("No endpoint present");
+            JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
         }
-        JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
     }
 
     public static void setButtonAndCountNumber(final Map<String, FilesAndFolderMap> jobIDMap,
@@ -150,17 +157,23 @@ public final class ParseJobInterruptionMap {
                 }
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, foldersMap, jobType, DateFormat.formatDate(new Date()), isNonAdjacent, targetLocation, totalJobSize, bucket);
                 if (!Guard.isNullOrEmpty(completeArrayList) && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
-                    final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = completeArrayList
-                            .stream().filter(i -> i.containsKey(endpoint)).findFirst().orElse(null);
-                    if (!Guard.isMapNullOrEmpty(endpointsImmutableMap) && endpointsImmutableMap.containsKey(endpoint)) {
-                        final Map<String, FilesAndFolderMap> jobIdImmutableMap = endpointsImmutableMap.get(endpoint);
-                        jobIdImmutableMap.put(jobId.toString(), filesAndFolderMap);
-                    } else {
-                        final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();
-                        jobIdHashMap.put(jobId.toString(), filesAndFolderMap);
-                        endpointsImmutableMap.put(endpoint, jobIdHashMap);
+
+                    final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = completeArrayList
+                            .stream().filter(i -> i.containsKey(endpoint)).findFirst();
+
+                    if (first.isPresent()) {
+                        final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = first.get();
+                        if (!Guard.isMapNullOrEmpty(endpointsImmutableMap) && endpointsImmutableMap.containsKey(endpoint)) {
+                            final Map<String, FilesAndFolderMap> jobIdImmutableMap = endpointsImmutableMap.get(endpoint);
+                            jobIdImmutableMap.put(jobId.toString(), filesAndFolderMap);
+                        } else {
+                            final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();
+                            jobIdHashMap.put(jobId.toString(), filesAndFolderMap);
+                            endpointsImmutableMap.put(endpoint, jobIdHashMap);
+                        }
+                        jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
                     }
-                    jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
+
                 } else if (null != completeArrayList) {
                     final Map<String, Map<String, FilesAndFolderMap>> endpointsHashMap = new HashMap<>();
                     final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();

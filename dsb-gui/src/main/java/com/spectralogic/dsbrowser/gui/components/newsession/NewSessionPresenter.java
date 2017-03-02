@@ -1,8 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
@@ -192,17 +192,19 @@ public class NewSessionPresenter implements Initializable {
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         newSessionModel.setDefaultSession(true);
                         // SessionModelService.setSessionModel(defaultSession.stream().findFirst().orElse(null),false);
-                        final Session session =  createConnectionTask.createConnection(SessionModelService.setSessionModel(defaultSession.stream().findFirst().orElse(null), false));
-                        if (session != null) {
-                            savedSessionStore.saveSession(session);
-                            try {
-                                SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-                            } catch (final Exception e) {
-                                LOG.error("Unable to save saved session:{} ", e);
+                        final Optional<SavedSession> first = defaultSession.stream().findFirst();
+                        if (first.isPresent()) {
+                            final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false));
+                            if (session != null) {
+                                savedSessionStore.saveSession(session);
+                                try {
+                                    SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                                } catch (final Exception e) {
+                                    LOG.error("Unable to save saved session:{} ", e);
+                                }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         newSessionModel.setDefaultSession(false);
                         model.setDefaultSession(false);
                     }

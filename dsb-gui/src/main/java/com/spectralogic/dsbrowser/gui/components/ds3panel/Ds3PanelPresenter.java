@@ -33,6 +33,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,10 +48,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Ds3PanelPresenter implements Initializable {
@@ -218,6 +216,7 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void initListeners() {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObject());
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
@@ -242,34 +241,39 @@ public class Ds3PanelPresenter implements Initializable {
                     try {
                         if (newTab.getContent() instanceof VBox) {
                             final VBox vbox = (VBox) newTab.getContent();
-                            @SuppressWarnings("unchecked")
-                            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().orElse(null);
-                            final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                                    .stream().collect(GuavaCollectors.immutableList());
-                            ds3Common.setDs3TreeTableView(ds3TreeTableView);
-                            ds3Common.setCurrentTabPane(ds3SessionTabPane);
 
-                            final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
-                            if (Guard.isNullOrEmpty(values)) {
-                                setBlank(true);
-                            } else {
-                                setBlank(false);
-                                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-                                if (ds3TreeTableValueTreeItem != null) {
-                                    final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
-                                    if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                                        ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                        ds3PathIndicatorTooltip.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                    } else {
-                                        ds3PathIndicator.setText(value.getBucketName());
-                                        ds3PathIndicatorTooltip.setText(value.getBucketName());
+                            final Optional<Node> first = vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst();
+
+                            if (first.isPresent()) {
+                                final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) first.get();
+                                final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                                        .stream().collect(GuavaCollectors.immutableList());
+                                ds3Common.setDs3TreeTableView(ds3TreeTableView);
+                                ds3Common.setCurrentTabPane(ds3SessionTabPane);
+
+                                final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
+                                if (Guard.isNullOrEmpty(values)) {
+                                    setBlank(true);
+                                } else {
+                                    setBlank(false);
+                                    final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
+                                    if (ds3TreeTableValueTreeItem != null) {
+                                        final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
+                                        if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                                            ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
+                                            ds3PathIndicatorTooltip.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
+                                        } else {
+                                            ds3PathIndicator.setText(value.getBucketName());
+                                            ds3PathIndicatorTooltip.setText(value.getBucketName());
+                                        }
+                                        calculateFiles(ds3TreeTableView);
                                     }
-                                    calculateFiles(ds3TreeTableView);
                                 }
+                                getPaneItems().setVisible(true);
+                                getPaneItems().setText(info);
+                            } else {
+                                LOG.info("TreeTableView is null");
                             }
-                            getPaneItems().setVisible(true);
-                            getPaneItems().setText(info);
-
                         } else {
                             ds3Common.setCurrentSession(null);
                             setBlank(true);
@@ -455,14 +459,18 @@ public class Ds3PanelPresenter implements Initializable {
                                         v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
                 final Path localPath;
                 //Getting selected item at destination location
-                final FileTreeModel selectedAtDest = selectedItemsAtDestinationList.stream().findFirst().orElse(null);
-                if (selectedAtDest == null) {
+                final Optional<FileTreeModel> first = selectedItemsAtDestinationList.stream().findFirst();
+                if (!first.isPresent()) {
                     localPath = Paths.get(fileRootItem);
-                } else if (selectedAtDest.getType().equals(FileTreeModel.Type.File)) {
-                    localPath = selectedAtDest.getPath().getParent();
                 } else {
-                    localPath = selectedAtDest.getPath();
+                    final FileTreeModel selectedAtDest = first.get();
+                    if (selectedAtDest.getType().equals(FileTreeModel.Type.File)) {
+                        localPath = selectedAtDest.getPath().getParent();
+                    } else {
+                        localPath = selectedAtDest.getPath();
+                    }
                 }
+
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority()
                         .equals(resourceBundle.getString("defaultPolicyText"))) ?
                         savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
@@ -505,15 +513,14 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
                                       final TreeTableView<FileTreeModel> treeTable, final Label fileRootItemLabel, final String fileRootItem) {
-        if (selectedItemsAtDestination.stream().findFirst().isPresent()) {
-            final TreeItem<FileTreeModel> selectedItem = selectedItemsAtDestination.stream().findFirst().orElse(null);
-            if (selectedItem != null) {
-                if (selectedItem instanceof FileTreeTableItem) {
-                    final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
-                    fileTreeTableItem.refresh();
-                    treeTable.getSelectionModel().clearSelection();
-                    treeTable.getSelectionModel().select(selectedItem);
-                }
+        final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
+        if (first.isPresent()) {
+            final TreeItem<FileTreeModel> selectedItem = first.get();
+            if (selectedItem instanceof FileTreeTableItem) {
+                final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
+                fileTreeTableItem.refresh();
+                treeTable.getSelectionModel().clearSelection();
+                treeTable.getSelectionModel().select(selectedItem);
             }
         } else {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
@@ -539,7 +546,6 @@ public class Ds3PanelPresenter implements Initializable {
             if (root.getValue() == null) {
                 LOG.info("No files selected");
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
-                return;
             } else {
                 final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
                 values = builder.add(root).build().asList();
@@ -547,15 +553,10 @@ public class Ds3PanelPresenter implements Initializable {
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             LOG.info("Going delete the folder");
             final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            if (treeItem != null) {
-                DeleteService.deleteFolder(ds3Common, values);
-            }
+            DeleteService.deleteFolder(ds3Common, values);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going delete the bucket");
-            final TreeItem<Ds3TreeTableValue> treeItem = values.stream().findFirst().orElse(null);
-            if (treeItem != null) {
-                DeleteService.deleteBucket(ds3Common, values, workers);
-            }
+            DeleteService.deleteBucket(ds3Common, values, workers);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
             LOG.info("Going delete the file(s)");
             DeleteService.deleteFiles(ds3Common, values, workers);
@@ -584,11 +585,16 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
 
+    @SuppressWarnings("unchecked")
     private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
-        //noinspection unchecked
-        return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i ->
-                i instanceof TreeTableView).findFirst().orElse(null);
+
+        final Optional<Node> first = vbox.getChildren().stream().filter(i ->
+                i instanceof TreeTableView).findFirst();
+        if (first.isPresent()) {
+            return (TreeTableView<Ds3TreeTableValue>) first.get();
+        }
+        return null;
     }
 
     public void newSessionDialog() {
@@ -679,13 +685,15 @@ public class Ds3PanelPresenter implements Initializable {
                         .stream().collect(GuavaCollectors.immutableList());
                 TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 if (!Guard.isNullOrEmpty(values)) {
-                    selectedRoot = values.stream().findFirst().orElse(null);
+                    final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
+                    if (first.isPresent()) {
+                        selectedRoot = first.get();
+                    }
                 }
                 //for number of files and folders
                 final FilesCountModel filesCountModel = itemsTask.getValue();
                 if (selectedRoot == null || selectedRoot.getValue() == null || getSession() == null || null == filesCountModel) {
                     setVisibilityOfItemsInfo(false);
-                    return;
                 } else {
                     setVisibilityOfItemsInfo(true);
                     setItemCountPanelInfo(filesCountModel, selectedRoot);

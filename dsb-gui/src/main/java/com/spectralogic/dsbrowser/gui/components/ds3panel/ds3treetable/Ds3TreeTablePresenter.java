@@ -40,10 +40,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class Ds3TreeTablePresenter implements Initializable {
@@ -509,33 +506,36 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.info("You can not delete from here. Please go to specific location and delete object(s)");
             deleteFile.setDisable(false);
         } else {
-            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = selectedItems.stream().findFirst().orElse(null);
+            final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
 
-            if (selectedItems.size() == 1) {
-                physicalPlacement.setDisable(false);
+            if (first.isPresent()) {
+                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = first.get();
+                if (selectedItems.size() == 1) {
+                    physicalPlacement.setDisable(false);
 
-                switch (ds3TreeTableValueTreeItem.getValue().getType()) {
-                    case Bucket:
-                        deleteBucket.setDisable(false);
-                        createFolder.setDisable(false);
-                        createBucket.setDisable(false);
-                        break;
-                    case Directory:
-                        deleteFolder.setDisable(false);
-                        createFolder.setDisable(false);
-                        break;
-                    case File:
+                    switch (ds3TreeTableValueTreeItem.getValue().getType()) {
+                        case Bucket:
+                            deleteBucket.setDisable(false);
+                            createFolder.setDisable(false);
+                            createBucket.setDisable(false);
+                            break;
+                        case Directory:
+                            deleteFolder.setDisable(false);
+                            createFolder.setDisable(false);
+                            break;
+                        case File:
+                            deleteFile.setDisable(false);
+                            createFolder.setDisable(true);
+                            metaData.setDisable(false);
+                            break;
+                        default:
+                            break;
+                    }
+
+                } else {
+                    if (!selectedItems.stream().map(TreeItem::getValue).anyMatch(value -> (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
-                        createFolder.setDisable(true);
-                        metaData.setDisable(false);
-                        break;
-                    default:
-                        break;
-                }
-
-            } else {
-                if (!selectedItems.stream().map(TreeItem::getValue).anyMatch(value -> (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
-                    deleteFile.setDisable(false);
+                    }
                 }
             }
         }

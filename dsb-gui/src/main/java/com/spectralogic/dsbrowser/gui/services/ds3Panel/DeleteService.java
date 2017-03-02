@@ -19,10 +19,7 @@ import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class DeleteService {
@@ -52,8 +49,9 @@ public final class DeleteService {
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
             }
-            final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
-            if (value != null) {
+            final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
+            if (first.isPresent()) {
+                final TreeItem<Ds3TreeTableValue> value = first.get();
                 final String bucketName = value.getValue().getBucketName();
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     Platform.runLater(() -> {
@@ -93,10 +91,10 @@ public final class DeleteService {
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
             }
-            final TreeItem<Ds3TreeTableValue> value = values.stream().findFirst().orElse(null);
 
-            if (value != null) {
-
+            final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
+            if (first.isPresent()) {
+                final TreeItem<Ds3TreeTableValue> value = first.get();
                 final Ds3DeleteFolderTask deleteFolderTask = new Ds3DeleteFolderTask(currentSession.getClient(),
                         value.getValue().getBucketName(), value.getValue().getFullName());
 

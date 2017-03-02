@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SavedSessionStore {
@@ -148,8 +149,9 @@ public class SavedSessionStore {
         try {
             final List<SavedSession> defaultSession = getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
             if (defaultSession.size() == 1) {
-                final SavedSession savedSession = defaultSession.stream().findFirst().orElse(null);
-                if (savedSession != null) {
+                final Optional<SavedSession> first = defaultSession.stream().findFirst();
+                if (first.isPresent()) {
+                    final SavedSession savedSession = first.get();
                     Platform.runLater(() -> {
                         store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true)));
                     });

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DeleteItemPresenter implements Initializable {
@@ -88,16 +89,19 @@ public class DeleteItemPresenter implements Initializable {
     }
 
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
-        final TreeItem<Ds3TreeTableValue> valueTreeItem = selectedItems.stream().findFirst().orElse(null);
-        if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-            deleteLabel.setText(resourceBundle.getString("deleteFiles"));
-            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFileInfo"));
-        } else if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            deleteLabel.setText(resourceBundle.getString("deleteFolder"));
-            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFolderInfo"));
-        } else {
-            deleteLabel.setText(resourceBundle.getString("deleteBucket"));
-            deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteBucketInfo"));
+        final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
+        if(first.isPresent()) {
+            final TreeItem<Ds3TreeTableValue> valueTreeItem = first.get();
+            if (valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                deleteLabel.setText(resourceBundle.getString("deleteFiles"));
+                deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFileInfo"));
+            } else if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
+                deleteLabel.setText(resourceBundle.getString("deleteFolder"));
+                deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFolderInfo"));
+            } else {
+                deleteLabel.setText(resourceBundle.getString("deleteBucket"));
+                deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteBucketInfo"));
+            }
         }
     }
 

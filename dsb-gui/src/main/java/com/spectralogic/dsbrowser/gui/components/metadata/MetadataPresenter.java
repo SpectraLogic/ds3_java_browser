@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MetadataPresenter implements Initializable {
@@ -104,45 +105,73 @@ public class MetadataPresenter implements Initializable {
             //if metadata does not contains creation time key then show all metadata got from bp server without any processing
             if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {
                 //get the creation time from server
-                final String creationTime = metadata.get(StringConstants.CREATION_TIME_KEY).stream().findFirst().orElse(null);
-                builder.add(getTime(creationTime, StringConstants.CREATION_TIME_KEY));
+                final Optional<String> creationTimeElement = metadata.get(StringConstants.CREATION_TIME_KEY).stream().findFirst();
+                if (creationTimeElement.isPresent()) {
+                    builder.add(getTime(creationTimeElement.get(), StringConstants.CREATION_TIME_KEY));
+                }
                 //get the access time from server
                 if (metadata.get(StringConstants.ACCESS_TIME_KEY).size() > 0) {
-                    final String accessTime = metadata.get(StringConstants.ACCESS_TIME_KEY).stream().findFirst().orElse(null);
-                    builder.add(getTime(accessTime, StringConstants.ACCESS_TIME_KEY));
+                    final Optional<String> accessTimeElement = metadata.get(StringConstants.ACCESS_TIME_KEY).stream().findFirst();
+                    if (accessTimeElement.isPresent()) {
+                        builder.add(getTime(accessTimeElement.get(), StringConstants.ACCESS_TIME_KEY));
+                    }
                 }
                 //get the last modified time from server
                 if (metadata.get(StringConstants.LAST_MODIFIED_KEY).size() > 0) {
-                    final String modifiedTime = metadata.get(StringConstants.LAST_MODIFIED_KEY).stream().findFirst().orElse(null);
-                    builder.add(getTime(modifiedTime, StringConstants.LAST_MODIFIED_KEY));
+                    final Optional<String> lastModifiedElement = metadata.get(StringConstants.LAST_MODIFIED_KEY).stream().findFirst();
+                    if (lastModifiedElement.isPresent()) {
+                        builder.add(getTime(lastModifiedElement.get(), StringConstants.LAST_MODIFIED_KEY));
+                    }
                 }
                 //get owner sid(Windows)
                 if (metadata.get(StringConstants.OWNER).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.OWNER, metadata.get(StringConstants.OWNER).stream().findFirst().orElse(null)));
+                    final Optional<String> ownerElement = metadata.get(StringConstants.OWNER).stream().findFirst();
+                    if (ownerElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.OWNER, ownerElement.get()));
+                    }
+
                 }
                 //get group sid(Windows)
                 if (metadata.get(StringConstants.GROUP).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.GROUP, metadata.get(StringConstants.GROUP).stream().findFirst().orElse(null)));
+                    final Optional<String> groupElement = metadata.get(StringConstants.GROUP).stream().findFirst();
+                    if (groupElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.GROUP, groupElement.get()));
+                    }
                 }
                 //get User Id (Linux and MAC)
                 if (metadata.get(StringConstants.UID).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.UID, metadata.get(StringConstants.UID).stream().findFirst().orElse(null)));
+                    final Optional<String> uidElement = metadata.get(StringConstants.UID).stream().findFirst();
+                    if (uidElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.UID, uidElement.get()));
+                    }
                 }
                 //get group Id (Linux and MAC)
                 if (metadata.get(StringConstants.GID).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.GID, metadata.get(StringConstants.GID).stream().findFirst().orElse(null)));
+                    final Optional<String> gidElement = metadata.get(StringConstants.GID).stream().findFirst();
+                    if (gidElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.GID, gidElement.get()));
+                    }
                 }
                 //get Flag(Windows)
                 if (metadata.get(StringConstants.FLAG).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.FLAG, metadata.get(StringConstants.FLAG).stream().findFirst().orElse(null)));
+                    final Optional<String> flagElement = metadata.get(StringConstants.FLAG).stream().findFirst();
+                    if (flagElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.FLAG, flagElement.get()));
+                    }
                 }
                 //get dacl (Windows)
                 if (metadata.get(StringConstants.DACL).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.DACL, metadata.get(StringConstants.DACL).stream().findFirst().orElse(null)));
+                    final Optional<String> daclElement = metadata.get(StringConstants.DACL).stream().findFirst();
+                    if (daclElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.DACL, daclElement.get()));
+                    }
                 }
                 //get Mode(Linux and MAC)
                 if (metadata.get(StringConstants.MODE).size() > 0) {
-                    builder.add(new MetadataEntry(StringConstants.MODE, metadata.get(StringConstants.MODE).stream().findFirst().orElse(null)));
+                    final Optional<String> modeElement = metadata.get(StringConstants.MODE).stream().findFirst();
+                    if (modeElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.MODE, modeElement.get()));
+                    }
                 }
 
             } else {

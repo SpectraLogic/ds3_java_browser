@@ -25,6 +25,7 @@ import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public final class CreateService {
@@ -38,25 +39,29 @@ public final class CreateService {
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
             ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
-            final Task<CreateBucketWithDataPoliciesModel> getDataPolicies = new Task<CreateBucketWithDataPoliciesModel>() {
+            final Task<Optional<CreateBucketWithDataPoliciesModel>> getDataPolicies = new Task<Optional<CreateBucketWithDataPoliciesModel>>() {
 
                 @Override
-                protected CreateBucketWithDataPoliciesModel call() throws Exception {
+                protected Optional<CreateBucketWithDataPoliciesModel> call() throws Exception {
                     final Ds3Client client = session.getClient();
                     final ImmutableList<CreateBucketModel> buckets = client.getDataPoliciesSpectraS3(new GetDataPoliciesSpectraS3Request()).getDataPolicyListResult().
                             getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                     final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                             new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
-                 ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
+                    ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
                             ("dataPolicyRetrieved"), LogType.SUCCESS);
-                    return dataPoliciesList.stream().findFirst().orElse(null);
+                    final Optional<CreateBucketWithDataPoliciesModel> first = dataPoliciesList.stream().findFirst();
+                    return Optional.ofNullable(first.get());
                 }
             };
             workers.execute(getDataPolicies);
             getDataPolicies.setOnSucceeded(taskEvent -> Platform.runLater(() -> {
-                LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
-                CreateBucketPopup.show(getDataPolicies.getValue(), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                final Optional<CreateBucketWithDataPoliciesModel> value = getDataPolicies.getValue();
+                if (value.isPresent()) {
+                    LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
+                    CreateBucketPopup.show(value.get(), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                }
             }));
 
         } else {
@@ -74,31 +79,26 @@ public final class CreateService {
             LOG.info("You can not create folder here. Please refresh your view");
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cantCreateFolderHere"), Alert.AlertType.ERROR);
             return;
-        }
-        else if (values.size() > 1) {
+        } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            Ds3Alert.show(resourceBundle.getString("error"),resourceBundle.getString("selectSingleLocation"), Alert.AlertType.ERROR);
+            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("selectSingleLocation"), Alert.AlertType.ERROR);
             return;
-        }
-
-        else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
+        } else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
-        }
-        else if (Guard.isNullOrEmpty(values)) {
+        } else if (Guard.isNullOrEmpty(values)) {
             ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("selectLocation"), LogType.ERROR);
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("locationNotSelected"), Alert.AlertType.ERROR);
             return;
         }
-        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = values.stream().findFirst().orElse(null);
-        if (ds3TreeTableValueTreeItem != null) {
-            //Can not assign final as assigning value again in next step
+        final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
+        if (first.isPresent()) {
+            final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = first.get();
             final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
             CreateFolderPopup.show(new CreateFolderModel(ds3Common.getCurrentSession().getClient(), location, buckets.stream().findFirst().orElse(null)), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
             Ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }
     }
-
 
 }
