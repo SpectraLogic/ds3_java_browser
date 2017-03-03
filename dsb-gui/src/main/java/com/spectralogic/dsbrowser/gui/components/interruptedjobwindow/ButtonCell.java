@@ -9,8 +9,6 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -51,80 +49,71 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.jobInfoPresenter = jobInfoPresenter;
 
-        recoverButton.setOnAction(new EventHandler<ActionEvent>() {
+        recoverButton.setOnAction(t -> {
+            if (CheckNetwork.isReachable(endpointInfo.getClient())) {
+                endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job recovery", LogType.INFO);
+                final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
+                final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
+                final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid),
+                        endpointInfo, jobInterruptionStore, jobInfoPresenter, getTreeTableView());
+                jobWorkers.execute(recoverInterruptedJob);
 
-            @Override
-            public void handle(final ActionEvent t) {
-                if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                    endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job recovery", LogType.INFO);
-                    final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
-                    final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
-                    final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid), endpointInfo, jobInterruptionStore);
-                    jobWorkers.execute(recoverInterruptedJob);
-                    final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
+                recoverInterruptedJob.setOnSucceeded(event -> {
+                    ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+                });
 
-                    recoverInterruptedJob.setOnSucceeded(event -> {
-                        ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
-                        jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-                    });
+                recoverInterruptedJob.setOnFailed(event -> {
+                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR));
+                    jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+                });
 
-                    recoverInterruptedJob.setOnFailed(event -> {
-                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR));
-                        jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-                    });
-
-                    recoverInterruptedJob.setOnCancelled(event -> {
-                        try {
-                            final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
-                            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
-                        } catch (final IOException e1) {
-                            if (!(e1 instanceof FailedRequestException)) {
-                                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
-                            }
-                        } finally {
-                            final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
-                            ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());
-                        }
-                    });
-
-                } else {
-                    BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-                    ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-                    ALERT.showAndWait();
-                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));
-                }
-            }
-        });
-
-        cancelButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(final ActionEvent t) {
-
-                if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                    final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
+                recoverInterruptedJob.setOnCancelled(event -> {
                     try {
                         final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
                         Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
                     } catch (final IOException e1) {
-                        Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
+                        if (!(e1 instanceof FailedRequestException)) {
+                            Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
+                        }
                     } finally {
-                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
-                        ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
-                        jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+                        final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
+                        ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());
                     }
-                } else {
-                    BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-                    ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection");
-                    ALERT.showAndWait();
-                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));
-                }
+                });
 
+            } else {
+                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ALERT.showAndWait();
+                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));
             }
         });
+
+        cancelButton.setOnAction(t -> {
+
+            if (CheckNetwork.isReachable(endpointInfo.getClient())) {
+                final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
+                try {
+                    final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
+                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status: " + cancelJobSpectraS3Response, LogType.SUCCESS));
+                } catch (final IOException e1) {
+                    Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e1.toString(), LogType.ERROR));
+                } finally {
+                    final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
+                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
+                    jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+                }
+            } else {
+                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection");
+                ALERT.showAndWait();
+                Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));
+            }
+
+        });
     }
+
 
     //Display button if the row is not empty
     @Override
