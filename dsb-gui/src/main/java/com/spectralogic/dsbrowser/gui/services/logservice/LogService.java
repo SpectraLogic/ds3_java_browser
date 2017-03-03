@@ -83,7 +83,7 @@ public class LogService {
         if (logSettings.getDebugLogging()) {
             rootLogger.setLevel(Level.DEBUG);
         } else {
-            rootLogger.setLevel(Level.INFO);
+            rootLogger.setLevel(Level.ERROR);
         }
 
         LOG.info("Finished configuring logging");

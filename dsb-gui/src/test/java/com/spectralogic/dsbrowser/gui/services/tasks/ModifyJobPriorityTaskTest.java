@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -50,21 +51,20 @@ public class ModifyJobPriorityTaskTest {
                 final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
 
                 //Getting jobId of interrupted job
-                final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = jobInterruptionStore.getJobIdsModel()
+                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMap = jobInterruptionStore.getJobIdsModel()
                         .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint()
-                                + StringConstants.COLON + session.getPortNo())).findFirst().orElse(null);
-                if (!Guard.isMapNullOrEmpty(endPointsMap)) {
+                                + StringConstants.COLON + session.getPortNo())).findFirst();
+                if (endPointsMap.isPresent()&& !Guard.isMapNullOrEmpty(endPointsMap.get())) {
 
                     final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap =
-                            endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                    final String jobId = stringFilesAndFolderMapMap.entrySet().stream()
+                            endPointsMap.get().get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                    final Optional<String> jobId = stringFilesAndFolderMapMap.entrySet().stream()
                             .map(Map.Entry::getKey)
-                            .findFirst()
-                            .orElse(null);
+                            .findFirst();
 
-                    if (!Guard.isStringNullOrEmpty(jobId)) {
+                    if (jobId.isPresent() && !Guard.isStringNullOrEmpty(jobId.get())) {
                         //Getting priority of the jobId
-                        final GetJobPriorityTask getJobPriorityTask = new GetJobPriorityTask(session, UUID.fromString(jobId));
+                        final GetJobPriorityTask getJobPriorityTask = new GetJobPriorityTask(session, UUID.fromString(jobId.get()));
                         workers.execute(getJobPriorityTask);
                         latch.countDown();
                         final ModifyJobPriorityModel value = (ModifyJobPriorityModel) getJobPriorityTask.get();

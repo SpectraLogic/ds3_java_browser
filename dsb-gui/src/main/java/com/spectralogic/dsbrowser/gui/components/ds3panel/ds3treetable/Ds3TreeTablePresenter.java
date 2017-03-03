@@ -231,13 +231,13 @@ public class Ds3TreeTablePresenter implements Initializable {
                 @Override
                 protected void updateItem(final String item, final boolean empty) {
                     super.updateItem(item, empty);
-                    final Label label = new Label(item);
                     if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
-                        label.getStyleClass().add("styleBold");
+                        this.getStyleClass().add("styleBold");
                     } else if (!empty) {
-                        label.getStyleClass().add("styleNormal");
+                        this.getStyleClass().add("styleNormal");
                     }
-                    setGraphic(label);
+                    this.getStylesheets().add(getClass().getResource("ds3treetable.css").toExternalForm());
+                    setText(item);
                 }
             });
 

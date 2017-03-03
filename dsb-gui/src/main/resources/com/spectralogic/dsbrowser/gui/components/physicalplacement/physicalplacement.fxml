@@ -6,8 +6,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="2000.0" prefHeight="475.0"
-      prefWidth="2000.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8"
+<VBox fx:id="parentVBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" prefHeight="475.0"
+      spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPresenter">
     <children>
@@ -23,7 +23,7 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementDataTablePool" prefHeight="127.0" prefWidth="1200.0">
+        <TableView fx:id="physicalPlacementDataTablePool" prefHeight="127.0">
             <columns>
                 <TableColumn prefWidth="166.0" text="Name">
                     <cellValueFactory>
@@ -65,7 +65,7 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementDataTableTape" editable="true" prefHeight="175.0" prefWidth="1200.0">
+        <TableView fx:id="physicalPlacementDataTableTape" editable="true" prefHeight="175.0">
             <columns>
                 <TableColumn prefWidth="60.0" sortable="true" text="Barcode">
                     <cellValueFactory>
@@ -147,9 +147,9 @@
                 </Label>
             </children>
         </HBox>
-        <TableView fx:id="physicalPlacementReplication" editable="true" prefHeight="150.0" prefWidth="1200.0">
+        <TableView fx:id="physicalPlacementReplication" editable="true" prefHeight="150.0">
             <columns>
-                <TableColumn minWidth="100.0" prefWidth="103.0" sortable="true" text="AccessControlReplication">
+                <TableColumn prefWidth="103.0" sortable="true" text="AccessControlReplication">
                     <cellValueFactory>
                         <PropertyValueFactory property="accessControlReplication"/>
                     </cellValueFactory>
@@ -159,7 +159,7 @@
                         <PropertyValueFactory property="adminAuthId"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn minWidth="100.0" prefWidth="102.0" text="AdminSecretKey">
+                <TableColumn prefWidth="102.0" text="AdminSecretKey">
                     <cellValueFactory>
                         <PropertyValueFactory property="adminSecretKey"/>
                     </cellValueFactory>

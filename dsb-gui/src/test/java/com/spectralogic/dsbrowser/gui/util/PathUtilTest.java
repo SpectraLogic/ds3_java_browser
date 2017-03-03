@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -67,6 +68,7 @@ public class PathUtilTest {
     public void getDs3ObjectList() throws Exception {
         final String folderLocation = PathUtil.getFolderLocation(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET);
         final List<Ds3Object> objectList = PathUtil.getDs3ObjectList(folderLocation, SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET);
-        assertTrue(objectList.stream().findFirst().orElse(null).getName().equals(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET + "/"));
+        final Optional<Ds3Object> objectElement = objectList.stream().findFirst();
+        assertTrue(objectElement.isPresent() && objectElement.get().getName().equals(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET + "/"));
     }
 }

@@ -12,18 +12,18 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJobTest;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,9 +31,12 @@ import static org.junit.Assert.assertTrue;
 
 
 public class ParseJobInterruptionMapTest {
+    private final static Logger LOG = LoggerFactory.getLogger(ParseJobInterruptionMapTest.class);
+
     private static Session session;
     private static String endpoint;
     private static File file;
+
     private static final UUID jobId = UUID.randomUUID();
     private static JobInterruptionStore jobInterruptionStore;
     private boolean successFlag = false;
@@ -98,16 +101,21 @@ public class ParseJobInterruptionMapTest {
                 jobInterruptionStore1.saveJobInterruptionStore(jobInterruptionStore1);
                 final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
                 //Getting updated endpoints
-                final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = jobInterruptionStore.getJobIdsModel()
+                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapElement = jobInterruptionStore.getJobIdsModel()
                         .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint() + StringConstants
-                                .COLON + session.getPortNo())).findFirst().orElse(null);
-                final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                final String jobIdKey = stringFilesAndFolderMapMap.entrySet().stream()
-                        .map(Map.Entry::getKey).filter(uuidKey -> uuidKey.equals(jobId.toString()))
-                        .findFirst()
-                        .orElse(null);
-                if (jobIdKey.equals(jobId.toString())) {
-                    successFlag = true;
+                                .COLON + session.getPortNo())).findFirst();
+                if(endPointsMapElement.isPresent()) {
+                    final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = endPointsMapElement.get();
+                    final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                    final Optional<String> jobIdKeyElement = stringFilesAndFolderMapMap.entrySet().stream()
+                            .map(Map.Entry::getKey).filter(uuidKey -> uuidKey.equals(jobId.toString()))
+                            .findFirst();
+                    if (jobIdKeyElement.isPresent() && jobIdKeyElement.get().equals(jobId.toString())) {
+                        successFlag = true;
+                    }
+                }
+                else {
+                    LOG.error("No interrupted job present");
                 }
                 latch.countDown();
             } catch (final Exception e) {
@@ -132,17 +140,16 @@ public class ParseJobInterruptionMapTest {
                         .getJobIdsModel()
                         .getEndpoints().get(0);
                 //Get root key of interrupted jobs id map
-                final String resultMapKay = filesAndFolderMap1.entrySet().stream()
+                final Optional<String> resultMapKayElement = filesAndFolderMap1.entrySet().stream()
                         .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
+                        .findFirst();
                 boolean result = true;
                 //Check if all keys/jobs id are equal
-                if (jobIDMap.size() != filesAndFolderMap1.get(resultMapKay).size()) {
+                if (!resultMapKayElement.isPresent() || (jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size())) {
                     result = false;
                 } else {
                     for (final String key : jobIDMap.keySet()) {
-                        if (!jobIDMap.get(key).equals(filesAndFolderMap1.get(resultMapKay).get(key))) {
+                        if (!jobIDMap.get(key).equals(filesAndFolderMap1.get(resultMapKayElement.get()).get(key))) {
                             result = false;
                         }
                     }
@@ -173,42 +180,36 @@ public class ParseJobInterruptionMapTest {
                 endPointMap.put(session.getEndpoint() + ":" + session.getPortNo(), jobIdMap);
                 final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpointMapList = new ArrayList<>();
                 endpointMapList.add(endPointMap);
+
                 final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);
                 //Saving an interrupted job to file to make method independent
                 final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
                 jobInterruptionStore1.saveJobInterruptionStore(jobInterruptionStore1);
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
-                final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = jobInterruptionStore.getJobIdsModel()
+                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapElement = jobInterruptionStore.getJobIdsModel()
                         .getEndpoints().stream().filter(endpoint1 -> endpoint1.containsKey(session.getEndpoint() +
-                                StringConstants.COLON + session.getPortNo())).findFirst().orElse(null);
+                                StringConstants.COLON + session.getPortNo())).findFirst();
                 //Getting jobId which to be removed
-                final String resultMapKay = endPointsMap.entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
-                final String jobIdToBeRemoved = endPointsMap.get(resultMapKay).entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
-                //Removing job from file
-                ParseJobInterruptionMap.removeJobIdFromFile(jobInterruptionStore, jobIdToBeRemoved, session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                jobInterruptionStore = JobInterruptionStore.loadJobIds();
-                final Map<String, Map<String, FilesAndFolderMap>> endPointsMapNew = jobInterruptionStore
-                        .getJobIdsModel()
-                        .getEndpoints().stream().filter(endpoint1 -> endpoint1.containsKey(session.getEndpoint() +
-                                StringConstants
-                                        .COLON + session.getPortNo())).findFirst().orElse(null);
-                final String resultMapKayNew = endPointsMapNew.entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
-                final String jobIdToBeRemovedNew = endPointsMapNew.get(resultMapKayNew).entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
-                //Validating test case
-                if (jobIdToBeRemovedNew == null) {
-                    successFlag = true;
+                if(endPointsMapElement.isPresent()) {
+                    final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = endPointsMapElement.get();
+                    final Optional<String> resultMapKayElement = endPointsMapElement.get().entrySet().stream()
+                            .map(Map.Entry::getKey)
+                            .findFirst();
+                    if (resultMapKayElement.isPresent()) {
+                        final Optional<String> jobIdToBeRemovedElement = endPointsMap.get(resultMapKayElement.get()).entrySet().stream()
+                                .map(Map.Entry::getKey)
+                                .findFirst();
+                        if (jobIdToBeRemovedElement.isPresent()) {
+                            //Removing job from file
+                            ParseJobInterruptionMap.removeJobIdFromFile(jobInterruptionStore, jobIdToBeRemovedElement.get(), session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+
+                            final boolean isJobPresent = readNewJobId();
+                            //Validating test case
+                            if (!isJobPresent) {
+                                successFlag = true;
+                            }
+                        }
+                    }
                 }
                 latch.countDown();
             } catch (final Exception e) {
@@ -218,5 +219,29 @@ public class ParseJobInterruptionMapTest {
         });
         latch.await();
         assertTrue(successFlag);
+    }
+
+    private boolean readNewJobId() throws Exception {
+        jobInterruptionStore = JobInterruptionStore.loadJobIds();
+
+        final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapNewelement = jobInterruptionStore
+                .getJobIdsModel()
+                .getEndpoints().stream().filter(endpoint1 -> endpoint1.containsKey(session.getEndpoint() +
+                        StringConstants
+                                .COLON + session.getPortNo())).findFirst();
+        if(endPointsMapNewelement.isPresent()) {
+            final Optional<String> resultMapKayNewElement = endPointsMapNewelement.get().entrySet().stream()
+                    .map(Map.Entry::getKey)
+                    .findFirst();
+
+            if (resultMapKayNewElement.isPresent()) {
+                final Optional<String> jobIdToBeRemovedNewElement = endPointsMapNewelement.get().get(resultMapKayNewElement.get()).entrySet().stream()
+                        .map(Map.Entry::getKey)
+                        .findFirst();
+                return jobIdToBeRemovedNewElement.isPresent();
+            }
+        }
+        return true;
+
     }
 }

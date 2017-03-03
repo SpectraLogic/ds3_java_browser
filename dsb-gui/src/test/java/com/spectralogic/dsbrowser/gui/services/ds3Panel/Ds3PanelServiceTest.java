@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -73,12 +75,14 @@ public class Ds3PanelServiceTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final List<Bucket> searchableBuckets = Ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
+                final Optional<ImmutableList<Bucket>> searchableBuckets = Ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
 
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
-                successFlag = (!Guard.isNullOrEmpty(searchableBuckets) && searchableBuckets.size() == buckets.size()) ? true : false;
+                if(searchableBuckets.isPresent()) {
+                    successFlag = (!Guard.isNullOrEmpty(searchableBuckets.get()) && searchableBuckets.get().size() == buckets.size());
+                }
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();

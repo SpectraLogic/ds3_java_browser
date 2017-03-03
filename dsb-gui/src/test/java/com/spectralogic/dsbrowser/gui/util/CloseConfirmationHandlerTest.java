@@ -94,12 +94,12 @@ public class CloseConfirmationHandlerTest {
                 //To get list of saved session
                 final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore();
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
-                final SavedSession savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst().orElse(null);
+                final Optional<SavedSession> savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst();
 
-                if (newSessionModel.getSessionName().equals(savedSession.getName()) &&
-                        newSessionModel.getAccessKey().equals(savedSession.getCredentials().getAccessId()) &&
-                        newSessionModel.getSecretKey().equals(savedSession.getCredentials().getSecretKey()) &&
-                        newSessionModel.getPortNo().equals(savedSession.getPortNo())) {
+                if (savedSession.isPresent() &&newSessionModel.getSessionName().equals(savedSession.get().getName()) &&
+                        newSessionModel.getAccessKey().equals(savedSession.get().getCredentials().getAccessId()) &&
+                        newSessionModel.getSecretKey().equals(savedSession.get().getCredentials().getSecretKey()) &&
+                        newSessionModel.getPortNo().equals(savedSession.get().getPortNo())) {
                     successFlag = true;
                 }
                 latch.countDown();

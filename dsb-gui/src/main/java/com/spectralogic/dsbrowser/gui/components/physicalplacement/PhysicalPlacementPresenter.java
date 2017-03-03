@@ -8,7 +8,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,8 @@ public class PhysicalPlacementPresenter implements Initializable {
     @FXML
     private TableView<PhysicalPlacementReplicationEntryModel> physicalPlacementReplication;
 
+    @FXML
+    private VBox parentVBox;
 
     @Inject
     private PhysicalPlacement ds3PhysicalPlacement;
@@ -47,6 +52,18 @@ public class PhysicalPlacementPresenter implements Initializable {
     }
 
     private void initTable() {
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        parentVBox.setMaxWidth(primaryScreenBounds.getWidth()-100);
+        parentVBox.setPrefWidth(primaryScreenBounds.getWidth()-100);
+
+        physicalPlacementDataTablePool.setMaxWidth(primaryScreenBounds.getWidth()-120);
+        physicalPlacementDataTableTape.setMaxWidth(primaryScreenBounds.getWidth()-120);
+        physicalPlacementReplication.setMaxWidth(primaryScreenBounds.getWidth()-120);
+
+        physicalPlacementDataTablePool.setPrefWidth(primaryScreenBounds.getWidth()-120);
+        physicalPlacementDataTableTape.setPrefWidth(primaryScreenBounds.getWidth()-120);
+        physicalPlacementReplication.setPrefWidth(primaryScreenBounds.getWidth()-120);
+
         if (ds3PhysicalPlacement != null) {
             physicalPlacementDataTablePool.setItems(getStoragePools(ds3PhysicalPlacement.getPools()));
             physicalPlacementDataTableTape.setItems(getStorageTapes(ds3PhysicalPlacement.getTapes()));

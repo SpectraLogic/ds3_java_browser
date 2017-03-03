@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -229,9 +230,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        startMediaTask(rootItems, rootTreeItem, oldPlaceHolder);
-        ds3Common.setLocalTreeTableView(treeTable);
-        ds3Common.setLocalFilePathIndicator(localPathIndicator);
+        Platform.runLater(() -> {
+            startMediaTask(rootItems, rootTreeItem, oldPlaceHolder);
+            ds3Common.setLocalTreeTableView(treeTable);
+            ds3Common.setLocalFilePathIndicator(localPathIndicator);
+        });
+
     }
 
     private void goToParentDirectory() {

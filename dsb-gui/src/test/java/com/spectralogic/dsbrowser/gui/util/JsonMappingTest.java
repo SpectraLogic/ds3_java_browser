@@ -19,8 +19,9 @@ public class JsonMappingTest {
         final Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
-        final SavedCredentials savedCredentials = new SavedCredentials("c3VsYWJo", "vFSV6Zf5");
-        final SavedSession savedSession = new SavedSession("Sulabh", "192.168.11.193","8080", null, savedCredentials,false);
+
+        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
@@ -34,9 +35,8 @@ public class JsonMappingTest {
         final Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
-        final SavedCredentials savedCredentials = new SavedCredentials("c3VsYWJo", "vFSV6Zf5");
-        final SavedSession savedSession = new SavedSession("Sulabh", "192.168.11.193",
-                "8080", null, savedCredentials , false);
+        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));

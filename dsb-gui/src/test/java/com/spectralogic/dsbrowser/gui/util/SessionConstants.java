@@ -4,8 +4,8 @@ public interface SessionConstants {
     String SESSION_NAME = "VVDN_LOCAL";
     String SESSION_PATH = "192.168.6.164";
     String PORT_NO = "8080";
-    String ACCESS_ID = "c3VsYWJo";
-    String SECRET_KEY = "PJSJHQB3";
+    String ACCESS_ID = "YW1hcg==";
+    String SECRET_KEY = "h9RADUMw";
     String DS3_PANEL_SERVICE_TEST_BUCKET_NAME = "EMPTY_BUCKET";
     String DS3_PANEL_SERVICE_TEST_FOLDER_NAME = "EMPTY_FOLDER";
     String CREATE_BUCKET_TASK_TEST_BUCKET_NAME = "TEMPORARY_BUCKET";

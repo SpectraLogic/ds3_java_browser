@@ -202,7 +202,6 @@ public class NewSessionPresenter implements Initializable {
                     final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("defaultSession"), resourceBundle.getString("alreadyExistDefaultSession"), Alert.AlertType.CONFIRMATION, null, resourceBundle.getString("yesButton"), resourceBundle.getString("noButton"));
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         newSessionModel.setDefaultSession(true);
-                        // SessionModelService.setSessionModel(defaultSession.stream().findFirst().orElse(null),false);
                         final Optional<SavedSession> first = defaultSession.stream().findFirst();
                         if (first.isPresent()) {
                             final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false));

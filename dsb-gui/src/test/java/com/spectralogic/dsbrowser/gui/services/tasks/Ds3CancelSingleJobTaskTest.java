@@ -4,7 +4,6 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -14,6 +13,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -24,8 +24,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -33,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class Ds3CancelSingleJobTaskTest {
 
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3CancelSingleJobTaskTest.class);
     private static final Workers workers = new Workers();
     private static Session session;
     private boolean successFlag = false;
@@ -43,7 +47,7 @@ public class Ds3CancelSingleJobTaskTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final SavedSession savedSession = new SavedSession("Test1", "192.168.6.164", "8080", null, new SavedCredentials("c3VsYWJoamFpbg==", "yVBAvWTG"), false);
+                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
                 session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -64,31 +68,41 @@ public class Ds3CancelSingleJobTaskTest {
                 final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
                 Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
                 final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
-                final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = jobInterruptionStore.getJobIdsModel()
+                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMap = jobInterruptionStore.getJobIdsModel()
                         .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint() + StringConstants
-                                .COLON + session.getPortNo())).findFirst().orElse(null);
-                final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                final String jobIdKey = stringFilesAndFolderMapMap.entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse(null);
-                final EndpointInfo endPointInfo = new EndpointInfo(session.getEndpoint() + StringConstants.COLON + session.getPortNo(),
-                        ds3Client,
-                        stringFilesAndFolderMapMap,
-                        deepStorageBrowserPresenter,
-                        ds3Common
-                );
-                final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
-                Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
-                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKey, endPointInfo, jobInterruptionStore , ResourceBundleProperties.getResourceBundle().getString("recover"));
-                workers.execute(ds3CancelSingleJobTask);
-                ds3CancelSingleJobTask.setOnSucceeded(event -> {
-                    successFlag = true;
-                    latch.countDown();
+                                .COLON + session.getPortNo())).findFirst();
+                if (endPointsMap.isPresent()) {
+                    final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get().get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                    final Optional<String> jobIdKeyElement = stringFilesAndFolderMapMap.entrySet().stream()
+                            .map(Map.Entry::getKey)
+                            .findFirst();
+                    final EndpointInfo endPointInfo = new EndpointInfo(session.getEndpoint() + StringConstants.COLON + session.getPortNo(),
+                            ds3Client,
+                            stringFilesAndFolderMapMap,
+                            deepStorageBrowserPresenter,
+                            ds3Common
+                    );
+                    final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+                    Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
+                    if (jobIdKeyElement.isPresent()) {
+                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"));
+                        workers.execute(ds3CancelSingleJobTask);
+                        ds3CancelSingleJobTask.setOnSucceeded(event -> {
+                            successFlag = true;
+                            latch.countDown();
 
-                });
-                ds3CancelSingleJobTask.setOnFailed(event -> latch.countDown());
-                ds3CancelSingleJobTask.setOnCancelled(event -> latch.countDown());
+                        });
+                        ds3CancelSingleJobTask.setOnFailed(event -> latch.countDown());
+                        ds3CancelSingleJobTask.setOnCancelled(event -> latch.countDown());
+                    } else {
+                        LOG.info("No job available to cancel");
+                        latch.countDown();
+                    }
+                } else {
+                    LOG.info("No job available to cancel");
+                    latch.countDown();
+                }
+
             } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();

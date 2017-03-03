@@ -3,7 +3,7 @@
 }
 
 .styleBold {
-    -fx-font-weight: bolder;
+    -fx-font-weight: bold;
         -fx-text-fill: black;
 }
 .styleNormal {
