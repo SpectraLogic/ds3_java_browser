@@ -2,7 +2,9 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
@@ -32,9 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 public class Main extends Application {
 
@@ -54,8 +59,10 @@ public class Main extends Application {
     private Stage primaryStage = null;
     private JobInterruptionStore jobInterruptionStore = null;
     private final EventHandler<WindowEvent> confirmCloseEventHandler = event -> {
+        final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream()
+                .filter(task -> task.getProgress() != 1).collect(Collectors.toList());
 
-        if (jobWorkers.getTasks().isEmpty()) {
+        if (jobWorkers.getTasks().isEmpty() || Guard.isNullOrEmpty(notCachedRunningTasks)) {
             closeApplication();
             event.consume();
 
@@ -72,9 +79,9 @@ public class Main extends Application {
             cancelButton.setText("Cancel");
 
             if (jobWorkers.getTasks().size() == 1) {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " job is still running.");
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " job is still running.");
             } else {
-                CLOSECONFIRMATIONALERT.setHeaderText(jobWorkers.getTasks().size() + " jobs are still running.");
+                CLOSECONFIRMATIONALERT.setHeaderText(notCachedRunningTasks.size() + " jobs are still running.");
             }
 
             final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
@@ -167,33 +174,51 @@ public class Main extends Application {
             }
         }
         if (jobWorkers.getTasks().size() != 0) {
+
             final ImmutableList<Ds3JobTask> collect = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
             final Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    collect.forEach(i -> {
+
+                    collect.forEach(job -> {
+                        final CountDownLatch latch = new CountDownLatch(1);
                         try {
-                            if (i instanceof Ds3PutJob) {
-                                final Ds3PutJob ds3PutJob = (Ds3PutJob) i;
-                                ds3PutJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3PutJob.getJobId().toString(), ds3PutJob.getClient().getConnectionDetails().getEndpoint(), null);
-                                ds3PutJob.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3PutJob.getJobId()));
-                                LOG.info("Cancelled job.");
-                            } else if (i instanceof Ds3GetJob) {
-                                final Ds3GetJob ds3GetJob = (Ds3GetJob) i;
-                                ds3GetJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, ds3GetJob.getJobId().toString(), ds3GetJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                                ds3GetJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(ds3GetJob.getJobId()));
-                                LOG.info("Cancelled job.");
 
-                            } else if (i instanceof RecoverInterruptedJob) {
-                                final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) i;
-                                recoverInterruptedJob.cancel();
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, recoverInterruptedJob.getUuid().toString(), recoverInterruptedJob.getDs3Client().getConnectionDetails().getEndpoint(), null);
-                                recoverInterruptedJob.getDs3Client().cancelJobSpectraS3(new CancelJobSpectraS3Request(recoverInterruptedJob.getUuid()));
-                                LOG.info("Cancelled job.");
-
+                            String jobId = "";
+                            Ds3Client ds3Client = null;
+                            if (job instanceof Ds3PutJob) {
+                                final Ds3PutJob ds3PutJob = (Ds3PutJob) job;
+                                if (ds3PutJob.getJobId() != null) {
+                                    jobId = ds3PutJob.getJobId().toString();
+                                    ds3Client = ds3PutJob.getClient();
+                                }
+                                LOG.info("Cancelled job:{} ", ds3PutJob.getJobId());
+                            } else if (job instanceof Ds3GetJob) {
+                                final Ds3GetJob ds3GetJob = (Ds3GetJob) job;
+                                if (ds3GetJob.getJobId() != null) {
+                                    jobId = ds3GetJob.getJobId().toString();
+                                    ds3Client = ds3GetJob.getDs3Client();
+                                }
+                                LOG.info("Cancelled job:{} ", ds3GetJob.getJobId());
+                            } else if (job instanceof RecoverInterruptedJob) {
+                                final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) job;
+                                jobId = recoverInterruptedJob.getUuid().toString();
+                                ds3Client = recoverInterruptedJob.getDs3Client();
+                                LOG.info("Cancelled job:{} ", recoverInterruptedJob.getUuid());
                             }
+                            final double[] progress = new double[1];
+                            Platform.runLater(() -> {
+                                progress[0] = job.getProgress();
+                                latch.countDown();
+                            });
+                            latch.await();
+
+                            if (progress[0] != 1.0) {
+                                job.cancel();
+                                ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
+                            }
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
+                                    .getEndpoint(), null);
                         } catch (final Exception e1) {
                             LOG.error("Failed to cancel job", e1);
                         }
