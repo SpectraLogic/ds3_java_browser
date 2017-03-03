@@ -450,22 +450,35 @@ public class Ds3TreeTablePresenter implements Initializable {
                     manageItemsCount(row.getTreeItem());
                 }
             } else if (event.getClickCount() == 2) {
-                final ProgressIndicator progress = new ProgressIndicator();
-                progress.setMaxSize(90, 90);
-                ds3TreeTable.setPlaceholder(new StackPane(progress));
-                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                ds3TreeTable.getSelectionModel().select(row.getIndex());
-                ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
-                ds3Common.setDs3TreeTableView(ds3TreeTable);
-                if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                    if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
-                        ds3TreeTable.setPlaceholder(null);
-                    row.getTreeItem().setExpanded(true);
-                    ds3TreeTable.setShowRoot(false);
-                    ds3TreeTable.setRoot(row.getTreeItem());
-                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                if (!row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    final ProgressIndicator progress = new ProgressIndicator();
+                    progress.setMaxSize(90, 90);
+                    ds3TreeTable.setPlaceholder(new StackPane(progress));
+                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                    ds3TreeTable.getSelectionModel().select(row.getIndex());
+                    ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
+                    ds3Common.setDs3TreeTableView(ds3TreeTable);
+                    if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                        if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
+                            ds3TreeTable.setPlaceholder(null);
+                        row.getTreeItem().setExpanded(true);
+                        ds3TreeTable.setShowRoot(false);
+                        ds3TreeTable.setRoot(row.getTreeItem());
+                        ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                    }
                 }
-            } else {
+            }
+            else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
+                try {
+                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                        loadMore(row.getTreeItem());
+                    }
+                } catch (final Exception e) {
+                    LOG.error("Not able to get tree item",e);
+                }
+            }
+
+            else {
                 try {
                     rowNameList.clear();
                     if (null == row.getTreeItem()) {

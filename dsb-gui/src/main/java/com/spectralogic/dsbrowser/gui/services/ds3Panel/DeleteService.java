@@ -13,6 +13,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
@@ -127,33 +128,38 @@ public final class DeleteService {
         final Ds3DeleteFilesTask ds3DeleteFilesTask = new Ds3DeleteFilesTask(
                 ds3Common.getCurrentSession().getClient(), buckets, bucketObjectsMap);
 
-        if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
-            Ds3PanelService.filterChanged(ds3Common, workers);
-        }
         DeleteFilesPopup.show(ds3DeleteFilesTask, ds3Common);
-        values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
+        // values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
     }
 
     public static void managePathIndicator(final Ds3Common ds3Common, final Workers workers) {
         Platform.runLater(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
-            try {
-                final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
-                        .findFirst().get().getParent();
-                if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
-                    ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-                    ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
-                } else {
-                    ds3TreeTable.setRoot(selectedItem);
+            final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+
+            if (selectedItems.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
+                ds3TreeTable.getRoot().getChildren().removeAll(selectedItems);
+                ds3TreeTable.getSelectionModel().clearSelection();
+            } else {
+                try {
+                    final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
+                            .findFirst().get().getParent();
+                    if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
+                        ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
+                        ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
+                    } else {
+                        ds3TreeTable.setRoot(selectedItem);
+                    }
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+
+                } catch (final Exception e) {
+                    LOG.error("No Item found", e);
                 }
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-            } catch (final Exception e) {
-                LOG.error("No Item found", e);
+                ds3TreeTable.getSelectionModel().clearSelection();
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
             }
-            ds3TreeTable.getSelectionModel().clearSelection();
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
         });
     }
 

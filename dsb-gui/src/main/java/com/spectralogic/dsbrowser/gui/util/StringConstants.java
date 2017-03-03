@@ -60,7 +60,7 @@ public interface StringConstants {
     String CASE_ENDPOINT = "endpointInfo";
     String SIMPLE_DATE_FORMAT = "M/dd/yyyy HH:mm:ss";
     String CASE_DS3PHYSICALPLACEMENT = "ds3PhysicalPlacement";
-    String IE="i.e.";
+    String IE = "i.e.";
     String TYPE = "Type";
-
+    String CLICK_TYPE = "SECONDARY";
 }

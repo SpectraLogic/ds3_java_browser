@@ -43,6 +43,7 @@ public final class RefreshCompleteViewWorker {
                     ds3TreeTableView.setRoot(selectedRoot);
                     ds3TreeTableView.getSelectionModel().select(selectedRoot);
                     ((Ds3TreeTableItem) selectedRoot).refresh();
+                    setPathIndicator((Ds3TreeTableItem)selectedRoot , ds3Common);
                     ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 } else {
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
@@ -65,6 +66,7 @@ public final class RefreshCompleteViewWorker {
                                 if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
                                     ds3TreeTableView.getSelectionModel().select(ds3TreeTableValueTreeItem);
                                     ds3TreeTableValueTreeItem.setExpanded(true);
+                                    setPathIndicator((Ds3TreeTableItem)ds3TreeTableValueTreeItem , ds3Common);
                                 }
                             }
                         } else {
@@ -77,6 +79,16 @@ public final class RefreshCompleteViewWorker {
                 LOG.info("TreeView is null");
             }
         }
+    }
+
+    private static void setPathIndicator(final Ds3TreeTableItem selectedRoot , final Ds3Common ds3Common) {
+        String path = selectedRoot.getValue().getFullName();
+        if (!selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+            path = selectedRoot.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
+        }
+        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip());
+        ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
+        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
     }
 
     @SuppressWarnings("unchecked")
