@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.metadata;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.util.ByteFormat;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,20 +15,21 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MetadataPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
-    private final String creationTimeKey = "ds3-creation-time";
-    private final String accessTimeKey = "ds3-last-access-time";
-    private final String lastModifiedKey = "ds3-last-modified-time";
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSSSSS'Z'");
+    private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
+    private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
     private final Calendar calendar = Calendar.getInstance();
     @FXML
     private Label objectName;
     @FXML
     private Label objectSize;
+
+    @FXML
+    private Label lastModified;
     @FXML
     private Tooltip nameTooltip;
     @FXML
@@ -50,7 +52,7 @@ public class MetadataPresenter implements Initializable {
             initLabels();
             initTable();
 
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             LOG.error("Failed to create ds3Metadata presenter", e);
         }
     }
@@ -58,7 +60,7 @@ public class MetadataPresenter implements Initializable {
     private void initTable() {
         final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
         final Metadata metadata = ds3Metadata.getMetadata();
-        createMetaDataBuilder(metadata, builder);
+        createMetadataBuilder(metadata, builder);
         metadataTable.setItems(FXCollections.observableList(builder.build()));
         metadataTable.getSelectionModel().setCellSelectionEnabled(true);
         metadataTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -66,86 +68,110 @@ public class MetadataPresenter implements Initializable {
         metadataTableColValue.setCellFactory
                 (
                         column ->
-                        {
-                            return new TableCell<MetadataEntry, String>() {
-                                @Override
-                                protected void updateItem(final String item, final boolean empty) {
-                                    if (item != null) {
-                                        super.updateItem(item, empty);
-                                        setText(item);
-                                        setTooltip(new Tooltip(item));
+                                new TableCell<MetadataEntry, String>() {
+                                    @Override
+                                    protected void updateItem(final String item, final boolean empty) {
+                                        if (item != null) {
+                                            super.updateItem(item, empty);
+                                            setText(item);
+                                            setTooltip(new Tooltip(item));
+                                        }
                                     }
-                                }
-                            };
-                        });
+                                });
     }
 
-    //create meta data keys for showing on server
-    private ImmutableList.Builder<MetadataEntry> createMetaDataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
+    private void initLabels() {
+        metadataTableColName.setText(resourceBundle.getString("metadataTableColName"));
+        metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
+        objectName.setText(ds3Metadata.getName());
+        objectSize.setText(ByteFormat.humanReadableByteCount(ds3Metadata.getSize(), false));
+        lastModified.setText(ds3Metadata.getLastModified());
+        nameTooltip.setText(ds3Metadata.getName());
+    }
+
+    private MetadataEntry getTime(final String time, final String key) {
+        if (time.contains(StringConstants.STR_T)) {
+            return new MetadataEntry(key, time.replace(StringConstants.STR_T, StringConstants.SPACE));
+        } else {
+            final long creationTimeLong = Long.parseLong(time);
+            calendar.setTimeInMillis(creationTimeLong);
+            return new MetadataEntry(key, formatter.format(calendar.getTime()));
+        }
+    }
+
+    //create metadata keys for showing on server
+    public ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
         try {
-            //if meta data does not contains creation time key thens show all metadata got from bp server without any processing
-            if (metadata.get(creationTimeKey).size() > 0) {
+            //if metadata does not contains creation time key then show all metadata got from bp server without any processing
+            if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {
                 //get the creation time from server
-                String creationTime = metadata.get(creationTimeKey).stream().findFirst().orElse(null);
-                if (creationTime.contains("T")) {
-                    creationTime = creationTime.replace("T", " ");
-                    builder.add(new MetadataEntry(creationTimeKey, creationTime));
-                } else {
-                    final long creationTimeLong = Long.parseLong(creationTime);
-                    calendar.setTimeInMillis(creationTimeLong);
-                    builder.add(new MetadataEntry(creationTimeKey, formatter.format(calendar.getTime())));
+                final Optional<String> creationTimeElement = metadata.get(StringConstants.CREATION_TIME_KEY).stream().findFirst();
+                if (creationTimeElement.isPresent()) {
+                    builder.add(getTime(creationTimeElement.get(), StringConstants.CREATION_TIME_KEY));
                 }
                 //get the access time from server
-                if (metadata.get(accessTimeKey).size() > 0) {
-                    String accessTime = metadata.get(accessTimeKey).stream().findFirst().orElse(null);
-                    if (accessTime.contains("T")) {
-                        accessTime = accessTime.replace("T", " ");
-                        builder.add(new MetadataEntry(accessTimeKey, accessTime));
-                    } else {
-                        final long accessTimeLong = Long.parseLong(accessTime);
-                        calendar.setTimeInMillis(accessTimeLong);
-                        builder.add(new MetadataEntry(accessTimeKey, formatter.format(calendar.getTime())));
+                if (metadata.get(StringConstants.ACCESS_TIME_KEY).size() > 0) {
+                    final Optional<String> accessTimeElement = metadata.get(StringConstants.ACCESS_TIME_KEY).stream().findFirst();
+                    if (accessTimeElement.isPresent()) {
+                        builder.add(getTime(accessTimeElement.get(), StringConstants.ACCESS_TIME_KEY));
                     }
                 }
                 //get the last modified time from server
-                if (metadata.get(lastModifiedKey).size() > 0) {
-                    String modifiedTime = metadata.get(lastModifiedKey).stream().findFirst().orElse(null);
-                    if (modifiedTime.contains("T")) {
-                        modifiedTime = modifiedTime.replace("T", " ");
-                        builder.add(new MetadataEntry(lastModifiedKey, modifiedTime));
-                    } else {
-                        final long modifiedTimeLong = Long.parseLong(modifiedTime);
-                        calendar.setTimeInMillis(modifiedTimeLong);
-                        builder.add(new MetadataEntry(lastModifiedKey, formatter.format(calendar.getTime())));
+                if (metadata.get(StringConstants.LAST_MODIFIED_KEY).size() > 0) {
+                    final Optional<String> lastModifiedElement = metadata.get(StringConstants.LAST_MODIFIED_KEY).stream().findFirst();
+                    if (lastModifiedElement.isPresent()) {
+                        builder.add(getTime(lastModifiedElement.get(), StringConstants.LAST_MODIFIED_KEY));
                     }
                 }
-                //get owner -sid(Windows)
-                if (metadata.get("ds3-owner").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-owner", metadata.get("ds3-owner").stream().findFirst().orElse(null)));
+                //get owner sid(Windows)
+                if (metadata.get(StringConstants.OWNER).size() > 0) {
+                    final Optional<String> ownerElement = metadata.get(StringConstants.OWNER).stream().findFirst();
+                    if (ownerElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.OWNER, ownerElement.get()));
+                    }
+
                 }
                 //get group sid(Windows)
-                if (metadata.get("ds3-group").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-group", metadata.get("ds3-group").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.GROUP).size() > 0) {
+                    final Optional<String> groupElement = metadata.get(StringConstants.GROUP).stream().findFirst();
+                    if (groupElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.GROUP, groupElement.get()));
+                    }
                 }
                 //get User Id (Linux and MAC)
-                if (metadata.get("ds3-uid").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-uid", metadata.get("ds3-uid").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.UID).size() > 0) {
+                    final Optional<String> uidElement = metadata.get(StringConstants.UID).stream().findFirst();
+                    if (uidElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.UID, uidElement.get()));
+                    }
                 }
                 //get group Id (Linux and MAC)
-                if (metadata.get("ds3-gid").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-gid", metadata.get("ds3-gid").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.GID).size() > 0) {
+                    final Optional<String> gidElement = metadata.get(StringConstants.GID).stream().findFirst();
+                    if (gidElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.GID, gidElement.get()));
+                    }
                 }
                 //get Flag(Windows)
-                if (metadata.get("ds3-flags").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-flags", metadata.get("ds3-flags").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.FLAG).size() > 0) {
+                    final Optional<String> flagElement = metadata.get(StringConstants.FLAG).stream().findFirst();
+                    if (flagElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.FLAG, flagElement.get()));
+                    }
                 }
                 //get dacl (Windows)
-                if (metadata.get("ds3-dacl").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-dacl", metadata.get("ds3-dacl").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.DACL).size() > 0) {
+                    final Optional<String> daclElement = metadata.get(StringConstants.DACL).stream().findFirst();
+                    if (daclElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.DACL, daclElement.get()));
+                    }
                 }
                 //get Mode(Linux and MAC)
-                if (metadata.get("ds3-mode").size() > 0) {
-                    builder.add(new MetadataEntry("ds3-mode", metadata.get("ds3-mode").stream().findFirst().orElse(null)));
+                if (metadata.get(StringConstants.MODE).size() > 0) {
+                    final Optional<String> modeElement = metadata.get(StringConstants.MODE).stream().findFirst();
+                    if (modeElement.isPresent()) {
+                        builder.add(new MetadataEntry(StringConstants.MODE, modeElement.get()));
+                    }
                 }
 
             } else {
@@ -158,30 +184,5 @@ public class MetadataPresenter implements Initializable {
         return builder;
     }
 
-    private void initLabels() {
-        metadataTableColName.setText(resourceBundle.getString("metadataTableColName"));
-        metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
-        objectName.setText(ds3Metadata.getName());
-        objectSize.setText(ByteFormat.humanReadableByteCount(ds3Metadata.getSize(), false));
-        nameTooltip.setText(ds3Metadata.getName());
-    }
 
-
-    public static class MetadataEntry {
-        private final String key;
-        private final String value;
-
-        private MetadataEntry(final String key, final String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
 }

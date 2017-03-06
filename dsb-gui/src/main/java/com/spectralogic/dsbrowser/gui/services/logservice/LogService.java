@@ -18,21 +18,22 @@ import java.nio.file.Paths;
 
 public class LogService {
 
-    final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
 
     private LogSettings logSettings;
+    private final String pattern = "%date %level [%thread] %logger{10} [%file:%line] %msg%n";
 
     public LogService(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings();
+        updateLogBackSettings(pattern);
     }
 
     public void setLogSettings(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings();
+        updateLogBackSettings(pattern);
     }
 
-    private void updateLogBackSettings() {
+    public PatternLayoutEncoder updateLogBackSettings(final String pattern) {
         final Path destPath = Paths.get(logSettings.getLogLocation(), "browser.log");
         final Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final LoggerContext context = rootLogger.getLoggerContext();
@@ -45,7 +46,7 @@ public class LogService {
         fileAppender.setFile(destPath.toString());
 
         final PatternLayoutEncoder layout = new PatternLayoutEncoder();
-        layout.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        layout.setPattern(pattern);
         layout.setContext(context);
         layout.start();
 
@@ -82,8 +83,10 @@ public class LogService {
         if (logSettings.getDebugLogging()) {
             rootLogger.setLevel(Level.DEBUG);
         } else {
-            rootLogger.setLevel(Level.INFO);
+            rootLogger.setLevel(Level.ERROR);
         }
+
         LOG.info("Finished configuring logging");
+        return layout;
     }
 }

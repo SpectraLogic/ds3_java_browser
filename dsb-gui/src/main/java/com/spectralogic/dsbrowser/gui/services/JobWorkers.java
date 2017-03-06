@@ -1,6 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services;
 
-import com.spectralogic.dsbrowser.gui.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -63,7 +63,7 @@ public class JobWorkers {
             final Ds3JobTask task = (Ds3JobTask) event.getSource();
             this.tasks.remove(task);
         } else {
-            LOG.error("Unknown worker");
+            LOG.info("Unknown worker");
         }
     }
 

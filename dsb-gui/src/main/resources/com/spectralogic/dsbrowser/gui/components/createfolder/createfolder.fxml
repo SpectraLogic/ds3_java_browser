@@ -23,8 +23,8 @@
         <HBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
               minWidth="-Infinity" prefHeight="29.0" prefWidth="339.0" spacing="10.0">
             <children>
-                <Button fx:id="createFolderButton" disable="true" mnemonicParsing="false" onAction="#createFolder"/>
-                <Button fx:id="cancelCreateFolderButton" cancelButton="true" mnemonicParsing="false"
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="createFolderButton" disable="true" mnemonicParsing="false" onAction="#createFolder"/>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelCreateFolderButton" cancelButton="true" mnemonicParsing="false"
                         onAction="#cancel"/>
             </children>
             <VBox.margin>

@@ -40,3 +40,17 @@
 table-row-cell:focused{
     -fx-background-insets: 0;
 }
+.selectableClass {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+ }
+
+.addMoreButtonCSS {
+ -fx-font-weight: bold;
+}
+
+.normalItemCSS {
+-fx-font-weight: normal
+}

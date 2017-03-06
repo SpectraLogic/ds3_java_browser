@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -14,7 +15,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class JobInterruptionStore {
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(JobInterruptionStore.class);
+
+    private final static Logger LOG = LoggerFactory.getLogger(JobInterruptionStore.class);
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "jobids.json");
 

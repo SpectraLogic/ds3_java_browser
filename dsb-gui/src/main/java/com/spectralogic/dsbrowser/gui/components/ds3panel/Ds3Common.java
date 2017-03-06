@@ -3,23 +3,31 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Ds3Common {
 
     private final Map<String, TreeItem<Ds3TreeTableValue>> expandedNodesInfo = new HashMap<>();
 
-    private final List<Session> currentSession = new ArrayList<>();
+    private Session currentSession;
 
-    private final List<TabPane> currentTabPane = new ArrayList<>();
+    private TabPane currentTabPane;
 
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter = new DeepStorageBrowserPresenter();
+    private Session sessionOfClosedTab;
+
+    private TreeTableView localTreeTableView;
+
+    private  TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
+
+    private Label localFilePathIndicator;
+
+    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     private Ds3PanelPresenter ds3PanelPresenter;
 
@@ -38,13 +46,6 @@ public class Ds3Common {
         return expandedNodesInfo;
     }
 
-    public List<Session> getCurrentSession() {
-        return currentSession;
-    }
-
-    public List<TabPane> getCurrentTabPane() {
-        return currentTabPane;
-    }
 
     public DeepStorageBrowserPresenter getDeepStorageBrowserPresenter() {
         return deepStorageBrowserPresenter;
@@ -54,4 +55,51 @@ public class Ds3Common {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
 
+    public Session getCurrentSession() {
+        return currentSession;
+    }
+
+    public void setCurrentSession(final Session currentSession) {
+        this.currentSession = currentSession;
+    }
+
+    public TabPane getCurrentTabPane() {
+        return currentTabPane;
+    }
+
+    public void setCurrentTabPane(final TabPane currentTabPane) {
+        this.currentTabPane = currentTabPane;
+    }
+
+    public Session getSessionOfClosedTab() {
+        return sessionOfClosedTab;
+    }
+
+    public void setSessionOfClosedTab(final Session sessionOfClosedTab) {
+        this.sessionOfClosedTab = sessionOfClosedTab;
+    }
+
+    public TreeTableView getLocalTreeTableView() {
+        return localTreeTableView;
+    }
+
+    public void setLocalTreeTableView(final TreeTableView localTreeTableView) {
+        this.localTreeTableView = localTreeTableView;
+    }
+
+    public Label getLocalFilePathIndicator() {
+        return localFilePathIndicator;
+    }
+
+    public void setLocalFilePathIndicator(final Label localFilePathIndicator) {
+        this.localFilePathIndicator = localFilePathIndicator;
+    }
+
+    public  TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
+        return ds3TreeTableView;
+    }
+
+    public void setDs3TreeTableView(final  TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
+        this.ds3TreeTableView = ds3TreeTableView;
+    }
 }

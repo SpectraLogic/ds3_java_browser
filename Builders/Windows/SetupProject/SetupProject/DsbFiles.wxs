@@ -3,126 +3,126 @@
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">
             <Directory Id="dir477D3386EA775CED98738C93E885E05D" Name="distributions">
-                <Directory Id="dirD1B712D541CCA0EC42110DB10504E50B" Name="dsb-gui-2.0.40">
-                    <Directory Id="dir9799D90A4220B1E090FBF1873F580C02" Name="bin">
-                        <Component Win64="yes" Id="cmp414E493808F38161B30496D82971A4E0" Guid="*">
-                            <File Id="fil47ECB9A3369A1218D4AB80FB76C5409E" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\bin\dsb-gui.exe" />
+                <Directory Id="dir0EE12AC65E1D22D1445C99A736593D5B" Name="dsb-gui-2.0.45">
+                    <Directory Id="dirA9A14BBE7158EF355BA62DE816C0A8AD" Name="bin">
+                        <Component Win64="yes" Id="cmpD09C46239881CED99F5EEFCB60E9D20A" Guid="*">
+                            <File Id="fil2F2D026CF2838831E2B1DB60B5949CC6" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\bin\dsb-gui.exe" />
                         </Component>
                     </Directory>
-                    <Directory Id="dir8A6BC0BD6AAD2E2ACF2BE6302FE8BDBA" Name="lib">
-                        <Component Win64="yes" Id="cmpCEFD1F2FF44145997E524A7A1BE94DEB" Guid="*">
-                            <File Id="filC857DF83BC72BB17C869094B36E71743" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\afterburner.fx-1.6.2.jar" />
+                    <Directory Id="dir92092B870EC52047B1911616ED9565BD" Name="lib">
+                        <Component Win64="yes" Id="cmpD9FD1E90286653072FF4B9FF0A2C8144" Guid="*">
+                            <File Id="fil60AE3022FB613F874721D80A8D2D1051" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\afterburner.fx-1.6.2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB972B9B0BE58B72C52507AB5C51DF79B" Guid="*">
-                            <File Id="filC826F49C3F6389987BCBCC209D545110" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\annotations-3.0.1.jar" />
+                        <Component Win64="yes" Id="cmp7DC9AC0D1EAF508893049FF7CF97B7A3" Guid="*">
+                            <File Id="fil42F45A624131D57A8E5B051AD0B257CB" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\annotations-3.0.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp7B585020D88230394BF41A4DADE297FA" Guid="*">
-                            <File Id="filC19547822E6BBAD549BB2B01B586BA92" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\commons-codec-1.10.jar" />
+                        <Component Win64="yes" Id="cmp2E38DC0A0934BADC8C3EA6CF5A9F90A8" Guid="*">
+                            <File Id="fil89A9C7C007BC00515526543E0372DE8B" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\commons-codec-1.10.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp299A699B910E17C8D0251F585A7566E2" Guid="*">
-                            <File Id="fil799A4054F2A22D0F09677432DE39FAD4" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\commons-io-2.4.jar" />
+                        <Component Win64="yes" Id="cmp73E4C05143AACF98972735C8D1375651" Guid="*">
+                            <File Id="filFD95289712B57A28A8E711E8E78CCB59" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\commons-io-2.4.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp657995BAE902162DF0D2407F4749A11B" Guid="*">
-                            <File Id="fil4CB1E86982223268A8A0ABDEAB954D2A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\commons-logging-1.2.jar" />
+                        <Component Win64="yes" Id="cmp4E7DC7EF979AA27C5A85F7B904C3CBB1" Guid="*">
+                            <File Id="fil8B3CC17544D75B2DBED035449242E813" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\commons-logging-1.2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpFE26F022143F71B07B2941CAA421F07A" Guid="*">
-                            <File Id="filA84E639AF22A5F398F6878820A7117B0" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\controlsfx-8.40.12.jar" />
+                        <Component Win64="yes" Id="cmpAE9716C0B461BEA4F72BA46C3AA2B62A" Guid="*">
+                            <File Id="filBE66A3B9EC3E78DA0C917267484F46A5" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\controlsfx-8.40.12.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp63DC37B75E1706B05685F239A3155B2D" Guid="*">
-                            <File Id="fil7C5B63B3D6C500DAC52B421159A8EFD5" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\ds3-interfaces-3.2.10.jar" />
+                        <Component Win64="yes" Id="cmp4A31475DD3740B94C59DD23D910C954F" Guid="*">
+                            <File Id="fil5CB1656033EFCDF743E0874B5A4ECBE0" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\ds3-interfaces-3.2.12.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2BF4EEB6187E107A4FC361AD2BBCAA1E" Guid="*">
-                            <File Id="filE950CFA49FDC71ED96C4C04DB634D31A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\ds3-metadata-3.2.10.jar" />
+                        <Component Win64="yes" Id="cmp757CCA22320C13C3138AE6FE36C10363" Guid="*">
+                            <File Id="fil8FA7A1A30693DA7E6E35918573EC71C7" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\ds3-metadata-3.2.12.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA1AB4635B16D7CEF200BB2237678640C" Guid="*">
-                            <File Id="filCE8F4DD5A5E934B148B7D05E20B43DD4" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\ds3-sdk-3.2.10.jar" />
+                        <Component Win64="yes" Id="cmpB0AD496493B11B00833431832E9FDAAB" Guid="*">
+                            <File Id="filECC73680EDFADB5CD0DE6337E16873C0" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\ds3-sdk-3.2.12.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6EB281527F0B3B8F97728CC217EBFB6C" Guid="*">
-                            <File Id="fil8722B36AAE96B18D471C1DB88352B650" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\ds3-utils-3.2.10.jar" />
+                        <Component Win64="yes" Id="cmp6018D4551625C80B590826493FC8604E" Guid="*">
+                            <File Id="fil8F2403C442594CBAF430923DB16D42AC" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\ds3-utils-3.2.12.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2CBD0A0E7DC409F109E5ED4431D3B2FB" Guid="*">
-                            <File Id="filB2D0C407440DE20CA4821B4DF54C117D" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\dsb-api-2.0.40.jar" />
+                        <Component Win64="yes" Id="cmp77193216E7B6ACE45490F9FDFC05087B" Guid="*">
+                            <File Id="fil4EE1EF24B065392E4E9A9B9A0E8B1D4C" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\dsb-api-2.0.45.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp192C0BD1E0294F3436925D301DDA6320" Guid="*">
-                            <File Id="fil6DBB8D08E05722601C1F61BF18968350" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\dsb-gui-2.0.40.jar" />
+                        <Component Win64="yes" Id="cmp41B59BA2410C9577CEC643B0CBB6C31D" Guid="*">
+                            <File Id="fil1BA6DE30F40C7F5AFE773EA7E0236795" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\dsb-gui-2.0.45.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8B05E00D7996DB21214FCD64075CF12E" Guid="*">
-                            <File Id="fil4F9E542DCAE943267CD52EF752FFC748" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\dsb-local-2.0.40.jar" />
+                        <Component Win64="yes" Id="cmp0B0D992E619E3FD2D6F441B38A38B51E" Guid="*">
+                            <File Id="filCBDC2B0AB4549D3EBEF6629D6829B504" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\dsb-local-2.0.45.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp89441A3DC5B038D13DDF055F91A06BDC" Guid="*">
-                            <File Id="fil7038655B4D9E35316FC8440E3847D25C" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\dsb-util-2.0.40.jar" />
+                        <Component Win64="yes" Id="cmp0DA600A45A8B6C95C459102400997265" Guid="*">
+                            <File Id="filEA93E5A44B58F9AEA7BA8F2BBA897355" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\dsb-util-2.0.45.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpAF38DE0F0C57F274CB5A3977E5A5B89E" Guid="*">
-                            <File Id="fil67210CA02D37D7793F68980CB4ED4A3A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\flowless-0.4.5.jar" />
+                        <Component Win64="yes" Id="cmp1376AD1474D0EB0EF1BCD892E9FF1BF3" Guid="*">
+                            <File Id="fil8ADFBDAF12E4E4712BC56D613CC3A8D4" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\flowless-0.4.5.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC05D2169922B518109B071493C8CC79D" Guid="*">
-                            <File Id="filC004638FCA25B2C8F767BBBEAE2DA183" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\fontawesomefx-8.9.jar" />
+                        <Component Win64="yes" Id="cmpF4868B56B6A4CBA162BDDEDEB911A4BC" Guid="*">
+                            <File Id="fil344CA0DCEA1E34C9BA28B090222D3C98" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\fontawesomefx-8.9.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp90D00C9DB952B0D8EAEEE28F747A26F1" Guid="*">
-                            <File Id="fil653D0C500A85314A8A16C26A43D70967" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\guava-21.0.jar" />
+                        <Component Win64="yes" Id="cmpF14AEE1E94D3D7169ADDF97BD0642A33" Guid="*">
+                            <File Id="filA924066BBCA0F9F373B4BD47D1D7E2C9" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\guava-21.0.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp39555F6D137051498F1062E520594B0E" Guid="*">
-                            <File Id="fil3F9800A427DB9185AFA17B42A50ACAA9" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\httpclient-4.5.1.jar" />
+                        <Component Win64="yes" Id="cmp022BCA04C0C2EB7E44A13E395781D54C" Guid="*">
+                            <File Id="filC074F08A8FED504C5A78593BF9D43D17" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\httpclient-4.5.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp916CB2FDCAFB6943BD6DF7D922A49E4E" Guid="*">
-                            <File Id="fil489A4D16C4D67BA5C0195D23DC9AE86A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\httpcore-4.4.3.jar" />
+                        <Component Win64="yes" Id="cmp44F676C114AB97F6D7DFB100703E8EEC" Guid="*">
+                            <File Id="fil44BF9F59257B31394D2C6EBF60E00EA7" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\httpcore-4.4.3.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp67BFF58D099C4F567D390113BF3A9D0F" Guid="*">
-                            <File Id="filAC47F660AE528ABACCA8C146C6C6DAFA" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jackson-annotations-2.7.0.jar" />
+                        <Component Win64="yes" Id="cmp6C9C781DE3922A3B3403ECF928D1FEC1" Guid="*">
+                            <File Id="filBCD4B04DE7BFCF7733A915B8379A822F" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jackson-annotations-2.7.0.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp9C15BBAF666D4224CA144DBB3CA902BC" Guid="*">
-                            <File Id="filB33E804248BCA9D1861025845D4ADAD9" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jackson-core-2.7.1.jar" />
+                        <Component Win64="yes" Id="cmpFE7491C0AA6E53AE696E02EF5CAC6307" Guid="*">
+                            <File Id="fil96EDC0E0AE44A9D012A5C28ABBB428B7" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jackson-core-2.7.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp4FD8A4B8787F315A84B4738D4F04FA39" Guid="*">
-                            <File Id="fil651FD87808463E4F89F92B68DBFA9581" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jackson-databind-2.7.1.jar" />
+                        <Component Win64="yes" Id="cmp61A637C3137C13186DFABF0E1EF1AC16" Guid="*">
+                            <File Id="fil7160BFA4C51B523011CD406993F4D298" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jackson-databind-2.7.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA55BD255CACE37047E16D76381396FCB" Guid="*">
-                            <File Id="fil8F255C542DBB0214E33D11847541B9A8" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jackson-dataformat-xml-2.7.1.jar" />
+                        <Component Win64="yes" Id="cmp88513A744AFF97DAA0FF48B762DFEFD7" Guid="*">
+                            <File Id="filC9594288E92A707BE9FBADCD0AE0128D" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jackson-dataformat-xml-2.7.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp0420042FD1CB83DF3663B072DCE2029C" Guid="*">
-                            <File Id="filC88108AE5A2C5458867207C1D26FA317" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jackson-module-jaxb-annotations-2.7.1.jar" />
+                        <Component Win64="yes" Id="cmp8CCB770E88B4E556BEE158220715D2DF" Guid="*">
+                            <File Id="fil626ACE0E1B5C13720F212497912A15EC" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jackson-module-jaxb-annotations-2.7.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2F3A49C38B2B13761CFA8BA3C9C3B469" Guid="*">
-                            <File Id="fil23D2470B0F45295A7F2D25236B7FDCB2" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jcip-annotations-1.0.jar" />
+                        <Component Win64="yes" Id="cmpA03D2A30DEE323CE35730EE194EB7F68" Guid="*">
+                            <File Id="fil9FF876051726DEFE8DAD475A0C858333" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jcip-annotations-1.0.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp15FFB300B902FBCC966BFAAB4750C4D7" Guid="*">
-                            <File Id="fil15F615C9BD4B9F73E33540487EAFDF8E" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jna-4.2.2.jar" />
+                        <Component Win64="yes" Id="cmpC0B7DAB7C0687DF85C0D6C183A382F9A" Guid="*">
+                            <File Id="filC9587C9F02899A9349289A350331A9D3" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jna-4.2.2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp11705D5B03F419FD5E90FEA310AB25B2" Guid="*">
-                            <File Id="fil52EEF598EBFD83A4543C9A95D03D0226" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jna-platform-4.2.2.jar" />
+                        <Component Win64="yes" Id="cmp2C129E04BEECF5C42BF0F48DBDE0C0DB" Guid="*">
+                            <File Id="fil9B1F9B1B026B5DC68DFA1B79BFEAE8DC" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jna-platform-4.2.2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp986D268ED8D62DA3E237E255E7583F7E" Guid="*">
-                            <File Id="fil7CF95926EAF1A06B07F80BDC739EC02A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\jsr305-3.0.1.jar" />
+                        <Component Win64="yes" Id="cmpC38FD67016EB4003FBB6057AC49A7557" Guid="*">
+                            <File Id="fil08E5222217AF6B2657B6ED602BA2D3A9" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\jsr305-3.0.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp59B7D6259F3B4A6DD257925AD1032C1F" Guid="*">
-                            <File Id="filC9A9981CC9EEA11547F61E3E84119481" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\logback-classic-1.1.9.jar" />
+                        <Component Win64="yes" Id="cmpC499C535E21F48FA55B61662F80EB990" Guid="*">
+                            <File Id="filD0DDCD5F962782CD8AF1B6AFEE26C673" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\logback-classic-1.1.9.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC6CB9D88D2A8C865C329A2966E147CED" Guid="*">
-                            <File Id="fil8DE07BD010B43A942AC28A50A44DD614" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\logback-core-1.1.9.jar" />
+                        <Component Win64="yes" Id="cmp4FB227D33626F730126D3E793002E31E" Guid="*">
+                            <File Id="filB4F2A2F194E06125408CEEB2440D6DAD" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\logback-core-1.1.9.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp5945FD6B87AC0C51DC4F6F0DDF8CB8DF" Guid="*">
-                            <File Id="fil0203FE5F912903AB0B4C457E818AA92B" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\reactfx-2.0-M4u1.jar" />
+                        <Component Win64="yes" Id="cmp136FC0503484DFACABF59C3842129FB3" Guid="*">
+                            <File Id="fil68750EC3105C53BEA9DDFC1603CE750D" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\reactfx-2.0-M4u1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6C8351AFBD499ED0BF939B937C1191D3" Guid="*">
-                            <File Id="filF08CE14C34A6D3E6D344EA1C32638B88" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\richtextfx-0.6.10.jar" />
+                        <Component Win64="yes" Id="cmp3F4AD6CFEE921CE78DBCF58004A33EF1" Guid="*">
+                            <File Id="filB42D1494BE09C1D8EDACE322F1D7F643" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\richtextfx-0.6.10.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpEFC5CB344B6B4D306ECB570BF7E346B9" Guid="*">
-                            <File Id="filBA7E58B1375DB4565C4B0B497711FA00" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\slf4j-api-1.7.22.jar" />
+                        <Component Win64="yes" Id="cmp90D8DA72EFAFD24741268F96C74737F7" Guid="*">
+                            <File Id="filC7455C33BAF92DC28C7922983BA6B164" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\slf4j-api-1.7.22.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp466CC55ED0A9EE70DF9518B96281BEE0" Guid="*">
-                            <File Id="fil09E162BB504C943ACF9C88F97569462D" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\stax-api-1.0-2.jar" />
+                        <Component Win64="yes" Id="cmpB2BA4E014414C69E913536FAB433BA98" Guid="*">
+                            <File Id="filA82702B806DB1109C0235DB27766205E" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\stax-api-1.0-2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpCF1CC4CCCD4C4FCB5BFA7F49F0DE3873" Guid="*">
-                            <File Id="filE13FA89B7D9ECC45F50AAA13B38D80EC" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\stax2-api-3.1.4.jar" />
+                        <Component Win64="yes" Id="cmp479B97E591C2C7E52D3718975778A94A" Guid="*">
+                            <File Id="filA5CDF1A58A11CF03B1FEC6D6ADD4B5F4" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\stax2-api-3.1.4.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8C1EAF04D2E50676BB3B619A06857917" Guid="*">
-                            <File Id="fil7145F8BB84A6F8C6BDFC938340FAB37F" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\undofx-1.2.jar" />
+                        <Component Win64="yes" Id="cmp252CB0F08A5FCB85424977CE0CC716CB" Guid="*">
+                            <File Id="fil356BF1565F7888AD9A2D4224CAF767FF" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\undofx-1.2.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp33649CF5BC26566561C7EC36FA551D53" Guid="*">
-                            <File Id="fil1F36B02E1C3AD5681BF30920AE6934AF" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\wellbehavedfx-0.1.1.jar" />
+                        <Component Win64="yes" Id="cmp92430501D850EC218813DFB0B81712DA" Guid="*">
+                            <File Id="filD3983BAD0D895D43832EFD194E8A5BEB" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\wellbehavedfx-0.1.1.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6D20ECF8D0FB75DA28CC7AA8EF2DB95E" Guid="*">
-                            <File Id="fil848E16BF90DF3EE4A158BF55D48953CF" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.40\lib\woodstox-core-asl-4.4.1.jar" />
+                        <Component Win64="yes" Id="cmp7A2F335E0042AA20D4EB5CC2D71A7971" Guid="*">
+                            <File Id="fil1B02179A46A6D3FE2E4562809B4E3E98" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-2.0.45\lib\woodstox-core-asl-4.4.1.jar" />
                         </Component>
                     </Directory>
                 </Directory>
@@ -131,45 +131,45 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="DsbFilesGroup">
-            <ComponentRef Id="cmp414E493808F38161B30496D82971A4E0" />
-            <ComponentRef Id="cmpCEFD1F2FF44145997E524A7A1BE94DEB" />
-            <ComponentRef Id="cmpB972B9B0BE58B72C52507AB5C51DF79B" />
-            <ComponentRef Id="cmp7B585020D88230394BF41A4DADE297FA" />
-            <ComponentRef Id="cmp299A699B910E17C8D0251F585A7566E2" />
-            <ComponentRef Id="cmp657995BAE902162DF0D2407F4749A11B" />
-            <ComponentRef Id="cmpFE26F022143F71B07B2941CAA421F07A" />
-            <ComponentRef Id="cmp63DC37B75E1706B05685F239A3155B2D" />
-            <ComponentRef Id="cmp2BF4EEB6187E107A4FC361AD2BBCAA1E" />
-            <ComponentRef Id="cmpA1AB4635B16D7CEF200BB2237678640C" />
-            <ComponentRef Id="cmp6EB281527F0B3B8F97728CC217EBFB6C" />
-            <ComponentRef Id="cmp2CBD0A0E7DC409F109E5ED4431D3B2FB" />
-            <ComponentRef Id="cmp192C0BD1E0294F3436925D301DDA6320" />
-            <ComponentRef Id="cmp8B05E00D7996DB21214FCD64075CF12E" />
-            <ComponentRef Id="cmp89441A3DC5B038D13DDF055F91A06BDC" />
-            <ComponentRef Id="cmpAF38DE0F0C57F274CB5A3977E5A5B89E" />
-            <ComponentRef Id="cmpC05D2169922B518109B071493C8CC79D" />
-            <ComponentRef Id="cmp90D00C9DB952B0D8EAEEE28F747A26F1" />
-            <ComponentRef Id="cmp39555F6D137051498F1062E520594B0E" />
-            <ComponentRef Id="cmp916CB2FDCAFB6943BD6DF7D922A49E4E" />
-            <ComponentRef Id="cmp67BFF58D099C4F567D390113BF3A9D0F" />
-            <ComponentRef Id="cmp9C15BBAF666D4224CA144DBB3CA902BC" />
-            <ComponentRef Id="cmp4FD8A4B8787F315A84B4738D4F04FA39" />
-            <ComponentRef Id="cmpA55BD255CACE37047E16D76381396FCB" />
-            <ComponentRef Id="cmp0420042FD1CB83DF3663B072DCE2029C" />
-            <ComponentRef Id="cmp2F3A49C38B2B13761CFA8BA3C9C3B469" />
-            <ComponentRef Id="cmp15FFB300B902FBCC966BFAAB4750C4D7" />
-            <ComponentRef Id="cmp11705D5B03F419FD5E90FEA310AB25B2" />
-            <ComponentRef Id="cmp986D268ED8D62DA3E237E255E7583F7E" />
-            <ComponentRef Id="cmp59B7D6259F3B4A6DD257925AD1032C1F" />
-            <ComponentRef Id="cmpC6CB9D88D2A8C865C329A2966E147CED" />
-            <ComponentRef Id="cmp5945FD6B87AC0C51DC4F6F0DDF8CB8DF" />
-            <ComponentRef Id="cmp6C8351AFBD499ED0BF939B937C1191D3" />
-            <ComponentRef Id="cmpEFC5CB344B6B4D306ECB570BF7E346B9" />
-            <ComponentRef Id="cmp466CC55ED0A9EE70DF9518B96281BEE0" />
-            <ComponentRef Id="cmpCF1CC4CCCD4C4FCB5BFA7F49F0DE3873" />
-            <ComponentRef Id="cmp8C1EAF04D2E50676BB3B619A06857917" />
-            <ComponentRef Id="cmp33649CF5BC26566561C7EC36FA551D53" />
-            <ComponentRef Id="cmp6D20ECF8D0FB75DA28CC7AA8EF2DB95E" />
+            <ComponentRef Id="cmpD09C46239881CED99F5EEFCB60E9D20A" />
+            <ComponentRef Id="cmpD9FD1E90286653072FF4B9FF0A2C8144" />
+            <ComponentRef Id="cmp7DC9AC0D1EAF508893049FF7CF97B7A3" />
+            <ComponentRef Id="cmp2E38DC0A0934BADC8C3EA6CF5A9F90A8" />
+            <ComponentRef Id="cmp73E4C05143AACF98972735C8D1375651" />
+            <ComponentRef Id="cmp4E7DC7EF979AA27C5A85F7B904C3CBB1" />
+            <ComponentRef Id="cmpAE9716C0B461BEA4F72BA46C3AA2B62A" />
+            <ComponentRef Id="cmp4A31475DD3740B94C59DD23D910C954F" />
+            <ComponentRef Id="cmp757CCA22320C13C3138AE6FE36C10363" />
+            <ComponentRef Id="cmpB0AD496493B11B00833431832E9FDAAB" />
+            <ComponentRef Id="cmp6018D4551625C80B590826493FC8604E" />
+            <ComponentRef Id="cmp77193216E7B6ACE45490F9FDFC05087B" />
+            <ComponentRef Id="cmp41B59BA2410C9577CEC643B0CBB6C31D" />
+            <ComponentRef Id="cmp0B0D992E619E3FD2D6F441B38A38B51E" />
+            <ComponentRef Id="cmp0DA600A45A8B6C95C459102400997265" />
+            <ComponentRef Id="cmp1376AD1474D0EB0EF1BCD892E9FF1BF3" />
+            <ComponentRef Id="cmpF4868B56B6A4CBA162BDDEDEB911A4BC" />
+            <ComponentRef Id="cmpF14AEE1E94D3D7169ADDF97BD0642A33" />
+            <ComponentRef Id="cmp022BCA04C0C2EB7E44A13E395781D54C" />
+            <ComponentRef Id="cmp44F676C114AB97F6D7DFB100703E8EEC" />
+            <ComponentRef Id="cmp6C9C781DE3922A3B3403ECF928D1FEC1" />
+            <ComponentRef Id="cmpFE7491C0AA6E53AE696E02EF5CAC6307" />
+            <ComponentRef Id="cmp61A637C3137C13186DFABF0E1EF1AC16" />
+            <ComponentRef Id="cmp88513A744AFF97DAA0FF48B762DFEFD7" />
+            <ComponentRef Id="cmp8CCB770E88B4E556BEE158220715D2DF" />
+            <ComponentRef Id="cmpA03D2A30DEE323CE35730EE194EB7F68" />
+            <ComponentRef Id="cmpC0B7DAB7C0687DF85C0D6C183A382F9A" />
+            <ComponentRef Id="cmp2C129E04BEECF5C42BF0F48DBDE0C0DB" />
+            <ComponentRef Id="cmpC38FD67016EB4003FBB6057AC49A7557" />
+            <ComponentRef Id="cmpC499C535E21F48FA55B61662F80EB990" />
+            <ComponentRef Id="cmp4FB227D33626F730126D3E793002E31E" />
+            <ComponentRef Id="cmp136FC0503484DFACABF59C3842129FB3" />
+            <ComponentRef Id="cmp3F4AD6CFEE921CE78DBCF58004A33EF1" />
+            <ComponentRef Id="cmp90D8DA72EFAFD24741268F96C74737F7" />
+            <ComponentRef Id="cmpB2BA4E014414C69E913536FAB433BA98" />
+            <ComponentRef Id="cmp479B97E591C2C7E52D3718975778A94A" />
+            <ComponentRef Id="cmp252CB0F08A5FCB85424977CE0CC716CB" />
+            <ComponentRef Id="cmp92430501D850EC218813DFB0B81712DA" />
+            <ComponentRef Id="cmp7A2F335E0042AA20D4EB5CC2D71A7971" />
         </ComponentGroup>
     </Fragment>
 </Wix>

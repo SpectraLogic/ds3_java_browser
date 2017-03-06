@@ -5,14 +5,27 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css" AnchorPane.bottomAnchor="0.0"
+<VBox prefHeight="400.0" prefWidth="600.0" stylesheets="@../../common.css"
+      AnchorPane.bottomAnchor="0.0"
       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter">
     <children>
         <ToolBar prefHeight="40.0" prefWidth="200.0">
             <items>
-                <Button fx:id="ds3Refresh">
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3ParentDir">
+                    <tooltip>
+                        <Tooltip fx:id="ds3ParentDirToolTip"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@/images/parent_directory.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3Refresh">
                     <tooltip>
                         <Tooltip fx:id="ds3RefreshToolTip"/>
                     </tooltip>
@@ -23,8 +36,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3NewBucket" mnemonicParsing="false">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3NewBucket" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3NewBucketToolTip"/>
                     </tooltip>
@@ -35,8 +48,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3NewFolder">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3NewFolder">
                     <tooltip>
                         <Tooltip fx:id="ds3NewFolderToolTip"/>
                     </tooltip>
@@ -47,8 +60,8 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
-                <Button fx:id="ds3DeleteButton" mnemonicParsing="false">
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3DeleteButton" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3DeleteButtonToolTip"/>
                     </tooltip>
@@ -59,9 +72,9 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
 
-                <Button fx:id="ds3TransferLeft" mnemonicParsing="false">
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="ds3TransferLeft" mnemonicParsing="false">
                     <tooltip>
                         <Tooltip fx:id="ds3TransferLeftToolTip"/>
                     </tooltip>
@@ -72,12 +85,12 @@
                             </image>
                         </ImageView>
                     </graphic>
-                </Button>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
 
                 <AnchorPane prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                             AnchorPane.topAnchor="0.0">
                     <children>
-                        <TextField fx:id="ds3PanelSearch" disable="true" layoutY="4.0" layoutX="4.0" prefHeight="30.0"
+                        <TextField fx:id="ds3PanelSearch" disable="true" layoutX="4.0" layoutY="4.0" prefHeight="30.0"
                                    prefWidth="200.0" promptText="Type object name to search.."
                                    AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
@@ -86,8 +99,8 @@
                             </padding>
                         </TextField>
 
-                        <ImageView fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0" pickOnBounds="true"
-                                   preserveRatio="true" fx:id="imageView">
+                        <ImageView fx:id="imageView" fitHeight="15.0" fitWidth="20.0" layoutX="180.0" layoutY="10.0"
+                                   pickOnBounds="true" preserveRatio="true">
                             <image>
                                 <Image requestedHeight="20" requestedWidth="20" url="@/images/lens.png"/>
                             </image>
@@ -106,7 +119,7 @@
         </ToolBar>
         <Pane minHeight="30.0" prefHeight="30.0" prefWidth="200.0" style="-fx-background-color: #94b7db;">
             <children>
-                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;" text=""
+                <Label fx:id="ds3PathIndicator" prefHeight="30" style="-fx-padding: 5px;"
                        textAlignment="JUSTIFY" textFill="#000" wrapText="true">
                     <font>
                         <Font size="12.0"/>
@@ -118,7 +131,7 @@
             </children>
         </Pane>
         <TabPane fx:id="ds3SessionTabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="SELECTED_TAB"
-                 VBox.vgrow="ALWAYS">
+                 VBox.vgrow="ALWAYS" >
             <tabs>
                 <Tab fx:id="addNewTab" closable="false">
                     <content>
@@ -132,7 +145,7 @@
                                     <children>
                                         <Label fx:id="createNewSessionLabel"
                                                text="Create a New Session to Access a Black Pearl"/>
-                                        <Button fx:id="newSessionButton" mnemonicParsing="false"
+                                        <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="newSessionButton" mnemonicParsing="false"
                                                 onAction="#newSessionDialog"/>
                                     </children>
                                 </VBox>
@@ -142,5 +155,16 @@
                 </Tab>
             </tabs>
         </TabPane>
+        <HBox fx:id="lowerPanel" prefWidth="200" spacing="10">
+            <children>
+                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="199.0" visible="false"/>
+                <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="140.0"
+                       visible="false"/>
+                <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="280.0" visible="false"/>
+            </children>
+            <padding>
+                <Insets bottom="5" left="10" right="10" top="5"/>
+            </padding>
+        </HBox>
     </children>
 </VBox>

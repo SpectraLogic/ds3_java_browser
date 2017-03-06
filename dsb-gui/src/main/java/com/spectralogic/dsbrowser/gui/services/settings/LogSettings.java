@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.services.settings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.beans.property.*;
 
 import java.nio.file.Paths;
@@ -8,18 +9,24 @@ import java.nio.file.Paths;
 public class LogSettings {
 
     public static final LogSettings DEFAULT = createDefault();
+
     @JsonProperty("logLocation")
     private final StringProperty logLocation = new SimpleStringProperty();
+
     @JsonProperty("logSize")
     private final IntegerProperty logSize = new SimpleIntegerProperty();
+
     @JsonProperty("numRollovers")
     private final IntegerProperty numRollovers = new SimpleIntegerProperty();
+
     @JsonProperty("debugLogging")
     private final BooleanProperty debugLogging = new SimpleBooleanProperty();
+
     @JsonProperty("consoleLogging")
     private final BooleanProperty consoleLogging = new SimpleBooleanProperty();
 
-    public LogSettings(final String logLocation, final int logSize, final int numRollovers, final boolean debugLogging, final boolean consoleLogging) {
+    public LogSettings(final String logLocation, final int logSize, final int numRollovers,
+                       final boolean debugLogging, final boolean consoleLogging) {
         this.logLocation.set(logLocation);
         this.logSize.set(logSize);
         this.numRollovers.set(numRollovers);
@@ -28,12 +35,31 @@ public class LogSettings {
     }
 
     public LogSettings() {
-        // pass
+        //Default constructor needed
     }
 
-    private static LogSettings createDefault() {
-        final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
+    public static LogSettings createDefault() {
+        final String logPath = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH),
+                StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.LOG).toString();
         return new LogSettings(logPath, 1, 10, true, false);
+    }
+
+    public LogSettings copy() {
+        final LogSettings settings = new LogSettings();
+        settings.setLogLocation(this.getLogLocation());
+        settings.setLogSize(this.getLogSize());
+        settings.setNumRollovers(this.getNumRollovers());
+        settings.setDebugLogging(this.getDebugLogging());
+        settings.setConsoleLogging(this.getConsoleLogging());
+        return settings;
+    }
+
+    public void overwrite(final LogSettings settings) {
+        this.setLogLocation(settings.getLogLocation());
+        this.setLogSize(settings.getLogSize());
+        this.setNumRollovers(settings.getNumRollovers());
+        this.setDebugLogging(settings.getDebugLogging());
+        this.setConsoleLogging(settings.getConsoleLogging());
     }
 
     public String getLogLocation() {
@@ -70,24 +96,6 @@ public class LogSettings {
 
     public IntegerProperty numRolloversProperty() {
         return numRollovers;
-    }
-
-    public LogSettings copy() {
-        final LogSettings settings = new LogSettings();
-        settings.setLogLocation(this.getLogLocation());
-        settings.setLogSize(this.getLogSize());
-        settings.setNumRollovers(this.getNumRollovers());
-        settings.setDebugLogging(this.getDebugLogging());
-        settings.setConsoleLogging(this.getConsoleLogging());
-        return settings;
-    }
-
-    public void overwrite(final LogSettings settings) {
-        this.setLogLocation(settings.getLogLocation());
-        this.setLogSize(settings.getLogSize());
-        this.setNumRollovers(settings.getNumRollovers());
-        this.setDebugLogging(settings.getDebugLogging());
-        this.setConsoleLogging(settings.getConsoleLogging());
     }
 
     public boolean getDebugLogging() {

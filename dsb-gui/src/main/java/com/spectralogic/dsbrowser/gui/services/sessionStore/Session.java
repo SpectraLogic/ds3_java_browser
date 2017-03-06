@@ -11,18 +11,19 @@ public class Session implements Closeable {
     private final String endpoint;
     private final String portNo;
     private final String proxyServer;
-
+    private final Boolean defaultSession;
     // Needed for injection
     public Session() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null,false);
     }
 
-    public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client) {
+    public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client,final Boolean dafaultSession) {
         this.sessionName = sessionName;
         this.endpoint = endpoint;
         this.portNo = portNo;
         this.proxyServer = proxyServer;
         this.client = client;
+        this.defaultSession =  dafaultSession;
     }
 
     public Ds3Client getClient() {
@@ -48,5 +49,9 @@ public class Session implements Closeable {
 
     public String getProxyServer() {
         return proxyServer;
+    }
+
+    public Boolean getDefaultSession() {
+        return defaultSession;
     }
 }

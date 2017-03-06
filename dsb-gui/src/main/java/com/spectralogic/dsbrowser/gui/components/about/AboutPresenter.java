@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
+import com.spectralogic.dsbrowser.gui.util.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
@@ -12,12 +13,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Locale;
 import java.util.ResourceBundle;
+
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 
 public class AboutPresenter implements Initializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
 
     @FXML
     private Label copyRightLabel1, copyRightLabel2;
@@ -34,12 +36,12 @@ public class AboutPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        this.resourceBundle = ResourceBundle.getBundle("lang", new Locale("en"));
+        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         title.setText(resourceBundle.getString("title"));
         buildVersion.setText(resourceBundle.getString("buildVersion"));
         hyperlink.setOnAction(event -> {
             try {
-                Desktop.getDesktop().browse(new URI("http://www.apache.org/licenses/LICENSE-2.0"));
+                Desktop.getDesktop().browse(new URI(Constants.APACHE_URL));
             } catch (final IOException|URISyntaxException e) {
                 LOG.error("Failed to open apache license in a browser", e);
             }

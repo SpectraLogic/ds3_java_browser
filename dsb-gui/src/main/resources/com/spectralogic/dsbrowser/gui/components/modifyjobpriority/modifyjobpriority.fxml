@@ -10,12 +10,12 @@
         <Label layoutX="37.0" layoutY="70.0" fx:id="modifyJobPriorityComboBoxLabel"/>
 
         <ComboBox fx:id="modifyJobPriorityComboBox" layoutX="167.0" layoutY="74.0" prefHeight="25.0"
-                  prefWidth="150.0" />
+                  prefWidth="150.0"/>
 
-        <Button fx:id="yesButton" layoutX="193.0" layoutY="130.0" mnemonicParsing="false"
+        <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="yesButton" layoutX="193.0" layoutY="130.0" mnemonicParsing="false"
                 onAction="#saveModifyJobPriority"/>
-        <Button fx:id="noButton" cancelButton="true" layoutX="276.0" layoutY="130.0" mnemonicParsing="false"
-                onAction="#cancelModifyJobPriority" prefHeight="30.0" prefWidth="41.0"/>
+        <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="noButton" cancelButton="true" layoutX="276.0" layoutY="130.0" mnemonicParsing="false"
+                onAction="#closeModifyJobPriorityPopup" prefHeight="30.0" prefWidth="41.0"/>
 
     </children>
 </AnchorPane>

@@ -16,7 +16,6 @@ public final class SessionValidation {
         final Matcher matcher;
         final String PORT_PATTERN = "^([0-9]+)$";
         pattern = Pattern.compile(PORT_PATTERN);
-
         if (checkStringEmptyNull(portNumber)) {
             matcher = pattern.matcher(portNumber);
             return matcher.matches();
@@ -31,10 +30,7 @@ public final class SessionValidation {
      * @return Flag
      */
     public static boolean checkStringEmptyNull(final String value) {
-        if (value != null && !value.trim().isEmpty()) {
-            return true;
-        }
-        return false;
+        return value != null && !value.trim().isEmpty();
     }
 
     /**
@@ -49,11 +45,12 @@ public final class SessionValidation {
         final String IPADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
                 + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
         pattern = Pattern.compile(IPADDRESS_PATTERN);
-
         if (checkStringEmptyNull(ipAddress)) {
             matcher = pattern.matcher(ipAddress);
             return matcher.matches();
         }
         return false;
     }
+
+
 }

@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>4a143efe-b332-4827-a4c8-49c4d3cc4c41</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>DeepStorageBrowserSetup</OutputName>
+    <OutputName>BlackPearlEonBrowserSetup</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=2.0.40;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
+    <DefineConstants>Version=2.0.45;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
@@ -48,14 +48,20 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.40$(TargetExt)%2a /Y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin\%2a.%2a
-xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.40\bin /Y
+    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.45\bin\%2a.%2a
+
+
+xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-2.0.45\bin /Y
+
+
 
 call ..\..\..\..\..\createWXSJavaFiles.bat
+
+
 call ..\..\..\createWXSDbsFiles.bat</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-2.0.45$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

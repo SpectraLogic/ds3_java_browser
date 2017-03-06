@@ -10,37 +10,37 @@
     <children>
         <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css">
             <columns>
-                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="-1.0" prefWidth="125.0">
+                <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="70.0" prefWidth="125.0">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="name"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn fx:id="fullPath" maxWidth="600" minWidth="-1.0" prefWidth="70.0" visible="false">
+                <TreeTableColumn fx:id="fullPath" maxWidth="600" minWidth="50.0" prefWidth="70.0" visible="false">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="fullPath"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="500" minWidth="-1.0" prefWidth="70.0" text="Storage Locations">
+                <TreeTableColumn maxWidth="500" minWidth="50.0" prefWidth="70.0" text="Storage Locations">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="physicalPlacementHBox"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="43.0" text="Size" fx:id="sizeColumn">
+                <TreeTableColumn maxWidth="300" minWidth="40.0" prefWidth="43.0" text="Size" fx:id="sizeColumn">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="size"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="300" minWidth="-1.0" prefWidth="37.0" text="Owner">
+                <TreeTableColumn maxWidth="300" minWidth="50.0" prefWidth="37.0" text="Owner">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="owner"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn fx:id="fileType" maxWidth="400" minWidth="-1.0" prefWidth="41.0" text="Type">
+                <TreeTableColumn fx:id="fileType" maxWidth="400" minWidth="50.0" prefWidth="41.0" text="Type">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="600" minWidth="-1.0" prefWidth="70.0" text="Date Modified">
+                <TreeTableColumn maxWidth="600" minWidth="80.0" prefWidth="70.0" text="Date Modified">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="lastModified"/>
                     </cellValueFactory>
@@ -50,6 +50,5 @@
                 <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
             </columnResizePolicy>
         </TreeTableView>
-
     </children>
 </VBox>

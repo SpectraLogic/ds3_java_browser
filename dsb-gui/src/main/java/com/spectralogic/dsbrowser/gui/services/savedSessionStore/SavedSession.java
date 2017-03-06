@@ -14,14 +14,18 @@ public class SavedSession {
     private final String portNo;
     @JsonProperty
     private final String proxyServer;
+    @JsonProperty("defaultSession")
+    private final Boolean defaultSession;
 
     @JsonCreator
-    public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("portNo") final String portNo, @JsonProperty("proxyServer") final String proxyServer, @JsonProperty("credentials") final SavedCredentials credentials) {
+    public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("portNo") final String portNo, @JsonProperty("proxyServer") final String proxyServer, @JsonProperty("credentials") final SavedCredentials credentials, @JsonProperty("defaultSession")
+    final Boolean defaultSession) {
         this.name = name;
         this.endpoint = endpoint;
         this.portNo = portNo;
         this.proxyServer = proxyServer;
         this.credentials = credentials;
+        this.defaultSession=defaultSession;
     }
 
     public String getName() {
@@ -43,4 +47,9 @@ public class SavedSession {
     public SavedCredentials getCredentials() {
         return credentials;
     }
+
+    public Boolean getDefaultSession() {
+        return defaultSession;
+    }
+
 }

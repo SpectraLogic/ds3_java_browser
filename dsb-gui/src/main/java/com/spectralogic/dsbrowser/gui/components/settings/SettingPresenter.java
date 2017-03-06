@@ -5,10 +5,8 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
-import com.spectralogic.dsbrowser.gui.services.settings.FilePropertiesSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.settings.*;
+import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -16,7 +14,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +26,13 @@ import java.util.concurrent.Executors;
 
 public class SettingPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
+    private final static Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
 
     @FXML
     private ComboBox<String> getJobPriority, putJobPriority;
 
     @FXML
-    private CheckBox isDefaultCheckBox, debugLogging;
+    private CheckBox debugLogging;
 
     @FXML
     private TextField numRolling;
@@ -52,18 +49,8 @@ public class SettingPresenter implements Initializable {
     @FXML
     private Tab loggingTab, performanceTab;
 
-    @Inject
-    private SettingsStore settings;
-
-    @Inject
-    private LogService logService;
-
-    private LogSettings logSettings;
-
-    private ProcessSettings processSettings;
-
     @FXML
-    private Label performanceLabel;
+    private Label performanceLabel, showCachedJob;
 
     @FXML
     private Label locationSetting;
@@ -85,39 +72,6 @@ public class SettingPresenter implements Initializable {
 
     @FXML
     private Button browseButton;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private SavedJobPrioritiesStore jobPrioritiesStore;
-
-    private JobSettings jobSettings;
-
-    private FilePropertiesSettings filePropertiesSettings;
-
-    @FXML
-    private Label enableFileProperties;
-
-    @FXML
-    private CheckBox filePropertiesCheckbox;
-
-    @Override
-    public void initialize(final URL location, final ResourceBundle resources) {
-        try {
-            this.logSettings = settings.getLogSettings();
-            this.processSettings = settings.getProcessSettings();
-            this.jobSettings = jobPrioritiesStore.getJobSettings();
-            this.filePropertiesSettings = settings.getFilePropertiesSettings();
-            initGUIElements();
-            initPropertyPane();
-        } catch (final Throwable e) {
-            LOG.error("Failed to startup settings presenter");
-        }
-    }
 
     @FXML
     private Button saveFilePropertiesEnableButton, cancelFilePropertiesEnableButton;
@@ -141,8 +95,56 @@ public class SettingPresenter implements Initializable {
     private Tab fileProperties;
 
     @FXML
-    private Tooltip enableFilePropertiesTooltip;
+    private Tooltip enableFilePropertiesTooltip, showCachedJobTooltip;
 
+    @FXML
+    private Label enableFileProperties;
+
+    @FXML
+    private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
+
+    @Inject
+    private ResourceBundle resourceBundle;
+
+    @Inject
+    private JobWorkers jobWorkers;
+
+    @Inject
+    private SavedJobPrioritiesStore jobPrioritiesStore;
+
+    @Inject
+    private SettingsStore settings;
+
+    @Inject
+    private LogService logService;
+
+    private JobSettings jobSettings;
+
+    private FilePropertiesSettings filePropertiesSettings;
+
+    private ShowCachedJobSettings showCachedJobSettings;
+
+    private LogSettings logSettings;
+
+    private ProcessSettings processSettings;
+
+    public SettingPresenter() {
+    }
+
+    @Override
+    public void initialize(final URL location, final ResourceBundle resources) {
+        try {
+            this.logSettings = settings.getLogSettings();
+            this.processSettings = settings.getProcessSettings();
+            this.jobSettings = jobPrioritiesStore.getJobSettings();
+            this.filePropertiesSettings = settings.getFilePropertiesSettings();
+            this.showCachedJobSettings = settings.getShowCachedJobSettings();
+            initGUIElements();
+            initPropertyPane();
+        } catch (final Exception e) {
+            LOG.error("Failed to startup settings presenter", e);
+        }
+    }
 
     public void saveFilePropertiesSettings() {
         LOG.info("Updating fileProperties settings");
@@ -152,20 +154,24 @@ public class SettingPresenter implements Initializable {
             } else {
                 settings.setFilePropertiesSettings(false);
             }
-
+            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("filePropertiesSettingsUpdated"), Alert.AlertType.INFORMATION);
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
-        closeDialog();
+    }
+
+    public void savePerformanceSettings() {
+        LOG.info("Updating maximum number of Threads");
+        settings.setProcessSettings(processSettings);
+        jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
+        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("performanceSettingsUpdated"), Alert.AlertType.INFORMATION);
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settings");
         settings.setLogSettings(logSettings);
-        settings.setProcessSettings(processSettings);
         logService.setLogSettings(logSettings);
-        jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        closeDialog();
+        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("loggingSettingsUpdated"), Alert.AlertType.INFORMATION);
     }
 
     public void saveJobSettings() {
@@ -174,10 +180,15 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(jobPrioritiesStore);
+            if (showCachedJobCheckbox.isSelected()) {
+                settings.setShowCachedJobSettings(true);
+            } else {
+                settings.setShowCachedJobSettings(false);
+            }
+            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("jobsSettingsUpdated"), Alert.AlertType.INFORMATION);
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }
-        closeDialog();
     }
 
     public void closeDialog() {
@@ -191,7 +202,8 @@ public class SettingPresenter implements Initializable {
         Bindings.bindBidirectional(numRolling.textProperty(), logSettings.numRolloversProperty(), new NumberStringConverter());
         Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
         Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(null, filePropertiesSettings.filePropertiesEnableProperty(), new BooleanStringConverter());
+        Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.filePropertiesEnableProperty());
+        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.showCachedJobEnableProperty());
     }
 
     private void initGUIElements() {
@@ -203,6 +215,8 @@ public class SettingPresenter implements Initializable {
         fileProperties.setText(resourceBundle.getString("fileProperties"));
         enableFilePropertiesTooltip.setText(resourceBundle.getString("enableFilePropertiesTooltip"));
         performanceLabel.setText(resourceBundle.getString("performanceLabel"));
+        showCachedJob.setText(resourceBundle.getString("showCachedJob"));
+        showCachedJobTooltip.setText(resourceBundle.getString("showCachedJobTooltip"));
         locationSetting.setText(resourceBundle.getString("locationSetting"));
         logSizeSetting.setText(resourceBundle.getString("logSizeSetting"));
         savedLogSetting.setText(resourceBundle.getString("savedLogSetting"));
@@ -227,7 +241,7 @@ public class SettingPresenter implements Initializable {
         }
         putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority());
         getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority());
-        performanceFieldValue.setText("" + processSettings.getMaximumNumberOfParallelThreads());
+        performanceFieldValue.setText(String.valueOf(processSettings.getMaximumNumberOfParallelThreads()));
     }
 
     public void showFileExplorer() {

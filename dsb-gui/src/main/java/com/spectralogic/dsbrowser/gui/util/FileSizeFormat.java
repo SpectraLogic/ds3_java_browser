@@ -4,23 +4,23 @@ import java.text.DecimalFormat;
 
 public final class FileSizeFormat {
 
-    final static DecimalFormat df = new DecimalFormat("0.00");
-    final static DecimalFormat dfbytes = new DecimalFormat("0");
+    private final static DecimalFormat df = new DecimalFormat("0.00");
+    private final static DecimalFormat dfbytes = new DecimalFormat("0");
 
-    final static double sizeKb = 1024.00;
-    final static double sizeMo = sizeKb * sizeKb;
-    final static double sizeGo = sizeMo * sizeKb;
-    final static double sizeTerra = sizeGo * sizeKb;
-    final static double sizePeta = sizeTerra * sizeKb;
-    final static double sizeExa = sizePeta * sizeKb;
+    private final static double sizeKb = 1024.00;
+    private final static double sizeMo = sizeKb * sizeKb;
+    private final static double sizeGo = sizeMo * sizeKb;
+    private final static double sizeTerra = sizeGo * sizeKb;
+    private final static double sizePeta = sizeTerra * sizeKb;
+    private final static double sizeExa = sizePeta * sizeKb;
 
     public static String getFileSizeType(final long size) {
 
         if (size == 0) {
-            return "--";
+            return StringConstants.TWO_DASH;
         }
         else if(size == -1)
-            return "";
+            return StringConstants.EMPTY_STRING;
         else if (size < sizeKb)
             return dfbytes.format(size) + " Bytes";
         else if (size < sizeMo)
@@ -39,7 +39,7 @@ public final class FileSizeFormat {
 
     public static long convertSizeToByte(final String size) {
 
-        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", ""));
+        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", StringConstants.EMPTY_STRING));
 
         if (size.contains("KB")) {
             return new Double(aFloat * sizeKb).longValue();

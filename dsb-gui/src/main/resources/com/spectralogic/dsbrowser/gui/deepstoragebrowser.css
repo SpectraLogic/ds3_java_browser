@@ -31,38 +31,36 @@
 
 #homeButton,#refreshButton,#localButton,#transferButton,#ds3Refresh,#ds3NewBucket,#ds3NewFolder,#ds3DeleteButton,#ds3TransferLeft
 {
-
    -fx-background-insets: 0,1,2;
    -fx-background-radius: 3,2,1;
-
 }
 
 .successText {
+    -fx-text-fill: GREEN;
     -fx-fill: GREEN;
     -fx-font-weight: bold;
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-     -fx-padding: 0;
-
+    -fx-padding: 0;
 }
 
 .errorText {
+    -fx-background-color: RED;
     -fx-fill: RED;
     -fx-font-weight: bold;
-    -fx-background-color: transparent;
-        -fx-background-insets: 0;
-        -fx-background-radius: 0;
-         -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
 }
 
 .logText {
-    -fx-background-color: #DFF2BF;
+    -fx-background-color: BLACK;
     -fx-text-fill: #4F8A10;
     -fx-font-weight: bold;
     -fx-background-color: transparent;
-        -fx-background-insets: 0;
-        -fx-background-radius: 0;
-         -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
 }
 

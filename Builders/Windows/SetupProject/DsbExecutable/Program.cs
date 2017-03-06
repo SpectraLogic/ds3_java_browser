@@ -7,7 +7,7 @@ namespace DsbExecutable
     {
         public static void Main()
         {
-            const string root = @"HKEY_CURRENT_USER\Software\Spectra Logic\Deep Storage Browser";
+            const string root = @"HKEY_CURRENT_USER\Software\Spectra Logic\BlackPearl Eon Browser";
             var installFolderValue = (string)Registry.GetValue(root, "InstallFolder", null);
             var versionValue = (string)Registry.GetValue(root, "Version", null);
 
@@ -30,7 +30,7 @@ namespace DsbExecutable
                 sw.WriteLine(@"echo off");
                 sw.WriteLine(@"cd " + "\"" + installFolderValue + "\"");
                 sw.WriteLine(@"set VERSION=" + versionValue);
-                sw.WriteLine(@"set JAVA_HOME=Java\jre1.8.0_112");
+                sw.WriteLine(@"set JAVA_HOME=Java\jre1.8.0_121");
                 sw.WriteLine(@"set JAVA_EXE=%JAVA_HOME%\bin\javaw.exe");
                 sw.WriteLine(@"set CLASSPATH=distributions\dsb-gui-%VERSION%\lib\*");
                 sw.WriteLine("START %JAVA_EXE% -classpath %CLASSPATH% com.spectralogic.dsbrowser.gui.Main");
