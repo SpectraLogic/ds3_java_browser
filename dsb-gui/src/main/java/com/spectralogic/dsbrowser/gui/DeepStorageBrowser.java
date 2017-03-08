@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
@@ -36,8 +37,10 @@ class DeepStorageBrowser {
     }
 
     void start(final Stage primaryStage) {
+        // TODO add a version lookup to always get the most current version from a property file generated at build time
+        LOG.info("Starting Deep Storage Browser {}", resourceBundle.getString("buildVersion"));
+        LOG.info(getPlatformInformation());
 
-        LOG.info("Starting Deep Storage Browser v2.0");
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
@@ -47,6 +50,16 @@ class DeepStorageBrowser {
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.setOnCloseRequest(this::handleWindowClose);
         primaryStage.show();
+    }
+
+    private static String getPlatformInformation() {
+        return String.format("Java Version: {%s}\n", System.getProperty("java.version"))
+                + String.format("Java Vendor: {%s}\n", System.getProperty("java.vendor"))
+                + String.format("JVM Version: {%s}\n", System.getProperty("java.vm.version"))
+                + String.format("JVM Name: {%s}\n", System.getProperty("java.vm.name"))
+                + String.format("OS: {%s}\n", System.getProperty("os.name"))
+                + String.format("OS Arch: {%s}\n", System.getProperty("os.arch"))
+                + String.format("OS Version: {%s}", System.getProperty("os.version"));
     }
 
     private void handleWindowClose(final WindowEvent event) {

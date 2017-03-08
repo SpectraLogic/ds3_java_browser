@@ -12,7 +12,7 @@ import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
+import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -41,7 +41,7 @@ public class GuiModule extends AbstractModule {
 
         bind(Workers.class).in(Singleton.class);
         bind(JobWorkers.class).in(Singleton.class);
-        bind(LogService.class).in(Singleton.class);
+        bind(ApplicationLoggerSettings.class).in(Singleton.class);
         bind(DeepStorageBrowser.class).in(Singleton.class);
 
         bind(Ds3Common.class).in(Singleton.class);

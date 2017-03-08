@@ -17,16 +17,15 @@ import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LogService {
+public class ApplicationLoggerSettings {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ApplicationLoggerSettings.class);
 
     private LogSettings logSettings;
 
     @Inject
-    public LogService(final LogSettings logSettings) {
+    public ApplicationLoggerSettings(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings();
     }
 
     public void setLogSettings(final LogSettings logSettings) {
@@ -87,5 +86,9 @@ public class LogService {
             rootLogger.setLevel(Level.INFO);
         }
         LOG.info("Finished configuring logging");
+    }
+
+    public void restoreLoggingSettings() {
+        updateLogBackSettings();
     }
 }
