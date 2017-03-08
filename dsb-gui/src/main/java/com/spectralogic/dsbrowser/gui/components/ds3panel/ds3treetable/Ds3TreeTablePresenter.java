@@ -604,7 +604,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         ds3TreeTable.setShowRoot(false);
-        ds3TreeTable.setPlaceholder(new Label("No Bucket found"));
+        ds3TreeTable.setPlaceholder(new Label("No Buckets found"));
         final Node oldPlaceHolder = ds3TreeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(90, 90);

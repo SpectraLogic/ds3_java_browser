@@ -45,6 +45,8 @@ public class GuicePresenterInjector implements PresenterFactory {
                 final Object apply = injectionContext.apply(field.getName());
                 if (apply != null) {
                     setField(field, newInstance, apply);
+                } else {
+                    LOG.warn("Could not find a value to inject into {} for an instance of {}", field.getName(), newInstance.getClass().getSimpleName());
                 }
             });
     }
