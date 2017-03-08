@@ -9,6 +9,7 @@ import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.helpers.JobRecoveryNotActiveException;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -129,10 +130,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 String skipPath = "";
                                 final File file = new File(s);
                                 if (folders.size() == 0) {
-                                    if (file.getParent() != null)
+                                    if (file.getParent() != null) {
                                         skipPath = file.getParent();
-                                    else
+                                    } else {
                                         skipPath = "";
+                                    }
                                 }
                                 if (skipPath.isEmpty()) {
                                     return new FileObjectGetter(finalFileTreeModel).buildChannel(s);
@@ -158,7 +160,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + " ] recovery completed. File transferred to " + filesAndFolderMapMap.getTargetLocation() + " (storage location)", LogType.SUCCESS));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
-            final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
+            final Session session = endpointInfo.getDs3Common().getCurrentSessions().stream().findFirst().get();
             final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
             if (currentSelectedEndpoint.equals(session.getClient().getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());

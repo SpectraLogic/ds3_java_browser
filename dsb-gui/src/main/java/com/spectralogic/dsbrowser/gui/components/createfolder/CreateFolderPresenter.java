@@ -3,11 +3,13 @@ package com.spectralogic.dsbrowser.gui.components.createfolder;
 import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Response;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+@Presenter
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
@@ -42,11 +45,11 @@ public class CreateFolderPresenter implements Initializable {
     @FXML
     private Button createFolderButton, cancelCreateFolderButton;
 
-    @Inject
-    private Workers workers;
+    @ModelContext
+    private CreateFolderModel createFolderModel;
 
     @Inject
-    private CreateFolderModel createFolderModel;
+    private Workers workers;
 
     @Inject
     private ResourceBundle resourceBundle;

@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.services;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Workers {
 
@@ -15,8 +16,8 @@ public class Workers {
         workers = Executors.newFixedThreadPool(num);
     }
 
-    public void execute(final Runnable run) {
-        workers.execute(run);
+    public Future<?> execute(final Runnable run) {
+        return workers.submit(run);
     }
 
     public void shutdown() {

@@ -1,10 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
+import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.FilePropertiesSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.ProcessSettings;
@@ -27,9 +28,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 
-public class SettingPresenter implements Initializable {
+@Presenter
+public class SettingsPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
+    private final Logger LOG = LoggerFactory.getLogger(SettingsPresenter.class);
 
     @FXML
     private ComboBox<String> getJobPriority, putJobPriority;
@@ -56,7 +58,7 @@ public class SettingPresenter implements Initializable {
     private SettingsStore settings;
 
     @Inject
-    private LogService logService;
+    private ApplicationLoggerSettings applicationLoggerSettings;
 
     private LogSettings logSettings;
 
@@ -163,7 +165,7 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating logging settings");
         settings.setLogSettings(logSettings);
         settings.setProcessSettings(processSettings);
-        logService.setLogSettings(logSettings);
+        applicationLoggerSettings.setLogSettings(logSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
         closeDialog();
     }

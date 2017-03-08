@@ -1,9 +1,12 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
+import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.Main;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -16,7 +19,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -30,22 +32,15 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 
-
+@Presenter
 public class JobInfoPresenter implements Initializable {
 
-
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
-    private final Alert CLOSECONFIRMATIONALERT = new Alert(
-            Alert.AlertType.CONFIRMATION,
-            ""
-    );
-    private final static Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+
+    private final LazyAlert ALERT = new LazyAlert("No network connection", Alert.AlertType.INFORMATION);
 
     @FXML
     private TreeTableView<JobInfoModel> jobListTreeTable;
-
-    @FXML
-    private TextField logSize;
 
     @FXML
     private Button cancelJobListButtons;
@@ -53,34 +48,26 @@ public class JobInfoPresenter implements Initializable {
     @FXML
     private TreeTableColumn sizeColumn;
 
-    @FXML
-    private TreeTableColumn jobIdColumn;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
+    @ModelContext
     private EndpointInfo endpointInfo;
 
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private Ds3Common ds3Common;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final LoggingService loggingService;
 
     private Stage stage;
 
+    @Inject
+    public JobInfoPresenter(final Workers workers, final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final LoggingService loggingService) {
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.loggingService = loggingService;
+    }
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        ALERT.setTitle("No network connection");
-        ALERT.setHeaderText(null);
-
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
         initListeners();
         initTreeTableView();
     }
@@ -89,20 +76,25 @@ public class JobInfoPresenter implements Initializable {
         cancelJobListButtons.setOnAction(event -> {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                if (jobIDMap != null && jobIDMap.size() != 0) {
-                    final Button exitButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                if (!Guard.isMapNullOrEmpty(jobIDMap)) {
+
+                    final Alert closeconfirmationalert = new Alert(
+                            Alert.AlertType.CONFIRMATION,
+                            ""
+                    );
+                    final Button exitButton = (Button) closeconfirmationalert.getDialogPane().lookupButton(
                             ButtonType.OK
                     );
-                    final Button cancelButton = (Button) CLOSECONFIRMATIONALERT.getDialogPane().lookupButton(
+                    final Button cancelButton = (Button) closeconfirmationalert.getDialogPane().lookupButton(
                             ButtonType.CANCEL
                     );
                     exitButton.setText("Yes");
                     cancelButton.setText("No! I don't");
 
-                    CLOSECONFIRMATIONALERT.setHeaderText("Are you really want to cancel all interrupted jobs");
-                    CLOSECONFIRMATIONALERT.setContentText(jobIDMap.size() + " jobs will be cancelled. You can not recover them in future.");
+                    closeconfirmationalert.setHeaderText("Do you really want to cancel all interrupted jobs");
+                    closeconfirmationalert.setContentText(jobIDMap.size() + " jobs will be cancelled. You can not recover them in future.");
 
-                    final Optional<ButtonType> closeResponse = CLOSECONFIRMATIONALERT.showAndWait();
+                    final Optional<ButtonType> closeResponse = closeconfirmationalert.showAndWait();
 
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         cancelAllInterruptedJobs(jobIDMap);
@@ -115,8 +107,7 @@ public class JobInfoPresenter implements Initializable {
                 }
             } else {
                 BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-                ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
-                ALERT.showAndWait();
+                ALERT.showAlert("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 LOG.info("Network in unreachable");
             }
         });
@@ -130,7 +121,7 @@ public class JobInfoPresenter implements Initializable {
                 jobIDMap.entrySet().forEach(i -> {
                     Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job cancel for " + i.getKey(), LogType.INFO));
                     try {
-                        final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
+                        endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                         LOG.info("Cancelled job.");
                     } catch (final IOException e) {
                         LOG.error("Unable to cancel job ", e);
@@ -163,7 +154,7 @@ public class JobInfoPresenter implements Initializable {
 
         jobListTreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (jobListTreeTable == null) {
-            jobListTreeTable.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));
+            jobListTreeTable.setPlaceholder(new Label("You don't have any interrupted jobs"));
             Platform.exit();
         }
 
@@ -177,7 +168,7 @@ public class JobInfoPresenter implements Initializable {
                 p -> new SimpleBooleanProperty(p.getValue() != null));
 
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, loggingService));
 
         jobListTreeTable.getColumns().add(actionColumn);
 
@@ -197,12 +188,12 @@ public class JobInfoPresenter implements Initializable {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
                 //to show jobs in reverse order
                 final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
+                final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap<>(jobIDHashMap);
                 final Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
                 if (jobIDMap != null) {
                     jobIDMap.entrySet().forEach(i -> {
                         final JobInfoModel jobModel = new JobInfoModel(i.getValue().getType(), i.getKey(), i.getValue().getDate(), i.getValue().getTotalJobSize(), i.getKey(), i.getValue().getType(), "Interrupted", JobInfoModel.Type.JOBID, i.getValue().getTargetLocation(), i.getValue().getBucket());
-                        rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
+                        rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSessions().get(0), workers));
                     });
                 }
                 return rootTreeItem;
@@ -250,14 +241,15 @@ public class JobInfoPresenter implements Initializable {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
 
-                if (jobIDMap.size() == 0) {
+                if (Guard.isMapNullOrEmpty(jobIDMap)) {
                     Platform.runLater(() -> stage.close());
+                    return null;
                 }
 
-                jobIDMap.entrySet().stream().forEach(i -> {
+                jobIDMap.entrySet().forEach(i -> {
                     final FilesAndFolderMap fileAndFolder = i.getValue();
                     final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), i.getKey(), fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), i.getKey(), fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());
-                    rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSession().get(0), workers));
+                    rootTreeItem.getChildren().add(new JobInfoListTreeTableItem(i.getKey(), jobModel, jobIDMap, endpointInfo.getDs3Common().getCurrentSessions().get(0), workers));
                 });
 
                 return null;

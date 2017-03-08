@@ -12,7 +12,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.DateFormat;
-import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -163,6 +163,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
             try {
+                LOG.info("Getting bucket contents for bucket {}", bucket);
                 final GetBucketRequest request;
                 //if marker is set blank for a item that means offset is 0 else set the marker
                 if (ds3Value.getMarker().equals("")) {

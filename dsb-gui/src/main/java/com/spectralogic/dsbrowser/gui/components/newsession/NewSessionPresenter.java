@@ -4,6 +4,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetUserSpectraS3Response;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Presenter
 public class NewSessionPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(NewSessionPresenter.class);
@@ -39,15 +41,6 @@ public class NewSessionPresenter implements Initializable {
 
     @FXML
     private TableView<SavedSession> savedSessions;
-
-    @Inject
-    private Ds3SessionStore store;
-
-    @Inject
-    private SavedSessionStore savedSessionStore;
-
-    @Inject
-    private ResourceBundle resourceBundle;
 
     @FXML
     private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
@@ -61,6 +54,18 @@ public class NewSessionPresenter implements Initializable {
     private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
 
     private final Alert ALERTINFO = new Alert(Alert.AlertType.INFORMATION);
+
+    private final Ds3SessionStore store;
+    private final SavedSessionStore savedSessionStore;
+    private final ResourceBundle resourceBundle;
+
+
+    @Inject
+    public NewSessionPresenter(final Ds3SessionStore store, final SavedSessionStore savedSessionStore, final ResourceBundle resourceBundle) {
+        this.store = store;
+        this.savedSessionStore = savedSessionStore;
+        this.resourceBundle = resourceBundle;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -112,7 +117,7 @@ public class NewSessionPresenter implements Initializable {
             final TableRow<SavedSession> row = new TableRow<>();
 
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
                     final SavedSession rowData = row.getItem();
                     if (store.getObservableList().size() == 0) {
                         final Session connection = createConnection(rowData);
@@ -150,9 +155,10 @@ public class NewSessionPresenter implements Initializable {
     private Session createConnection(final SavedSession rowData) {
         try {
             final Ds3Client client = Ds3ClientBuilder.create(rowData.getEndpoint() + ":" + rowData.getPortNo(), rowData.getCredentials().toCredentials()).withHttps(false).withProxy(rowData.getProxyServer()).build();
-            final GetUserSpectraS3Response userSpectraS3 = client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
+            client.getUserSpectraS3(new GetUserSpectraS3Request(client.getConnectionDetails().getCredentials().getClientId()));
             return new Session(rowData.getName(), rowData.getEndpoint(), rowData.getPortNo(), rowData.getProxyServer(), client);
         } catch (final Exception e) {
+            LOG.error("Failed to create connection", e);
             return null;
         }
     }
@@ -268,7 +274,7 @@ public class NewSessionPresenter implements Initializable {
             final Session session = model.toSession();
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
-                final int i = savedSessionStore.saveSession(session);
+                final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
                     ALERT.setContentText("No new changes to update");
                     ALERT.showAndWait();

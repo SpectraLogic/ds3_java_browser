@@ -2,12 +2,14 @@ package com.spectralogic.dsbrowser.gui.components.createbucket;
 
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Response;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,6 +25,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+@Presenter
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
@@ -41,20 +44,19 @@ public class CreateBucketPresenter implements Initializable {
     @FXML
     private Button createBucketButton;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
+    @ModelContext
     private CreateBucketWithDataPoliciesModel createBucketWithDataPoliciesModel;
 
-    @Inject
-    private ResourceBundle resourceBundle;
+    private final Workers workers;
+    private final ResourceBundle resourceBundle;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private Ds3PanelPresenter ds3PanelPresenter;
+    public CreateBucketPresenter(final Workers workers, final ResourceBundle resourceBundle, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+        this.workers = workers;
+        this.resourceBundle = resourceBundle;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

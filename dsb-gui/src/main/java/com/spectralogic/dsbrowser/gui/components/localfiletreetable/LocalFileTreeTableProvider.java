@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-public class LocalFileTreeTableProvider {
+public final class LocalFileTreeTableProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTableProvider.class);
 
@@ -27,7 +27,7 @@ public class LocalFileTreeTableProvider {
         }
     }
 
-    public Stream<FileTreeModel> getRoot(final String rootDir) {
+    public static Stream<FileTreeModel> getRoot(final String rootDir) {
         File[] files = null;
 
         if (rootDir.equals("My Computer")) {
@@ -63,7 +63,7 @@ public class LocalFileTreeTableProvider {
         }).filter(p -> p != null);
     }
 
-    private FileTreeModel.Type getRootType(final File file) {
+    private static FileTreeModel.Type getRootType(final File file) {
         if (Platform.isWin()) {
             if (file.isDirectory()) {
                 return FileTreeModel.Type.Directory;
@@ -79,7 +79,7 @@ public class LocalFileTreeTableProvider {
         }
     }
 
-    public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel) throws IOException {
+    public static Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel) throws IOException {
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
             try {

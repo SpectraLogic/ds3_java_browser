@@ -13,18 +13,19 @@ import ch.qos.logback.core.util.FileSize;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LogService {
+public class ApplicationLoggerSettings {
 
-    final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ApplicationLoggerSettings.class);
 
     private LogSettings logSettings;
 
-    public LogService(final LogSettings logSettings) {
+    @Inject
+    public ApplicationLoggerSettings(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings();
     }
 
     public void setLogSettings(final LogSettings logSettings) {
@@ -85,5 +86,9 @@ public class LogService {
             rootLogger.setLevel(Level.INFO);
         }
         LOG.info("Finished configuring logging");
+    }
+
+    public void restoreLoggingSettings() {
+        updateLogBackSettings();
     }
 }

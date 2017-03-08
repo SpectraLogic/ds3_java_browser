@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -22,6 +24,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Presenter
 public class DeleteFilesPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
@@ -38,23 +41,23 @@ public class DeleteFilesPresenter implements Initializable {
     @Inject
     private Workers workers;
 
-    @Inject
+    @ModelContext
     private Ds3Task deleteTask;
 
-    @Inject
+    @ModelContext
     private Ds3PanelPresenter ds3PanelPresenter;
 
-    @Inject
+    @ModelContext
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             deleteButton.setDisable(true);
-            if (ds3PanelPresenter.getDs3TreeTableView() != null) {
+            if (ds3PanelPresenter != null && ds3PanelPresenter.getDs3TreeTableView() != null) {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3PanelPresenter.getDs3TreeTableView().getSelectionModel().getSelectedItems();
                 changeLabelText(selectedPanelItems);
-            } else if (ds3TreeTablePresenter.ds3TreeTable != null) {
+            } else if (ds3TreeTablePresenter != null && ds3TreeTablePresenter.ds3TreeTable != null) {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> selectedMenuItems = ds3TreeTablePresenter.ds3TreeTable.getSelectionModel().getSelectedItems();
                 changeLabelText(selectedMenuItems);
             }

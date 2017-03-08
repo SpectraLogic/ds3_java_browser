@@ -20,27 +20,26 @@ public class SavedJobPrioritiesStore {
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "jobsettings.json");
 
-    private boolean dirty = false;
-
     @JsonProperty("jobSettings")
     private final JobSettings jobSettings;
 
-    public static SavedJobPrioritiesStore loadSavedJobPriorties() throws IOException {
+    public static SavedJobPrioritiesStore empty() {
+        return new SavedJobPrioritiesStore(JobSettings.DEFAULT);
+    }
+
+    public static SavedJobPrioritiesStore loadSavedJobPriorities() throws IOException {
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
                 return JsonMapping.fromJson(inputStream, SavedJobPrioritiesStore.class);
             } catch (final Exception e) {
+                LOG.error("Failed to load existing job settings", e);
                 Files.delete(PATH);
                 LOG.info("Creating new empty saved job setting store");
-                final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(JobSettings.DEFAULT);
-                savedJobPrioritiesStore.dirty = true;
-                return savedJobPrioritiesStore;
+                return empty();
             }
         } else {
             LOG.info("Creating new empty saved job setting store");
-            final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(JobSettings.DEFAULT);
-            savedJobPrioritiesStore.dirty = true;
-            return savedJobPrioritiesStore;
+            return empty();
         }
     }
 

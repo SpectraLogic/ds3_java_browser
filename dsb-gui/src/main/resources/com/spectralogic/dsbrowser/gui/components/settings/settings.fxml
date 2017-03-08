@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <Pane prefHeight="243.0" prefWidth="515.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
+      fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingsPresenter">
     <children>
         <TabPane prefHeight="243.0" prefWidth="531.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
