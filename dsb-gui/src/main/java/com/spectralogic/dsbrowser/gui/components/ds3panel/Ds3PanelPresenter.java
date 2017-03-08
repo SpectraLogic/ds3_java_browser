@@ -70,8 +70,8 @@ public class Ds3PanelPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
 
-    private final Image LENSICON = new Image(ImageURLs.LENSICON);
-    private final Image CROSSICON = new Image(ImageURLs.CROSSICON);
+    private final Image LENS_ICON = new Image(ImageURLs.LENSICON);
+    private final Image CROSS_ICON = new Image(ImageURLs.CROSSICON);
 
     private final LazyAlert alert = new LazyAlert("Error");
     
@@ -736,9 +736,9 @@ public class Ds3PanelPresenter implements Initializable {
 
         ds3PanelSearch.textProperty().addListener((observable, oldValue, newValue) -> {
 
-            final Image icon = (newValue == null || newValue.isEmpty()) ? LENSICON : CROSSICON;
+            final Image icon = (newValue == null || newValue.isEmpty()) ? LENS_ICON : CROSS_ICON;
             imageView.setImage(icon);
-            imageView.setMouseTransparent(icon == LENSICON);
+            imageView.setMouseTransparent(icon == LENS_ICON);
 
             if (newValue.isEmpty()) {
                 ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers, loggingService);

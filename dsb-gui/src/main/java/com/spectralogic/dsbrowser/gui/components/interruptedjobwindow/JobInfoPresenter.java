@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
@@ -75,7 +76,7 @@ public class JobInfoPresenter implements Initializable {
         cancelJobListButtons.setOnAction(event -> {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                if (jobIDMap != null && jobIDMap.size() != 0) {
+                if (!Guard.isMapNullOrEmpty(jobIDMap)) {
 
                     final Alert closeconfirmationalert = new Alert(
                             Alert.AlertType.CONFIRMATION,
@@ -90,7 +91,7 @@ public class JobInfoPresenter implements Initializable {
                     exitButton.setText("Yes");
                     cancelButton.setText("No! I don't");
 
-                    closeconfirmationalert.setHeaderText("Are you really want to cancel all interrupted jobs");
+                    closeconfirmationalert.setHeaderText("Do you really want to cancel all interrupted jobs");
                     closeconfirmationalert.setContentText(jobIDMap.size() + " jobs will be cancelled. You can not recover them in future.");
 
                     final Optional<ButtonType> closeResponse = closeconfirmationalert.showAndWait();
@@ -153,7 +154,7 @@ public class JobInfoPresenter implements Initializable {
 
         jobListTreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (jobListTreeTable == null) {
-            jobListTreeTable.setPlaceholder(new Label("Great! You don't have any interrupted jobs"));
+            jobListTreeTable.setPlaceholder(new Label("You don't have any interrupted jobs"));
             Platform.exit();
         }
 
@@ -187,7 +188,7 @@ public class JobInfoPresenter implements Initializable {
                 endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
                 //to show jobs in reverse order
                 final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
+                final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap<>(jobIDHashMap);
                 final Map<String, FilesAndFolderMap> jobIDMap = jobIDTreeMap.descendingMap();
                 if (jobIDMap != null) {
                     jobIDMap.entrySet().forEach(i -> {
@@ -240,8 +241,9 @@ public class JobInfoPresenter implements Initializable {
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
 
-                if (jobIDMap.size() == 0) {
+                if (Guard.isMapNullOrEmpty(jobIDMap)) {
                     Platform.runLater(() -> stage.close());
+                    return null;
                 }
 
                 jobIDMap.entrySet().forEach(i -> {
