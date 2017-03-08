@@ -29,9 +29,9 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 
 @Presenter
-public class SettingPresenter implements Initializable {
+public class SettingsPresenter implements Initializable {
 
-    private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
+    private final Logger LOG = LoggerFactory.getLogger(SettingsPresenter.class);
 
     @FXML
     private ComboBox<String> getJobPriority, putJobPriority;

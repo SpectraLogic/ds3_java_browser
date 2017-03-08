@@ -29,8 +29,8 @@ import java.util.function.Consumer;
 public class GuiModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(ShutdownService.class).to(ShutdownServiceImpl.class).in(Singleton.class);
         bind(LoggingService.class).to(LoggingServiceImpl.class).in(Singleton.class);
+        bind(ShutdownService.class).to(ShutdownServiceImpl.class).in(Singleton.class);
 
         bind(Ds3SessionStore.class).toProvider(Ds3SessionStoreProvider.class).in(Singleton.class);
         bind(SettingsStore.class).toProvider(SettingsProvider.class).in(Singleton.class);
