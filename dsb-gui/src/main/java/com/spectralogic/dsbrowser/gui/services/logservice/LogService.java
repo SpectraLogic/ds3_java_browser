@@ -13,15 +13,17 @@ import ch.qos.logback.core.util.FileSize;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LogService {
 
-    final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
 
     private LogSettings logSettings;
 
+    @Inject
     public LogService(final LogSettings logSettings) {
         this.logSettings = logSettings;
         updateLogBackSettings();

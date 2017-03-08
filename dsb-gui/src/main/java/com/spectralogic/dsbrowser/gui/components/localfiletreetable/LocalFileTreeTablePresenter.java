@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
@@ -17,13 +18,16 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -54,13 +58,15 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider.getRoot;
+
+@Presenter
 public class LocalFileTreeTablePresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
-
     private static final String ROOT_LOCATION = "My Computer";
 
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
@@ -83,38 +89,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @FXML
     private Label localPathIndicator;
 
-    @Inject
-    private LocalFileTreeTableProvider provider;
 
-    @Inject
-    private DataFormat dataFormat;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private Ds3SessionStore store;
-
-    @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
-    private Ds3Common ds3Common;
+    private final DataFormat dataFormat;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final Ds3SessionStore store;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final ResourceBundle resourceBundle;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final Ds3Common ds3Common;
 
     private String fileRootItem = ROOT_LOCATION;
 
@@ -122,14 +107,25 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private TreeItem<FileTreeModel> lastExpandedNode;
 
+    @Inject
+    public LocalFileTreeTablePresenter(final DataFormat dataFormat, final Workers workers, final JobWorkers jobWorkers, final Ds3SessionStore store, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final ResourceBundle resourceBundle, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final Ds3Common ds3Common) {
+        this.dataFormat = dataFormat;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.store = store;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.resourceBundle = resourceBundle;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.ds3Common = ds3Common;
+    }
+
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Starting LocalFileTreeTablePresenter");
-            ALERT.setTitle("Error");
-            ALERT.setHeaderText(null);
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
             initGUIElements();
             initTableView();
             initListeners();
@@ -169,8 +165,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         try {
             final ObservableList<TreeItem<FileTreeModel>> currentSelection = treeTable.getSelectionModel().getSelectedItems();
             if (currentSelection.isEmpty()) {
-                ALERT.setContentText("Select files to transfer");
-                ALERT.showAndWait();
+                alert.showAlert("Select files to transfer");
                 return;
             }
 
@@ -186,20 +181,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     .stream().collect(GuavaCollectors.immutableList());
 
             if (values.isEmpty()) {
-                ALERT.setContentText("Select destination location.");
-                ALERT.showAndWait();
+                alert.showAlert("Select destination location.");
                 return;
             }
 
             if (values.size() > 1) {
-                ALERT.setContentText("Multiple destination not allowed. Please select one.");
-                ALERT.showAndWait();
+                alert.showAlert("Multiple destination not allowed. Please select one.");
                 return;
             }
 
             if (values.stream().findFirst().get().getValue().isSearchOn()) {
-                ALERT.setContentText("Operation not allowed here");
-                ALERT.showAndWait();
+                alert.showAlert("Operation not allowed here");
                 return;
             }
 
@@ -266,13 +258,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
         localPathIndicator.setText(rootDir);
         fileRootItem = rootDir;
         localPathIndicator.setText(rootDir);
-        final Stream<FileTreeModel> rootItems = provider.getRoot(rootDir);
+        final Stream<FileTreeModel> rootItems = getRoot(rootDir);
         if (rootItems != null) {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(ftm, workers);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
 
@@ -286,10 +278,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
 
-        final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
+        final Stream<FileTreeModel> rootItems = getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(ftm, workers);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
 
@@ -325,9 +317,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }));
     }
 
-    public LocalFileTreeTablePresenter() {
-        super();
-    }
 
     public TreeTableView<FileTreeModel> getTreeTable() {
         return treeTable;
@@ -554,7 +543,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         );
 
-        final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
+        final Stream<FileTreeModel> rootItems = getRoot(fileRootItem);
 
         localPathIndicator.setText(ROOT_LOCATION);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
@@ -572,7 +561,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             protected Object call() throws Exception {
                 rootItems.forEach(ftm ->
                         {
-                            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+                            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(ftm, workers);
                             rootTreeItem.getChildren().add(newRootTreeItem);
                         }
                 );
@@ -580,85 +569,89 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
         };
 
-        workers.execute(getMediaDevices);
 
-        getMediaDevices.setOnSucceeded(event -> {
-            treeTable.setRoot(rootTreeItem);
-            treeTable.setPlaceholder(oldPlaceHolder);
-            setExpandBehaviour(treeTable);
-            sizeColumn.setCellFactory(c -> new TreeTableCell<FileTreeModel, Number>() {
-
-                @Override
-                protected void updateItem(final Number item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(FileSizeFormat.getFileSizeType(item.longValue()));
-                    }
-                }
-
-            });
-
-            treeTable.sortPolicyProperty().
-                    set(
-                            new Callback<TreeTableView<FileTreeModel>, Boolean>() {
-                                @Override
-                                public Boolean call(final TreeTableView<FileTreeModel> param) {
-                                    final Comparator<TreeItem<FileTreeModel>> comparator = new Comparator<TreeItem<FileTreeModel>>() {
-                                        @Override
-                                        public int compare(final TreeItem<FileTreeModel> o1, final TreeItem<FileTreeModel> o2) {
-                                            if (param.getComparator() == null) {
-                                                return 0;
-                                            } else {
-                                                return param.getComparator()
-                                                        .compare(o1, o2);
-                                            }
-                                        }
-
-
-                                    };
-                                    if (treeTable.getRoot() != null) {
-                                        FXCollections.sort(treeTable.getRoot().getChildren(), comparator);
-                                        treeTable.getRoot().getChildren().forEach(i -> {
-                                            if (i.isExpanded()) {
-                                                if (param.getSortOrder().stream().findFirst().isPresent())
-                                                    sortChild(i, comparator, param.getSortOrder().stream().findFirst().get().getText());
-                                                else
-                                                    sortChild(i, comparator, "");
-                                            }
-                                        });
-
-                                        if (param.getSortOrder().stream().findFirst().isPresent()) {
-                                            if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
-                                                FXCollections.sort(treeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
-                                            }
-                                        }
-                                    }
-                                    return true;
-                                }
-
-                                private void sortChild(final TreeItem<FileTreeModel> o1, final Comparator<TreeItem<FileTreeModel>> comparator, final String type) {
-                                    try {
-                                        if (comparator != null) {
-                                            o1.getChildren().forEach(i -> {
-                                                if (i.isExpanded())
-                                                    sortChild(i, comparator, type);
-                                            });
-                                            FXCollections.sort(o1.getChildren(), comparator);
-                                            if (!type.equals("Type")) {
-                                                FXCollections.sort(o1.getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
-                                            }
-
-                                        }
-                                    } catch (final Exception e) {
-                                        LOG.error("Unable to sort", e);
-                                    }
-                                }
-                            }
-                    );
+        Platform.runLater(() -> {
+            getMediaDevices.setOnSucceeded(event -> loadMediaDevicesSuccessHandler(rootTreeItem, oldPlaceHolder));
+            workers.execute(getMediaDevices);
         });
 
+    }
+
+    private void loadMediaDevicesSuccessHandler(final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
+        treeTable.setRoot(rootTreeItem);
+        treeTable.setPlaceholder(oldPlaceHolder);
+        setExpandBehaviour(treeTable);
+        sizeColumn.setCellFactory(c -> new TreeTableCell<FileTreeModel, Number>() {
+
+            @Override
+            protected void updateItem(final Number item, final boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(FileSizeFormat.getFileSizeType(item.longValue()));
+                }
+            }
+
+        });
+
+        treeTable.sortPolicyProperty().
+            set(
+                new Callback<TreeTableView<FileTreeModel>, Boolean>() {
+                    @Override
+                    public Boolean call(final TreeTableView<FileTreeModel> param) {
+                        final Comparator<TreeItem<FileTreeModel>> comparator = new Comparator<TreeItem<FileTreeModel>>() {
+                            @Override
+                            public int compare(final TreeItem<FileTreeModel> o1, final TreeItem<FileTreeModel> o2) {
+                                if (param.getComparator() == null) {
+                                    return 0;
+                                } else {
+                                    return param.getComparator()
+                                            .compare(o1, o2);
+                                }
+                            }
+
+
+                        };
+                        if (treeTable.getRoot() != null) {
+                            FXCollections.sort(treeTable.getRoot().getChildren(), comparator);
+                            treeTable.getRoot().getChildren().forEach(i -> {
+                                if (i.isExpanded()) {
+                                    if (param.getSortOrder().stream().findFirst().isPresent())
+                                        sortChild(i, comparator, param.getSortOrder().stream().findFirst().get().getText());
+                                    else
+                                        sortChild(i, comparator, "");
+                                }
+                            });
+
+                            if (param.getSortOrder().stream().findFirst().isPresent()) {
+                                if (!param.getSortOrder().stream().findFirst().get().getText().equals("Type")) {
+                                    FXCollections.sort(treeTable.getRoot().getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
+                                }
+                            }
+                        }
+                        return true;
+                    }
+
+                    private void sortChild(final TreeItem<FileTreeModel> o1, final Comparator<TreeItem<FileTreeModel>> comparator, final String type) {
+                        try {
+                            if (comparator != null) {
+                                o1.getChildren().forEach(i -> {
+                                    if (i.isExpanded())
+                                        sortChild(i, comparator, type);
+                                });
+                                FXCollections.sort(o1.getChildren(), comparator);
+                                if (!type.equals("Type")) {
+                                    FXCollections.sort(o1.getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
+                                }
+
+                            }
+                        } catch (final Exception e) {
+                            LOG.error("Unable to sort", e);
+                        }
+                    }
+                }
+            );
     }
 
     private Session getSession(final String sessionName) {

@@ -42,6 +42,11 @@ public class SettingsStore {
         this.filePropertiesSettings = filePropertiesSettings;
     }
 
+
+    public static SettingsStore getDefaults() {
+        return new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT);
+    }
+
     public static SettingsStore loadSettingsStore() throws IOException {
         // Do not log when loading the settings store since the logger has not been configured
 
@@ -58,7 +63,7 @@ public class SettingsStore {
                 return settingsStore;
             }
         } else {
-            final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT, ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT);
+            final SettingsStore settingsStore = getDefaults();
             settingsStore.dirty = true; // set this to true so we will write the settings after the first run
             return settingsStore;
         }

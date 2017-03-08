@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.scene.control.TabPane;
@@ -18,8 +17,6 @@ public class Ds3Common {
     private final List<Session> currentSession = new ArrayList<>();
 
     private final List<TabPane> currentTabPane = new ArrayList<>();
-
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter = new DeepStorageBrowserPresenter();
 
     private Ds3PanelPresenter ds3PanelPresenter;
 
@@ -45,13 +42,4 @@ public class Ds3Common {
     public List<TabPane> getCurrentTabPane() {
         return currentTabPane;
     }
-
-    public DeepStorageBrowserPresenter getDeepStorageBrowserPresenter() {
-        return deepStorageBrowserPresenter;
-    }
-
-    public void setDeepStorageBrowserPresenter(final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
-        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
-    }
-
 }

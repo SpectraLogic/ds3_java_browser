@@ -9,6 +9,10 @@ import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
@@ -65,6 +69,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
+@Presenter
 public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
@@ -84,49 +89,48 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     public TreeTableColumn<Ds3TreeTableValue, Ds3TreeTableValue.Type> fileType;
 
-    @Inject
-    protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private Session session;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private Ds3PanelPresenter ds3PanelPresenter;
-
-    @Inject
-    private DataFormat dataFormat;
-
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    private IntegerProperty limit;
-
     @FXML
     private TreeTableColumn fullPath;
 
+    @ModelContext
+    private Session session;
+
+    @ModelContext
+    private Ds3PanelPresenter ds3PanelPresenter;
+
+    protected final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final ResourceBundle resourceBundle;
+    private final DataFormat dataFormat;
+    private final Ds3Common ds3Common;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final LoggingService loggingService;
+
+    private IntegerProperty limit;
+
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
+
+    @Inject
+    public Ds3TreeTablePresenter(final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final Workers workers, final JobWorkers jobWorkers, final ResourceBundle resourceBundle, final DataFormat dataFormat, final Ds3Common ds3Common, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final LoggingService loggingService) {
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.resourceBundle = resourceBundle;
+        this.dataFormat = dataFormat;
+        this.ds3Common = ds3Common;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            LOG.info("Loading new session tab for session {}", session.getSessionName());
             deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName(), LogType.INFO);
             ALERT.setTitle("Information Dialog");
             ALERT.setHeaderText(null);
@@ -206,7 +210,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 try {
                     for (final String bucket : buckets) {
                         final DeleteObjectsResponse deleteObjectsResponse = getClient().deleteObjects(new DeleteObjectsRequest(bucket, bucketObjectsMap.get(bucket).stream().map(Ds3TreeTableValue::getFullName).collect(Collectors.toList())));
-                        final DeleteResult deleteResult = deleteObjectsResponse.getDeleteResult();
+                        deleteObjectsResponse.getDeleteResult();
                         deleteSize++;
                         if (deleteSize == bukcets.size()) {
                             Platform.runLater(() -> {
@@ -236,7 +240,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         };
         DeleteFilesPopup.show(task, null, this);
-        values.stream().forEach(file -> refresh(file.getParent()));
+        values.forEach(file -> refresh(file.getParent()));
         ds3TreeTable.getSelectionModel().clearSelection();
         ds3PanelPresenter.getDs3PathIndicator().setText("");
     }
@@ -464,7 +468,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                                     refresh(treeItem);
                                     ds3TreeTable.getSelectionModel().clearSelection();
                                     ds3TreeTable.getSelectionModel().select(treeItem);
-                                    ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers);
+                                    ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                                 });
                                 putJob.setOnCancelled(e -> {
                                     LOG.info("setOnCancelled");
@@ -856,7 +860,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         getDataPolicies.setOnSucceeded(event -> Platform.runLater(() -> {
             Ds3TreeTablePresenter.this.deepStorageBrowserPresenter.logText("Data policies retrieved", LogType.SUCCESS);
             LOG.info("Launching create bucket popup {}", getDataPolicies.getValue().getDataPolicies().size());
-            CreateBucketPopup.show(getDataPolicies.getValue(), deepStorageBrowserPresenter);
+            CreateBucketPopup.show(getDataPolicies.getValue());
             refreshTreeTableView();
         }));
 
@@ -947,6 +951,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         @Override
         protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
+            LOG.info("Getting the list of buckets");
             final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
             if (response.getListAllMyBucketsResult().getBuckets() != null) {
                 final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()

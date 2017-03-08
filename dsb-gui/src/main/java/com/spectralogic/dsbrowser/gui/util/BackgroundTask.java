@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -18,12 +19,14 @@ public class BackgroundTask implements Runnable{
 
     private final Ds3Common ds3Common;
     private final Workers workers;
+    private final LoggingService loggingService;
 
     private boolean isAlertDisplayed = false;
 
-    public BackgroundTask(final Ds3Common ds3Common, final Workers workers) {
+    public BackgroundTask(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
         this.ds3Common = ds3Common;
         this.workers = workers;
+        this.loggingService = loggingService;
         final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
     }
@@ -39,7 +42,7 @@ public class BackgroundTask implements Runnable{
                     if (CheckNetwork.isReachable(session.getClient())) {
                         if (isAlertDisplayed) {
                             LOG.info("network is up");
-                            Platform.runLater(() -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers));
+                            Platform.runLater(() -> ParseJobInterruptionMap.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
                             isAlertDisplayed = false;
                         }
 

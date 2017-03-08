@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
+@Presenter
 public class ModifyJobPriorityPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(ModifyJobPriorityPresenter.class);

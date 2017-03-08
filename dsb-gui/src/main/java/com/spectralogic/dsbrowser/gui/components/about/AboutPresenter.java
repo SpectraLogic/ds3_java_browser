@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+@Presenter
 public class AboutPresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);

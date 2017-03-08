@@ -12,6 +12,7 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -103,7 +104,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
                 final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
                 final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
-                files.stream().forEach(path1 -> {
+                files.forEach(path1 -> {
                     boolean isContains = false;
                     if (directories.size() != 0) {
                         final Path pathNew = path1.getParent();
@@ -115,12 +116,12 @@ public class Ds3PutJob extends Ds3JobTask {
                     final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                     fileMap.put(ds3FileName, path1);
                 });
-                directories.stream().forEach(path -> {
+                directories.forEach(path -> {
                     try {
                         partOfDirBuilder.add(path);
                         expandedPaths.putAll(path, Files.walk(path).filter(child -> !Files.isDirectory(child)).collect(GuavaCollectors.immutableList()));
-                        final String ds3ObjPath = getDs3ObjectPath(path, path, true, files.size(), directories.size());
-                        final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
+                        final String ds3ObjPath = getDs3ObjectPath(path, path, true, files.size(), directories.size()); // TODO what is this code doing exactly
+                        final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath); // TODO why are we appending the result of the above to the targetDir and calling that the Ds3FileName
                         folderMap.put(ds3FileName, path);
                     } catch (final IOException e) {
                         LOG.error("Failed to list files for directory: " + path.toString(), e);

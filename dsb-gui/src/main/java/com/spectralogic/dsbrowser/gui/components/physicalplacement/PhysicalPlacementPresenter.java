@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
 import com.spectralogic.ds3client.models.Tape;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
-
+@Presenter
 public class PhysicalPlacementPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);

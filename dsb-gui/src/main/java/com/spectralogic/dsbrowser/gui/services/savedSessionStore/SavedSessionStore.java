@@ -37,6 +37,10 @@ public class SavedSessionStore {
         });
     }
 
+    public static SavedSessionStore empty() {
+        return new SavedSessionStore(new ArrayList<>());
+    }
+
     public static SavedSessionStore loadSavedSessionStore() throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
@@ -68,7 +72,7 @@ public class SavedSessionStore {
         return sessions;
     }
 
-    public int saveSession(final Session session) {
+    public int addSession(final Session session) {
         int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
@@ -117,11 +121,11 @@ public class SavedSessionStore {
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
-        return list.stream().filter(o -> o.getName().equals(name)).findFirst().isPresent();
+        return list.stream().anyMatch(o -> o.getName().equals(name));
     }
 
     public boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
-        return list.stream().filter(o -> o.getSessionName().equals(name)).findFirst().isPresent();
+        return list.stream().anyMatch(o -> o.getSessionName().equals(name));
     }
 
     public void removeSession(final SavedSession sessionName) {

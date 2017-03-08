@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -155,7 +157,7 @@ public final class ParseJobInterruptionMap {
         }
     }
 
-    public static void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Ds3Common ds3Common) {
+    public static void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Ds3Common ds3Common, final LoggingService loggingService) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
         if (tasks.size() != 0) {
             final Task cancelAllRunningJobs = new Task() {
@@ -185,7 +187,7 @@ public final class ParseJobInterruptionMap {
             };
             workers.execute(cancelAllRunningJobs);
             cancelAllRunningJobs.setOnSucceeded(event -> {
-                refreshCompleteTreeTableView(ds3Common, workers);
+                refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                 if (cancelAllRunningJobs.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
                 }
@@ -243,10 +245,10 @@ public final class ParseJobInterruptionMap {
     }
 
     //Refresh blackpearl side
-    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers) {
+    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
         if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
             final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
-            ds3Common.getDeepStorageBrowserPresenter().logText("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
+            loggingService.logMessage("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
             //invisible column of full path
@@ -263,7 +265,7 @@ public final class ParseJobInterruptionMap {
                 protected Object call() throws Exception {
                     try {
                         final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-                        final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+                        final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                                 .getBuckets().stream()
                                 .map(bucket -> {
                                     final HBox hbox = new HBox();
@@ -271,17 +273,17 @@ public final class ParseJobInterruptionMap {
                                     hbox.setAlignment(Pos.CENTER);
                                     return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket, 0, DateFormat.formatDate(bucket.getCreationDate()), "--", false, hbox);
                                 })
-                                .collect(Collectors.toList());
-                        buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
+                                .sorted(Comparator.comparing(t -> t.getName().toLowerCase()))
+                                .collect(GuavaCollectors.immutableList());
                         final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value -> new Ds3TreeTableItem(value.getName(), session, value, workers)).collect(GuavaCollectors.immutableList());
                         rootTreeItem.getChildren().addAll(treeItems);
                         Platform.runLater(() -> ds3TreeTableView.setRoot(rootTreeItem));
                     } catch (final FailedRequestException ex) {
                         LOG.error("Request failed", ex);
-                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logTextForParagraph(ex.getError().getMessage(), LogType.ERROR));
+                        loggingService.logMessage("Request to black pearl failed: " + ex.getError().getMessage(), LogType.ERROR);
                     } catch (final Exception e) {
                         LOG.error("Request failed",e);
-                        Platform.runLater(() -> ds3Common.getDeepStorageBrowserPresenter().logText("Failed to delete files" + e.toString(), LogType.ERROR));
+                        loggingService.logMessage("Failed to delete files: " + e.toString(), LogType.ERROR);
                     }
                     return null;
                 }

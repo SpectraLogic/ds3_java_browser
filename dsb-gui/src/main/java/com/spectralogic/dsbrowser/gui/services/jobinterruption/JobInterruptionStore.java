@@ -18,10 +18,12 @@ public class JobInterruptionStore {
 
     private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "jobids.json");
 
-    private boolean dirty = false;
-
     @JsonProperty("jobIdsModel")
     private final JobIdsModel jobIdsModel;
+
+    public static JobInterruptionStore empty() {
+        return new JobInterruptionStore(JobIdsModel.DEFAULT);
+    }
 
     public static JobInterruptionStore loadJobIds() throws IOException {
         if (Files.exists(PATH)) {
@@ -32,15 +34,11 @@ public class JobInterruptionStore {
             } catch (final Exception e) {
                 Files.delete(PATH);
                 LOG.info("Creating new empty job ids store");
-                final JobInterruptionStore jobInterruptionStore = new JobInterruptionStore(JobIdsModel.DEFAULT);
-                jobInterruptionStore.dirty = true;
-                return jobInterruptionStore;
+                return empty();
             }
         } else {
             LOG.info("Creating new empty saved job setting store");
-            final JobInterruptionStore jobInterruptionStore = new JobInterruptionStore(JobIdsModel.DEFAULT);
-            jobInterruptionStore.dirty = true;
-            return jobInterruptionStore;
+            return empty();
         }
     }
 
@@ -65,7 +63,6 @@ public class JobInterruptionStore {
     }
 
     public void setJobIdsModel(final JobIdsModel jobIdsModel) {
-        dirty = true;
         jobIdsModel.overwrite(jobIdsModel);
     }
 

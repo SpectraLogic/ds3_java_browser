@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -22,6 +24,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Presenter
 public class DeleteFilesPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPresenter.class);
@@ -38,13 +41,13 @@ public class DeleteFilesPresenter implements Initializable {
     @Inject
     private Workers workers;
 
-    @Inject
+    @ModelContext
     private Ds3Task deleteTask;
 
-    @Inject
+    @ModelContext
     private Ds3PanelPresenter ds3PanelPresenter;
 
-    @Inject
+    @ModelContext
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
 
     @Override

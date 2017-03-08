@@ -9,6 +9,8 @@ import javafx.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,12 +33,13 @@ public class JobWorkers {
         return workers;
     }
 
-    public JobWorkers(final int num) {
+    @Inject
+    public JobWorkers(@Named("jobWorkerThreadCount") final int num) {
         workers = Executors.newFixedThreadPool(num);
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
             if (c.next() && c.wasAdded()) {
-                c.getAddedSubList().stream().forEach(workers::execute);
+                c.getAddedSubList().forEach(workers::execute);
             }
         });
     }

@@ -9,6 +9,7 @@ import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.helpers.JobRecoveryNotActiveException;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -129,10 +130,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 String skipPath = "";
                                 final File file = new File(s);
                                 if (folders.size() == 0) {
-                                    if (file.getParent() != null)
+                                    if (file.getParent() != null) {
                                         skipPath = file.getParent();
-                                    else
+                                    } else {
                                         skipPath = "";
+                                    }
                                 }
                                 if (skipPath.isEmpty()) {
                                     return new FileObjectGetter(finalFileTreeModel).buildChannel(s);

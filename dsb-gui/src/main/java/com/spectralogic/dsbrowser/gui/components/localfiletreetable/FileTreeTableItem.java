@@ -26,23 +26,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableProvider.getListForDir;
+
 
 public class FileTreeTableItem extends TreeItem<FileTreeModel> {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableItem.class);
 
-    private final LocalFileTreeTableProvider provider;
     private final boolean leaf;
     private final FileTreeModel fileTreeModel;
     private boolean accessedChildren = false;
-    private boolean error = false;
     private final Workers workers;
 
-    public FileTreeTableItem(final LocalFileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
+    public FileTreeTableItem(final FileTreeModel fileTreeModel, final Workers workers) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = isLeaf(fileTreeModel.getPath());
-        this.provider = provider;
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
     }
@@ -124,9 +123,8 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         }
         final Path path = fileTreeModel.getPath();
         if (path != null && !isLeaf(path)) try {
-            final List<FileTreeTableItem> fileChildren = provider
-                    .getListForDir(fileTreeModel)
-                    .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
+            final List<FileTreeTableItem> fileChildren = getListForDir(fileTreeModel)
+                    .map(ftm -> new FileTreeTableItem(ftm, workers))
                     .collect(Collectors.toList());
             fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
             ));
@@ -144,7 +142,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     }
 
     private void setError(final String errorMessage) {
-        this.error = true;
         final Node node = Icon.getIcon(FontAwesomeIcon.EXCLAMATION_CIRCLE, Paint.valueOf("RED"));
         final Tooltip errorTip = new Tooltip(errorMessage);
         Tooltip.install(node, errorTip);

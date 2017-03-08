@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 
+@Presenter
 public class SettingPresenter implements Initializable {
 
     private final Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);

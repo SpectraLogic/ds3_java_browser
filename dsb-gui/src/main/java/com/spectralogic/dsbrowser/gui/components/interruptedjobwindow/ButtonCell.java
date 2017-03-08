@@ -3,6 +3,8 @@ package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.ds3client.networking.FailedRequestException;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -35,9 +37,10 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final Workers workers;
     private final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints;
     private final JobInfoPresenter jobInfoPresenter;
+    private final LoggingService loggingService;
 
 
-    public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter) {
+    public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter, final LoggingService loggingService) {
 
         ALERT.setTitle(endpointInfo.getEndpoint());
         ALERT.setHeaderText(null);
@@ -48,6 +51,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         this.workers = workers;
         this.endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
         this.jobInfoPresenter = jobInfoPresenter;
+        this.loggingService = loggingService;
 
         recoverButton.setOnAction(t -> {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
@@ -59,7 +63,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 jobWorkers.execute(recoverInterruptedJob);
 
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
+                    ParseJobInterruptionMap.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 });
 
