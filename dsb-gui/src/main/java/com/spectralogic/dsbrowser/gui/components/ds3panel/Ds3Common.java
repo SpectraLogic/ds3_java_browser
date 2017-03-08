@@ -14,32 +14,22 @@ public class Ds3Common {
 
     private final Map<String, TreeItem<Ds3TreeTableValue>> expandedNodesInfo = new HashMap<>();
 
-    private final List<Session> currentSession = new ArrayList<>();
+    private final List<Session> currentSessions = new ArrayList<>();
 
-    private final List<TabPane> currentTabPane = new ArrayList<>();
-
-    private Ds3PanelPresenter ds3PanelPresenter;
+    private final List<TabPane> currentTabPanes = new ArrayList<>();
 
     public Ds3Common() {
-    }
-
-    public Ds3PanelPresenter getDs3PanelPresenter() {
-        return ds3PanelPresenter;
-    }
-
-    public void setDs3PanelPresenter(final Ds3PanelPresenter ds3PanelPresenter) {
-        this.ds3PanelPresenter = ds3PanelPresenter;
     }
 
     public Map<String, TreeItem<Ds3TreeTableValue>> getExpandedNodesInfo() {
         return expandedNodesInfo;
     }
 
-    public List<Session> getCurrentSession() {
-        return currentSession;
+    public List<Session> getCurrentSessions() {
+        return currentSessions;
     }
 
-    public List<TabPane> getCurrentTabPane() {
-        return currentTabPane;
+    public List<TabPane> getCurrentTabPanes() {
+        return currentTabPanes;
     }
 }

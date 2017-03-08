@@ -37,8 +37,8 @@ public class BackgroundTask implements Runnable{
         ALERT.setTitle("Network connection error");
         while (true) {
             try {
-                if (ds3Common.getCurrentSession().stream().findFirst().isPresent()) {
-                    final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+                if (ds3Common.getCurrentSessions().stream().findFirst().isPresent()) {
+                    final Session session = ds3Common.getCurrentSessions().stream().findFirst().get();
                     if (CheckNetwork.isReachable(session.getClient())) {
                         if (isAlertDisplayed) {
                             LOG.info("network is up");

@@ -214,7 +214,7 @@ public class Ds3PutJob extends Ds3JobTask {
             } else {
                 Platform.runLater(() -> deepStorageBrowserPresenter.logTextForParagraph("PUT Job Failed " + client.getConnectionDetails().getEndpoint() + ". Reason+" + e.toString() + " at " + newDate, LogType.ERROR));
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
-                final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
+                final Session session = ds3Common.getCurrentSessions().stream().findFirst().orElse(null);
                 if (session != null) {
                     final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
                     if (currentSelectedEndpoint.equals(client.getConnectionDetails().getEndpoint())) {

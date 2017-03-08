@@ -246,8 +246,8 @@ public final class ParseJobInterruptionMap {
 
     //Refresh blackpearl side
     public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
-        if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
-            final Session session = ds3Common.getCurrentSession().stream().findFirst().orElse(null);
+        if (ds3Common.getCurrentSessions() != null && ds3Common.getCurrentTabPanes() != null) {
+            final Session session = ds3Common.getCurrentSessions().stream().findFirst().orElse(null);
             loggingService.logMessage("Refreshing session " + session.getSessionName() + "-" + session.getEndpoint(), LogType.INFO);
             @SuppressWarnings("unchecked")
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
@@ -312,7 +312,7 @@ public final class ParseJobInterruptionMap {
     }
 
     private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {
-        final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane().stream().findFirst().get();
+        final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPanes().stream().findFirst().get();
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
         return (TreeTableView<Ds3TreeTableValue>) vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst().get();
     }

@@ -168,8 +168,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
             jobButton.setGraphic(INTERRUPTEDJOBIMAGEVIEW);
             jobButton.setDisable(true);
             jobButton.setOnAction(event -> {
-                if (ds3Common.getCurrentSession().stream().findFirst().isPresent()) {
-                    final Session session = ds3Common.getCurrentSession().stream().findFirst().get();
+                if (ds3Common.getCurrentSessions().stream().findFirst().isPresent()) {
+                    final Session session = ds3Common.getCurrentSessions().stream().findFirst().get();
                     final String endpoint = session.getEndpoint() + ":" + session.getPortNo();
                     final ArrayList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);

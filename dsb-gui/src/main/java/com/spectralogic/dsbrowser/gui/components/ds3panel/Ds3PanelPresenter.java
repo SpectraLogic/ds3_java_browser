@@ -137,7 +137,6 @@ public class Ds3PanelPresenter implements Initializable {
             initTab();
             initTabPane();
             initListeners();
-            ds3Common.setDs3PanelPresenter(this);
             Platform.runLater(() -> {
                 final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers, loggingService);
                 workers.execute(backgroundTask);
@@ -173,7 +172,6 @@ public class Ds3PanelPresenter implements Initializable {
     public Tooltip getDs3PathIndicatorTooltip() {
         return ds3PathIndicatorTooltip;
     }
-
 
     public TreeTableView<Ds3TreeTableValue> getDs3TreeTableView() {
         return ds3TreeTableView;
@@ -244,9 +242,9 @@ public class Ds3PanelPresenter implements Initializable {
                             }
                             store.removeSession(newSession);
                             ds3Common.getExpandedNodesInfo().remove(newSession.getSessionName() + "-" + newSession.getEndpoint());
-                            if (ds3Common.getCurrentSession().contains(newSession)) {
-                                ds3Common.getCurrentSession().clear();
-                                ds3Common.getCurrentTabPane().clear();
+                            if (ds3Common.getCurrentSessions().contains(newSession)) {
+                                ds3Common.getCurrentSessions().clear();
+                                ds3Common.getCurrentTabPanes().clear();
                             }
                         } catch (final Exception e) {
                             LOG.error("Failed to remove session", e);
@@ -278,14 +276,14 @@ public class Ds3PanelPresenter implements Initializable {
                     final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView1.getSelectionModel().getSelectedItems()
                             .stream().collect(GuavaCollectors.immutableList());
 
-                    if (ds3Common.getCurrentSession().size() > 0) {
-                        ds3Common.getCurrentSession().clear();
-                        ds3Common.getCurrentTabPane().clear();
+                    if (ds3Common.getCurrentSessions().size() > 0) {
+                        ds3Common.getCurrentSessions().clear();
+                        ds3Common.getCurrentTabPanes().clear();
                     }
 
                     final Session session = store.getSessions().filter(sessions -> (sessions.getSessionName() + "-" + sessions.getEndpoint()).equals(newTab.getText())).findFirst().orElse(null);
-                    ds3Common.getCurrentSession().add(session);
-                    ds3Common.getCurrentTabPane().add(ds3SessionTabPane);
+                    ds3Common.getCurrentSessions().add(session);
+                    ds3Common.getCurrentTabPanes().add(ds3SessionTabPane);
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), session.getEndpoint() + ":" + session.getPortNo(), deepStorageBrowserPresenter.getJobProgressView(), null);
                     setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
 
@@ -363,7 +361,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private Session getSession() {
-        return ds3Common.getCurrentSession().stream().findFirst().orElse(null);
+        return ds3Common.getCurrentSessions().stream().findFirst().orElse(null);
     }
 
     private void ds3TransferToLocal() {

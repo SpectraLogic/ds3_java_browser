@@ -160,7 +160,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
             Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Job [Size: " + FileSizeFormat.getFileSizeType(totalJobSize) + " ] recovery completed. File transferred to " + filesAndFolderMapMap.getTargetLocation() + " (storage location)", LogType.SUCCESS));
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
-            final Session session = endpointInfo.getDs3Common().getCurrentSession().stream().findFirst().get();
+            final Session session = endpointInfo.getDs3Common().getCurrentSessions().stream().findFirst().get();
             final String currentSelectedEndpoint = session.getEndpoint() + ":" + session.getPortNo();
             if (currentSelectedEndpoint.equals(session.getClient().getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
