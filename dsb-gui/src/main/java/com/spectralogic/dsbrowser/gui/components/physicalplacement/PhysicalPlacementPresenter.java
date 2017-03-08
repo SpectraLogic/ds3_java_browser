@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.Pool;
 import com.spectralogic.ds3client.models.Tape;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
@@ -31,7 +32,7 @@ public class PhysicalPlacementPresenter implements Initializable {
     @FXML
     private TableView<PhysicalPlacementTapeEntry> physicalPlacementDataTableTape;
 
-    @Inject
+    @ModelContext
     private PhysicalPlacement ds3PhysicalPlacement;
 
     @Override

@@ -271,7 +271,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             //Can not assign final as assigning value again in next step
             final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-            CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.stream().findFirst().orElse(null)), deepStorageBrowserPresenter);
+            CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.stream().findFirst().orElse(null)));
             refresh(ds3TreeTableValueTreeItem);
         }
     }
@@ -403,10 +403,13 @@ public class Ds3TreeTablePresenter implements Initializable {
             row.setOnDragOver(event ->
                     {
                         if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
-                            if (!row.getTreeItem().getValue().isSearchOn())
-                                event.acceptTransferModes(TransferMode.COPY);
-                            else
+                            if (row.getTreeItem() == null || row.getTreeItem().getValue() == null) {
                                 event.acceptTransferModes(TransferMode.NONE);
+                            } else if (!row.getTreeItem().getValue().isSearchOn()) {
+                                event.acceptTransferModes(TransferMode.COPY);
+                            } else {
+                                event.acceptTransferModes(TransferMode.NONE);
+                            }
                         } else {
                             event.acceptTransferModes(TransferMode.NONE);
                         }

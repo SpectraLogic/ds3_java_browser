@@ -45,8 +45,8 @@ class DeepStorageBrowser {
         primaryStage.setScene(mainScene);
         primaryStage.setMaximized(true);
         primaryStage.setTitle(resourceBundle.getString("title"));
-        primaryStage.show();
         primaryStage.setOnCloseRequest(this::handleWindowClose);
+        primaryStage.show();
     }
 
     private void handleWindowClose(final WindowEvent event) {
@@ -77,7 +77,7 @@ class DeepStorageBrowser {
     private Alert createCloseConfirmationAlert(final int runningTasks) {
         final Alert closeConfirmation = new Alert(
             Alert.AlertType.CONFIRMATION,
-            "Are you sure you want to exit?"
+            "Are you sure you want to exit?" //TODO put into a resource bundle
         );
 
         final Stage stage = (Stage) closeConfirmation.getDialogPane().getScene().getWindow();

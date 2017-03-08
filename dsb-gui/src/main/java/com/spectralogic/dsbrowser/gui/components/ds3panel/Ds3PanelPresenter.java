@@ -654,7 +654,7 @@ public class Ds3PanelPresenter implements Initializable {
             //Can not assign final as assigning value again in next step
             final String location = ds3TreeTableValueTreeItem.getValue().getFullName();
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
-            CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)), deepStorageBrowserPresenter);
+            CreateFolderPopup.show(new CreateFolderModel(session.getClient(), location, buckets.get(0)));
             refresh(ds3TreeTableValueTreeItem);
         } else {
             alert.showAlert("Invalid Session!");

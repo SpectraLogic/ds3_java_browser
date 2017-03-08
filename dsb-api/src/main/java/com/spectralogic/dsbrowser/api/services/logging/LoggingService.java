@@ -2,7 +2,7 @@ package com.spectralogic.dsbrowser.api.services.logging;
 
 public interface LoggingService {
     void registerLogListener(final LoggingListener loggerListener);
-    void logMessage(final String message, LogType logType);
+    void logMessage(final String message, final LogType logType);
 
     @FunctionalInterface
     interface LoggingListener {

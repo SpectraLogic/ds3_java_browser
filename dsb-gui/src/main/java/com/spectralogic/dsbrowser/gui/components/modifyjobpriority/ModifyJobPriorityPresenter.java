@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.fxml.FXML;
@@ -35,7 +36,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @Inject
     private ResourceBundle resourceBundle;
 
-    @Inject
+    @ModelContext
     private ModifyJobPriorityModel value;
 
     @Override
