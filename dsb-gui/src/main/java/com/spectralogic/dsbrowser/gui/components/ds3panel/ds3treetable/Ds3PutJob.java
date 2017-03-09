@@ -56,13 +56,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Ds3PutJob extends Ds3JobTask {
 
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
+
     private final Ds3Client client;
     private final List<File> files;
     private final String bucket;
     private final String targetDir;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final String jobPriority;
-    private UUID jobId;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final Ds3Common ds3Common;
@@ -70,7 +71,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final LoggingService loggingService;
     private final Workers workers;
 
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
+    private UUID jobId;
 
     @AssistedInject
     public Ds3PutJob(
