@@ -18,12 +18,14 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
+import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -32,7 +34,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
@@ -42,20 +43,17 @@ import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
-import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,12 +88,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private TreeTableColumn<FileTreeModel, Number> sizeColumn;
 
     @FXML
-    private TreeTableColumn<FileTreeModel, String> nameColumn;
-
-    @FXML
-    private TreeTableColumn<FileTreeModel, String> typeColumn;
-
-    @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton;
 
     @FXML
@@ -103,7 +95,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     @FXML
     private Label localPathIndicator;
-
 
     private final DataFormat dataFormat;
     private final Workers workers;
@@ -115,15 +106,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final Ds3Common ds3Common;
+    private final BulkPutJobFactory bulkPutJobFactory;
 
     private String fileRootItem = ROOT_LOCATION;
-
-    private TreeItem<FileTreeModel> currentRootTreeItem;
 
     private TreeItem<FileTreeModel> lastExpandedNode;
 
     @Inject
-    public LocalFileTreeTablePresenter(final DataFormat dataFormat, final Workers workers, final JobWorkers jobWorkers, final Ds3SessionStore store, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final ResourceBundle resourceBundle, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final Ds3Common ds3Common) {
+    public LocalFileTreeTablePresenter(final DataFormat dataFormat, final Workers workers, final JobWorkers jobWorkers, final Ds3SessionStore store, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final ResourceBundle resourceBundle, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final Ds3Common ds3Common, final BulkPutJobFactory bulkPutJobFactory) {
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
@@ -134,8 +124,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.ds3Common = ds3Common;
+        this.bulkPutJobFactory = bulkPutJobFactory;
     }
-
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -229,7 +219,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
 
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common,settingsStore);
+            final Ds3PutJob putJob = bulkPutJobFactory.create(new Ds3PutJob.JobDetails(session.getClient(), files, bucket, targetDir, priority));
             jobWorkers.execute(putJob);
 
             putJob.setOnSucceeded(event -> {

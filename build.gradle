@@ -20,6 +20,7 @@ subprojects {
 
     dependencies {
         compile 'com.google.inject:guice:4.1.0'
+        compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
         compile 'com.google.guava:guava:21.0'
         compile 'com.spectralogic.ds3:ds3-sdk:3.2.13'
         compile 'com.spectralogic.ds3:ds3-metadata:3.2.13'

@@ -121,7 +121,7 @@ public class JobInfoPresenter implements Initializable {
                     }
                 }
             } else {
-                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ErrorUtils.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.showAlert("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 LOG.info("Network in unreachable");
             }

@@ -233,7 +233,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     Platform.runLater(() -> deepStorageBrowserPresenter.logText("GET Job [size: " + FileSizeFormat.getFileSizeType(totalJobSize) + "] completed " + ds3Client.getConnectionDetails().getEndpoint() + " " + DateFormat.formatDate(new Date()), LogType.SUCCESS));
                 }
             } else {
-                BackgroundTask.dumpTheStack("Host " + ds3Client.getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ErrorUtils.dumpTheStack("Host " + ds3Client.getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
 
                 Platform.runLater(() -> {
                     deepStorageBrowserPresenter.logText("Unable to reach network", LogType.ERROR);

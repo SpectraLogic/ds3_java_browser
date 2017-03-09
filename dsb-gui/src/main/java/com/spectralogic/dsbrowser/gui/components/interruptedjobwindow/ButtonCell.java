@@ -102,7 +102,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 });
 
             } else {
-                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ErrorUtils.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.showAndWait();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));
@@ -124,7 +124,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }
             } else {
-                BackgroundTask.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
+                ErrorUtils.dumpTheStack("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + " is unreachable. Please check your connection");
                 ALERT.setContentText("Host " + endpointInfo.getClient().getConnectionDetails().getEndpoint() + "is unreachable. Please check your connection");
                 ALERT.showAndWait();
                 Platform.runLater(() -> endpointInfo.getDeepStorageBrowserPresenter().logText("Unable to reach network", LogType.ERROR));

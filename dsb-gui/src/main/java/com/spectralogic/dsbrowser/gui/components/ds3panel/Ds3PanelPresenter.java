@@ -152,10 +152,6 @@ public class Ds3PanelPresenter implements Initializable {
             initTab();
             initTabPane();
             initListeners();
-            Platform.runLater(() -> {
-                final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers, loggingService);
-                workers.execute(backgroundTask);
-            });
         } catch (final Throwable e) {
             LOG.error("Encountered error when creating Ds3PanelPresenter", e);
             throw e;
