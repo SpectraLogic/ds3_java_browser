@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.*;
 import com.spectralogic.ds3client.commands.spectrads3.*;
-import com.spectralogic.ds3client.models.DeleteResult;
 import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
@@ -40,6 +39,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPopup;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
+import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -51,7 +51,6 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -123,13 +122,12 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final LoggingService loggingService;
-
-    private IntegerProperty limit;
+    private final BulkPutJobFactory bulkPutJobFactory;
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
 
     @Inject
-    public Ds3TreeTablePresenter(final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final Workers workers, final JobWorkers jobWorkers, final ResourceBundle resourceBundle, final DataFormat dataFormat, final Ds3Common ds3Common, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final LoggingService loggingService) {
+    public Ds3TreeTablePresenter(final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final Workers workers, final JobWorkers jobWorkers, final ResourceBundle resourceBundle, final DataFormat dataFormat, final Ds3Common ds3Common, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final LoggingService loggingService, final BulkPutJobFactory bulkPutJobFactory) {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
@@ -140,6 +138,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.loggingService = loggingService;
+        this.bulkPutJobFactory = bulkPutJobFactory;
     }
 
     @Override
@@ -468,7 +467,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 final String targetDir = value.getDirectoryName();
                                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                                final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+                                final Ds3PutJob putJob = bulkPutJobFactory.create(new Ds3PutJob.JobDetails(session.getClient(), db.getFiles(), bucket, targetDir, priority));
+                                //final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, workers);
                                 jobWorkers.execute(putJob);
                                 putJob.setOnSucceeded(e -> {
                                     LOG.info("Succeed");

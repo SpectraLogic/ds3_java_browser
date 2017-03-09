@@ -35,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.gui.util.Popup;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -138,8 +139,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
 
         try {
-
-            loggingService.registerLogListener(this::logTextForParagraph);
+            loggingService.registerLogListener( (message, logType) -> {
+                if (Platform.isFxApplicationThread()) {
+                    this.logTextForParagraph(message, logType);
+                } else {
+                    Platform.runLater(() -> this.logTextForParagraph(message, logType));
+                }
+            });
 
             setToolTipBehavior(200, 5000, 0); //To set the time interval of tooltip
             initGUIElement(); //Setting up labels from resource file

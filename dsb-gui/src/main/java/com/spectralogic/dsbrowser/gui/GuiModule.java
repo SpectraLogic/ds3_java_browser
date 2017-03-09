@@ -17,10 +17,13 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
@@ -65,7 +68,7 @@ public class GuiModule extends AbstractModule {
 
         loadPresenters(this::bind);
 
-        binder().skipSources(Session.class);
+        install(new FactoryModuleBuilder().build(BulkPutJobFactory.class));
     }
 
     @Provides
