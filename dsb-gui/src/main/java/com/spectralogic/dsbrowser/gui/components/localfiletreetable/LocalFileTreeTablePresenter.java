@@ -106,7 +106,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final Ds3Common ds3Common;
-    private final LoggingService loggingService;
     private final BulkPutJobFactory bulkPutJobFactory;
 
     private String fileRootItem = ROOT_LOCATION;
@@ -114,7 +113,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private TreeItem<FileTreeModel> lastExpandedNode;
 
     @Inject
-    public LocalFileTreeTablePresenter(final DataFormat dataFormat, final Workers workers, final JobWorkers jobWorkers, final Ds3SessionStore store, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final ResourceBundle resourceBundle, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final Ds3Common ds3Common, final LoggingService loggingService, final BulkPutJobFactory bulkPutJobFactory) {
+    public LocalFileTreeTablePresenter(final DataFormat dataFormat, final Workers workers, final JobWorkers jobWorkers, final Ds3SessionStore store, final DeepStorageBrowserPresenter deepStorageBrowserPresenter, final ResourceBundle resourceBundle, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settingsStore, final Ds3Common ds3Common, final BulkPutJobFactory bulkPutJobFactory) {
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
@@ -125,10 +124,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.ds3Common = ds3Common;
-        this.loggingService = loggingService;
         this.bulkPutJobFactory = bulkPutJobFactory;
     }
-
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -222,7 +219,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
 
-            //final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, workers);
             final Ds3PutJob putJob = bulkPutJobFactory.create(new Ds3PutJob.JobDetails(session.getClient(), files, bucket, targetDir, priority));
             jobWorkers.execute(putJob);
 

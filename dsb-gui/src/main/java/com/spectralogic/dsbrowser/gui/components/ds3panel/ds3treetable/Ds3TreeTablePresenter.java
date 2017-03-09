@@ -120,7 +120,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final LoggingService loggingService;
     private final BulkPutJobFactory bulkPutJobFactory;
 
@@ -136,7 +135,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.ds3Common = ds3Common;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.loggingService = loggingService;
         this.bulkPutJobFactory = bulkPutJobFactory;
     }
@@ -468,7 +466,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
                                 final Ds3PutJob putJob = bulkPutJobFactory.create(new Ds3PutJob.JobDetails(session.getClient(), db.getFiles(), bucket, targetDir, priority));
-                                //final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, deepStorageBrowserPresenter, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, workers);
                                 jobWorkers.execute(putJob);
                                 putJob.setOnSucceeded(e -> {
                                     LOG.info("Succeed");
