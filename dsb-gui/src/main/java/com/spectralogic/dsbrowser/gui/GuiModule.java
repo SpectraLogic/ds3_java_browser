@@ -22,7 +22,6 @@ import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -33,7 +32,6 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
