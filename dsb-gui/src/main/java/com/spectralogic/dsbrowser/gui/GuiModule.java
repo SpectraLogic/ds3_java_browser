@@ -19,11 +19,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -47,6 +49,7 @@ public class GuiModule extends AbstractModule {
     protected void configure() {
         bind(LoggingService.class).to(LoggingServiceImpl.class).in(Singleton.class);
         bind(ShutdownService.class).to(ShutdownServiceImpl.class).in(Singleton.class);
+        bind(BuildInfoService.class).to(BuildInfoServiceImpl.class).in(Singleton.class);
 
         bind(Ds3SessionStore.class).toProvider(Ds3SessionStoreProvider.class).in(Singleton.class);
         bind(SettingsStore.class).toProvider(SettingsProvider.class).in(Singleton.class);
