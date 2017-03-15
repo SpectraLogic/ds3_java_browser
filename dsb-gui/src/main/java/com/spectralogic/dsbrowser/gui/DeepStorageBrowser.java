@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
@@ -40,19 +41,26 @@ class DeepStorageBrowser {
     private static final Logger LOG = LoggerFactory.getLogger(DeepStorageBrowser.class);
 
     private final ResourceBundle resourceBundle;
+    private final BuildInfoService buildInfoService;
     private final ShutdownService shutdownService;
     private final JobWorkers jobWorkers;
 
     @Inject
-    DeepStorageBrowser(final ResourceBundle resourceBundle, final ShutdownService shutdownService, final JobWorkers jobWorkers) {
+    DeepStorageBrowser(
+            final ResourceBundle resourceBundle,
+            final BuildInfoService buildInfoService,
+            final ShutdownService shutdownService,
+            final JobWorkers jobWorkers) {
         this.resourceBundle = resourceBundle;
+        this.buildInfoService = buildInfoService;
         this.shutdownService = shutdownService;
         this.jobWorkers = jobWorkers;
     }
 
     void start(final Stage primaryStage) {
         // TODO add a version lookup to always get the most current version from a property file generated at build time
-        LOG.info("Starting Deep Storage Browser {}", resourceBundle.getString("buildVersion"));
+        LOG.info("Starting Deep Storage Browser {}", buildInfoService.getBuildVersion());
+        LOG.info("  {}", buildInfoService.getBuildDateTime());
         LOG.info(getPlatformInformation());
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
