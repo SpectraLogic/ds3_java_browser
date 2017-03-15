@@ -60,7 +60,7 @@ class DeepStorageBrowser {
     void start(final Stage primaryStage) {
         // TODO add a version lookup to always get the most current version from a property file generated at build time
         LOG.info("Starting Deep Storage Browser {}", buildInfoService.getBuildVersion());
-        LOG.info("  {}", buildInfoService.getBuildDate());
+        LOG.info("  {}", buildInfoService.getBuildDateTime());
         LOG.info(getPlatformInformation());
 
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();

@@ -15,7 +15,9 @@
 
 package com.spectralogic.dsbrowser.api.services;
 
+import java.time.LocalDateTime;
+
 public interface BuildInfoService {
     String getBuildVersion();
-    String getBuildDate();
+    LocalDateTime getBuildDateTime();
 }

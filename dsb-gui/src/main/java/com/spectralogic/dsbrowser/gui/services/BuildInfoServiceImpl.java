@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Properties;
 
 public class BuildInfoServiceImpl implements BuildInfoService{
@@ -28,21 +31,13 @@ public class BuildInfoServiceImpl implements BuildInfoService{
 
     public static final String buildPropertiesFile = "ds3_cli.properties";
 
-    private final String buildVersion;
-    private final String buildDate;
+    private String buildVersion;
+    private LocalDateTime buildDateTime;
 
     public BuildInfoServiceImpl() {
-        final InputStream is = getClass().getClassLoader().getResourceAsStream(buildPropertiesFile);
-        final Properties buildProps = new Properties();
-        try {
-            buildProps.load(is);
-        } catch (IOException e) {
-            LOG.error("Failed to read build properties from {}: ", buildPropertiesFile, e);
-        }
-
-        this.buildVersion = buildProps.getProperty("version");
-        this.buildDate = buildProps.getProperty("build.date");
-
+        final Properties buildProps = getBuildProperties();
+        this.buildVersion = initBuildVersion(buildProps);
+        this.buildDateTime = initBuildDateTime(buildProps);
     }
 
     @Override
@@ -51,7 +46,37 @@ public class BuildInfoServiceImpl implements BuildInfoService{
     }
 
     @Override
-    public String getBuildDate() {
-        return this.buildDate;
+    public LocalDateTime getBuildDateTime() {
+        return this.buildDateTime;
+    }
+
+    private Properties getBuildProperties() {
+        final InputStream is = getClass().getClassLoader().getResourceAsStream(buildPropertiesFile);
+        final Properties buildProps = new Properties();
+        try {
+            buildProps.load(is);
+        } catch (final IOException e) {
+            LOG.error("Failed to read build properties from {}: ", buildPropertiesFile, e);
+        }
+
+        return buildProps;
+    }
+
+    private String initBuildVersion(final Properties buildProps) {
+        return buildProps.getProperty("version");
+    }
+
+    private LocalDateTime initBuildDateTime(final Properties buildProps) {
+        // build.date=Wed Mar 15 11:10:25 MDT 2017
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dow mon dd hh:mm:ss zzz yyyy");
+        try {
+            return LocalDateTime.parse(buildProps.getProperty("build.date"));
+        }catch (final NullPointerException npe) {
+            LOG.error("Failed to find build.date property in Resource file: {}\n", buildPropertiesFile, npe);
+        }catch (final DateTimeParseException dtpe) {
+            LOG.error("Failed to convert build.date property into Date object: {}\n", buildProps.getProperty("build.date"), dtpe);
+        }
+
+        return LocalDateTime.MIN;
     }
 }
