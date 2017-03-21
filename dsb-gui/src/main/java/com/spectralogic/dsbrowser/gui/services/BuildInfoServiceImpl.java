@@ -68,9 +68,9 @@ public class BuildInfoServiceImpl implements BuildInfoService{
 
     private LocalDateTime initBuildDateTime(final Properties buildProps) {
         // build.date=Wed Mar 15 11:10:25 MDT 2017
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dow mon dd hh:mm:ss zzz yyyy");
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("E M d hh:mm:ss zzz yyyy");
         try {
-            return LocalDateTime.parse(buildProps.getProperty("build.date"));
+            return LocalDateTime.parse(buildProps.getProperty("build.date"), dtf);
         }catch (final NullPointerException npe) {
             LOG.error("Failed to find build.date property in Resource file: {}\n", buildPropertiesFile, npe);
         }catch (final DateTimeParseException dtpe) {
