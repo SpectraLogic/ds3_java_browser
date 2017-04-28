@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
@@ -97,6 +98,9 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     @Inject
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+
+    @Inject
+    private LoggingService loggingService;
 
     private ContextMenu contextMenu;
 
@@ -389,7 +393,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                     final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");

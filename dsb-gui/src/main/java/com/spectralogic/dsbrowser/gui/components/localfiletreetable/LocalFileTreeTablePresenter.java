@@ -6,6 +6,7 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -103,6 +104,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     @Inject
     private EndpointInfo endpointInfo;
+
+    @Inject
+    private LoggingService loggingService;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -449,7 +453,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void startPutJob(final Ds3Client client, final List<File> files, final String bucket, final String targetDir, final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                              final String priority,
                              final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common, final SettingsStore settingsStore, final TreeItem<Ds3TreeTableValue> treeItem) {
-        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("Succeed");
