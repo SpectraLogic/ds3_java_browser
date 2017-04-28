@@ -1,3 +1,18 @@
+/*
+ * ****************************************************************************
+ *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ *  ****************************************************************************
+ */
+
 package com.spectralogic.dsbrowser.gui.services.logservice;
 
 import ch.qos.logback.classic.Level;
@@ -13,27 +28,27 @@ import ch.qos.logback.core.util.FileSize;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LogService {
+public class ApplicationLoggerSettings {
 
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(LogService.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ApplicationLoggerSettings.class);
 
     private LogSettings logSettings;
-    private final String pattern = "%date %level [%thread] %logger{10} [%file:%line] %msg%n";
 
-    public LogService(final LogSettings logSettings) {
+    @Inject
+    public ApplicationLoggerSettings(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings(pattern);
     }
 
     public void setLogSettings(final LogSettings logSettings) {
         this.logSettings = logSettings;
-        updateLogBackSettings(pattern);
+        updateLogBackSettings();
     }
 
-    public PatternLayoutEncoder updateLogBackSettings(final String pattern) {
+    private void updateLogBackSettings() {
         final Path destPath = Paths.get(logSettings.getLogLocation(), "browser.log");
         final Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final LoggerContext context = rootLogger.getLoggerContext();
@@ -46,7 +61,7 @@ public class LogService {
         fileAppender.setFile(destPath.toString());
 
         final PatternLayoutEncoder layout = new PatternLayoutEncoder();
-        layout.setPattern(pattern);
+        layout.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
         layout.setContext(context);
         layout.start();
 
@@ -83,10 +98,12 @@ public class LogService {
         if (logSettings.getDebugLogging()) {
             rootLogger.setLevel(Level.DEBUG);
         } else {
-            rootLogger.setLevel(Level.ERROR);
+            rootLogger.setLevel(Level.INFO);
         }
-
         LOG.info("Finished configuring logging");
-        return layout;
+    }
+
+    public void restoreLoggingSettings() {
+        updateLogBackSettings();
     }
 }

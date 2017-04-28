@@ -1,11 +1,13 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.airhacks.afterburner.injection.Injector;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
+import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
+import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -35,7 +37,8 @@ public class Main extends Application {
         primaryStage.setMinWidth(Constants.MIN_WIDTH);
         final SettingsStore settings = SettingsStore.loadSettingsStore();
         // Create the log service before any logging has started..
-        final LogService logService = new LogService(settings.getLogSettings());
+        final ApplicationLoggerSettings applicationLoggerSettings = new ApplicationLoggerSettings(settings.getLogSettings());
+        applicationLoggerSettings.restoreLoggingSettings();
         final SavedJobPrioritiesStore savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
         final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
@@ -43,9 +46,11 @@ public class Main extends Application {
         final DataFormat dataFormat = new DataFormat(resourceBundle.getString("dataFormat"));
         final JobWorkers jobWorkers = new JobWorkers(settings.getProcessSettings().getMaximumNumberOfParallelThreads());
         final Logger injectorLogger = LoggerFactory.getLogger("Injector");
-        LOG.info("Starting Deep Storage Browser v2.0");
+        final LoggingServiceImpl loggingService = new LoggingServiceImpl();
+        LOG.info("Starting Deep Storage Browser v2.1");
         Injector.setLogger(injectorLogger::debug);
-        Injector.setModelOrService(LogService.class, logService);
+        Injector.setModelOrService(ApplicationLoggerSettings.class, applicationLoggerSettings);
+        Injector.setModelOrService(LoggingService.class, loggingService);
         Injector.setModelOrService(SettingsStore.class, settings);
         Injector.setModelOrService(Workers.class, workers);
         Injector.setModelOrService(JobWorkers.class, jobWorkers);

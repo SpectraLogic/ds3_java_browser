@@ -1,12 +1,12 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

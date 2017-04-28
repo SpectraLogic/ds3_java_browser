@@ -1,7 +1,8 @@
 package com.spectralogic.dsbrowser.gui;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
@@ -111,11 +112,22 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     private Workers workers;
 
+    @Inject
+    private LoggingService loggingService;
+
     private DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            loggingService.registerLogListener( (message, logType) -> {
+                if (Platform.isFxApplicationThread()) {
+                    this.logTextForParagraph(message, logType);
+                } else {
+                    Platform.runLater(() -> this.logTextForParagraph(message, logType));
+                }
+            });
+
             initGUIElement(); //Setting up labels from resource file
             LOG.info("Loading Main view");
             logText(resourceBundle.getString("loadMainView"), LogType.INFO);
@@ -296,25 +308,38 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void logText(final String log, final LogType type) {
-        Platform.runLater(() -> {
-            if (inlineCssTextArea != null) {
-                final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
-                inlineCssTextArea.appendText(formattedString(log));
-                final int size = inlineCssTextArea.getParagraphs().size() - 2;
-                for (int i = previousSize + 1; i <= size; i++)
-                    switch (type) {
-                        case SUCCESS:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: GREEN;");
-                            break;
-                        case ERROR:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: RED;");
-                            break;
-                        default:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: BLACK;");
-                    }
-                scrollPane.setVvalue(1.0);
-            }
-        });
+        if (inlineCssTextArea != null) {
+            inlineCssTextArea.appendText(formattedString(log));
+            final int size = inlineCssTextArea.getParagraphs().size() - 2;
+
+            setStyleForLogMessage(type, size);
+            scrollPane.setVvalue(1.0);
+        }
+    }
+
+    //set the same color for all the lines of string log separated by \n
+    public void logTextForParagraph(final String log, final LogType type) {
+        final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
+        inlineCssTextArea.appendText(formattedString(log));
+        final int size = inlineCssTextArea.getParagraphs().size() - 2;
+
+        for (int i = previousSize + 1; i <= size; i++) {
+            setStyleForLogMessage(type, i);
+        }
+        scrollPane.setVvalue(1.0);
+    }
+
+    private void setStyleForLogMessage(final LogType type, final int i) {
+        switch (type) {
+            case SUCCESS:
+                inlineCssTextArea.setStyle(i, "-fx-fill: GREEN;");
+                break;
+            case ERROR:
+                inlineCssTextArea.setStyle(i, "-fx-fill: RED;");
+                break;
+            default:
+                inlineCssTextArea.setStyle(i, "-fx-fill: BLACK;");
+        }
     }
 
     private String formattedString(final String log) {

@@ -13,7 +13,7 @@ public class LogServiceTest {
     public void updateLogBackSettings() throws Exception {
         final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
         final LogSettings logSettings = settingsStore.getLogSettings();
-        final LogService logService = new LogService(logSettings);
+        final ApplicationLoggerSettings logService = new ApplicationLoggerSettings(logSettings);
         final String pattern = "[%thread] %logger{10} [%file:%line] %msg%n";
         final PatternLayoutEncoder layout = logService.updateLogBackSettings(pattern);
         assertEquals("[%thread] %logger{10} [%file:%line] %msg%n", layout.getPattern());

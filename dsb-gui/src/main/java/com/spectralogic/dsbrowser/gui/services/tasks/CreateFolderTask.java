@@ -3,10 +3,10 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Request;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
 import com.spectralogic.dsbrowser.gui.util.*;
-import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

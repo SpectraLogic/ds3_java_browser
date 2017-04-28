@@ -4,7 +4,7 @@ import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.logservice.LogService;
+import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
@@ -116,7 +116,7 @@ public class SettingPresenter implements Initializable {
     private SettingsStore settings;
 
     @Inject
-    private LogService logService;
+    private ApplicationLoggerSettings applicationLoggerSettings;
 
     private JobSettings jobSettings;
 
@@ -170,7 +170,7 @@ public class SettingPresenter implements Initializable {
     public void saveLogSettings() {
         LOG.info("Updating logging settings");
         settings.setLogSettings(logSettings);
-        logService.setLogSettings(logSettings);
+        applicationLoggerSettings.setLogSettings(logSettings);
         Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("loggingSettingsUpdated"), Alert.AlertType.INFORMATION);
     }
 

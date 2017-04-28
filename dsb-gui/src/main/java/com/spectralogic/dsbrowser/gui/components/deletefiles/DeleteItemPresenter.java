@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -10,7 +11,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

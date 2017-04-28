@@ -1,10 +1,10 @@
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;

@@ -7,6 +7,7 @@ import com.spectralogic.ds3client.models.BulkObject;
 import com.spectralogic.ds3client.models.DetailedS3Object;
 import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;

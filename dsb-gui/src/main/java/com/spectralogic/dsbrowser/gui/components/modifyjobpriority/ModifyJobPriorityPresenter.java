@@ -1,10 +1,10 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
