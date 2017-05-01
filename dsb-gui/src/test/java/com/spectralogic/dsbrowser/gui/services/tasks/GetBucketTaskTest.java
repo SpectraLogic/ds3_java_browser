@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -48,7 +49,7 @@ public class GetBucketTaskTest {
                         false, Mockito.mock(HBox.class));
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(), SessionConstants.ALREADY_EXIST_BUCKET, session, ds3TreeTableValue,
                         false, workers, Mockito.mock(Ds3TreeTableItem.class),
-                        Mockito.mock(TreeTableView.class), Mockito.mock(Ds3Common.class));
+                        Mockito.mock(TreeTableView.class), Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(getBucketTask);
                 getBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.util;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
@@ -101,7 +102,7 @@ public class CancelJobsWorkerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, StringConstants.EMPTY_STRING,
                          Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
@@ -147,7 +148,7 @@ public class CancelJobsWorkerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "",
                         Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {

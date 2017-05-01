@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.util;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
@@ -183,7 +184,7 @@ public class CloseConfirmationHandlerTest {
             final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.createDefault();
             final ProcessSettings processSettings = ProcessSettings.createDefault();
             final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
-            final LogSettings logSettings = LogSettings.createDefault();
+            final LogSettings logSettings = LogSettings.DEFAULT;
             new SettingsStore(logSettings, processSettings, filePropertiesSettings, showCachedJobSettings);
             final SettingsStore settingsStoreNew = SettingsStore.loadSettingsStore();
             final ShowCachedJobSettings showCachedJobSettingsNew = settingsStoreNew.getShowCachedJobSettings();
@@ -206,7 +207,7 @@ public class CloseConfirmationHandlerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
