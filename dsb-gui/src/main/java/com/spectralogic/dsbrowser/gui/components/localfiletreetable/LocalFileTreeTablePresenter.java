@@ -318,7 +318,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         } catch (final Exception e) {
             LOG.error("Failed to transfer data to black pearl", e);
-            ds3Common.getDeepStorageBrowserPresenter().logText("Failed to transfer data to black pearl: " + e, LogType.ERROR);
+            loggingService.logMessage("Failed to transfer data to black pearl: " + e, LogType.ERROR);
         }
     }
 
@@ -439,13 +439,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 workers.execute(ds3CancelSingleJobTask);
                 ds3CancelSingleJobTask.setOnFailed(event -> LOG.error("Failed to cancel job"));
                 ds3CancelSingleJobTask.setOnSucceeded(event -> {
-                    ds3Common.getDeepStorageBrowserPresenter().logText("GET Job Cancelled", LogType.INFO);
+                    loggingService.logMessage("GET Job Cancelled", LogType.INFO);
                     refresh(fileTreeItem);
                 });
 
             } catch (final Exception e1) {
                 LOG.error("Failed to cancel job", e1);
-                ds3Common.getDeepStorageBrowserPresenter().logText(" Failed to cancel job. ", LogType.ERROR);
+                loggingService.logMessage(" Failed to cancel job. ", LogType.ERROR);
             }
         });
     }
@@ -468,7 +468,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             try {
                 if (putJob.getJobId() != null) {
                     client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                    ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
+                    loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
                     refreshBlackPearlSideItem(treeItem);
                 }
@@ -514,7 +514,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             refreshFileTreeView();
         } else if (selectedItem.getValue().getType().equals(FileTreeModel.Type.File)) {
             if (selectedItem.getParent().getValue() != null) {
-                ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("refreshing")
+                loggingService.logMessage(resourceBundle.getString("refreshing")
                         + StringConstants.SPACE
                         + selectedItem.getParent().getValue().getName(), LogType.SUCCESS);
                 selectedItem = selectedItem.getParent();
@@ -522,7 +522,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 refreshFileTreeView();
             }
         } else {
-            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("refreshing")
+            loggingService.logMessage(resourceBundle.getString("refreshing")
                     + StringConstants.SPACE
                     + selectedItem.getValue().getName(), LogType.SUCCESS);
         }

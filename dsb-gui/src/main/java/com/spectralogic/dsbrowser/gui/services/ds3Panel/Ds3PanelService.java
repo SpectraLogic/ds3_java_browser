@@ -11,6 +11,7 @@ import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -63,7 +64,8 @@ public final class Ds3PanelService {
     }
 
     public static Optional<ImmutableList<Bucket>> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem,
-                                                                      final Session session, final TreeTableView<Ds3TreeTableValue> treeTableView) {
+                                                                      final Session session,
+                                                                      final TreeTableView<Ds3TreeTableValue> treeTableView) {
         try {
             if (null != treeTableView) {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItemTemp = selectedItem;
@@ -166,7 +168,7 @@ public final class Ds3PanelService {
         }));
     }
 
-    public static void filterChanged(final Ds3Common ds3Common, final Workers workers) {
+    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
         final String newValue = ds3PanelPresenter.getSearchedText();
         ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
@@ -175,7 +177,7 @@ public final class Ds3PanelService {
         final Session session = ds3Common.getCurrentSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
             setVisibilityOfItemsInfo(true, ds3Common);
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
         } else {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
@@ -192,7 +194,7 @@ public final class Ds3PanelService {
                 ds3TreeTableView.setShowRoot(false);
                 setVisibilityOfItemsInfo(false, ds3Common);
 
-                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common);
+                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, loggingService);
                 workers.execute(searchJobTask);
                 searchJobTask.setOnSucceeded(event -> {
                     LOG.info("Search completed!");
@@ -201,7 +203,7 @@ public final class Ds3PanelService {
                             final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
                             ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            ds3Common.getDeepStorageBrowserPresenter().logText(
+                            loggingService.logMessage(
                                     StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
                             treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
@@ -216,7 +218,7 @@ public final class Ds3PanelService {
                             }
                         } catch (final Exception e) {
                             LOG.error("Search failed", e);
-                            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
+                            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
                         }
                     });
                 });

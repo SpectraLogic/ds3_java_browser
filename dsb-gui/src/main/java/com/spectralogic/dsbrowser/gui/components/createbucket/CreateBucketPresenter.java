@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
@@ -56,6 +57,9 @@ public class CreateBucketPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+    @Inject
+    private LoggingService loggingService;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
@@ -99,13 +103,15 @@ public class CreateBucketPresenter implements Initializable {
                         createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(),
                         deepStorageBrowserPresenter);
                 workers.execute(createBucketTask);
-                createBucketTask.setOnSucceeded(event -> Platform.runLater(() -> {
+                createBucketTask.setOnSucceeded(event -> {
                     LOG.info("Bucket is created");
                     deepStorageBrowserPresenter.logText(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
-                    ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-                    closeDialog();
-                }));
+                    Platform.runLater(() -> {
+                        ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        closeDialog();
+                    });
+                });
                 createBucketTask.setOnFailed(event -> {
                     Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
                 });

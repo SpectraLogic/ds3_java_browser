@@ -5,6 +5,7 @@ import com.spectralogic.ds3client.commands.GetServiceRequest;
 import com.spectralogic.ds3client.commands.GetServiceResponse;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -37,14 +38,19 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
     private final Workers workers;
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
+    private final LoggingService loggingService;
 
-    public GetServiceTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList, final Session session,
-                          final Workers workers, final Ds3Common ds3Common) {
+    public GetServiceTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList,
+                          final Session session,
+                          final Workers workers,
+                          final Ds3Common ds3Common,
+                          final LoggingService loggingService) {
         partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
         this.session = session;
         this.workers = workers;
         this.ds3Common = ds3Common;
-        resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -63,15 +69,15 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                                 false, hbox);
                     }).collect(Collectors.toList());
             buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
+
+            loggingService.logMessage(resourceBundle.getString("receivedBucketList"), LogType.SUCCESS);
             Platform.runLater(() -> {
                 if (null != ds3Common) {
                     if (null != ds3Common.getDeepStorageBrowserPresenter() && null != ds3Common.getDs3PanelPresenter()) {
-                        ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("receivedBucketList"),
-                                LogType.SUCCESS);
                         ds3Common.getDs3PanelPresenter().disableSearch(false);
                     }
                     final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value ->
-                            new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common))
+                            new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, loggingService))
                             .collect(GuavaCollectors.immutableList());
                     if (!Guard.isNullOrEmpty(treeItems)) {
                         partialResults.get().addAll(treeItems);

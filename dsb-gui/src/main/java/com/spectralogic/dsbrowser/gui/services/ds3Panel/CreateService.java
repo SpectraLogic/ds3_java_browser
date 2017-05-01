@@ -5,6 +5,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetDataPoliciesSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketWithDataPoliciesModel;
@@ -34,11 +35,11 @@ public final class CreateService {
 
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public static void createBucketPrompt(final Ds3Common ds3Common, final Workers workers) {
+    public static void createBucketPrompt(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
         LOG.info("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
+            loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
             final Task<Optional<CreateBucketWithDataPoliciesModel>> getDataPolicies = new Task<Optional<CreateBucketWithDataPoliciesModel>>() {
 
                 @Override
@@ -48,7 +49,7 @@ public final class CreateService {
                             getDataPolicies().stream().map(bucket -> new CreateBucketModel(bucket.getName(), bucket.getId())).collect(GuavaCollectors.immutableList());
                     final ImmutableList<CreateBucketWithDataPoliciesModel> dataPoliciesList = buckets.stream().map(policies ->
                             new CreateBucketWithDataPoliciesModel(buckets, session, workers)).collect(GuavaCollectors.immutableList());
-                    ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString
+                    loggingService.logMessage(resourceBundle.getString
                             ("dataPolicyRetrieved"), LogType.SUCCESS);
                     final Optional<CreateBucketWithDataPoliciesModel> first = dataPoliciesList.stream().findFirst();
                     return Optional.ofNullable(first.get());
@@ -60,7 +61,7 @@ public final class CreateService {
                 if (value.isPresent()) {
                     LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
                     CreateBucketPopup.show(value.get(), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                 }
             }));
 
@@ -70,7 +71,7 @@ public final class CreateService {
 
     }
 
-    public static void createFolderPrompt(final Ds3Common ds3Common) {
+    public static void createFolderPrompt(final Ds3Common ds3Common, final LoggingService loggingService) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
@@ -87,7 +88,7 @@ public final class CreateService {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (Guard.isNullOrEmpty(values)) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("selectLocation"), LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("locationNotSelected"), Alert.AlertType.ERROR);
             return;
         }

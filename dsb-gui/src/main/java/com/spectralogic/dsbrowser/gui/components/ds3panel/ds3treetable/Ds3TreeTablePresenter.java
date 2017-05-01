@@ -153,10 +153,10 @@ public class Ds3TreeTablePresenter implements Initializable {
         metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers));
+        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
+        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
@@ -214,7 +214,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         });
 
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
         workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
@@ -411,7 +411,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         Ds3PanelService.refresh(selectedItem);
                         ds3TreeTable.getSelectionModel().clearSelection();
                         ds3TreeTable.getSelectionModel().select(selectedItem);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                     });
                     putJob.setOnCancelled(e -> {
                         LOG.info("setOnCancelled");
@@ -600,7 +600,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
-            ds3TreeTableItem.loadMore(ds3TreeTable, deepStorageBrowserPresenter);
+            ds3TreeTableItem.loadMore(ds3TreeTable);
         }
     }
 

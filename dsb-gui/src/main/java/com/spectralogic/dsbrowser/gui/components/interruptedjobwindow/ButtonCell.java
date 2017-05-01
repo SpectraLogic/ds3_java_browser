@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -32,7 +33,13 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final HBox hbox = createHBox();
 
 
-    public ButtonCell(final JobWorkers jobWorkers, final Workers workers, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final JobInfoPresenter jobInfoPresenter, final SettingsStore settingsStore) {
+    public ButtonCell(final JobWorkers jobWorkers,
+                      final Workers workers,
+                      final EndpointInfo endpointInfo,
+                      final JobInterruptionStore jobInterruptionStore,
+                      final JobInfoPresenter jobInfoPresenter,
+                      final SettingsStore settingsStore,
+                      final LoggingService loggingService) {
         recoverButton.setOnAction(recoverEvent -> {
             LOG.info("Recover Job button clicked");
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
@@ -45,7 +52,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                 jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 });
                 recoverInterruptedJob.setOnFailed(event -> {

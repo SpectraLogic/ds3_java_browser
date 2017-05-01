@@ -1,13 +1,12 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +17,14 @@ public class BackgroundTask implements Runnable {
     private final static Logger LOG = LoggerFactory.getLogger(BackgroundTask.class);
     private final Ds3Common ds3Common;
     private final Workers workers;
+    private final LoggingService loggingService;
     private boolean isAlertDisplayed = false;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public BackgroundTask(final Ds3Common ds3Common, final Workers workers) {
+    public BackgroundTask(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
         this.ds3Common = ds3Common;
         this.workers = workers;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -36,7 +37,7 @@ public class BackgroundTask implements Runnable {
                     if (CheckNetwork.isReachable(session.getClient())) {
                         if (isAlertDisplayed) {
                             LOG.info("network is up");
-                            Platform.runLater(() -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
+                            Platform.runLater(() -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
                             isAlertDisplayed = false;
                         } else {
                             LOG.info("network is working");

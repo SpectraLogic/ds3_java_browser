@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -16,11 +17,16 @@ import static com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker.refr
 
 public final class CancelJobsWorker {
 
-    public static void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Logger LOG, final Workers workers, final Ds3Common ds3Common) {
+    public static void cancelAllRunningJobs(final JobWorkers jobWorkers,
+                                            final JobInterruptionStore jobInterruptionStore,
+                                            final Logger LOG,
+                                            final Workers workers,
+                                            final Ds3Common ds3Common,
+                                            final LoggingService loggingService) {
         if (jobWorkers.getTasks().size() != 0) {
             final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers);
             cancelAllRunningJobsTask.setOnSucceeded(event -> {
-                refreshCompleteTreeTableView(ds3Common, workers);
+                refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                 if (cancelAllRunningJobsTask.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobsTask.getValue());
                 }

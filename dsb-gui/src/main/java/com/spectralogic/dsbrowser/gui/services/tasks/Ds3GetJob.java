@@ -72,7 +72,7 @@ public class Ds3GetJob extends Ds3JobTask {
             if (CheckNetwork.isReachable(ds3Client)) {
                 final String startJobDate = DateFormat.formatDate(new Date());
                 updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
-                ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobInitiatedString
+                loggingService.logMessage(StringBuilderUtil.jobInitiatedString
                         (JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint())
                         .toString(), LogType.INFO);
                 updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
@@ -89,7 +89,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 final long freeSpace = new File(fileTreeModel.toString()).getFreeSpace();
                 if (totalJobSize > freeSpace) {
                     LOG.info("GET Job failed:Restoration directory does not have enough space");
-                    ds3Common.getDeepStorageBrowserPresenter().logText(
+                    loggingService.logMessage(
                             StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"),
                                     ds3Client.getConnectionDetails().getEndpoint(),
                                     resourceBundle.getString("notEnoughSpace"), null), LogType.ERROR);
@@ -108,14 +108,14 @@ public class Ds3GetJob extends Ds3JobTask {
                         if (duplicateFileMap.get(Paths.get(fileTreeModel + StringConstants.FORWARD_SLASH + obj))
                                 != null && duplicateFileMap.get(Paths.get(fileTreeModel
                                 + StringConstants.FORWARD_SLASH + obj)).equals(true)) {
-                            ds3Common.getDeepStorageBrowserPresenter().logText(
+                            loggingService.logMessage(
                                     resourceBundle.getString("fileOverridden")
                                             + StringConstants.SPACE + obj + StringConstants.SPACE
                                             + resourceBundle.getString("to")
                                             + StringConstants.SPACE + fileTreeModel, LogType.SUCCESS);
                         } else {
                             getTransferRates(jobStartTimeInstant, totalSent, totalJobSize, obj, fileTreeModel.toString());
-                            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.objectSuccessfullyTransferredString(obj, fileTreeModel.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
+                            loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(obj, fileTreeModel.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
 
                         }
                     });
@@ -150,7 +150,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     //Can't assign final.
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
                             ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter());
-                    ds3Common.getDeepStorageBrowserPresenter().logText(
+                    loggingService.logMessage(
                             StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
                 }
             } else {
@@ -159,7 +159,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final NoSuchElementException e) {
             LOG.error("The job failed to process", e);
-            ds3Common.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"),
                             ds3Client.getConnectionDetails().getEndpoint(),
                             resourceBundle.getString("emptyBucketTransfer"), e), LogType.ERROR);
@@ -167,13 +167,13 @@ public class Ds3GetJob extends Ds3JobTask {
             isJobFailed = true;
             LOG.error("The job failed to process", e);
             removeJobIdAndUpdateJobsBtn(jobInterruptionStore, jobId);
-            ds3Common.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     (StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"),
                             ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e)), LogType.ERROR);
         } catch (final Exception e) {
             isJobFailed = true;
             LOG.error("The job failed to process", e);
-            ds3Common.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"),
                             ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, jobId);
@@ -252,7 +252,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 return new Ds3Object(pair.getFullName(), pair.getSize());
             } catch (final SecurityException e) {
                 LOG.error("Exception while creation directories ", e);
-                ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"), ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e), LogType.ERROR);
+                loggingService.logMessage(StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"), ds3Client.getConnectionDetails().getEndpoint(), StringConstants.EMPTY_STRING, e), LogType.ERROR);
                 return null;
             }
         }).filter(Objects::nonNull).collect(GuavaCollectors.immutableList());
@@ -326,7 +326,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
         } catch (final IOException e) {
             LOG.error("Unable to add descendants", e);
-           ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.getJobFailedMessage("GET Job Cancelled", ds3Client.getConnectionDetails().getEndpoint(), "", e), LogType.ERROR);
+           loggingService.logMessage(StringBuilderUtil.getJobFailedMessage("GET Job Cancelled", ds3Client.getConnectionDetails().getEndpoint(), "", e), LogType.ERROR);
         }
         return map;
     }

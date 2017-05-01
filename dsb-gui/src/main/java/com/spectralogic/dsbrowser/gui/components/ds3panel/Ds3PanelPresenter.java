@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
@@ -131,6 +132,9 @@ public class Ds3PanelPresenter implements Initializable {
     @Inject
     private SavedSessionStore savedSessionStore;
 
+    @Inject
+    private LoggingService loggingService;
+
     private GetNoOfItemsTask itemsTask;
 
     public Ds3PanelPresenter() {
@@ -150,7 +154,7 @@ public class Ds3PanelPresenter implements Initializable {
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-            final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers);
+            final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers, loggingService);
             workers.execute(backgroundTask);
             try {
                 //open default session when DSB launched
@@ -220,11 +224,11 @@ public class Ds3PanelPresenter implements Initializable {
     @SuppressWarnings("unchecked")
     private void initListeners() {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObject(true));
-        ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers));
+        ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
-        ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
+        ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
-        ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers));
+        ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
 
         store.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
@@ -558,14 +562,14 @@ public class Ds3PanelPresenter implements Initializable {
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("canRecursivelyDelete"), Alert.AlertType.ERROR);
             } else {
                 LOG.info("Going to delete the folder");
-                DeleteService.deleteFolder(ds3Common, values);
+                DeleteService.deleteFolder(ds3Common, values, loggingService);
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going to delete the bucket");
-            DeleteService.deleteBucket(ds3Common, values, workers);
+            DeleteService.deleteBucket(ds3Common, values, workers, loggingService);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
             LOG.info("Going to delete the file(s)");
-            DeleteService.deleteFiles(ds3Common, values, workers);
+            DeleteService.deleteFiles(ds3Common, values);
         }
     }
 
@@ -622,13 +626,13 @@ public class Ds3PanelPresenter implements Initializable {
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENS_ICON);
             if (Guard.isStringNullOrEmpty(newValue)) {
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
             }
         });
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                Ds3PanelService.filterChanged(ds3Common, workers);
+                Ds3PanelService.filterChanged(ds3Common, workers, loggingService);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {

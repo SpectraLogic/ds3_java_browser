@@ -7,6 +7,7 @@ import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -27,6 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,13 +51,20 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
     private final int PAGE_LENGTH = 10;
     private final ResourceBundle resourceBundle;
     private final Ds3TreeTableItem ds3TreeTableItem;
+    private final LoggingService loggingService;
 
-    public GetBucketTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList, final String bucket, final
-    Session session, final Ds3TreeTableValue ds3Value, final boolean leaf, final Workers workers, final
-                         Ds3TreeTableItem ds3TreeTableItem, final TreeTableView ds3TreeTable,
-                         final Ds3Common ds3Common) {
+    public GetBucketTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList,
+                         final String bucket,
+                         final Session session,
+                         final Ds3TreeTableValue ds3Value,
+                         final boolean leaf,
+                         final Workers workers,
+                         final Ds3TreeTableItem ds3TreeTableItem,
+                         final TreeTableView ds3TreeTable,
+                         final Ds3Common ds3Common,
+                         final LoggingService loggingService) {
         this.partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
-        resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = ds3Value;
@@ -64,7 +73,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
         this.ds3TreeTableItem = ds3TreeTableItem;
         this.ds3TreeTable = ds3TreeTable;
         this.ds3Common = ds3Common;
-
+        this.loggingService = loggingService;
     }
 
     public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {
@@ -102,11 +111,11 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
             Platform.runLater(() -> {
                 final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues
                         .stream()
-                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common))
+                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, loggingService))
                         .collect(GuavaCollectors.immutableList());
                 final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles
                         .stream()
-                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common))
+                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, loggingService))
                         .filter(distinctByKey(p -> p.getValue().getFullName()))
                         .collect(GuavaCollectors.immutableList());
                 //if selected item is not load more then clear partial result list so that items will not appear twice
@@ -128,7 +137,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                         ds3TreeTable.getSelectionModel().select(ds3TreeTableItem.getParent());
                         ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR
                                 + session.getEndpoint(), ds3TreeTableItem.getParent());
-                        ds3Common.getDeepStorageBrowserPresenter().logText(
+                        loggingService.logMessage(
                                 (partialResults.get().size() - 1) + StringConstants.SPACE + resourceBundle.getString
                                         ("filesAndFolders") + StringConstants.SPACE +
                                         ds3TreeTableItem.getParent().getValue().getType().toString() + StringConstants.SPACE
@@ -146,7 +155,7 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
                     final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue
                             (bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1,
                                     StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING, false,
-                                    hbox, marker), workers, ds3Common);
+                                    hbox, marker), workers, ds3Common, loggingService);
                     partialResults.get().add(addMoreItem);
 
                 }
