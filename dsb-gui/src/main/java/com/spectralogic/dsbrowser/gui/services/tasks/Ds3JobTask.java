@@ -120,7 +120,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
      void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter());
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
             final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();

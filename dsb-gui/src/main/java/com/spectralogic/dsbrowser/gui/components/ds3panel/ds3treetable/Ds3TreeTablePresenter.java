@@ -113,7 +113,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName(), LogType.INFO);
+            loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
             initContextMenu();
             initTreeTableView();
             setTreeTableViewBehaviour();
@@ -418,7 +418,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         if (putJob.getJobId() != null) {
                             try {
                                 session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                             } catch (final IOException e1) {
                                 LOG.error("Failed to cancel job", e1);
                             }

@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
@@ -45,7 +46,7 @@ public class CreateFolderPresenter implements Initializable {
     private ResourceBundle resourceBundle;
 
     @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private LoggingService loggingService;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -83,12 +84,12 @@ public class CreateFolderPresenter implements Initializable {
             final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
                     createFolderModel, folderNameField.textProperty().getValue(),
                     PathUtil.getDs3ObjectList(location, folderNameField.textProperty().getValue()),
-                    deepStorageBrowserPresenter);
+                    loggingService);
             workers.execute(createFolderTask);
             //Handling task actions
             createFolderTask.setOnSucceeded(event -> {
                 this.closeDialog();
-                deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue() + StringConstants.SPACE
+                loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
                         + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
             });
             createFolderTask.setOnCancelled(event -> this.closeDialog());
@@ -98,7 +99,7 @@ public class CreateFolderPresenter implements Initializable {
             });
         } catch (final Exception e) {
             LOG.error("Failed to create folder", e);
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("createFolderErr") + StringConstants.SPACE
+            loggingService.logMessage(resourceBundle.getString("createFolderErr") + StringConstants.SPACE
                     + folderNameField.textProperty().getValue().trim() + StringConstants.SPACE
                     + resourceBundle.getString("txtReason") + StringConstants.SPACE + e, LogType.ERROR);
             Ds3Alert.show(resourceBundle.getString("createFolderErrAlert"), resourceBundle.getString("createFolderErrLogs"), Alert.AlertType.ERROR);

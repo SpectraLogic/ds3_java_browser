@@ -235,7 +235,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final List<? extends Session> newItems = c.getAddedSubList();
                 newItems.forEach(newSession -> {
                     createTabAndSetBehaviour(newSession);
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("starting") + StringConstants.SPACE +
+                    loggingService.logMessage(resourceBundle.getString("starting") + StringConstants.SPACE +
                             newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()
                             + StringConstants.SPACE + resourceBundle.getString("session"), LogType.SUCCESS);
                 });
@@ -372,12 +372,12 @@ public class Ds3PanelPresenter implements Initializable {
                 if (closedTab != null) {
                     final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
-                        CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, LOG, workers, closedSession);
+                        CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, workers, closedSession, loggingService);
                         store.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
                         ds3Common.setSessionOfClosedTab(null);
-                        deepStorageBrowserPresenter.logText(closedSession.getSessionName() +
+                        loggingService.logMessage(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
                     }
@@ -497,8 +497,8 @@ public class Ds3PanelPresenter implements Initializable {
                     if (getJob.getJobId() != null) {
                         try {
                             session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
-                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
-                            deepStorageBrowserPresenter.logText(resourceBundle.getString("getJobCancelled"), LogType
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                            loggingService.logMessage(resourceBundle.getString("getJobCancelled"), LogType
                                     .ERROR);
                         } catch (final Exception e1) {
                             LOG.error("Failed to cancel job", e1);
@@ -509,7 +509,7 @@ public class Ds3PanelPresenter implements Initializable {
 
             } catch (final Exception e) {
                 LOG.error("Failed to get data from black pearl: {}", e);
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
+                loggingService.logMessage(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("somethingWentWrong"), Alert.AlertType.ERROR);
             }
         } else {

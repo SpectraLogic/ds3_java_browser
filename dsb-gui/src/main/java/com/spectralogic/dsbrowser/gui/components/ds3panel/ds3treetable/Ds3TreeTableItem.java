@@ -24,7 +24,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
     private TreeTableView ds3TreeTable;
-    private LoggingService loggingService;
+    private final LoggingService loggingService;
 
     public Ds3TreeTableItem(final String bucket,
                             final Session session,

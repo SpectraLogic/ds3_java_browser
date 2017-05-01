@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -21,7 +22,6 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -41,12 +41,19 @@ public class CloseConfirmationHandler {
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
+    private final LoggingService loggingService;
 
     //running tasks which are not in cache
     public final EventHandler<WindowEvent> confirmCloseEventHandler = this::closeConfirmationAlert;
 
-    public CloseConfirmationHandler(final Stage primaryStage, final SavedSessionStore savedSessionStore,
-                                    final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settings, final JobWorkers jobWorkers, final Workers workers) {
+    public CloseConfirmationHandler(final Stage primaryStage,
+                                    final SavedSessionStore savedSessionStore,
+                                    final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                                    final JobInterruptionStore jobInterruptionStore,
+                                    final SettingsStore settings,
+                                    final JobWorkers jobWorkers,
+                                    final Workers workers,
+                                    final LoggingService loggingService) {
         this.primaryStage = primaryStage;
         this.savedSessionStore = savedSessionStore;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
@@ -55,6 +62,7 @@ public class CloseConfirmationHandler {
         this.jobWorkers = jobWorkers;
         this.workers = workers;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.loggingService = loggingService;
     }
 
     /**
@@ -108,7 +116,7 @@ public class CloseConfirmationHandler {
         saveInterruptionJobs(jobInterruptionStore);
         saveSettings(settings);
         if (!Guard.isNullOrEmpty(jobWorkers.getTasks())) {
-            final Task cancelRunningJobsTask = cancelAllRunningTasks(jobWorkers, workers, jobInterruptionStore);
+            final Task cancelRunningJobsTask = cancelAllRunningTasks(jobWorkers, workers, jobInterruptionStore, loggingService);
             cancelRunningJobsTask.setOnSucceeded(event -> {
                 closeEvent.consume();
                 shutdownWorkers();
@@ -141,9 +149,12 @@ public class CloseConfirmationHandler {
      * @param jobInterruptionStore jobInterruptionStore Object
      * @return task
      */
-    public Task cancelAllRunningTasks(final JobWorkers jobWorkers, final Workers workers, final JobInterruptionStore jobInterruptionStore) {
+    public Task cancelAllRunningTasks(final JobWorkers jobWorkers,
+                                      final Workers workers,
+                                      final JobInterruptionStore jobInterruptionStore,
+                                      final LoggingService loggingService) {
         LOG.info("Cancelling all running jobs");
-        final Task cancelRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore);
+        final Task cancelRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore, loggingService);
         workers.execute(cancelRunningJobsTask);
         return cancelRunningJobsTask;
     }

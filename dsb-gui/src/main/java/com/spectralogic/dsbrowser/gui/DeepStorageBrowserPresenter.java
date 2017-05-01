@@ -120,13 +120,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            loggingService.registerLogListener( (message, logType) -> {
-                if (Platform.isFxApplicationThread()) {
-                    this.logTextForParagraph(message, logType);
-                } else {
-                    Platform.runLater(() -> this.logTextForParagraph(message, logType));
-                }
-            });
+            registerLoggingServiceListener();
 
             initGUIElement(); //Setting up labels from resource file
             LOG.info("Loading Main view");
@@ -157,7 +151,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                         resourceBundle.getString("exitBtnJobCancelConfirm"),
                         resourceBundle.getString("cancelBtnJobCancelConfirm"));
                 if (closeResponse.get().equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common, loggingService);
+                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, loggingService);
                     event.consume();
                 }
                 if (closeResponse.get().equals(ButtonType.CANCEL)) {
@@ -220,7 +214,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
             });
             closeMenuItem.setOnAction(event -> {
-                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers);
+                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers, loggingService);
                 closeConfirmationHandler.closeConfirmationAlert(event);
             });
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);
@@ -232,6 +226,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
             LOG.error("Encountered an error when creating Main view", e);
             logText(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
         }
+    }
+
+    private void registerLoggingServiceListener() {
+        loggingService.registerLogListener( (message, logType) -> {
+            if (Platform.isFxApplicationThread()) {
+                this.logTextForParagraph(message, logType);
+            } else {
+                Platform.runLater(() -> this.logTextForParagraph(message, logType));
+            }
+        });
     }
 
     private void initGUIElement() {

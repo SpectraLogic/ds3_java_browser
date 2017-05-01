@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Response;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -27,13 +28,19 @@ public class Ds3CancelSingleJobTask extends Task {
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
     private final String jobType;
+    private final LoggingService loggingService;
 
-    public Ds3CancelSingleJobTask(final String uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final String jobType) {
+    public Ds3CancelSingleJobTask(final String uuid,
+                                  final EndpointInfo endpointInfo,
+                                  final JobInterruptionStore jobInterruptionStore,
+                                  final String jobType,
+                                  final LoggingService loggingService) {
         this.jobType = jobType;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class Ds3CancelSingleJobTask extends Task {
             endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR);
             fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
         } finally {
-            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
         }
         return null;

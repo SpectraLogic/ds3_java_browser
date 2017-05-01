@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 public class ApplicationLoggerSettings {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ApplicationLoggerSettings.class);
-
+    private static final String DEFAULT_LOG_SETTINGS = "%date %level [%thread] %logger{10} [%file:%line] %msg%n";
     private LogSettings logSettings;
 
     @Inject
@@ -61,7 +61,7 @@ public class ApplicationLoggerSettings {
         fileAppender.setFile(destPath.toString());
 
         final PatternLayoutEncoder layout = new PatternLayoutEncoder();
-        layout.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        layout.setPattern(DEFAULT_LOG_SETTINGS);
         layout.setContext(context);
         layout.start();
 

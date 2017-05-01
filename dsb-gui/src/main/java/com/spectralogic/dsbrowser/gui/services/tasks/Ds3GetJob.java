@@ -149,9 +149,8 @@ public class Ds3GetJob extends Ds3JobTask {
                     updateProgress(totalJobSize, totalJobSize);
                     //Can't assign final.
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                            ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter());
-                    loggingService.logMessage(
-                            StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
+                            ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
+                    loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
                 }
             } else {
                 hostNotAvaialble();

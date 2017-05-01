@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
@@ -17,10 +18,14 @@ public class CancelAllRunningJobsTask extends Task {
 
     private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
+    private final LoggingService loggingService;
 
-    public CancelAllRunningJobsTask(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
+    public CancelAllRunningJobsTask(final JobWorkers jobWorkers,
+                                    final JobInterruptionStore jobInterruptionStore,
+                                    final LoggingService loggingService) {
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -55,7 +60,7 @@ public class CancelAllRunningJobsTask extends Task {
                         LOG.info("Cancelled job:{} " , recoverInterruptedJob.getUuid());
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
-                            .getEndpoint(), null);
+                            .getEndpoint(), null, loggingService);
                     ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
                 } catch (final Exception e1) {
                     LOG.error("Failed to cancel job", e1);

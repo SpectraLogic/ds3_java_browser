@@ -310,15 +310,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 startPutJob(session.getClient(), files, bucket, targetDir,
                         ds3Common.getDeepStorageBrowserPresenter(), priority,
                         jobInterruptionStore, ds3Common, settingsStore, treeItem);
-
-
             } else {
                 LOG.info("No item selected from server side");
             }
 
         } catch (final Exception e) {
-            LOG.error("Failed to transfer data to black pearl", e);
-            loggingService.logMessage("Failed to transfer data to black pearl: " + e, LogType.ERROR);
+            LOG.error("Failed to transfer data to black pearl: ", e);
+            loggingService.logMessage("Failed to transfer data to black pearl.", LogType.ERROR);
         }
     }
 
@@ -424,18 +422,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");
             refresh(fileTreeItem);
-
         });
-        getJob.setOnFailed(e -> {
+        getJob.setOnFailed(event -> {
             LOG.error("Get Job failed");
             refresh(fileTreeItem);
-
         });
-        getJob.setOnCancelled(e -> {
+        getJob.setOnCancelled(cancelEvent -> {
             LOG.info("Get Job cancelled");
             try {
                 //Cancellation of a job started
-                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(getJob.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString());
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(getJob.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
                 workers.execute(ds3CancelSingleJobTask);
                 ds3CancelSingleJobTask.setOnFailed(event -> LOG.error("Failed to cancel job"));
                 ds3CancelSingleJobTask.setOnSucceeded(event -> {
@@ -443,37 +439,44 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     refresh(fileTreeItem);
                 });
 
-            } catch (final Exception e1) {
-                LOG.error("Failed to cancel job", e1);
-                loggingService.logMessage(" Failed to cancel job. ", LogType.ERROR);
+            } catch (final Exception e) {
+                LOG.error("Failed to cancel job: ", e);
+                loggingService.logMessage("Failed to cancel job.", LogType.ERROR);
             }
         });
     }
 
-    private void startPutJob(final Ds3Client client, final List<File> files, final String bucket, final String targetDir, final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+    private void startPutJob(final Ds3Client client,
+                             final List<File> files,
+                             final String bucket,
+                             final String targetDir,
+                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                              final String priority,
-                             final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common, final SettingsStore settingsStore, final TreeItem<Ds3TreeTableValue> treeItem) {
+                             final JobInterruptionStore jobInterruptionStore,
+                             final Ds3Common ds3Common,
+                             final SettingsStore settingsStore,
+                             final TreeItem<Ds3TreeTableValue> treeItem) {
         final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("Succeed");
             refreshBlackPearlSideItem(treeItem);
         });
-        putJob.setOnFailed(e -> {
+        putJob.setOnFailed(failEvent -> {
             LOG.error("Get Job failed");
             refreshBlackPearlSideItem(treeItem);
         });
-        putJob.setOnCancelled(e -> {
+        putJob.setOnCancelled(cancelEvent -> {
             LOG.info("Get Job cancelled");
             try {
                 if (putJob.getJobId() != null) {
                     client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
                     loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                     refreshBlackPearlSideItem(treeItem);
                 }
-            } catch (final IOException e1) {
-                LOG.error("Failed to cancel job", e1);
+            } catch (final IOException e) {
+                LOG.error("Failed to cancel job", e);
             }
         });
 

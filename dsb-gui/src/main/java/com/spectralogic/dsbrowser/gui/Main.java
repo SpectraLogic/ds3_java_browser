@@ -75,7 +75,7 @@ public class Main extends Application {
         }
         primaryStage.setTitle(resourceBundle.getString("title"));
         primaryStage.show();
-        final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(primaryStage, savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settings, jobWorkers, workers);
+        final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(primaryStage, savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settings, jobWorkers, workers, loggingService);
         primaryStage.setOnCloseRequest(closeConfirmationHandler.confirmCloseEventHandler);
     }
 }

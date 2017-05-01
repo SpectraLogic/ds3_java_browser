@@ -100,12 +100,11 @@ public class CreateBucketPresenter implements Initializable {
                 final CreateBucketModel dataPolicy = first.get();
 
                 final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
-                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(),
-                        deepStorageBrowserPresenter);
+                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(), loggingService);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
                     LOG.info("Bucket is created");
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
+                    loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
                         RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
@@ -117,14 +116,14 @@ public class CreateBucketPresenter implements Initializable {
                 });
             } else {
                 LOG.info("Data policy not found");
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
+                loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
                 Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("dataPolicyNotFoundErr"), Alert.AlertType.ERROR);
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
             Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
         }
     }

@@ -61,7 +61,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 });
                 recoverInterruptedJob.setOnCancelled(event -> {
                     if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"));
+                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"), loggingService);
                         workers.execute(ds3CancelSingleJobTask);
                         ds3CancelSingleJobTask.setOnSucceeded(eventCancel -> {
                                     LOG.info("Cancellation of recovered job success");
@@ -85,7 +85,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         cancelButton.setOnAction(t -> {
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
-                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"));
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"), loggingService);
                 workers.execute(ds3CancelSingleJobTask);
                 ds3CancelSingleJobTask.setOnSucceeded(event -> {
                             LOG.info("Cancellation of interrupted job failed");
