@@ -22,6 +22,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import io.reactivex.Observable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -229,13 +230,15 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     private void registerLoggingServiceListener() {
-        loggingService.registerLogListener( (message, logType) -> {
+        LOG.info("Registering loggingService observable");
+        final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
+        observable.doOnNext( logEvent -> {
             if (Platform.isFxApplicationThread()) {
-                this.logTextForParagraph(message, logType);
+                this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
             } else {
-                Platform.runLater(() -> this.logTextForParagraph(message, logType));
+                Platform.runLater(() -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()));
             }
-        });
+        }).subscribe();
     }
 
     private void initGUIElement() {
