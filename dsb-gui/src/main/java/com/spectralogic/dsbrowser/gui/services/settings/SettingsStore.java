@@ -1,4 +1,20 @@
+/*
+ * ****************************************************************************
+ *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ *  ****************************************************************************
+ */
+
 package com.spectralogic.dsbrowser.gui.services.settings;
+
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -48,7 +64,6 @@ public class SettingsStore {
         this.processSettings = processSettings;
         this.filePropertiesSettings = filePropertiesSettings;
         this.showCachedJobSettings = showCachedJobSettings;
-
     }
 
     /**
@@ -59,6 +74,7 @@ public class SettingsStore {
      */
     public static SettingsStore loadSettingsStore() throws IOException {
         // Do not log when loading the settings store since the logger has not been configured
+
         if (Files.exists(PATH)) {
             writeNewSettingsToSettingsJsonFile();
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
@@ -75,13 +91,14 @@ public class SettingsStore {
     /**
      * Create default settings.
      *
-     * @return Default setting store
+     * @return Default setting store, with dirty flag set to persist
      */
-    private static SettingsStore createDefaultSettingStore() {
+    public static SettingsStore createDefaultSettingStore() {
         LOG.info("Creating new empty saved setting store");
         final SettingsStore settingsStore = new SettingsStore(LogSettings.DEFAULT,
-                ProcessSettings.DEFAULT, FilePropertiesSettings.DEFAULT,
-                ShowCachedJobSettings.DEFAULT);
+                                                              ProcessSettings.DEFAULT,
+                                                              FilePropertiesSettings.DEFAULT,
+                                                              ShowCachedJobSettings.DEFAULT);
         // set this to true so we will write the settings after the first run
         settingsStore.dirty = true;
         return settingsStore;
@@ -99,8 +116,7 @@ public class SettingsStore {
             if (!Files.exists(PATH.getParent())) {
                 Files.createDirectories(PATH.getParent());
             }
-            try (final OutputStream outputStream = Files.newOutputStream(PATH,
-                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+            try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
                 JsonMapping.toJson(outputStream, settingsStore);
             }
         }

@@ -64,7 +64,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return ds3Common;
     }
 
-     AtomicLong addDataTransferListener(final long totalJobSize) {
+    AtomicLong addDataTransferListener(final long totalJobSize) {
         final AtomicLong totalSent = new AtomicLong(0L);
         job.attachDataTransferredListener(l -> {
             updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
@@ -73,7 +73,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return totalSent;
     }
 
-     void addWaitingForChunkListener(final long totalJobSize, final String targetDir) {
+    void addWaitingForChunkListener(final long totalJobSize, final String targetDir) {
         job.attachWaitingForChunksListener(retryAfterSeconds -> {
             for (int retryTimeRemaining = retryAfterSeconds; retryTimeRemaining >= 0; retryTimeRemaining--) {
                 try {
@@ -86,7 +86,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
             updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDir).toString());
         });
     }
-     void getTransferRates(final Instant jobStartInstant, final AtomicLong totalSent, final long totalJobSize, final String sourceLocation, final String targetLocation) {
+
+    void getTransferRates(final Instant jobStartInstant, final AtomicLong totalSent, final long totalJobSize, final String sourceLocation, final String targetLocation) {
         final Instant currentTime = Instant.now();
         final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
         long transferRate = 0;
@@ -103,23 +104,22 @@ public abstract class Ds3JobTask extends Task<Boolean> {
             updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent,
                     totalJobSize, sourceLocation, targetLocation).toString());
         }
-        updateProgress(totalSent.get() / 2 , totalJobSize);
 
+        updateProgress(totalSent.get() / 2 , totalJobSize);
     }
 
-     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
-            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), jobId);
-            final Session session = ds3Common.getCurrentSession();
-            if (session != null) {
-                final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
-                if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
-                    ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, ds3Common.getDeepStorageBrowserPresenter());
-                }
-
+    void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), jobId);
+        final Session session = ds3Common.getCurrentSession();
+        if (session != null) {
+            final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
+            if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, ds3Common.getDeepStorageBrowserPresenter());
+            }
         }
     }
 
-     void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
+    void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
@@ -127,7 +127,6 @@ public abstract class Ds3JobTask extends Task<Boolean> {
             if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, ds3Common.getDeepStorageBrowserPresenter());
             }
-
         }
     }
 
@@ -135,11 +134,11 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return isJobFailed;
     }
 
-     void hostNotAvaialble() {
-         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
-         BackgroundTask.dumpTheStack(msg);
-         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-         Ds3Alert.show(resourceBundle.getString("unavailableNetwork"), msg, Alert.AlertType.INFORMATION);
+    void hostNotAvaialble() {
+        final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
+        BackgroundTask.dumpTheStack(msg);
+        loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
+        Ds3Alert.show(resourceBundle.getString("unavailableNetwork"), msg, Alert.AlertType.INFORMATION);
     }
-
 }
+

@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Path
+
 buildscript {
     repositories {
         jcenter()
@@ -16,6 +19,7 @@ dependencies {
     compile project(":dsb-api")
     compile project(":dsb-local")
     compile project(":dsb-util")
+    compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.0.5'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
 }
 
@@ -25,3 +29,18 @@ shadowJar {
         exclude 'junit:junit:4.12'
     }
 }
+
+task genConfigProperties {
+    doLast {
+        Path configPath = sourceSets.main.output.resourcesDir.toPath()
+        Files.createDirectories(configPath)
+
+        File configFile = new File(sourceSets.main.output.resourcesDir, "/ds3_cli.properties")
+        configFile.withWriter{out ->
+            out.writeLine("version="+version)
+            out.writeLine("build.date="+new Date().toString())
+        }
+    }
+}
+
+classes.dependsOn genConfigProperties
