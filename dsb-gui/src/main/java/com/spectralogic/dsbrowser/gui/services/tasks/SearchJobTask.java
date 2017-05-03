@@ -71,7 +71,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             return list;
         } catch (final Exception e) {
             LOG.error("Search failed", e);
-            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
+            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
             return null;
         }
     }

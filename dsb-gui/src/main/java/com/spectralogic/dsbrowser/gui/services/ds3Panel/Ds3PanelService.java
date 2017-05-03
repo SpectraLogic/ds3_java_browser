@@ -218,7 +218,7 @@ public final class Ds3PanelService {
                             }
                         } catch (final Exception e) {
                             LOG.error("Search failed", e);
-                            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
+                            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
                         }
                     });
                 });
