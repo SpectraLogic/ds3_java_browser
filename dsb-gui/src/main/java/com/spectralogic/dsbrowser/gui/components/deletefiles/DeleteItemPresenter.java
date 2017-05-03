@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -10,7 +12,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,6 +52,9 @@ public class DeleteItemPresenter implements Initializable {
 
     @Inject
     private ResourceBundle resourceBundle;
+
+    @Inject
+    private LoggingService loggingService;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -95,7 +99,7 @@ public class DeleteItemPresenter implements Initializable {
             if (valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                 deleteLabel.setText(resourceBundle.getString("deleteFiles"));
                 deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFileInfo"));
-            } else if (null != valueTreeItem && valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
+            } else if (valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Directory)) {
                 deleteLabel.setText(resourceBundle.getString("deleteFolder"));
                 deleteConfirmationInfoLabel.setText(resourceBundle.getString("deleteFolderInfo"));
             } else {
@@ -110,8 +114,11 @@ public class DeleteItemPresenter implements Initializable {
         deleteTask.setOnCancelled(event -> constructMessageForLog());
         deleteTask.setOnFailed(event -> constructMessageForLog());
         deleteTask.setOnSucceeded(event -> {
-            DeleteService.managePathIndicator(ds3Common, workers);
-            printLog(LogType.SUCCESS, resourceBundle.getString("deleteSuccess"), null);
+            loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
+            LOG.info("Success to delete selected item(s):{} ", LogType.SUCCESS);
+
+            DeleteService.managePathIndicator(ds3Common, workers, loggingService);
+            closeDialog();
         });
         workers.execute(deleteTask);
     }
@@ -144,17 +151,10 @@ public class DeleteItemPresenter implements Initializable {
                     + ((Ds3DeleteFilesTask) deleteTask).getErrorMsg();
         }
 
-        printLog(LogType.ERROR, message, alertMessage);
+        loggingService.logMessage(message, LogType.ERROR);
+        closeDialog();
+        LOG.error("Failed to delete selected item(s) ", message);
+        Ds3Alert.show(null, alertMessage, Alert.AlertType.INFORMATION);
     }
 
-    private void printLog(final LogType type, final String message, final String alertMessage) {
-        ds3Common.getDeepStorageBrowserPresenter().logText(message, type);
-        closeDialog();
-        if (type.equals(LogType.ERROR)) {
-            LOG.error("Failed to delete selected item(s) ", message);
-            Ds3Alert.show(null, alertMessage, Alert.AlertType.INFORMATION);
-        } else {
-            LOG.error("Success to delete selected item(s):{} ", message);
-        }
-    }
 }

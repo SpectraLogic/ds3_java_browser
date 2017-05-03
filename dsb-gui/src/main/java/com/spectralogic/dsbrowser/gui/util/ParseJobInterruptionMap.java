@@ -3,6 +3,8 @@ package com.spectralogic.dsbrowser.gui.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -63,7 +65,8 @@ public final class ParseJobInterruptionMap {
 
     public static Map<String, FilesAndFolderMap> removeJobID(final JobInterruptionStore jobInterruptionStore,
                                                              final String uuid, final String endpoint,
-                                                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+                                                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                                             final LoggingService loggingService) {
         final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
         if (!Guard.isNullOrEmpty(completeArrayList)
                 && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
@@ -71,9 +74,7 @@ public final class ParseJobInterruptionMap {
                 removeJobIdFromFile(jobInterruptionStore, uuid, endpoint);
             } catch (final Exception e) {
                 LOG.error("Encountered an exception when trying to remove a job", e);
-                if (deepStorageBrowserPresenter != null) {
-                    deepStorageBrowserPresenter.logText("Failed to remove job id " + e, LogType.ERROR);
-                }
+                loggingService.logMessage("Failed to remove job id: " + e, LogType.ERROR);
             }
         }
         if (deepStorageBrowserPresenter != null && jobInterruptionStore.getJobIdsModel().getEndpoints() != null) {

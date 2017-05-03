@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
@@ -35,8 +37,10 @@ public final class DeleteService {
      * @param ds3Common ds3Common object
      * @param values    list of objects to be deleted
      */
-    public static void deleteBucket(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
-                                    final Workers workers) {
+    public static void deleteBucket(final Ds3Common ds3Common,
+                                    final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
+                                    final Workers workers,
+                                    final LoggingService loggingService) {
         LOG.info("Got delete bucket event");
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
@@ -45,7 +49,7 @@ public final class DeleteService {
         if (currentSession != null) {
             final ImmutableList<String> buckets = getBuckets(values);
             if (buckets.size() > 1) {
-                ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
+                loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
@@ -56,14 +60,14 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     Platform.runLater(() -> {
-                        ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
+                        loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
                         Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteBucket"), Alert.AlertType.INFORMATION);
                     });
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
                     DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
                     ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                     ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                     ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
                 }
@@ -77,7 +81,9 @@ public final class DeleteService {
      * @param ds3Common ds3Common object
      * @param values    list of objects to be deleted
      */
-    public static void deleteFolder(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public static void deleteFolder(final Ds3Common ds3Common,
+                                    final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
+                                    final LoggingService loggingService) {
         LOG.info("Got delete folder event");
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
@@ -87,7 +93,7 @@ public final class DeleteService {
             final ImmutableList<String> buckets = getBuckets(values);
 
             if (buckets.size() > 1) {
-                ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
+                loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multiBucketNotAllowed"), Alert.AlertType.INFORMATION);
                 return;
@@ -112,8 +118,7 @@ public final class DeleteService {
      * @param ds3Common ds3Common object
      * @param values    list of objects to be deleted
      */
-    public static void deleteFiles(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
-                                   final Workers workers) {
+    public static void deleteFiles(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         LOG.info("Got delete file(s) event");
 
         final ImmutableList<String> buckets = getBuckets(values);
@@ -129,10 +134,11 @@ public final class DeleteService {
                 ds3Common.getCurrentSession().getClient(), buckets, bucketObjectsMap);
 
         DeleteFilesPopup.show(ds3DeleteFilesTask, ds3Common);
-        // values.forEach(file -> Ds3PanelService.refresh(file.getParent()));
     }
 
-    public static void managePathIndicator(final Ds3Common ds3Common, final Workers workers) {
+    public static void managePathIndicator(final Ds3Common ds3Common,
+                                           final Workers workers,
+                                           final LoggingService loggingService) {
         Platform.runLater(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
@@ -158,7 +164,7 @@ public final class DeleteService {
                     LOG.error("No Item found", e);
                 }
                 ds3TreeTable.getSelectionModel().clearSelection();
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
             }
         });
     }

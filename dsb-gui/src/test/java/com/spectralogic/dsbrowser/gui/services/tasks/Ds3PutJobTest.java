@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
@@ -73,7 +74,7 @@ public class Ds3PutJobTest {
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore);
+                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
                 taskProgressView.getTasks().add(ds3PutJob);
             } catch (final Exception io) {
                 io.printStackTrace();

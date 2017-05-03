@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
@@ -18,14 +19,17 @@ public class CancelAllTaskBySession extends Task {
     private final static Logger LOG = LoggerFactory.getLogger(CancelAllTaskBySession.class);
     final ImmutableList<Ds3JobTask> tasks;
     final Session session;
-    final JobInterruptionStore jobInterruptionStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final LoggingService loggingService;
 
-    public CancelAllTaskBySession(final ImmutableList<Ds3JobTask> tasks, final Session session, final
-    JobInterruptionStore jobInterruptionStore) {
+    public CancelAllTaskBySession(final ImmutableList<Ds3JobTask> tasks,
+                                  final Session session,
+                                  final JobInterruptionStore jobInterruptionStore,
+                                  final LoggingService loggingService) {
         this.tasks = tasks;
         this.session = session;
         this.jobInterruptionStore = jobInterruptionStore;
-
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class CancelAllTaskBySession extends Task {
                     }
                 }
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
-                        .getEndpoint(), null);
+                        .getEndpoint(), null, loggingService);
                 ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
             } catch (final Exception e) {
                 LOG.error("Failed to cancel job", e);

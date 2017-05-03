@@ -6,7 +6,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Respons
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;

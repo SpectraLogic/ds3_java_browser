@@ -1,10 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
@@ -45,6 +46,9 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+    @Inject
+    private LoggingService loggingService;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         initGUIElement();
@@ -61,11 +65,14 @@ public class ModifyJobPriorityPresenter implements Initializable {
                         newPriority);
                 worker.execute(modifyJobPriorityTask);
 
-                modifyJobPriorityTask.setOnSucceeded(event -> printLog(LogType.INFO, StringConstants.EMPTY_STRING));
-                modifyJobPriorityTask.setOnFailed(event -> printLog(LogType.ERROR, StringConstants.EMPTY_STRING));
+                modifyJobPriorityTask.setOnSucceeded(event -> loggingService.logMessage(
+                    resourceBundle.getString("priorityModified"), LogType.INFO));
+                modifyJobPriorityTask.setOnFailed(event -> loggingService.logMessage(
+                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR));
             } catch (final Exception e) {
                 LOG.error("Failed to modify the job: {}", e);
-                printLog(LogType.ERROR, e.getMessage());
+                loggingService.logMessage(
+                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
             }
             closeModifyJobPriorityPopup();
         }
@@ -85,13 +92,4 @@ public class ModifyJobPriorityPresenter implements Initializable {
         modifyJobPriorityComboBox.getSelectionModel().select(Priority.valueOf(value.getCurrentPriority()));
     }
 
-    private void printLog(final LogType type, final String errMsg) {
-        if (type.equals(LogType.ERROR)) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("failedToModifyPriority") + errMsg, LogType.ERROR);
-        } else {
-            ds3Common.getDeepStorageBrowserPresenter().logText(
-                    resourceBundle.getString("priorityModified"), LogType.INFO);
-        }
-    }
 }

@@ -3,6 +3,8 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
@@ -97,6 +99,9 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Inject
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
+    @Inject
+    private LoggingService loggingService;
+
     private ContextMenu contextMenu;
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
@@ -108,7 +113,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            deepStorageBrowserPresenter.logText("Loading Session " + session.getSessionName(), LogType.INFO);
+            loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
             initContextMenu();
             initTreeTableView();
             setTreeTableViewBehaviour();
@@ -148,10 +153,10 @@ public class Ds3TreeTablePresenter implements Initializable {
         metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers));
+        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common));
+        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
@@ -209,7 +214,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         });
 
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common);
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
         workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
@@ -388,7 +393,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                     final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore);
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");
@@ -406,14 +411,14 @@ public class Ds3TreeTablePresenter implements Initializable {
                         Ds3PanelService.refresh(selectedItem);
                         ds3TreeTable.getSelectionModel().clearSelection();
                         ds3TreeTable.getSelectionModel().select(selectedItem);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                     });
                     putJob.setOnCancelled(e -> {
                         LOG.info("setOnCancelled");
                         if (putJob.getJobId() != null) {
                             try {
                                 session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter);
+                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                             } catch (final IOException e1) {
                                 LOG.error("Failed to cancel job", e1);
                             }
@@ -595,7 +600,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) modifiedTreeItem;
-            ds3TreeTableItem.loadMore(ds3TreeTable, deepStorageBrowserPresenter);
+            ds3TreeTableItem.loadMore(ds3TreeTable);
         }
     }
 

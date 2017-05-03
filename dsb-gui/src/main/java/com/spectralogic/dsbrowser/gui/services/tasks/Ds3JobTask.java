@@ -2,13 +2,14 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import org.slf4j.Logger;
@@ -28,15 +29,14 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
 
+    protected final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     protected Ds3Client ds3Client;
-
     protected Ds3Common ds3Common;
-
+    protected LoggingService loggingService;
     protected Ds3ClientHelpers.Job job = null;
 
     boolean isJobFailed = false;
 
-    protected final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     @Override
     protected final Boolean call() throws Exception {
         LOG.info("Starting DS3 Job");
@@ -86,7 +86,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
             updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDir).toString());
         });
     }
-     void getTransferRates(final Instant jobStartInstant , final AtomicLong totalSent,final long totalJobSize,final String sourceLocation,final String targetLocation) {
+     void getTransferRates(final Instant jobStartInstant, final AtomicLong totalSent, final long totalJobSize, final String sourceLocation, final String targetLocation) {
         final Instant currentTime = Instant.now();
         final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
         long transferRate = 0;
@@ -107,7 +107,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     }
 
-     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore ,final UUID jobId) {
+     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), jobId);
             final Session session = ds3Common.getCurrentSession();
             if (session != null) {
@@ -119,8 +119,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         }
     }
 
-     void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore ,final UUID jobId) {
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter());
+     void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
             final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
@@ -136,13 +136,10 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
      void hostNotAvaialble() {
-        final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
-        BackgroundTask.dumpTheStack(msg);
-        Platform.runLater(() -> {
-            ds3Common.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-            Ds3Alert.show(resourceBundle.getString("unavailableNetwork"), msg, Alert.AlertType.INFORMATION);
-        });
-
+         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
+         BackgroundTask.dumpTheStack(msg);
+         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
+         Ds3Alert.show(resourceBundle.getString("unavailableNetwork"), msg, Alert.AlertType.INFORMATION);
     }
 
 }

@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.Main;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -69,6 +71,9 @@ public class JobInfoPresenter implements Initializable {
     @Inject
     private ResourceBundle resourceBundle;
 
+    @Inject
+    private LoggingService loggingService;
+
     private Stage stage;
 
     @Override
@@ -113,7 +118,7 @@ public class JobInfoPresenter implements Initializable {
                     } catch (final IOException e) {
                         LOG.error("Unable to cancel job ", e);
                     } finally {
-                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
+                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                     }
                 });
@@ -146,7 +151,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore, loggingService));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -205,24 +210,24 @@ public class JobInfoPresenter implements Initializable {
                         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                         recoverInterruptedJob.setOnSucceeded(event -> {
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                         });
                         recoverInterruptedJob.setOnFailed(event -> {
                             endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                         });
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
                                 endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                                 endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS);
-                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                             } catch (final IOException e) {
                                 endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR);
                             } finally {
-                                final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter());
+                                final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
                                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, endpointInfo.getDeepStorageBrowserPresenter());
-                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                             }
                         });
                     } catch (final Exception e) {

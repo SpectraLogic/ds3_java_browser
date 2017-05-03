@@ -1,7 +1,8 @@
 package com.spectralogic.dsbrowser.gui;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
@@ -21,6 +22,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import io.reactivex.Observable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -111,11 +113,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     private Workers workers;
 
+    @Inject
+    private LoggingService loggingService;
+
     private DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            registerLoggingServiceListener();
+
             initGUIElement(); //Setting up labels from resource file
             LOG.info("Loading Main view");
             logText(resourceBundle.getString("loadMainView"), LogType.INFO);
@@ -145,7 +152,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                         resourceBundle.getString("exitBtnJobCancelConfirm"),
                         resourceBundle.getString("cancelBtnJobCancelConfirm"));
                 if (closeResponse.get().equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, LOG, workers, ds3Common);
+                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, loggingService);
                     event.consume();
                 }
                 if (closeResponse.get().equals(ButtonType.CANCEL)) {
@@ -208,7 +215,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
             });
             closeMenuItem.setOnAction(event -> {
-                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers);
+                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers, loggingService);
                 closeConfirmationHandler.closeConfirmationAlert(event);
             });
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);
@@ -220,6 +227,18 @@ public class DeepStorageBrowserPresenter implements Initializable {
             LOG.error("Encountered an error when creating Main view", e);
             logText(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
         }
+    }
+
+    private void registerLoggingServiceListener() {
+        LOG.info("Registering loggingService observable");
+        final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
+        observable.doOnNext( logEvent -> {
+            if (Platform.isFxApplicationThread()) {
+                this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
+            } else {
+                Platform.runLater(() -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()));
+            }
+        }).subscribe();
     }
 
     private void initGUIElement() {
@@ -296,25 +315,38 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void logText(final String log, final LogType type) {
-        Platform.runLater(() -> {
-            if (inlineCssTextArea != null) {
-                final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
-                inlineCssTextArea.appendText(formattedString(log));
-                final int size = inlineCssTextArea.getParagraphs().size() - 2;
-                for (int i = previousSize + 1; i <= size; i++)
-                    switch (type) {
-                        case SUCCESS:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: GREEN;");
-                            break;
-                        case ERROR:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: RED;");
-                            break;
-                        default:
-                            inlineCssTextArea.setStyle(size, "-fx-fill: BLACK;");
-                    }
-                scrollPane.setVvalue(1.0);
-            }
-        });
+        if (inlineCssTextArea != null) {
+            inlineCssTextArea.appendText(formattedString(log));
+            final int size = inlineCssTextArea.getParagraphs().size() - 2;
+
+            setStyleForLogMessage(type, size);
+            scrollPane.setVvalue(1.0);
+        }
+    }
+
+    //set the same color for all the lines of string log separated by \n
+    public void logTextForParagraph(final String log, final LogType type) {
+        final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
+        inlineCssTextArea.appendText(formattedString(log));
+        final int size = inlineCssTextArea.getParagraphs().size() - 2;
+
+        for (int i = previousSize + 1; i <= size; i++) {
+            setStyleForLogMessage(type, i);
+        }
+        scrollPane.setVvalue(1.0);
+    }
+
+    private void setStyleForLogMessage(final LogType type, final int i) {
+        switch (type) {
+            case SUCCESS:
+                inlineCssTextArea.setStyle(i, "-fx-fill: GREEN;");
+                break;
+            case ERROR:
+                inlineCssTextArea.setStyle(i, "-fx-fill: RED;");
+                break;
+            default:
+                inlineCssTextArea.setStyle(i, "-fx-fill: BLACK;");
+        }
     }
 
     private String formattedString(final String log) {

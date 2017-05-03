@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -12,10 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ResourceBundle;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -27,10 +24,14 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
     private TreeTableView ds3TreeTable;
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final LoggingService loggingService;
 
-    public Ds3TreeTableItem(final String bucket, final Session session, final Ds3TreeTableValue value, final Workers
-            workers, final Ds3Common ds3Common) {
+    public Ds3TreeTableItem(final String bucket,
+                            final Session session,
+                            final Ds3TreeTableValue value,
+                            final Workers workers,
+                            final Ds3Common ds3Common,
+                            final LoggingService loggingService) {
         super(value);
         this.bucket = bucket;
         this.session = session;
@@ -39,6 +40,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
+        this.loggingService = loggingService;
     }
 
     public boolean isAccessedChildren() {
@@ -88,14 +90,9 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     /**
      * @param ds3TreeTable                used to clear all selection in case of load moreused to save bucket selection
-     * @param deepStorageBrowserPresenter use to log no of files loaded
-     *                                    called from click to add more button
-     *                                    get the list of parent children and call buildChilren method to add items in the list
      */
-    public void loadMore(final TreeTableView ds3TreeTable, final DeepStorageBrowserPresenter
-            deepStorageBrowserPresenter) {
+    public void loadMore(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
-        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getParent().getChildren();
         buildChildren(list);
     }
@@ -117,7 +114,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         processImage.setFitWidth(20);
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, leaf, workers,
-                this, ds3TreeTable, ds3Common);
+                this, ds3TreeTable, ds3Common, loggingService);
         workers.execute(getBucketTask);
         getBucketTask.setOnSucceeded(event -> {
             super.setGraphic(previousGraphics);

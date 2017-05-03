@@ -14,12 +14,13 @@ import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +45,10 @@ public class Ds3PutJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settings;
+    private final LoggingService loggingService;
     private UUID jobId;
 
-    public Ds3PutJob(final Ds3Client ds3Client, final List<File> files, final String bucket, final String targetDir, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobIdsModel, final Ds3Common ds3Common, final SettingsStore settings) {
+    public Ds3PutJob(final Ds3Client ds3Client, final List<File> files, final String bucket, final String targetDir, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobIdsModel, final Ds3Common ds3Common, final SettingsStore settings, final LoggingService loggingService) {
         this.ds3Client = ds3Client;
         this.files = files;
         this.bucket = bucket;
@@ -56,7 +58,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.jobInterruptionStore = jobIdsModel;
         this.ds3Common = ds3Common;
         this.settings = settings;
-
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -69,7 +71,7 @@ public class Ds3PutJob extends Ds3JobTask {
             if (CheckNetwork.isReachable(ds3Client)) {
                 final String startJobDate = DateFormat.formatDate(new Date());
                 updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
-                ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString(), LogType.INFO);
+                loggingService.logMessage(StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString(), LogType.INFO);
                 updateMessage(resourceBundle.getString("transferring") + "..");
 
                 final ImmutableList<Path> directories = getDirectoriesOrFiles(false);
@@ -121,12 +123,11 @@ public class Ds3PutJob extends Ds3JobTask {
                             + StringConstants.FORWARD_SLASH + targetDir);
 
                     final int finalIndex = index;
-                    ds3Common.getDeepStorageBrowserPresenter().logText(
+                    loggingService.logMessage(
                             StringBuilderUtil.objectSuccessfullyTransferredString(
                                     obj.substring(finalIndex, obj.length()), bucket
                                             + StringConstants.FORWARD_SLASH + targetDir, newDate,
                                     resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS);
-
                 });
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
@@ -139,7 +140,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
 
                 waitForPermanentStorageTransfer(totalJobSize);
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter());
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
             } else {
                 hostNotAvaialble();
             }
@@ -148,17 +149,18 @@ public class Ds3PutJob extends Ds3JobTask {
             LOG.error("Encountered an error on a put job", rte);
             isJobFailed = true;
             removeJobIdAndUpdateJobsBtn(jobInterruptionStore, jobId);
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), rte).toString(), LogType.ERROR);
+            loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), rte).toString(), LogType.ERROR);
 
         } catch (final InterruptedException ie) {
             isJobFailed = true;
             LOG.error("Encountered an error on a put job: {}", ie);
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString()
+            loggingService.logMessage(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString()
                     , LogType.ERROR);
         } catch (final Exception e) {
             isJobFailed = true;
             LOG.error("Encountered an error on a put job: {}", e);
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), e).toString(), LogType.ERROR);
+
+            loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), e).toString(), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, jobId);
         }
     }
@@ -269,7 +271,7 @@ public class Ds3PutJob extends Ds3JobTask {
             updateProgress(totalJobSize, totalJobSize);
             updateMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString());
             updateProgress(totalJobSize, totalJobSize);
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString(), LogType.SUCCESS);
+            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString(), LogType.SUCCESS);
             GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
             while (!response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
                 Thread.sleep(60000);
@@ -277,11 +279,11 @@ public class Ds3PutJob extends Ds3JobTask {
             }
             LOG.info("Job transfered to permanent storage location");
             final String newDate = DateFormat.formatDate(new Date());
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate, resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
+            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate, resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
         } else {
             updateProgress(totalJobSize, totalJobSize);
             updateMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), false).toString());
-            ds3Common.getDeepStorageBrowserPresenter().logText(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), false).toString(), LogType.SUCCESS);
+            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), false).toString(), LogType.SUCCESS);
         }
     }
 

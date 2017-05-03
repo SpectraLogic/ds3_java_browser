@@ -1,12 +1,13 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.LogType;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -56,6 +57,9 @@ public class CreateBucketPresenter implements Initializable {
     @Inject
     private Ds3Common ds3Common;
 
+    @Inject
+    private LoggingService loggingService;
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         LOG.info("Initializing Create Bucket form");
@@ -96,29 +100,30 @@ public class CreateBucketPresenter implements Initializable {
                 final CreateBucketModel dataPolicy = first.get();
 
                 final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
-                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(),
-                        deepStorageBrowserPresenter);
+                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(), loggingService);
                 workers.execute(createBucketTask);
-                createBucketTask.setOnSucceeded(event -> Platform.runLater(() -> {
+                createBucketTask.setOnSucceeded(event -> {
                     LOG.info("Bucket is created");
-                    deepStorageBrowserPresenter.logText(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
-                    ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers);
-                    closeDialog();
-                }));
+                    loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
+                    Platform.runLater(() -> {
+                        ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        closeDialog();
+                    });
+                });
                 createBucketTask.setOnFailed(event -> {
                     Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
                 });
             } else {
                 LOG.info("Data policy not found");
-                deepStorageBrowserPresenter.logText(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
+                loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
                 Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("dataPolicyNotFoundErr"), Alert.AlertType.ERROR);
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
-            deepStorageBrowserPresenter.logText(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
             Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
         }
     }

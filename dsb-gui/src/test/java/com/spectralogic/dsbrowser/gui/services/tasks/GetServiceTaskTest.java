@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
@@ -45,7 +46,7 @@ public class GetServiceTaskTest {
             try {
                 final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
                 final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                        Mockito.mock(Ds3Common.class));
+                        Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(getServiceTask);
                 getServiceTask.setOnSucceeded(event -> {
                     successFlag=true;

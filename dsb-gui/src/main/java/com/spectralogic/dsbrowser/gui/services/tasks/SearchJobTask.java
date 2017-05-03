@@ -7,6 +7,8 @@ import com.spectralogic.ds3client.models.BulkObject;
 import com.spectralogic.ds3client.models.DetailedS3Object;
 import com.spectralogic.ds3client.models.S3ObjectType;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -28,14 +30,20 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     private final Session session;
     private final Workers workers;
     private final Ds3Common ds3Common;
+    private final LoggingService loggingService;
 
-    public SearchJobTask(final List<Bucket> searchableBuckets, final String searchText, final Session session,
-                         final Workers workers, final Ds3Common ds3Common) {
+    public SearchJobTask(final List<Bucket> searchableBuckets,
+                         final String searchText,
+                         final Session session,
+                         final Workers workers,
+                         final Ds3Common ds3Common,
+                         final LoggingService loggingService) {
         this.searchableBuckets = searchableBuckets;
         this.searchText = searchText.trim();
         this.session = session;
         this.workers = workers;
         this.ds3Common = ds3Common;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -44,17 +52,17 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             final List<Ds3TreeTableItem> list = new ArrayList<>();
             searchableBuckets.forEach(bucket -> {
                 if (bucket.getName().contains(searchText)) {
-                    printLog(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucket.getName()).toString(), LogType.SUCCESS);
+                    loggingService.logMessage(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucket.getName()).toString(), LogType.SUCCESS);
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                             0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
-                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common));
+                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, loggingService));
                 } else {
                     final List<DetailedS3Object> detailedDs3Objects = getDetailedDs3Objects(bucket.getName());
                     if (Guard.isNotNullAndNotEmpty(detailedDs3Objects)) {
                         final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucket.getName());
                         if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
                             list.addAll(treeTableItems);
-                            printLog(StringBuilderUtil.searchInBucketMessage(bucket.getName(), list.size()).toString(),
+                            loggingService.logMessage(StringBuilderUtil.searchInBucketMessage(bucket.getName(), list.size()).toString(),
                                     LogType.SUCCESS);
                         }
                     }
@@ -63,20 +71,8 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             return list;
         } catch (final Exception e) {
             LOG.error("Search failed", e);
-            printLog(StringBuilderUtil.searchFailedMessage().toString() + e, LogType.ERROR);
+            loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
             return null;
-        }
-    }
-
-    /**
-     * To print the logs in DSB
-     *
-     * @param message message to be print
-     * @param logType Log Type
-     */
-    private void printLog(final String message, final LogType logType) {
-        if (null != ds3Common.getDeepStorageBrowserPresenter()) {
-            ds3Common.getDeepStorageBrowserPresenter().logText(message, logType);
         }
     }
 
@@ -102,7 +98,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                                 Ds3TreeTableValue.Type.File, itemObject.getSize(),
                                 DateFormat.formatDate(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
                         list.add(new Ds3TreeTableItem(treeTableValue.getFullName(), session,
-                                treeTableValue, workers, ds3Common));
+                                treeTableValue, workers, ds3Common, loggingService));
                     }
                 }
         );
