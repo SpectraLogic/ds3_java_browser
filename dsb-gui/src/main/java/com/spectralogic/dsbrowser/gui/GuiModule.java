@@ -23,7 +23,6 @@ import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.injector.factories.BulkPutJobFactory;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -68,8 +67,6 @@ public class GuiModule extends AbstractModule {
         bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView"));
 
         loadPresenters(this::bind);
-
-        install(new FactoryModuleBuilder().build(BulkPutJobFactory.class));
     }
 
     @Provides

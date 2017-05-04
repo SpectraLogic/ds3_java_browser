@@ -206,7 +206,7 @@ public class NewSessionPresenter implements Initializable {
                         if (first.isPresent()) {
                             final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false));
                             if (session != null) {
-                                savedSessionStore.saveSession(session);
+                                savedSessionStore.addSession(session);
                                 try {
                                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                                 } catch (final Exception e) {
@@ -224,7 +224,7 @@ public class NewSessionPresenter implements Initializable {
             final Session session = createConnectionTask.createConnection(newSessionModel);
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
-                final int i = savedSessionStore.saveSession(session);
+                final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
                     Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noNewChanges"), Alert.AlertType.INFORMATION);
                 } else if (i == -2) {

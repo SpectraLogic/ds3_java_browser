@@ -130,7 +130,7 @@ public class Ds3PutJob extends Ds3JobTask {
                                     resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS);
                 });
                 //store meta data to server
-                final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().getFilePropertiesEnable();
+                final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
                 if (isFilePropertiesEnable) {
                     LOG.info("Registering metadata access Implementation");
                     job.withMetadata(new MetadataAccessImpl(fileMapper));

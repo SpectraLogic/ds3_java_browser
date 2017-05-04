@@ -1,8 +1,24 @@
+/*
+ * ****************************************************************************
+ *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ *  ****************************************************************************
+ */
+
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +31,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class JobInterruptionStore {
-
     private final static Logger LOG = LoggerFactory.getLogger(JobInterruptionStore.class);
 
-    private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "jobids.json");
-
-    private boolean dirty = false;
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.JOB_INTERRUPTION_STORE);
 
     @JsonProperty("jobIdsModel")
     private final JobIdsModel jobIdsModel;
+
+    public static JobInterruptionStore empty() {
+        return new JobInterruptionStore(JobIdsModel.DEFAULT);
+    }
 
     public static JobInterruptionStore loadJobIds() throws IOException {
         if (Files.exists(PATH)) {
@@ -34,15 +51,11 @@ public class JobInterruptionStore {
             } catch (final Exception e) {
                 Files.delete(PATH);
                 LOG.info("Creating new empty job ids store");
-                final JobInterruptionStore jobInterruptionStore = new JobInterruptionStore(JobIdsModel.DEFAULT);
-                jobInterruptionStore.dirty = true;
-                return jobInterruptionStore;
+                return empty();
             }
         } else {
             LOG.info("Creating new empty saved job setting store");
-            final JobInterruptionStore jobInterruptionStore = new JobInterruptionStore(JobIdsModel.DEFAULT);
-            jobInterruptionStore.dirty = true;
-            return jobInterruptionStore;
+            return empty();
         }
     }
 
@@ -67,7 +80,6 @@ public class JobInterruptionStore {
     }
 
     public void setJobIdsModel(final JobIdsModel jobIdsModel) {
-        dirty = true;
         jobIdsModel.overwrite(jobIdsModel);
     }
 

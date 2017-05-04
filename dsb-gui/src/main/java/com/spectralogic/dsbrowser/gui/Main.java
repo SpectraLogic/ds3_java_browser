@@ -53,7 +53,7 @@ public class Main extends Application {
         final LoggingServiceImpl loggingService = new LoggingServiceImpl();
         Injector.setModelOrService(LoggingService.class, loggingService);
 
-        final SavedJobPrioritiesStore savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorties();
+        final SavedJobPrioritiesStore savedJobPrioritiesStore = SavedJobPrioritiesStore.loadSavedJobPriorities();
         Injector.setModelOrService(SavedJobPrioritiesStore.class, savedJobPrioritiesStore);
 
         final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();

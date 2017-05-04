@@ -63,4 +63,6 @@ public interface StringConstants {
     String IE = "i.e.";
     String TYPE = "Type";
     String CLICK_TYPE = "SECONDARY";
+    String SESSIONS_STORE = "sessions.json";
+    String JOB_INTERRUPTION_STORE = "jobids.json";
 }

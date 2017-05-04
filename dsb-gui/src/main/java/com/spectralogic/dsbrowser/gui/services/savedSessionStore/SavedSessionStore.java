@@ -1,13 +1,28 @@
+/*
+ * ****************************************************************************
+ *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ *  ****************************************************************************
+ */
+
 package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -29,7 +44,7 @@ import java.util.stream.Collectors;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
-    private final static Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private final ObservableList<SavedSession> sessions;
     private boolean dirty = false;
@@ -41,6 +56,10 @@ public class SavedSessionStore {
                 dirty = true;
             }
         });
+    }
+
+    public static SavedSessionStore empty() {
+        return new SavedSessionStore(new ArrayList<>());
     }
 
     public static SavedSessionStore loadSavedSessionStore() throws IOException {
@@ -66,8 +85,6 @@ public class SavedSessionStore {
             }
             try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
                 JsonMapping.toJson(outputStream, store);
-            } catch (final Exception e) {
-                LOG.error("unable to save dirty session: {}", e);
             }
         }
     }
@@ -76,15 +93,15 @@ public class SavedSessionStore {
         return sessions;
     }
 
-    public int saveSession(final Session session) {
-        final int index;
-        if (Guard.isNullOrEmpty(sessions)) {
+    public int addSession(final Session session) {
+        int index = 0;
+        if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
             index = 1;
         } else if (containsSessionName(sessions, session.getSessionName())) {
             final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
-            if (isSessionUpdated(savedSession, session)) {
+            if (isNewValuePresent(savedSession, session)) {
                 index = sessions.indexOf(savedSession);
                 this.sessions.remove(savedSession);
                 this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
@@ -92,6 +109,7 @@ public class SavedSessionStore {
             } else {
                 return -1;
             }
+
         } else if (!containsSessionName(sessions, session.getSessionName())) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
@@ -102,34 +120,25 @@ public class SavedSessionStore {
         return index;
     }
 
-    public boolean isSessionUpdated(final SavedSession savedSession, final Session session) {
-        if (!savedSession.getName().equals(session.getSessionName())) {
+    private boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
+        if (!savedSession.getName().equals(session.getSessionName()))
             return true;
-        }
-        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId())) {
+        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
             return true;
-        }
-        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey())) {
+        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey()))
             return true;
-        }
-        if (!savedSession.getEndpoint().equals(session.getEndpoint())) {
+        if (!savedSession.getEndpoint().equals(session.getEndpoint()))
             return true;
-        }
-        if (!savedSession.getPortNo().equals(session.getPortNo())) {
+        if (!savedSession.getPortNo().equals(session.getPortNo()))
             return true;
-        }
-        if (savedSession.getProxyServer() == null && session.getProxyServer() != null) {
-            return true;
-        }
-        if (savedSession.getProxyServer() != null && session.getProxyServer() == null) {
-            return true;
-        }
-        if (savedSession.getProxyServer() != null && session.getProxyServer() != null) {
+        if (savedSession.getProxyServer() != null) {
             if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
                 return true;
             }
+        } else if (session.getProxyServer() != null) {
+            return true;
         }
-        return savedSession.getDefaultSession() == null || !savedSession.getDefaultSession().equals(session.getDefaultSession());
+        return false;
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
