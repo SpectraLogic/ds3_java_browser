@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
@@ -64,7 +63,7 @@ public class GuiModule extends AbstractModule {
 
         bind(Ds3Common.class).in(Singleton.class);
 
-        bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView"));
+        bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView")); // DM TODO pull "Ds3TreeTableView" from ResourceBundle?
 
         loadPresenters(this::bind);
     }

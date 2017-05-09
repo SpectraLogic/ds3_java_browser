@@ -1,6 +1,9 @@
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+@Presenter
 public class NewSessionPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(NewSessionPresenter.class);
@@ -42,18 +46,6 @@ public class NewSessionPresenter implements Initializable {
     @FXML
     private TableView<SavedSession> savedSessions;
 
-    @Inject
-    private Ds3SessionStore store;
-
-    @Inject
-    private SavedSessionStore savedSessionStore;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private CreateConnectionTask createConnectionTask;
-
     @FXML
     private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
@@ -63,6 +55,21 @@ public class NewSessionPresenter implements Initializable {
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
 
+    private final ResourceBundle resourceBundle;
+    private final Ds3SessionStore ds3SessionStore;
+    private final SavedSessionStore savedSessionStore;
+    private final CreateConnectionTask createConnectionTask;
+
+    @Inject
+    public NewSessionPresenter(final ResourceBundle resourceBundle,
+                               final Ds3SessionStore ds3SessionStore,
+                               final SavedSessionStore savedSessionStore,
+                               final CreateConnectionTask createConnectionTask) {
+        this.resourceBundle = resourceBundle;
+        this.ds3SessionStore = ds3SessionStore;
+        this.savedSessionStore = savedSessionStore;
+        this.createConnectionTask = createConnectionTask;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -113,7 +120,7 @@ public class NewSessionPresenter implements Initializable {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
-                    if (store.getObservableList().size() == 0 || !savedSessionStore.containsNewSessionName(store.getObservableList(), rowData.getName())) {
+                    if (ds3SessionStore.getObservableList().size() == 0 || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
                         final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.getDefaultSession()));
                         sessionValidates(connection);
                     } else {
@@ -153,8 +160,8 @@ public class NewSessionPresenter implements Initializable {
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("selectToDeleteSession"), Alert.AlertType.ERROR);
         } else {
-            if (Guard.isNotNullAndNotEmpty(store.getObservableList())) {
-                store.getObservableList().forEach(openSession -> {
+            if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
+                ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
                         Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cannotdeletesession"), Alert.AlertType.ERROR);
                     } else {
@@ -181,7 +188,8 @@ public class NewSessionPresenter implements Initializable {
 
     public void openSession() {
         LOG.info("Performing session validation");
-        if (Guard.isNullOrEmpty(store.getObservableList()) || !savedSessionStore.containsNewSessionName(store.getObservableList(), model.getSessionName())) {
+        if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
+            || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
             if (!NewSessionModelValidation.validationNewSession(model)) {
                 final Session session = createConnectionTask.createConnection(model);
                 sessionValidates(session);
@@ -253,7 +261,7 @@ public class NewSessionPresenter implements Initializable {
 
     public void sessionValidates(final Session session) {
         if (session != null) {
-            store.addSession(session);
+            ds3SessionStore.addSession(session);
             closeDialog();
         }
     }

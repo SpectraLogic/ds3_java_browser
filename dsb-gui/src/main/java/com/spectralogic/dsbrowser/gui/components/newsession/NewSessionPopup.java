@@ -13,17 +13,15 @@
  *  ****************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.injector.providers;
+package com.spectralogic.dsbrowser.gui.components.newsession;
 
-import com.google.inject.Provider;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.Popup;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class ResourceBundleProvider implements Provider<ResourceBundle> {
-    @Override
-    public ResourceBundle get() {
-        return ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+public final class NewSessionPopup {
+    public static void show(final ResourceBundle resourceBundle) {
+        final NewSessionView view = new NewSessionView();
+        Popup.show(view.getView(), resourceBundle.getString("sessionsMenuItem"));
     }
 }

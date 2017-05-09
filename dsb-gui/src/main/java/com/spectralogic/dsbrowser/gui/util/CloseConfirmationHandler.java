@@ -1,24 +1,19 @@
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,36 +28,16 @@ import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 public class CloseConfirmationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(CloseConfirmationHandler.class);
 
-    private final Stage primaryStage;
-    private final SavedSessionStore savedSessionStore;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settings;
-    private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
-    private final LoggingService loggingService;
+    private final ShutdownService shutdownService;
 
-    //running tasks which are not in cache
-    public final EventHandler<WindowEvent> confirmCloseEventHandler = this::closeConfirmationAlert;
-
-    public CloseConfirmationHandler(final Stage primaryStage,
-                                    final SavedSessionStore savedSessionStore,
-                                    final SavedJobPrioritiesStore savedJobPrioritiesStore,
-                                    final JobInterruptionStore jobInterruptionStore,
-                                    final SettingsStore settings,
+    public CloseConfirmationHandler(final ResourceBundle resourceBundle,
                                     final JobWorkers jobWorkers,
-                                    final Workers workers,
-                                    final LoggingService loggingService) {
-        this.primaryStage = primaryStage;
-        this.savedSessionStore = savedSessionStore;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
-        this.jobInterruptionStore = jobInterruptionStore;
-        this.settings = settings;
+                                    final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
-        this.workers = workers;
-        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
-        this.loggingService = loggingService;
+        this.resourceBundle = resourceBundle;
+        this.shutdownService = shutdownService;
     }
 
     /**
@@ -75,7 +50,8 @@ public class CloseConfirmationHandler {
         if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
             final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
             if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
-                closeApplication(event);
+                event.consume();
+                shutdownService.shutdown();
             } else {
                 final Optional<ButtonType> closeResponse;
                 if (1 == notCachedRunningTasks.size()) {
@@ -90,55 +66,17 @@ public class CloseConfirmationHandler {
                             resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
                 }
                 if (closeResponse.get().equals(ButtonType.OK)) {
-                    closeApplication(event);
+                    event.consume();
+                    shutdownService.shutdown();
                 }
                 if (closeResponse.get().equals(ButtonType.CANCEL)) {
                     event.consume();
                 }
             }
         } else {
-            closeApplication(event);
+            event.consume();
+            shutdownService.shutdown();
         }
-    }
-
-    /**
-     * method of closing the application and canceling all running tasks
-     *
-     * @param closeEvent close event
-     */
-    private void closeApplication(final Event closeEvent) {
-        LOG.info("Closing the application and canceling all running tasks");
-        setPreferences(primaryStage.getX(), primaryStage.getY(),
-                primaryStage.getWidth(), primaryStage.getHeight(), primaryStage.isMaximized());
-        Injector.forgetAll();
-        saveSessionStore(savedSessionStore);
-        saveJobPriorities(savedJobPrioritiesStore);
-        saveInterruptionJobs(jobInterruptionStore);
-        saveSettings(settings);
-        if (!Guard.isNullOrEmpty(jobWorkers.getTasks())) {
-            final Task cancelRunningJobsTask = cancelAllRunningTasks(jobWorkers, workers, jobInterruptionStore, loggingService);
-            cancelRunningJobsTask.setOnSucceeded(event -> {
-                closeEvent.consume();
-                shutdownWorkers();
-                Platform.exit();
-                System.exit(0);
-            });
-        } else {
-            shutdownWorkers();
-            Platform.exit();
-            System.exit(0);
-        }
-    }
-
-    /**
-     * shut down all working threads
-     */
-    public void shutdownWorkers() {
-        LOG.info("Shutting down all working threads");
-        workers.shutdown();
-        jobWorkers.shutdown();
-        jobWorkers.shutdownNow();
-        LOG.info("Finished shutting down");
     }
 
     /**
@@ -222,22 +160,6 @@ public class CloseConfirmationHandler {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
             } catch (final Exception ex) {
                 LOG.error("General Exception while saving job Ids to the local filesystem", ex);
-            }
-        }
-    }
-
-    /**
-     * To save user setting to local system
-     *
-     * @param settings settings
-     */
-    public void saveSettings(final SettingsStore settings) {
-        LOG.info("Saving user setting to local system");
-        if (settings != null) {
-            try {
-                SettingsStore.saveSettingsStore(settings);
-            } catch (final Exception ex) {
-                LOG.error("General Exception while saving settings information to the local filesystem", ex);
             }
         }
     }

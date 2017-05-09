@@ -30,7 +30,8 @@ public final class ParseJobInterruptionMap {
 
     public static Map<String, FilesAndFolderMap> getJobIDMap(
             final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints,
-            final String endpoint, final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobWorkers,
+            final String endpoint,
+            final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobWorkers,
             final UUID jobId) {
         if (!Guard.isNullOrEmpty(endpoints) && endpoints.stream().anyMatch(i -> i.containsKey(endpoint))
                 && !Guard.isStringNullOrEmpty(endpoint)) {

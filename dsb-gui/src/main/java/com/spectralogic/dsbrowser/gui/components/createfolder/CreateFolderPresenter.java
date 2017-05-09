@@ -1,8 +1,9 @@
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
@@ -23,6 +24,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Presenter
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
@@ -36,17 +38,21 @@ public class CreateFolderPresenter implements Initializable {
     @FXML
     private Button createFolderButton, cancelCreateFolderButton;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
+    @ModelContext
     private CreateFolderModel createFolderModel;
 
-    @Inject
+    private Workers workers;
     private ResourceBundle resourceBundle;
+    private LoggingService loggingService;
 
     @Inject
-    private LoggingService loggingService;
+    public CreateFolderPresenter(final Workers workers,
+                                 final ResourceBundle resourceBundle,
+                                 final LoggingService loggingService) {
+        this.workers = workers;
+        this.resourceBundle = resourceBundle;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

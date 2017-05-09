@@ -35,7 +35,7 @@ task genConfigProperties {
         Path configPath = sourceSets.main.output.resourcesDir.toPath()
         Files.createDirectories(configPath)
 
-        File configFile = new File(sourceSets.main.output.resourcesDir, "/ds3_cli.properties")
+        File configFile = new File(sourceSets.main.output.resourcesDir, "/dsb_build.properties")
         configFile.withWriter{out ->
             out.writeLine("version="+version)
             out.writeLine("build.date="+new Date().toString())

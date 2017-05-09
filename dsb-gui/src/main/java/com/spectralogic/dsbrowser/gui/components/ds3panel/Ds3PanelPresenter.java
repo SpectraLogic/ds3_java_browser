@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -11,7 +12,7 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeMode
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
+import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
@@ -53,6 +54,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Presenter
 public class Ds3PanelPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelPresenter.class);
@@ -96,49 +98,49 @@ public class Ds3PanelPresenter implements Initializable {
     @FXML
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
 
-    @Inject
-    private Ds3SessionStore store;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
     private ResourceBundle resourceBundle;
-
-    @Inject
+    private Ds3SessionStore ds3SessionStore;
+    private Workers workers;
+    private JobWorkers jobWorkers;
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
     private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
     private SettingsStore settingsStore;
-
-    @Inject
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private FileTreeTableProvider provider;
-
-    @Inject
+    private FileTreeTableProvider fileTreeTableProvider;
     private DataFormat dataFormat;
-
-    @Inject
     private Ds3Common ds3Common;
-
-    @Inject
     private SavedSessionStore savedSessionStore;
-
-    @Inject
     private LoggingService loggingService;
 
     private GetNoOfItemsTask itemsTask;
 
-    public Ds3PanelPresenter() {
-        super();
+    @Inject
+    public Ds3PanelPresenter(final ResourceBundle resourceBundle,
+                             final Ds3SessionStore ds3SessionStore,
+                             final Workers workers,
+                             final JobWorkers jobWorkers,
+                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                             final JobInterruptionStore jobInterruptionStore,
+                             final SettingsStore settingsStore,
+                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                             final FileTreeTableProvider fileTreeTableProvider,
+                             final DataFormat dataFormat,
+                             final Ds3Common ds3Common,
+                             final SavedSessionStore savedSessionStore,
+                             final LoggingService loggingService) {
+        this.resourceBundle = resourceBundle;
+        this.ds3SessionStore = ds3SessionStore;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.fileTreeTableProvider = fileTreeTableProvider;
+        this.dataFormat = dataFormat;
+        this.ds3Common = ds3Common;
+        this.savedSessionStore = savedSessionStore;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -158,7 +160,7 @@ public class Ds3PanelPresenter implements Initializable {
             workers.execute(backgroundTask);
             try {
                 //open default session when DSB launched
-                savedSessionStore.openDefaultSession(store);
+                savedSessionStore.openDefaultSession(ds3SessionStore);
             } catch (final Exception e) {
                 LOG.error("Encountered error fetching default session", e);
             }
@@ -230,7 +232,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
         ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
 
-        store.getObservableList().addListener((ListChangeListener<Session>) c -> {
+        ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
                 newItems.forEach(newSession -> {
@@ -373,7 +375,7 @@ public class Ds3PanelPresenter implements Initializable {
                     final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
                         CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, workers, closedSession, loggingService);
-                        store.removeSession(closedSession);
+                        ds3SessionStore.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
                         ds3Common.setSessionOfClosedTab(null);
@@ -392,7 +394,7 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to remove session: {}", e);
             }
-            if (store.size() == 0) {
+            if (ds3SessionStore.size() == 0) {
                 ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
                 addNewTab.setTooltip(null);
             }
@@ -532,10 +534,10 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
-            final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
+            final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
             fileRootItemLabel.setText(fileRootItem);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, workers);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
 
@@ -577,9 +579,9 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3SessionTabPane.getTabs().size() > 1 && newValue == addNewTab) {
                 // popup new session dialog box
-                final int sessionCount = store.size();
+                final int sessionCount = ds3SessionStore.size();
                 newSessionDialog();
-                if (sessionCount == store.size()) {
+                if (sessionCount == ds3SessionStore.size()) {
                     // Do not select the new value if NewSessionDialog fails
                     ds3SessionTabPane.getSelectionModel().select(oldValue);
                 }
@@ -588,7 +590,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionTabPane.getTabs().addListener((ListChangeListener<? super Tab>) c -> {
             if (c.next() && c.wasRemoved()) {
                 // TODO prompt the user to save each session that was closed,
-                // if it is not already in the saved session store
+                // if it is not already in the saved session ds3SessionStore
             }
         });
 
@@ -608,7 +610,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void newSessionDialog() {
-        Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
+        NewSessionPopup.show(resourceBundle);
     }
 
     private void initTab() {

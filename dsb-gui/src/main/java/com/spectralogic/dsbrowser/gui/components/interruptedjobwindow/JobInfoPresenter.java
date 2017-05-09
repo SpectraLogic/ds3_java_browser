@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.Main;
@@ -30,7 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-
+@Presenter
 public class JobInfoPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -50,31 +51,35 @@ public class JobInfoPresenter implements Initializable {
     @FXML
     private TreeTableColumn jobIdColumn;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private EndpointInfo endpointInfo;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
     private ResourceBundle resourceBundle;
-
-    @Inject
+    private Ds3Common ds3Common;
+    private Workers workers;
+    private JobWorkers jobWorkers;
+    private EndpointInfo endpointInfo;
+    private JobInterruptionStore jobInterruptionStore;
+    private SettingsStore settingsStore;
     private LoggingService loggingService;
 
     private Stage stage;
+
+    @Inject
+    public JobInfoPresenter(final ResourceBundle resourceBundle,
+                            final Ds3Common ds3Common,
+                            final Workers workers,
+                            final JobWorkers jobWorkers,
+                            final EndpointInfo endpointInfo,
+                            final JobInterruptionStore jobInterruptionStore,
+                            final SettingsStore settingsStore,
+                            final LoggingService loggingService) {
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.endpointInfo = endpointInfo;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

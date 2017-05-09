@@ -1,6 +1,8 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
@@ -43,12 +45,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+@Singleton
+@Presenter
 public class DeepStorageBrowserPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
@@ -89,34 +94,41 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @FXML
     private BorderPane borderPane;
 
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
-    private SavedSessionStore savedSessionStore;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private LoggingService loggingService;
+    private final JobWorkers jobWorkers;
+    private final ResourceBundle resourceBundle;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final Ds3Common ds3Common;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final SavedSessionStore savedSessionStore;
+    private final Workers workers;
+    private final LoggingService loggingService;
+    private final ShutdownService shutdownService;
 
     private DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView;
+
+    @Inject
+    public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
+                                       final ResourceBundle resourceBundle,
+                                       final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                                       final Ds3Common ds3Common,
+                                       final JobInterruptionStore jobInterruptionStore,
+                                       final SettingsStore settingsStore,
+                                       final SavedSessionStore savedSessionStore,
+                                       final Workers workers,
+                                       final LoggingService loggingService,
+                                       final ShutdownService shutdownService) {
+        this.jobWorkers = jobWorkers;
+        this.resourceBundle = resourceBundle;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.ds3Common = ds3Common;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.savedSessionStore = savedSessionStore;
+        this.workers = workers;
+        this.loggingService = loggingService;
+        this.shutdownService = shutdownService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -126,8 +138,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
             initGUIElement(); //Setting up labels from resource file
             LOG.info("Loading Main view");
             logText(resourceBundle.getString("loadMainView"), LogType.INFO);
+
             final SetToolTipBehavior setToolTipBehavior = new SetToolTipBehavior();
             setToolTipBehavior.setToolTilBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
+
             final Tooltip jobToolTip = new Tooltip();
             jobToolTip.setText(resourceBundle.getString("interruptedJobs"));
             final Tooltip cancelAllToolTip = new Tooltip();
@@ -215,7 +229,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
             });
             closeMenuItem.setOnAction(event -> {
-                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(PrimaryStageModel.getInstance().getPrimaryStage(), savedSessionStore, savedJobPrioritiesStore, jobInterruptionStore, settingsStore, jobWorkers, workers, loggingService);
+                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
                 closeConfirmationHandler.closeConfirmationAlert(event);
             });
             final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);

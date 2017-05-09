@@ -15,7 +15,7 @@ public class BaseTreeModel implements Serializable {
     }
 
     public enum Type {
-        File, Directory, Bucket, Loader , Media_Device, File_System, Error
+        File, Directory, Bucket, Loader, Media_Device, File_System, Error
     }
 
 }

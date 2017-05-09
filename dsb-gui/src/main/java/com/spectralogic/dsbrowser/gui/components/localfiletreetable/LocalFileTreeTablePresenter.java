@@ -5,6 +5,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -53,6 +54,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Presenter
 public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
@@ -72,45 +74,49 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @FXML
     private Label localPathIndicator;
 
-    @Inject
-    private FileTreeTableProvider provider;
-
-    @Inject
-    private DataFormat dataFormat;
-
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private Ds3SessionStore store;
-
-    @Inject
     private ResourceBundle resourceBundle;
-
-    @Inject
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
     private Ds3Common ds3Common;
-
-    @Inject
+    private FileTreeTableProvider fileTreeTableProvider;
+    private DataFormat dataFormat;
+    private Workers workers;
+    private JobWorkers jobWorkers;
+    private Ds3SessionStore ds3SessionStore;
+    private SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private JobInterruptionStore jobInterruptionStore;
+    private SettingsStore settingsStore;
     private EndpointInfo endpointInfo;
-
-    @Inject
     private LoggingService loggingService;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
     private TreeItem<FileTreeModel> lastExpandedNode;
+
+    @Inject
+    public LocalFileTreeTablePresenter(final ResourceBundle resourceBundle,
+                                       final Ds3Common ds3Common,
+                                       final FileTreeTableProvider fileTreeTableProvider,
+                                       final DataFormat dataFormat,
+                                       final Workers workers,
+                                       final JobWorkers jobWorkers,
+                                       final Ds3SessionStore ds3SessionStore,
+                                       final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                                       final JobInterruptionStore jobInterruptionStore,
+                                       final SettingsStore settingsStore,
+                                       final EndpointInfo endpointInfo,
+                                       final LoggingService loggingService) {
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.fileTreeTableProvider = fileTreeTableProvider;
+        this.dataFormat = dataFormat;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.ds3SessionStore = ds3SessionStore;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.endpointInfo = endpointInfo;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -226,7 +232,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initProgressAndPathIndicators() {
-        final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(StringConstants.ROOT_LOCATION);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
@@ -333,14 +339,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void changeRootDir(final String rootDir) {
         localPathIndicator.setText(rootDir);
         fileRootItem = rootDir;
-        final Stream<FileTreeModel> rootItems = provider.getRoot(rootDir);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir);
         if (rootItems != null) {
             try {
                 final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
                 rootTreeItem.setExpanded(true);
                 treeTable.setShowRoot(false);
                 rootItems.forEach(ftm -> {
-                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, workers);
                     rootTreeItem.getChildren().add(newRootTreeItem);
                 });
                 treeTable.setRoot(rootTreeItem);
@@ -358,10 +364,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        final Stream<FileTreeModel> rootItems = provider.getRoot(fileRootItem);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers);
+            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, workers);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
         treeTable.setRoot(rootTreeItem);
@@ -483,7 +489,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, provider, workers);
+        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, workers);
         workers.execute(getMediaDeviceTask);
         getMediaDeviceTask.setOnSucceeded(event -> {
             treeTable.setRoot(rootTreeItem);
@@ -538,7 +544,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private Session getSession(final String sessionName) {
 
-        final Optional<Session> first = store.getSessions().filter(sessions -> (sessions.getSessionName()
+        final Optional<Session> first = ds3SessionStore.getSessions().filter(sessions -> (sessions.getSessionName()
                 + StringConstants.SESSION_SEPARATOR + sessions.getEndpoint()).equals(sessionName)).findFirst();
         if (first.isPresent()) {
             return first.get();

@@ -12,12 +12,10 @@ public class BuildInfoService_Test {
 
     @Test
     public void parseDateString() {
-        final String buildDate =       "Wed Mar 15 11:10:25 MDT 2017";
-        final String dateTimePattern = "EEE MMM d kk:mm:ss z yyyy";
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateTimePattern);
+        final String buildDate = "Wed Mar 15 11:10:25 MDT 2017";
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(BuildInfoServiceImpl.dateTimeFormatterPattern);
         final LocalDateTime ldt = LocalDateTime.parse(buildDate, dtf);
 
-        System.out.println("LocalDateTime[" + ldt + "]");
         assertThat(ldt.toString(), is(buildDate));
     }
 }

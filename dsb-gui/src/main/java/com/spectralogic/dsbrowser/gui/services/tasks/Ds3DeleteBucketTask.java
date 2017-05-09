@@ -14,7 +14,6 @@ public class Ds3DeleteBucketTask extends Ds3Task {
 
     private final Ds3Client ds3Client;
     private final String bucketName;
-    private String errorMsg;
 
     public Ds3DeleteBucketTask(final Ds3Client ds3Client, final String bucketName) {
         this.ds3Client = ds3Client;
@@ -34,12 +33,13 @@ public class Ds3DeleteBucketTask extends Ds3Task {
         }
     }
 
+    @Override
     public String getErrorMsg() {
-        return errorMsg;
+        return this.errorMsg;
     }
 
+    @Override
     public void setErrorMsg(final String errorMsg) {
         this.errorMsg = errorMsg;
     }
-
 }

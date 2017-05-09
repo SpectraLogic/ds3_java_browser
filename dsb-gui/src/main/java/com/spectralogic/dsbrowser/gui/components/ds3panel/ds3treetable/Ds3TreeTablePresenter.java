@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -45,6 +46,7 @@ import java.net.URL;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
+@Presenter
 public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
@@ -66,40 +68,18 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     private TreeTableColumn fullPath;
 
-    @Inject
+
     private Workers workers;
-
-    @Inject
     private JobWorkers jobWorkers;
-
-    @Inject
     private Session session;
-
-    @Inject
     private ResourceBundle resourceBundle;
-
-    @Inject
     private Ds3PanelPresenter ds3PanelPresenter;
-
-    @Inject
     private DataFormat dataFormat;
-
-    @Inject
     private Ds3Common ds3Common;
-
-    @Inject
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
     private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
     private SettingsStore settingsStore;
-
-    @Inject
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
     private LoggingService loggingService;
 
     private ContextMenu contextMenu;
@@ -109,6 +89,33 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final ObservableMap<Integer, Node> disclosureNodeMap = FXCollections.observableHashMap();
 
     private boolean isFirstTime = true;
+
+    @Inject
+    public Ds3TreeTablePresenter(final Session session,
+                                 final ResourceBundle resourceBundle,
+                                 final DataFormat dataFormat,
+                                 final Workers workers,
+                                 final JobWorkers jobWorkers,
+                                 final Ds3Common ds3Common,
+                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                 final Ds3PanelPresenter ds3PanelPresenter,
+                                 final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                                 final JobInterruptionStore jobInterruptionStore,
+                                 final SettingsStore settingsStore,
+                                 final LoggingService loggingService) {
+        this.session = session;
+        this.resourceBundle = resourceBundle;
+        this.dataFormat = dataFormat;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.ds3Common = ds3Common;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.ds3PanelPresenter = ds3PanelPresenter;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -278,6 +285,10 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             });
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
+        });
+        getServiceTask.setOnFailed(event -> {
+            LOG.info("GetServiceTask failed");
+            ds3TreeTable.setPlaceholder(oldPlaceHolder);
         });
     }
 

@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.services;
 
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -9,26 +10,19 @@ import javafx.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class JobWorkers {
-
     private final static Logger LOG = LoggerFactory.getLogger(JobWorkers.class);
 
     private ExecutorService workers;
     private final ObservableList<Ds3JobTask> tasks;
 
-    public void setWorkers(final ExecutorService workers) {
-        this.workers = workers;
-    }
-
-    public JobWorkers() {
-        this(10);
-    }
-
-    public ExecutorService getWorkers() {
-        return workers;
+    @Inject
+    public JobWorkers(final SettingsStore settingsStore) {
+        this(settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads());
     }
 
     public JobWorkers(final int num) {
@@ -39,6 +33,14 @@ public class JobWorkers {
                 c.getAddedSubList().stream().forEach(workers::execute);
             }
         });
+    }
+
+    public void setWorkers(final ExecutorService workers) {
+        this.workers = workers;
+    }
+
+    public ExecutorService getWorkers() {
+        return workers;
     }
 
     public void execute(final Ds3JobTask run) {
@@ -58,7 +60,7 @@ public class JobWorkers {
         return tasks;
     }
 
-    public void handleStop(final WorkerStateEvent event) {
+    private void handleStop(final WorkerStateEvent event) {
         if (event.getSource() instanceof Ds3JobTask) {
             final Ds3JobTask task = (Ds3JobTask) event.getSource();
             this.tasks.remove(task);
@@ -74,5 +76,4 @@ public class JobWorkers {
     public void shutdownNow() {
         workers.shutdownNow();
     }
-
 }

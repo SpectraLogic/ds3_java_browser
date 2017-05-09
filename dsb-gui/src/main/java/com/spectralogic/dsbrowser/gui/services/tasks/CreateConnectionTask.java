@@ -32,8 +32,7 @@ public class CreateConnectionTask {
             }
             client = Ds3ClientBuilder
                     .create(newSessionModel.getEndpoint().trim() + ":" + newSessionModel.getPortNo().trim(),
-                            new Credentials(newSessionModel.getAccessKey(),
-                                    newSessionModel.getSecretKey()))
+                            new Credentials(newSessionModel.getAccessKey(), newSessionModel.getSecretKey()))
                     .withHttps(false).withProxy(newSessionModel.getProxyServer())
                     .build();
             client.getService(new GetServiceRequest());

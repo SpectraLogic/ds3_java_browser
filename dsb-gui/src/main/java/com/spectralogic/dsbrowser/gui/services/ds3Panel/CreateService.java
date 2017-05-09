@@ -60,7 +60,7 @@ public final class CreateService {
                 final Optional<CreateBucketWithDataPoliciesModel> value = getDataPolicies.getValue();
                 if (value.isPresent()) {
                     LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
-                    CreateBucketPopup.show(value.get(), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
+                    CreateBucketPopup.show(value.get(), resourceBundle);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                 }
             }));

@@ -4,6 +4,8 @@ package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.*;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -15,14 +17,13 @@ import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-
+@Presenter
 public class PhysicalPlacementPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
@@ -39,7 +40,7 @@ public class PhysicalPlacementPresenter implements Initializable {
     @FXML
     private VBox parentVBox;
 
-    @Inject
+    @ModelContext
     private PhysicalPlacement ds3PhysicalPlacement;
 
     @Override

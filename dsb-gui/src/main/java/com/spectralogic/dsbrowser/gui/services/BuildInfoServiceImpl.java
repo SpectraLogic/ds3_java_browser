@@ -29,7 +29,12 @@ import java.util.Properties;
 public class BuildInfoServiceImpl implements BuildInfoService{
     private static final Logger LOG = LoggerFactory.getLogger(BuildInfoServiceImpl.class);
 
-    public static final String buildPropertiesFile = "ds3_cli.properties";
+    private static final String buildPropertiesFile = "dsb_build.properties";
+    private static final String buildPropertiesVersion = "version";
+    private static final String buildPropertiesDate = "build.date";
+
+    static final String dateTimeFormatterPattern = "EEE MMM dd kk:mm:ss z yyyy";  // build.date="Wed Mar 15 11:10:25 MDT 2017"
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateTimeFormatterPattern);
 
     private String buildVersion;
     private LocalDateTime buildDateTime;
@@ -57,26 +62,28 @@ public class BuildInfoServiceImpl implements BuildInfoService{
             buildProps.load(is);
         } catch (final IOException e) {
             LOG.error("Failed to read build properties from {}: ", buildPropertiesFile, e);
+            buildProps.setProperty(buildPropertiesVersion, "debug");
+            buildProps.setProperty(buildPropertiesDate, LocalDateTime.now().format(dtf));
         }
 
         return buildProps;
     }
 
     private String initBuildVersion(final Properties buildProps) {
-        return buildProps.getProperty("version");
+        return buildProps.getProperty(buildPropertiesVersion);
     }
 
     private LocalDateTime initBuildDateTime(final Properties buildProps) {
-        // build.date=Wed Mar 15 11:10:25 MDT 2017
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd kk:mm:ss zzz yyyy");
         try {
-            return LocalDateTime.parse(buildProps.getProperty("build.date"), dtf);
+            final String buildDate = buildProps.getProperty(buildPropertiesDate);
+            LOG.info("buildDate property[{}]", buildDate);
+            return LocalDateTime.parse(buildDate, dtf);
         }catch (final NullPointerException npe) {
             LOG.error("Failed to find build.date property in Resource file: {}\n", buildPropertiesFile, npe);
         }catch (final DateTimeParseException dtpe) {
-            LOG.error("Failed to convert build.date property into Date object: {}\n", buildProps.getProperty("build.date"), dtpe);
+            LOG.error("Failed to convert build.date property into Date object: {}\n", buildProps.getProperty(buildPropertiesDate), dtpe);
         }
 
-        return LocalDateTime.MIN;
+        return LocalDateTime.now();
     }
 }

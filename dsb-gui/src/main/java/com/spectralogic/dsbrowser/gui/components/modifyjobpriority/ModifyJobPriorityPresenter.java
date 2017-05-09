@@ -1,13 +1,14 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+@Presenter
 public class ModifyJobPriorityPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(ModifyJobPriorityPresenter.class);
@@ -34,20 +36,24 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @FXML
     private Button yesButton, noButton;
 
-    @Inject
     private ResourceBundle resourceBundle;
+    private Workers workers;
+    private Ds3Common ds3Common;
+    private LoggingService loggingService;
 
-    @Inject
-    private Workers worker;
-
-    @Inject
+    @ModelContext
     private ModifyJobPriorityModel value;
 
     @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private LoggingService loggingService;
+    public ModifyJobPriorityPresenter(final ResourceBundle resourceBundle,
+                                      final Workers workers,
+                                      final Ds3Common ds3Common,
+                                      final LoggingService loggingService) {
+        this.resourceBundle = resourceBundle;
+        this.workers = workers;
+        this.ds3Common = ds3Common;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -63,7 +69,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
             try {
                 final ModifyJobPriorityTask modifyJobPriorityTask = new ModifyJobPriorityTask(value,
                         newPriority);
-                worker.execute(modifyJobPriorityTask);
+                workers.execute(modifyJobPriorityTask);
 
                 modifyJobPriorityTask.setOnSucceeded(event -> loggingService.logMessage(
                     resourceBundle.getString("priorityModified"), LogType.INFO));

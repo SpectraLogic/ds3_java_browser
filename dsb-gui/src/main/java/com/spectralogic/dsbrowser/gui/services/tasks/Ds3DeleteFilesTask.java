@@ -51,9 +51,8 @@ public class Ds3DeleteFilesTask extends Ds3Task {
         return Optional.empty();
     }
 
-
+    @Override
     public String getErrorMsg() {
         return errorMsg;
     }
-
 }

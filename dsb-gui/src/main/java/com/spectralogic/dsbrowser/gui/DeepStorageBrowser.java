@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -60,7 +61,6 @@ class DeepStorageBrowser {
     }
 
     void start(final Stage primaryStage) {
-        // TODO add a version lookup to always get the most current version from a property file generated at build time
         LOG.info("Starting Deep Storage Browser {}", buildInfoService.getBuildVersion());
         LOG.info("  {}", buildInfoService.getBuildDateTime());
         LOG.info(getPlatformInformation());
@@ -68,7 +68,7 @@ class DeepStorageBrowser {
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
-        primaryStage.getIcons().add(new Image(Main.class.getResource("/images/deep_storage_browser.png").toString()));
+        primaryStage.getIcons().add(new Image(Main.class.getResource(ImageURLs.DEEP_STORAGE_BROWSER).toString()));
         primaryStage.setScene(mainScene);
         primaryStage.setMaximized(true);
         primaryStage.setTitle(resourceBundle.getString("title"));
