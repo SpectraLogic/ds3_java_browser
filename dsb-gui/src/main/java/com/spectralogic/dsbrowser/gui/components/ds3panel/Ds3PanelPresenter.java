@@ -156,8 +156,6 @@ public class Ds3PanelPresenter implements Initializable {
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-            final BackgroundTask backgroundTask = new BackgroundTask(ds3Common, workers, loggingService);
-            workers.execute(backgroundTask);
             try {
                 //open default session when DSB launched
                 savedSessionStore.openDefaultSession(ds3SessionStore);

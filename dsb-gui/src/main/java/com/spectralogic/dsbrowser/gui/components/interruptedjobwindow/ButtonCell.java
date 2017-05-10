@@ -7,7 +7,6 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -70,14 +69,14 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                         );
 
                     } else {
-                        BackgroundTask.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
+                        ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
                         Ds3Alert.show(endpointInfo.getEndpoint(), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"), Alert.AlertType.INFORMATION);
                         endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
                     }
                 });
 
             } else {
-                BackgroundTask.dumpTheStack(resourceBundle.getString("host") + StringConstants.SPACE + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
+                ErrorUtils.dumpTheStack(resourceBundle.getString("host") + StringConstants.SPACE + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
                 Ds3Alert.show(endpointInfo.getEndpoint(), resourceBundle.getString("host") + StringConstants.SPACE + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"), Alert.AlertType.INFORMATION);
                 endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
             }
@@ -94,7 +93,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 );
 
             } else {
-                BackgroundTask.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
+                ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
                 Ds3Alert.show(endpointInfo.getEndpoint(), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"), Alert.AlertType.INFORMATION);
                 endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
             }
