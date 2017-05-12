@@ -4,10 +4,8 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +22,15 @@ public class CreateBucketTask extends Ds3Task {
     private final ResourceBundle resourceBundle;
 
     public CreateBucketTask(final CreateBucketModel createBucketModel,
-                            final Ds3Client ds3Client, final String bucketName,
+                            final Ds3Client ds3Client,
+                            final String bucketName,
+                            final ResourceBundle resourceBundle,
                             final LoggingService loggingService) {
         this.loggingService = loggingService;
         this.bucketName = bucketName;
         this.createBucketModel = createBucketModel;
         this.ds3Client = ds3Client;
-        resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.resourceBundle = resourceBundle;
     }
 
     @Override

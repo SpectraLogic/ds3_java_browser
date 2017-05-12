@@ -121,7 +121,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            LOG.info("Starting LocalFileTreeTablePresenter");
+            LOG.debug("Initialize...");
             initToolTips();
             initTableView();
             initListeners();

@@ -103,10 +103,13 @@ public class CreateBucketPresenter implements Initializable {
                 final CreateBucketModel dataPolicy = first.get();
 
                 final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
-                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(), loggingService);
+                        createBucketWithDataPoliciesModel.getSession().getClient(),
+                        bucketNameField.getText().trim(),
+                        resourceBundle,
+                        loggingService);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
-                    LOG.info("Bucket is created");
+                    LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());

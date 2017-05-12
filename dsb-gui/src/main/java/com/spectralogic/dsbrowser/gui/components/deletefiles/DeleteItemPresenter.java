@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -43,19 +44,19 @@ public class DeleteItemPresenter implements Initializable {
     @FXML
     private Label deleteLabel, deleteConfirmationInfoLabel;
 
+    @ModelContext
     private Ds3Task deleteTask;
+
     private Workers workers;
     private Ds3Common ds3Common;
     private ResourceBundle resourceBundle;
     private LoggingService loggingService;
 
     @Inject
-    public DeleteItemPresenter(final Ds3Task deleteTask,
-                               final Workers workers,
+    public DeleteItemPresenter(final Workers workers,
                                final Ds3Common ds3Common,
                                final ResourceBundle resourceBundle,
                                final LoggingService loggingService) {
-        this.deleteTask = deleteTask;
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
@@ -120,7 +121,7 @@ public class DeleteItemPresenter implements Initializable {
         deleteTask.setOnFailed(event -> constructMessageForLog());
         deleteTask.setOnSucceeded(event -> {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
-            LOG.info("Success to delete selected item(s):{} ", LogType.SUCCESS);
+            LOG.info("Successfully deleted selected item(s):{} ", LogType.SUCCESS);
 
             DeleteService.managePathIndicator(ds3Common, workers, loggingService);
             closeDialog();

@@ -316,7 +316,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void createTabAndSetBehaviour(final Session newSession) {
         addNewTab.setTooltip(new Tooltip(resourceBundle.getString("newSessionToolTip")));
-        final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, deepStorageBrowserPresenter, this, ds3Common);
+        final Ds3TreeTableView newTreeView = new Ds3TreeTableView(newSession, this);
         final Tab treeTab = new Tab(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR
                 + newSession.getEndpoint(), newTreeView.getView());
         treeTab.setOnSelectionChanged(event -> {

@@ -6,6 +6,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -59,8 +60,8 @@ public final class DeleteService {
                 final TreeItem<Ds3TreeTableValue> value = first.get();
                 final String bucketName = value.getValue().getBucketName();
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
+                    loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
                     Platform.runLater(() -> {
-                        loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
                         Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("failedToDeleteBucket"), Alert.AlertType.INFORMATION);
                     });
                 } else {
@@ -72,6 +73,8 @@ public final class DeleteService {
                     ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
                 }
             }
+        } else {
+            LOG.error("NULL Session when attempting to deleteBucket");
         }
     }
 

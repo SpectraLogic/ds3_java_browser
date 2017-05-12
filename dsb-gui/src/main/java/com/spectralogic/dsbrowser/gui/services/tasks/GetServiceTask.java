@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.ResourceBundle;
 
-public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
+public class GetServiceTask extends Ds3Task {
 
     private final static Logger LOG = LoggerFactory.getLogger(GetServiceTask.class);
 
@@ -43,7 +43,7 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                           final Workers workers,
                           final Ds3Common ds3Common,
                           final LoggingService loggingService) {
-        partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
+        this.partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
         this.session = session;
         this.workers = workers;
         this.ds3Common = ds3Common;
@@ -54,7 +54,8 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
         final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-        if (null != response && null != response.getListAllMyBucketsResult()
+        if (null != response
+                && null != response.getListAllMyBucketsResult()
                 && !Guard.isNullOrEmpty(response.getListAllMyBucketsResult().getBuckets())) {
             final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
@@ -78,14 +79,17 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                             .collect(GuavaCollectors.immutableList());
                     if (!Guard.isNullOrEmpty(treeItems)) {
                         partialResults.get().addAll(treeItems);
+                        ds3Common.getDs3PanelPresenter().disableSearch(false);
                     } else {
-                        LOG.info("No bucket found");
+                        ds3Common.getDs3PanelPresenter().disableSearch(true);
+                        LOG.info("No buckets found");
                     }
                 } else {
                     LOG.info("Ds3Common is null");
                 }
             });
         } else {
+            LOG.info("No buckets found");
             ds3Common.getDs3PanelPresenter().disableSearch(true);
         }
         return this.partialResults.get();

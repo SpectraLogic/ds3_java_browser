@@ -3,6 +3,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -68,12 +69,15 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     private TreeTableColumn fullPath;
 
+    @ModelContext
+    private Ds3PanelPresenter ds3PanelPresenter;
+
+    @ModelContext
+    private Session session;
 
     private Workers workers;
     private JobWorkers jobWorkers;
-    private Session session;
     private ResourceBundle resourceBundle;
-    private Ds3PanelPresenter ds3PanelPresenter;
     private DataFormat dataFormat;
     private Ds3Common ds3Common;
     private SavedJobPrioritiesStore savedJobPrioritiesStore;
@@ -98,7 +102,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                                  final JobWorkers jobWorkers,
                                  final Ds3Common ds3Common,
                                  final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                                 final Ds3PanelPresenter ds3PanelPresenter,
                                  final SavedJobPrioritiesStore savedJobPrioritiesStore,
                                  final JobInterruptionStore jobInterruptionStore,
                                  final SettingsStore settingsStore,
@@ -110,7 +113,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.jobWorkers = jobWorkers;
         this.ds3Common = ds3Common;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
-        this.ds3PanelPresenter = ds3PanelPresenter;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
@@ -120,6 +122,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            LOG.debug("Loading new session tab for Session [{}]", session.getSessionName());
             loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
             initContextMenu();
             initTreeTableView();
@@ -130,7 +133,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void setTreeTableViewBehaviour() {
-
         ds3TreeTable.setOnDragEntered(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragOver(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragDropped(event -> {
@@ -205,6 +207,9 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
+                LOG.info("Loading Session " + session.getSessionName(), LogType.INFO);
+                loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
+
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItems().setVisible(true);
@@ -216,12 +221,14 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
                 }
             } else {
+                LOG.info("No current session.");
                 ds3PanelPresenter.setBlank(true);
                 ds3PanelPresenter.disableSearch(true);
             }
         });
 
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
+        LOG.info("Getting buckets from {}", session.getEndpoint());
         workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
@@ -285,10 +292,6 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             });
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-        });
-        getServiceTask.setOnFailed(event -> {
-            LOG.info("GetServiceTask failed");
-            ds3TreeTable.setPlaceholder(oldPlaceHolder);
         });
     }
 
