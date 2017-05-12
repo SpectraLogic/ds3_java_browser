@@ -49,7 +49,7 @@ public class CreateFolderTaskTest {
                 //Instantiating create folder task
                 final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel,
                         folderName, PathUtil.getDs3ObjectList(location, folderName),
-                        null);
+                        null, null);
                 workers.execute(createFolderTask);
                 //Validating test case
                 createFolderTask.setOnSucceeded(event -> {

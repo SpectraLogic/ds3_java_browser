@@ -90,7 +90,7 @@ public class CreateFolderPresenter implements Initializable {
             final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
                     createFolderModel, folderNameField.textProperty().getValue(),
                     PathUtil.getDs3ObjectList(location, folderNameField.textProperty().getValue()),
-                    loggingService);
+                    loggingService, resourceBundle);
             workers.execute(createFolderTask);
             //Handling task actions
             createFolderTask.setOnSucceeded(event -> {

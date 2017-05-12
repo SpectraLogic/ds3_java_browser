@@ -1,6 +1,5 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
-
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
@@ -19,7 +18,6 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -28,7 +26,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.spectralogic.dsbrowser.gui.util.BucketUtil.distinctByKey;
 
-public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
+public class GetBucketTask extends Ds3Task {
     private final static Logger LOG = LoggerFactory.getLogger(GetBucketTask.class);
 
     private final ReadOnlyObjectWrapper<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResults;
@@ -165,6 +162,5 @@ public class GetBucketTask extends Task<ObservableList<TreeItem<Ds3TreeTableValu
         }
         return partialResults.get();
     }
-
 
 }

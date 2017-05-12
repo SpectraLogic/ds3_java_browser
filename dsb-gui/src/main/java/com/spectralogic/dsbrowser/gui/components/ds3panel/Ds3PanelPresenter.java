@@ -228,7 +228,10 @@ public class Ds3PanelPresenter implements Initializable {
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
-        ds3NewBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
+        ds3NewBucket.setOnAction(event -> {
+            LOG.debug("Attempting to create bucket...");
+            CreateService.createBucketPrompt(ds3Common, workers, loggingService);
+        });
 
         ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
