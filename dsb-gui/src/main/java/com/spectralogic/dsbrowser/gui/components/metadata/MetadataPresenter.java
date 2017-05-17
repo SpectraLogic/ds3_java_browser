@@ -49,14 +49,13 @@ public class MetadataPresenter implements Initializable {
     private TableColumn metadataTableColName;
 
     @ModelContext
-    private final Ds3Metadata ds3Metadata;
+    private Ds3Metadata ds3Metadata;
+
     private final ResourceBundle resourceBundle;
 
     @Inject
-    public MetadataPresenter(final ResourceBundle resourceBundle,
-                             final Ds3Metadata ds3Metadata) {
+    public MetadataPresenter(final ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
-        this.ds3Metadata = ds3Metadata;
     }
 
     @Override

@@ -145,25 +145,7 @@ public class ShutdownServiceImpl implements ShutdownService {
 
                     String jobId = "";
                     final Ds3Client ds3Client = job.getDs3Client();
-                    if (job instanceof Ds3PutJob) {
-                        final Ds3PutJob ds3PutJob = (Ds3PutJob) job;
-                        if (ds3PutJob.getJobId() != null) {
-                            jobId = ds3PutJob.getJobId().toString();
-                        }
-                        LOG.info("Cancelled job:{} ", ds3PutJob.getJobId());
-                    } else if (job instanceof Ds3GetJob) {
-                        final Ds3GetJob ds3GetJob = (Ds3GetJob) job;
-                        if (ds3GetJob.getJobId() != null) {
-                            jobId = ds3GetJob.getJobId().toString();
-                        }
-                        LOG.info("Cancelled job:{} ", ds3GetJob.getJobId());
-                    } else if (job instanceof RecoverInterruptedJob) {
-                        final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) job;
-                        jobId = recoverInterruptedJob.getUuid().toString();
-                        LOG.info("Cancelled job:{} ", recoverInterruptedJob.getUuid());
-                    } else {
-                        LOG.error("Unknown Job type: {}", job.getClass().toString());
-                    }
+                    LOG.info("Cancelled job:{} ", job.getJobId());
 
                     final AtomicDouble progress = new AtomicDouble();
                     Platform.runLater(() -> {

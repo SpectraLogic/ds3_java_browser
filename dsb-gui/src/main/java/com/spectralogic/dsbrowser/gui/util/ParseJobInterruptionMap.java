@@ -43,15 +43,8 @@ public final class ParseJobInterruptionMap {
                 final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
                 final HashMap<String, FilesAndFolderMap> collect = jobIDMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
                 final ObservableList<Ds3JobTask> tasks = jobWorkers.getTasks();
-                tasks.forEach(i -> {
-                    UUID uuid = null;
-                    if (i instanceof Ds3PutJob) {
-                        uuid = ((Ds3PutJob) i).getJobId();
-                    } else if (i instanceof Ds3GetJob) {
-                        uuid = ((Ds3GetJob) i).getJobId();
-                    } else if (i instanceof RecoverInterruptedJob) {
-                        uuid = ((RecoverInterruptedJob) i).getUuid();
-                    }
+                tasks.forEach(task -> {
+                    final UUID uuid = task.getJobId();
                     if (uuid != null && uuid != jobId && collect.containsKey(uuid.toString())) {
                         collect.remove(uuid.toString());
                     }

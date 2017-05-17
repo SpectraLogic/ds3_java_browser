@@ -43,7 +43,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         try {
             executeJob();
         } catch (final Exception e) {
-            LOG.error("Job failed with an exception", e);
+            LOG.error("Job failed with an exception: " + e);
             return false;
         }
         LOG.info("Job finished successfully");
@@ -51,6 +51,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
     public abstract void executeJob() throws Exception;
+
+    public abstract UUID getJobId();
 
     public void updateProgressPutJob() {
         updateProgress(0.1, 100);
@@ -80,7 +82,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
                     updateMessage(resourceBundle.getString("noAvailableChunks") + SPACE + retryTimeRemaining + resourceBundle.getString("seconds"));
                     Thread.sleep(1000);
                 } catch (final Exception e) {
-                    LOG.error("Exception in attachWaitingForChunksListener: {}", e);
+                    LOG.error("Exception in attachWaitingForChunksListener: " + e);
                 }
             }
             updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDir).toString());

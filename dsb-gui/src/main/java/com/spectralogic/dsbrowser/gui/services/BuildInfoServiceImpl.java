@@ -81,9 +81,9 @@ public class BuildInfoServiceImpl implements BuildInfoService{
             LOG.info("buildDate property[{}]", buildDate);
             return LocalDateTime.parse(buildDate, dtf);
         }catch (final NullPointerException npe) {
-            LOG.error("Failed to find build.date property in Resource file: {}\n", buildPropertiesFile, npe);
+            LOG.error("Failed to find build.date property in Resource file: {}" + npe, buildPropertiesFile);
         }catch (final DateTimeParseException dtpe) {
-            LOG.error("Failed to convert build.date property into Date object: {}\n", buildProps.getProperty(buildPropertiesDate), dtpe);
+            LOG.error("Failed to convert build.date property into Date object: {}" + dtpe, buildProps.getProperty(buildPropertiesDate));
         }
 
         return LocalDateTime.now();

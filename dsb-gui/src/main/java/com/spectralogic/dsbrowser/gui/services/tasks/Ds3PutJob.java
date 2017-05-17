@@ -125,8 +125,8 @@ public class Ds3PutJob extends Ds3JobTask {
                     final int finalIndex = index;
                     loggingService.logMessage(
                             StringBuilderUtil.objectSuccessfullyTransferredString(
-                                    obj.substring(finalIndex, obj.length()), bucket
-                                            + StringConstants.FORWARD_SLASH + targetDir, newDate,
+                                    obj.substring(finalIndex, obj.length()),
+                                    bucket + StringConstants.FORWARD_SLASH + targetDir, newDate,
                                     resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS);
                 });
                 //store meta data to server
@@ -146,19 +146,18 @@ public class Ds3PutJob extends Ds3JobTask {
             }
         } catch (final RuntimeException rte) {
             //cancel the job if it is already running
-            LOG.error("Encountered an error on a put job", rte);
+            LOG.error("Encountered an error on a put job:\n" + rte);
             isJobFailed = true;
             removeJobIdAndUpdateJobsBtn(jobInterruptionStore, jobId);
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), rte).toString(), LogType.ERROR);
 
         } catch (final InterruptedException ie) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job: {}", ie);
-            loggingService.logMessage(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString()
-                    , LogType.ERROR);
+            LOG.error("Encountered an error on a put job:\n" + ie);
+            loggingService.logMessage(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString(), LogType.ERROR);
         } catch (final Exception e) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job: {}", e);
+            LOG.error("Encountered an error on a put job:\n" + e);
 
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), e).toString(), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, jobId);
@@ -178,7 +177,7 @@ public class Ds3PutJob extends Ds3JobTask {
             ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(),
                     ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, JobRequestType.PUT.toString(), bucket);
         } catch (final Exception e) {
-            LOG.error("Failed to save job id: {}", e);
+            LOG.error("Failed to save job id: " + e);
         }
         return job;
     }
@@ -209,7 +208,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                 folderMap.put(ds3FileName, path);
             } catch (final IOException e) {
-                LOG.error("Failed to list files for directory: " + path.toString(), e);
+                LOG.error("Failed to list files for directory {}: " + e, path.toString());
             }
         });
         return folderMap;
@@ -277,7 +276,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 Thread.sleep(60000);
                 response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
             }
-            LOG.info("Job transfered to permanent storage location");
+            LOG.info("Job transferred to permanent storage location");
             final String newDate = DateFormat.formatDate(new Date());
             loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate, resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
         } else {
@@ -287,9 +286,8 @@ public class Ds3PutJob extends Ds3JobTask {
         }
     }
 
+    @Override
     public UUID getJobId() {
         return jobId;
     }
-
-
 }

@@ -341,17 +341,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void modifyJobPriority(final Ds3JobTask task) {
         {
-            UUID jobId = null;
-            if (task instanceof Ds3PutJob) {
-                final Ds3PutJob ds3PutJob = (Ds3PutJob) task;
-                jobId = ds3PutJob.getJobId();
-            } else if (task instanceof Ds3GetJob) {
-                final Ds3GetJob ds3GetJob = (Ds3GetJob) task;
-                jobId = ds3GetJob.getJobId();
-            } else if (task instanceof RecoverInterruptedJob) {
-                final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) task;
-                jobId = recoverInterruptedJob.getUuid();
-            }
+            final UUID jobId = task.getJobId();
             if (getSession() != null) {
                 if (jobId != null) {
 
@@ -365,6 +355,8 @@ public class Ds3PanelPresenter implements Initializable {
                 } else {
                     LOG.info("Job is not started yet");
                 }
+            } else {
+                LOG.error("Null session.");
             }
         }
     }

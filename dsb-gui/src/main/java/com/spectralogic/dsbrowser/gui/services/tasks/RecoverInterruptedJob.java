@@ -187,7 +187,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         return Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
     }
 
-    public UUID getUuid() {
+    @Override
+    public UUID getJobId() {
         return uuid;
     }
 
