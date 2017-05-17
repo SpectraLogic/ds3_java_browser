@@ -36,8 +36,8 @@ public class BuildInfoServiceImpl implements BuildInfoService{
     static final String dateTimeFormatterPattern = "EEE MMM dd kk:mm:ss z yyyy";  // build.date="Wed Mar 15 11:10:25 MDT 2017"
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateTimeFormatterPattern);
 
-    private String buildVersion;
-    private LocalDateTime buildDateTime;
+    private final String buildVersion;
+    private final LocalDateTime buildDateTime;
 
     public BuildInfoServiceImpl() {
         final Properties buildProps = getBuildProperties();
@@ -60,10 +60,12 @@ public class BuildInfoServiceImpl implements BuildInfoService{
         final Properties buildProps = new Properties();
         try {
             buildProps.load(is);
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             LOG.error("Failed to read build properties from {}: ", buildPropertiesFile, e);
             buildProps.setProperty(buildPropertiesVersion, "debug");
-            buildProps.setProperty(buildPropertiesDate, LocalDateTime.now().format(dtf));
+            final LocalDateTime currentTime = LocalDateTime.now();
+            final String currentFormattedTime = currentTime.toString();
+            buildProps.setProperty(buildPropertiesDate, currentFormattedTime);
         }
 
         return buildProps;
