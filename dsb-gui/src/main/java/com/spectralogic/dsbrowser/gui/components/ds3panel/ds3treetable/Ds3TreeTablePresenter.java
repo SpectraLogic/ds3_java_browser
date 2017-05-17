@@ -75,16 +75,16 @@ public class Ds3TreeTablePresenter implements Initializable {
     @ModelContext
     private Session session;
 
-    private Workers workers;
-    private JobWorkers jobWorkers;
-    private ResourceBundle resourceBundle;
-    private DataFormat dataFormat;
-    private Ds3Common ds3Common;
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private JobInterruptionStore jobInterruptionStore;
-    private SettingsStore settingsStore;
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private LoggingService loggingService;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final ResourceBundle resourceBundle;
+    private final DataFormat dataFormat;
+    private final Ds3Common ds3Common;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final LoggingService loggingService;
 
     private ContextMenu contextMenu;
 
@@ -207,7 +207,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
-                LOG.info("Loading Session " + session.getSessionName(), LogType.INFO);
+                LOG.info("Loading Session {}", session.getSessionName());
                 loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
 
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),

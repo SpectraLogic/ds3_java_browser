@@ -41,9 +41,9 @@ public class CreateFolderPresenter implements Initializable {
     @ModelContext
     private CreateFolderModel createFolderModel;
 
-    private Workers workers;
-    private ResourceBundle resourceBundle;
-    private LoggingService loggingService;
+    private final Workers workers;
+    private final ResourceBundle resourceBundle;
+    private final LoggingService loggingService;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,

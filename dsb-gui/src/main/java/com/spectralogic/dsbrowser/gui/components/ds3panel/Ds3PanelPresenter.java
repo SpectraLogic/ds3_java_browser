@@ -98,19 +98,19 @@ public class Ds3PanelPresenter implements Initializable {
     @FXML
     private Ds3TreeTablePresenter ds3TreeTablePresenter;
 
-    private ResourceBundle resourceBundle;
-    private Ds3SessionStore ds3SessionStore;
-    private Workers workers;
-    private JobWorkers jobWorkers;
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private JobInterruptionStore jobInterruptionStore;
-    private SettingsStore settingsStore;
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private FileTreeTableProvider fileTreeTableProvider;
-    private DataFormat dataFormat;
-    private Ds3Common ds3Common;
-    private SavedSessionStore savedSessionStore;
-    private LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3SessionStore ds3SessionStore;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final FileTreeTableProvider fileTreeTableProvider;
+    private final DataFormat dataFormat;
+    private final Ds3Common ds3Common;
+    private final SavedSessionStore savedSessionStore;
+    private final LoggingService loggingService;
 
     private GetNoOfItemsTask itemsTask;
 

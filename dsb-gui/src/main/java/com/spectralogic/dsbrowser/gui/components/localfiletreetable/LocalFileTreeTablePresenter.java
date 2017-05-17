@@ -74,18 +74,18 @@ public class LocalFileTreeTablePresenter implements Initializable {
     @FXML
     private Label localPathIndicator;
 
-    private ResourceBundle resourceBundle;
-    private Ds3Common ds3Common;
-    private FileTreeTableProvider fileTreeTableProvider;
-    private DataFormat dataFormat;
-    private Workers workers;
-    private JobWorkers jobWorkers;
-    private Ds3SessionStore ds3SessionStore;
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private JobInterruptionStore jobInterruptionStore;
-    private SettingsStore settingsStore;
-    private EndpointInfo endpointInfo;
-    private LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
+    private final FileTreeTableProvider fileTreeTableProvider;
+    private final DataFormat dataFormat;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final Ds3SessionStore ds3SessionStore;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final EndpointInfo endpointInfo;
+    private final LoggingService loggingService;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 

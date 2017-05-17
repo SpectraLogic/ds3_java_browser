@@ -105,11 +105,11 @@ public class SettingPresenter implements Initializable {
     @FXML
     private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
 
-    private ResourceBundle resourceBundle;
-    private JobWorkers jobWorkers;
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private SettingsStore settingsStore;
-    private ApplicationLoggerSettings applicationLoggerSettings;
+    private final ResourceBundle resourceBundle;
+    private final JobWorkers jobWorkers;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final SettingsStore settingsStore;
+    private final ApplicationLoggerSettings applicationLoggerSettings;
 
     private JobSettings jobSettings;
     private FilePropertiesSettings filePropertiesSettings;

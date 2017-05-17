@@ -2,6 +2,7 @@ package com.spectralogic.dsbrowser.gui.components.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.networking.Metadata;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.ByteFormat;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -47,8 +48,9 @@ public class MetadataPresenter implements Initializable {
     @FXML
     private TableColumn metadataTableColName;
 
-    private Ds3Metadata ds3Metadata;
-    private ResourceBundle resourceBundle;
+    @ModelContext
+    private final Ds3Metadata ds3Metadata;
+    private final ResourceBundle resourceBundle;
 
     @Inject
     public MetadataPresenter(final ResourceBundle resourceBundle,

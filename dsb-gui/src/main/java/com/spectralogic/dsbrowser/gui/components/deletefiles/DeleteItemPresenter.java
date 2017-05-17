@@ -47,10 +47,10 @@ public class DeleteItemPresenter implements Initializable {
     @ModelContext
     private Ds3Task deleteTask;
 
-    private Workers workers;
-    private Ds3Common ds3Common;
-    private ResourceBundle resourceBundle;
-    private LoggingService loggingService;
+    private final Workers workers;
+    private final Ds3Common ds3Common;
+    private final ResourceBundle resourceBundle;
+    private final LoggingService loggingService;
 
     @Inject
     public DeleteItemPresenter(final Workers workers,

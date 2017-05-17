@@ -50,14 +50,14 @@ public class JobInfoPresenter implements Initializable {
     @FXML
     private TreeTableColumn jobIdColumn;
 
-    private ResourceBundle resourceBundle;
-    private Ds3Common ds3Common;
-    private Workers workers;
-    private JobWorkers jobWorkers;
-    private EndpointInfo endpointInfo;
-    private JobInterruptionStore jobInterruptionStore;
-    private SettingsStore settingsStore;
-    private LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final EndpointInfo endpointInfo;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final LoggingService loggingService;
 
     private Stage stage;
 

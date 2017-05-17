@@ -36,10 +36,10 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @FXML
     private Button yesButton, noButton;
 
-    private ResourceBundle resourceBundle;
-    private Workers workers;
-    private Ds3Common ds3Common;
-    private LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Workers workers;
+    private final Ds3Common ds3Common;
+    private final LoggingService loggingService;
 
     @ModelContext
     private ModifyJobPriorityModel value;
