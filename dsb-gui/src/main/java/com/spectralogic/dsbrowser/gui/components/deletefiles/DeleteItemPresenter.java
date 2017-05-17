@@ -87,7 +87,7 @@ public class DeleteItemPresenter implements Initializable {
             });
 
         } catch (final Exception e) {
-            LOG.error("Encountered an error making the delete file presenter", e);
+            LOG.error("Encountered an error making the delete file presenter. \n{}", e);
         }
     }
 
@@ -152,7 +152,7 @@ public class DeleteItemPresenter implements Initializable {
         }
         message = alertMessage + StringConstants.SPACE + deleteTask.getErrorMsg();
 
-        LOG.error("Failed to delete selected item(s) ", message);
+        LOG.error("Failed to delete selected item(s): {}", message);
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
