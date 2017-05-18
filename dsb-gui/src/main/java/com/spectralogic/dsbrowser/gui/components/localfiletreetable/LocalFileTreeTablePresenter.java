@@ -423,7 +423,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles, final Session session, final Path localPath, final String priority, final TreeItem<FileTreeModel> fileTreeItem) {
         final Ds3GetJob getJob = new Ds3GetJob(listFiles, localPath, session.getClient(),
-                priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common);
+                priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, resourceBundle, loggingService);
         jobWorkers.execute(getJob);
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");
@@ -462,7 +462,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final Ds3Common ds3Common,
                              final SettingsStore settingsStore,
                              final TreeItem<Ds3TreeTableValue> treeItem) {
-        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
+        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, resourceBundle);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("Succeed");

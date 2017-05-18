@@ -29,7 +29,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
 
-    protected final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    protected ResourceBundle resourceBundle;
     protected Ds3Client ds3Client;
     protected Ds3Common ds3Common;
     protected LoggingService loggingService;
@@ -43,7 +43,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         try {
             executeJob();
         } catch (final Exception e) {
-            LOG.error("Job failed with an exception: ", e);
+            LOG.error("Job failed with an exception: "+ e);
             return false;
         }
         LOG.info("Job finished successfully");

@@ -33,6 +33,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,7 +49,17 @@ public class Ds3PutJob extends Ds3JobTask {
     private final LoggingService loggingService;
     private UUID jobId;
 
-    public Ds3PutJob(final Ds3Client ds3Client, final List<File> files, final String bucket, final String targetDir, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobIdsModel, final Ds3Common ds3Common, final SettingsStore settings, final LoggingService loggingService) {
+    public Ds3PutJob(final Ds3Client ds3Client,
+                     final List<File> files,
+                     final String bucket,
+                     final String targetDir,
+                     final String jobPriority,
+                     final int maximumNumberOfParallelThreads,
+                     final JobInterruptionStore jobIdsModel,
+                     final Ds3Common ds3Common,
+                     final SettingsStore settings,
+                     final LoggingService loggingService,
+                     final ResourceBundle resourceBundle) {
         this.ds3Client = ds3Client;
         this.files = files;
         this.bucket = bucket;
@@ -59,6 +70,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.ds3Common = ds3Common;
         this.settings = settings;
         this.loggingService = loggingService;
+        this.resourceBundle = resourceBundle;
     }
 
     @Override
