@@ -76,7 +76,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
                 modifyJobPriorityTask.setOnFailed(event -> loggingService.logMessage(
                     resourceBundle.getString("failedToModifyPriority"), LogType.ERROR));
             } catch (final Exception e) {
-                LOG.error("Failed to modify the job: {}", e);
+                LOG.error("Failed to modify the job:", e);
                 loggingService.logMessage(
                     resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
             }

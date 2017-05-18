@@ -38,19 +38,18 @@ public class CreateConnectionTask {
             client.getService(new GetServiceRequest());
             return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession());
         } catch (final UnknownHostException e) {
-            LOG.error("Invalid Endpoint Server Name or IP Address: {}", e);
+            LOG.error("Invalid Endpoint Server Name or IP Address: ", e);
             Ds3Alert.show(resourceBundle.getString("invalidEndpoint"), resourceBundle.getString("invalidEndpointMessage"), Alert.AlertType.ERROR);
         } catch (final FailedRequestUsingMgmtPortException e) {
-            LOG.error("Attempted data access on management port -- check endpoint: {}", e);
+            LOG.error("Attempted data access on management port -- check endpoint: ", e);
             Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("checkEndpoint"), Alert.AlertType.ERROR);
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
-                    LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's" +
-                            "clock: {}", e);
+                    LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
                     Ds3Alert.show(resourceBundle.getString("failToAuthenticate"), resourceBundle.getString("failToAuthenticateMessage"), Alert.AlertType.ERROR);
                 } else {
-                    LOG.error("Invalid Access ID or Secret Key: {}", e);
+                    LOG.error("Invalid Access ID or Secret Key: ", e);
                     Ds3Alert.show(resourceBundle.getString("invalidIDKEY"), resourceBundle.getString("invalidIDKEYMessage"), Alert.AlertType.ERROR);
                 }
             } else {
@@ -58,7 +57,7 @@ public class CreateConnectionTask {
                 Ds3Alert.show(resourceBundle.getString("unexpectedStatus"), resourceBundle.getString("unexpectedStatusMessage"), Alert.AlertType.ERROR);
             }
         } catch (final IOException ioe) {
-            LOG.error("Encountered a networking error: {}", ioe);
+            LOG.error("Encountered a networking error: ", ioe);
             Ds3Alert.show(resourceBundle.getString("networkError"), resourceBundle.getString("networkErrorMessage"), Alert.AlertType.ERROR);
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong.", rte);

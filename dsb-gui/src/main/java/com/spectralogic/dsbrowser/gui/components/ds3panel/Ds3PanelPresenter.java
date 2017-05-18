@@ -289,7 +289,7 @@ public class Ds3PanelPresenter implements Initializable {
                             disableSearch(true);
                         }
                     } catch (final Exception e) {
-                        LOG.error("Not able to parse: {}", e);
+                        LOG.error("Not able to parse:", e);
                     }
                 }
         );
@@ -385,7 +385,7 @@ public class Ds3PanelPresenter implements Initializable {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
             } catch (final Exception e) {
-                LOG.error("Failed to remove session: {}", e);
+                LOG.error("Failed to remove session:", e);
             }
             if (ds3SessionStore.size() == 0) {
                 ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
@@ -503,7 +503,7 @@ public class Ds3PanelPresenter implements Initializable {
                 });
 
             } catch (final Exception e) {
-                LOG.error("Failed to get data from black pearl: {}", e);
+                LOG.error("Failed to get data from black pearl:", e);
                 loggingService.logMessage(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
                 Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("somethingWentWrong"), Alert.AlertType.ERROR);
             }

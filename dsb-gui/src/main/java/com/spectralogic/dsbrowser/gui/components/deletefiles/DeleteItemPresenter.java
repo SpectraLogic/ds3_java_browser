@@ -87,7 +87,7 @@ public class DeleteItemPresenter implements Initializable {
             });
 
         } catch (final Exception e) {
-            LOG.error("Encountered an error making the delete file presenter: " + e);
+            LOG.error("Encountered an error making the delete file presenter", e);
         }
     }
 
@@ -121,7 +121,7 @@ public class DeleteItemPresenter implements Initializable {
         deleteTask.setOnFailed(event -> constructMessageForLog());
         deleteTask.setOnSucceeded(event -> {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
-            LOG.info("Successfully deleted selected item(s):{} ", LogType.SUCCESS);
+            LOG.info("Successfully deleted selected item(s).");
 
             DeleteService.managePathIndicator(ds3Common, workers, loggingService);
             closeDialog();

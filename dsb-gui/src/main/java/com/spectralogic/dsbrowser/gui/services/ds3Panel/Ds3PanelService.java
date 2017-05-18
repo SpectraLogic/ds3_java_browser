@@ -224,7 +224,7 @@ public final class Ds3PanelService {
                 });
                 searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
             } catch (final Exception e) {
-                LOG.error("Could not complete search: {}", e);
+                LOG.error("Could not complete search: ", e);
             }
         }
     }

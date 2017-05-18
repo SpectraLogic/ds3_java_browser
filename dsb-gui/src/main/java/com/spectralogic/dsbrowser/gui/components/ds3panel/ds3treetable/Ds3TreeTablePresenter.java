@@ -491,7 +491,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     loadMore(row.getTreeItem());
                 }
             } catch (final Exception e) {
-                LOG.error("Not able to get tree item",e);
+                LOG.error("Not able to get tree item", e);
             }
         } else {
             try {

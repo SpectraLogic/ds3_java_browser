@@ -26,7 +26,7 @@ public class Ds3DeleteBucketTask extends Ds3Task {
             ds3Client.deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
             return StringConstants.SUCCESS;
         } catch (final Exception e) {
-            LOG.error("Failed to delete Bucket: {}", e);
+            LOG.error("Failed to delete Bucket: ", e);
             setErrorMsg(e.getMessage());
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
             return e.toString();

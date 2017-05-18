@@ -74,7 +74,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 final AtomicLong totalSent = addDataTransferListener(totalJobSize);
 
                 job.attachObjectCompletedListener(s -> {
-                    LOG.info("Object Transfer Completed{}", s);
+                    LOG.info("Object Transfer Completed {}", s);
                     getTransferRates(jobStartInstant, totalSent, totalJobSize, s, filesAndFolderMap.getTargetLocation());
                     endpointInfo.getDeepStorageBrowserPresenter().logText(
                             resourceBundle.getString("successfullyTransferred")

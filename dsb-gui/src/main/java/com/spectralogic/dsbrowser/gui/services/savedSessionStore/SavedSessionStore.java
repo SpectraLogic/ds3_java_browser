@@ -167,7 +167,7 @@ public class SavedSessionStore {
                 }
             }
         } catch (final Exception e) {
-            LOG.error("Encountered error fetching default session: {}", e);
+            LOG.error("Encountered error fetching default session: ", e);
         }
     }
 

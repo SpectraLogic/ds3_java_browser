@@ -146,18 +146,19 @@ public class Ds3PutJob extends Ds3JobTask {
             }
         } catch (final RuntimeException rte) {
             //cancel the job if it is already running
-            LOG.error("Encountered an error on a put job:\n" + rte);
             isJobFailed = true;
+            LOG.error("Encountered an error on a put job:\n", rte);
+
             removeJobIdAndUpdateJobsBtn(jobInterruptionStore, jobId);
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), rte).toString(), LogType.ERROR);
-
         } catch (final InterruptedException ie) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job:\n" + ie);
+            LOG.error("Encountered an error on a put job:\n", ie);
+
             loggingService.logMessage(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString(), LogType.ERROR);
         } catch (final Exception e) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job:\n" + e);
+            LOG.error("Encountered an error on a put job:\n", e);
 
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), e).toString(), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, jobId);
@@ -177,7 +178,7 @@ public class Ds3PutJob extends Ds3JobTask {
             ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(),
                     ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, JobRequestType.PUT.toString(), bucket);
         } catch (final Exception e) {
-            LOG.error("Failed to save job id: " + e);
+            LOG.error("Failed to save job id: ", e);
         }
         return job;
     }
@@ -208,7 +209,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 final String ds3FileName = PathUtil.toDs3Path(targetDir, ds3ObjPath);
                 folderMap.put(ds3FileName, path);
             } catch (final IOException e) {
-                LOG.error("Failed to list files for directory {}: " + e, path.toString());
+                LOG.error("Failed to list files for directory : " + path.toString(), e);
             }
         });
         return folderMap;

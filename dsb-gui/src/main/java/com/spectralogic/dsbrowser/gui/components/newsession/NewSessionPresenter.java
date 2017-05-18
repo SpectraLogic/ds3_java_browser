@@ -78,7 +78,7 @@ public class NewSessionPresenter implements Initializable {
             initSessionList();
             initPropertySheet();
         } catch (final Exception e) {
-            LOG.error("Failed to load NewSessionPresenter: {}", e);
+            LOG.error("Failed to load NewSessionPresenter: ", e);
         }
     }
 
@@ -218,7 +218,7 @@ public class NewSessionPresenter implements Initializable {
                                 try {
                                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                                 } catch (final Exception e) {
-                                    LOG.error("Unable to save saved session:{} ", e);
+                                    LOG.error("Unable to save saved session:", e);
                                 }
                             }
                         }
@@ -242,7 +242,7 @@ public class NewSessionPresenter implements Initializable {
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     } catch (final IOException e) {
-                        LOG.error("Failed to save session:{} ", e);
+                        LOG.error("Failed to save session: ", e);
                     }
                     if (i <= previousSize) {
                         Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionUpdatedSuccessfully"), Alert.AlertType.INFORMATION);
