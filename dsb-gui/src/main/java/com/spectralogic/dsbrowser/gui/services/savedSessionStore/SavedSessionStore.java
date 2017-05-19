@@ -40,6 +40,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class SavedSessionStore {
@@ -154,7 +155,7 @@ public class SavedSessionStore {
     }
 
     //open default session when DSB launched
-    public void openDefaultSession(final Ds3SessionStore store) {
+    public void openDefaultSession(final Ds3SessionStore store, final ResourceBundle resourceBundle) {
         try {
             final List<SavedSession> defaultSession = getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
             if (defaultSession.size() == 1) {
@@ -162,7 +163,7 @@ public class SavedSessionStore {
                 if (first.isPresent()) {
                     final SavedSession savedSession = first.get();
                     Platform.runLater(() -> {
-                        store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true)));
+                        store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true), resourceBundle));
                     });
                 }
             }

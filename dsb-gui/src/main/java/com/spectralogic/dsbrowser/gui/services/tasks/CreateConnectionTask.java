@@ -8,9 +8,7 @@ import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,17 +18,16 @@ import java.util.ResourceBundle;
 
 public class CreateConnectionTask {
 
-    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
-
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    public Session createConnection(final NewSessionModel newSessionModel) {
-        Ds3Client client = null;
+    private static final LazyAlert alert = new LazyAlert("Error");
+
+    public Session createConnection(final NewSessionModel newSessionModel, final ResourceBundle resourceBundle) {
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().equals("")) {
                 newSessionModel.setProxyServer(null);
             }
-            client = Ds3ClientBuilder
+            final Ds3Client client = Ds3ClientBuilder
                     .create(newSessionModel.getEndpoint().trim() + ":" + newSessionModel.getPortNo().trim(),
                             new Credentials(newSessionModel.getAccessKey(), newSessionModel.getSecretKey()))
                     .withHttps(false).withProxy(newSessionModel.getProxyServer())
@@ -39,29 +36,29 @@ public class CreateConnectionTask {
             return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address: ", e);
-            Ds3Alert.show(resourceBundle.getString("invalidEndpoint"), resourceBundle.getString("invalidEndpointMessage"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("invalidEndpointMessage"));
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint: ", e);
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("checkEndpoint"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("checkEndpoint"));
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    Ds3Alert.show(resourceBundle.getString("failToAuthenticate"), resourceBundle.getString("failToAuthenticateMessage"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("failToAuthenticateMessage"));
                 } else {
                     LOG.error("Invalid Access ID or Secret Key: ", e);
-                    Ds3Alert.show(resourceBundle.getString("invalidIDKEY"), resourceBundle.getString("invalidIDKEYMessage"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("invalidIDKEYMessage"));
                 }
             } else {
                 LOG.error("BlackPearl return an unexpected status code we did not expect: {}", e);
-                Ds3Alert.show(resourceBundle.getString("unexpectedStatus"), resourceBundle.getString("unexpectedStatusMessage"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("unexpectedStatusMessage"));
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error: ", ioe);
-            Ds3Alert.show(resourceBundle.getString("networkError"), resourceBundle.getString("networkErrorMessage"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("networkErrorMessage"));
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong.", rte);
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("authenticationAlert"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("authenticationAlert"));
         }
         return null;
     }

@@ -8,7 +8,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TextField bucketNameField;
@@ -118,19 +120,19 @@ public class CreateBucketPresenter implements Initializable {
                     });
                 });
                 createBucketTask.setOnFailed(event -> {
-                    Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
                 });
             } else {
                 LOG.info("Data policy not found");
                 loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
-                Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("dataPolicyNotFoundErr"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
             loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
-            Ds3Alert.show(resourceBundle.getString("createBucketError"), resourceBundle.getString("createBucketErrorAlert"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
         }
     }
 

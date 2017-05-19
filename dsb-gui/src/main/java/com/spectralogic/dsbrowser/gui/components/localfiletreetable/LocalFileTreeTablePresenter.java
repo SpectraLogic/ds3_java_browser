@@ -59,6 +59,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
+    private final LazyAlert alert = new LazyAlert("Error");
+
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
 
@@ -262,12 +264,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void transferToBlackPearl() {
         try {
             if (ds3Common.getCurrentSession() == null) {
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noSession"), Alert.AlertType.INFORMATION);
+                alert.showAlert(resourceBundle.getString("noSession"));
                 return;
             }
             final ObservableList<TreeItem<FileTreeModel>> currentSelection = treeTable.getSelectionModel().getSelectedItems();
             if (currentSelection.isEmpty()) {
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("fileSelect"), Alert.AlertType.INFORMATION);
+                alert.showAlert(resourceBundle.getString("fileSelect"));
                 return;
             }
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
@@ -276,7 +278,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             //Finding root in case of double click to get selected items
             final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
             if ((root == null || null == root.getValue()) && Guard.isNullOrEmpty(values)) {
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("selectDestination"), Alert.AlertType.INFORMATION);
+                alert.showAlert(resourceBundle.getString("selectDestination"));
                 return;
             }
             //If values is empty we have to assign it with root
@@ -285,7 +287,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 values = builder.add(root).build().asList();
             }
             if (values.size() > 1) {
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("multipleDestError"));
                 return;
             }
 
@@ -296,7 +298,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final TreeItem<Ds3TreeTableValue> treeItem = first.get();
 
                 if (treeItem.getValue().isSearchOn()) {
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("operationNotAllowed"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("operationNotAllowed"));
                     return;
                 }
 

@@ -6,12 +6,11 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -28,6 +27,8 @@ import java.util.ResourceBundle;
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TextField folderNameField;
@@ -101,14 +102,14 @@ public class CreateFolderPresenter implements Initializable {
             createFolderTask.setOnCancelled(event -> this.closeDialog());
             createFolderTask.setOnFailed(event -> {
                 this.closeDialog();
-                Ds3Alert.show(resourceBundle.getString("createFolderErrAlert"), resourceBundle.getString("createFolderErrLogs"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
             });
         } catch (final Exception e) {
             LOG.error("Failed to create folder", e);
             loggingService.logMessage(resourceBundle.getString("createFolderErr") + StringConstants.SPACE
                     + folderNameField.textProperty().getValue().trim() + StringConstants.SPACE
                     + resourceBundle.getString("txtReason") + StringConstants.SPACE + e, LogType.ERROR);
-            Ds3Alert.show(resourceBundle.getString("createFolderErrAlert"), resourceBundle.getString("createFolderErrLogs"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
         }
     }
 

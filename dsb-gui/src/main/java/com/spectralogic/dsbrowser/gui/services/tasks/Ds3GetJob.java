@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 public class Ds3GetJob extends Ds3JobTask {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
+    private static final LazyAlert alert = new LazyAlert("Error");
     private final List<Ds3TreeTableValueCustom> list;
     private final Path fileTreeModel;
     private final List<Ds3TreeTableValueCustom> nodes;
@@ -61,7 +62,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.list = list;
         this.fileTreeModel = fileTreeModel;
         this.ds3Client = client;
-        nodes = new ArrayList<>();
+        this.nodes = new ArrayList<>();
         this.jobPriority = jobPriority;
         this.map = new HashMap<>();
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
@@ -102,7 +103,7 @@ public class Ds3GetJob extends Ds3JobTask {
                             StringBuilderUtil.getJobFailedMessage(resourceBundle.getString("getJobFailed"),
                                     ds3Client.getConnectionDetails().getEndpoint(),
                                     resourceBundle.getString("notEnoughSpace"), null), LogType.ERROR);
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("notEnoughSpaceAlert"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("notEnoughSpaceAlert"));
                 } else {
                     job = getJob(filteredNode, objects, fileMap, folderMap, totalJobSize);
                     updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize),

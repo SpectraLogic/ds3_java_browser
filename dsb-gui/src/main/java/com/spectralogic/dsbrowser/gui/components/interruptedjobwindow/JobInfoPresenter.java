@@ -35,6 +35,8 @@ public class JobInfoPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
+    private final LazyAlert alert = new LazyAlert("Error");
+
     @FXML
     private TreeTableView<JobInfoModel> jobListTreeTable;
 
@@ -103,9 +105,10 @@ public class JobInfoPresenter implements Initializable {
                     }
                 }
             } else {
-                ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"), Alert.AlertType.INFORMATION);
-                LOG.info("Network in unreachable");
+                final String errorMsg = resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable");
+                ErrorUtils.dumpTheStack(errorMsg);
+                alert.showAlert(errorMsg);
+                LOG.info("Network is unreachable");
             }
         });
     }
@@ -240,9 +243,10 @@ public class JobInfoPresenter implements Initializable {
                 });
             }
         } else {
-            ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
-            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"), Alert.AlertType.INFORMATION);
-            LOG.info("Network in unreachable");
+            final String errorMsg = resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable");
+            ErrorUtils.dumpTheStack(errorMsg);
+            alert.showAlert(errorMsg);
+            LOG.info("Network is unreachable");
         }
     }
 

@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
 
 public final class Ds3PanelService {
 
-    private final static Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
-    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private static final LazyAlert alert = new LazyAlert("Error");
 
     /**
      * check if bucket contains or folders
@@ -115,13 +115,13 @@ public final class Ds3PanelService {
         }
     }
 
-    public static void showPhysicalPlacement(final Ds3Common ds3Common, final Workers workers) {
+    public static void showPhysicalPlacement(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
-            LOG.info("Nothing selected");
-            Ds3Alert.show(null, "Nothing selected !!", Alert.AlertType.INFORMATION);
+            LOG.info(resourceBundle.getString("nothingSelected"));
+            alert.showAlert(resourceBundle.getString("nothingSelected"));
             return;
         } else if (tempValues.isEmpty()) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -130,8 +130,8 @@ public final class Ds3PanelService {
         }
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
-            LOG.info("Only a single object can be selected to view physical placement ");
-            Ds3Alert.show(null, "Only a single object can be selected to view physical placement", Alert.AlertType.INFORMATION);
+            LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
+            alert.showAlert(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
             return;
         }
 
@@ -145,17 +145,17 @@ public final class Ds3PanelService {
     }
 
     @SuppressWarnings("unchecked")
-    public static void showMetadata(final Ds3Common ds3Common, final Workers workers) {
+    public static void showMetadata(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
         final TreeTableView ds3TreeTableView = ds3Common.getDs3TreeTableView();
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3TreeTableView.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
-            LOG.info("No files selected");
-            Ds3Alert.show(null, "No files selected", Alert.AlertType.ERROR);
+            LOG.info(resourceBundle.getString("noFiles"));
+            alert.showAlert(resourceBundle.getString("noFiles"));
             return;
         }
         if (values.size() > 1) {
-            LOG.info("Only a single object can be selected to view metadata ");
-            Ds3Alert.show(null, "Only a single object can be selected to view metadata ", Alert.AlertType.INFORMATION);
+            LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
+            alert.showAlert(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
             return;
         }
 
@@ -168,7 +168,7 @@ public final class Ds3PanelService {
         }));
     }
 
-    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
+    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle) {
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
         final String newValue = ds3PanelPresenter.getSearchedText();
         ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
