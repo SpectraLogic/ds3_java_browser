@@ -63,7 +63,7 @@ public class GuiModule extends AbstractModule {
 
         bind(Ds3Common.class).in(Singleton.class);
 
-        bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView")); // DM TODO pull "Ds3TreeTableView" from ResourceBundle?
+        bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView"));
 
         loadPresenters(this::bind);
     }

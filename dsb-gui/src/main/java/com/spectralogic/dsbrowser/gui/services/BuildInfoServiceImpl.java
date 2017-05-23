@@ -19,7 +19,6 @@ import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -6,6 +6,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+/**
+ * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
+ * if this Alert is never encountered.
+ */
 public class LazyAlert {
 
     private final String title;

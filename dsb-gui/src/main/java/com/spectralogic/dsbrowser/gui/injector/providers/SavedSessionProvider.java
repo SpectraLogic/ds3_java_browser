@@ -20,19 +20,27 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 public class SavedSessionProvider implements Provider<SavedSessionStore> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SavedSessionProvider.class);
+    private final ResourceBundle resourceBundle;
+
+    @Inject
+    public SavedSessionProvider(final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
+    }
 
     @Override
     public SavedSessionStore get() {
         try {
-            return SavedSessionStore.loadSavedSessionStore();
+            return SavedSessionStore.loadSavedSessionStore(resourceBundle);
         } catch (final IOException e) {
             LOG.error("Failed to load any saved sessions, continuing with none", e);
-            return SavedSessionStore.empty();
+            return SavedSessionStore.empty(resourceBundle);
         }
     }
 }

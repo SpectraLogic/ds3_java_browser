@@ -48,9 +48,12 @@ public class SavedSessionStore {
     private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private final ObservableList<SavedSession> sessions;
+    private final ResourceBundle resourceBundle;
     private boolean dirty = false;
 
-    private SavedSessionStore(final List<SavedSession> sessionList) {
+    private SavedSessionStore(final List<SavedSession> sessionList,
+                              final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
         this.sessions = FXCollections.observableArrayList(sessionList);
         this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
             if (c.next() && (c.wasAdded() || c.wasRemoved())) {
@@ -59,11 +62,11 @@ public class SavedSessionStore {
         });
     }
 
-    public static SavedSessionStore empty() {
-        return new SavedSessionStore(new ArrayList<>());
+    public static SavedSessionStore empty(final ResourceBundle resourceBundle) {
+        return new SavedSessionStore(new ArrayList<>(), resourceBundle);
     }
 
-    public static SavedSessionStore loadSavedSessionStore() throws IOException {
+    public static SavedSessionStore loadSavedSessionStore(final ResourceBundle resourceBundle) throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
@@ -74,7 +77,7 @@ public class SavedSessionStore {
             LOG.info("Creating new empty saved session store");
             sessions = new ArrayList<>();
         }
-        return new SavedSessionStore(sessions);
+        return new SavedSessionStore(sessions, resourceBundle);
     }
 
     public static void saveSavedSessionStore(final SavedSessionStore sessionStore) throws IOException {
@@ -155,7 +158,7 @@ public class SavedSessionStore {
     }
 
     //open default session when DSB launched
-    public void openDefaultSession(final Ds3SessionStore store, final ResourceBundle resourceBundle) {
+    public void openDefaultSession(final Ds3SessionStore store) {
         try {
             final List<SavedSession> defaultSession = getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
             if (defaultSession.size() == 1) {

@@ -160,7 +160,7 @@ public class Ds3PanelPresenter implements Initializable {
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             try {
                 //open default session when DSB launched
-                savedSessionStore.openDefaultSession(ds3SessionStore, resourceBundle);
+                savedSessionStore.openDefaultSession(ds3SessionStore);
             } catch (final Exception e) {
                 LOG.error("Encountered error fetching default session", e);
             }
@@ -549,9 +549,6 @@ public class Ds3PanelPresenter implements Initializable {
             if (root.getValue() == null) {
                 LOG.info("No files selected");
                 alert.showAlert(resourceBundle.getString("noFiles"));
-            } else {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                values = builder.add(root).build().asList();  //DM TODO why?
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             if (isButtonEvent) {
