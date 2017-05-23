@@ -159,18 +159,18 @@ public class Ds3PutJob extends Ds3JobTask {
         } catch (final RuntimeException rte) {
             //cancel the job if it is already running
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job:\n", rte);
+            LOG.error("Encountered an error on a put job: " + rte.getMessage(), rte);
 
             removeJobIdAndUpdateJobsBtn(jobInterruptionStore, jobId);
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), rte).toString(), LogType.ERROR);
         } catch (final InterruptedException ie) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job:\n", ie);
+            LOG.error("Encountered an error on a put job: " + ie.getMessage(), ie);
 
             loggingService.logMessage(StringBuilderUtil.jobCancelled(JobRequestType.PUT.toString()).toString(), LogType.ERROR);
         } catch (final Exception e) {
             isJobFailed = true;
-            LOG.error("Encountered an error on a put job:\n", e);
+            LOG.error("Encountered an error on a put job: " + e.getMessage(), e);
 
             loggingService.logMessage(StringBuilderUtil.jobFailed(JobRequestType.PUT.toString(), ds3Client.getConnectionDetails().getEndpoint(), e).toString(), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, jobId);
