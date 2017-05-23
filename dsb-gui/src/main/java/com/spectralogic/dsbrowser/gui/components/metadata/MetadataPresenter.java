@@ -2,6 +2,8 @@ package com.spectralogic.dsbrowser.gui.components.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.networking.Metadata;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.ByteFormat;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
@@ -18,33 +20,43 @@ import java.util.Calendar;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+@Presenter
 public class MetadataPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
     private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
     private final Calendar calendar = Calendar.getInstance();
+
     @FXML
     private Label objectName;
+
     @FXML
     private Label objectSize;
 
     @FXML
     private Label lastModified;
+
     @FXML
     private Tooltip nameTooltip;
+
     @FXML
     private TableView<MetadataEntry> metadataTable;
+
     @FXML
     private TableColumn<MetadataEntry, String> metadataTableColValue;
 
     @FXML
     private TableColumn metadataTableColName;
 
-    @Inject
+    @ModelContext
     private Ds3Metadata ds3Metadata;
 
+    private final ResourceBundle resourceBundle;
+
     @Inject
-    private ResourceBundle resourceBundle;
+    public MetadataPresenter(final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {

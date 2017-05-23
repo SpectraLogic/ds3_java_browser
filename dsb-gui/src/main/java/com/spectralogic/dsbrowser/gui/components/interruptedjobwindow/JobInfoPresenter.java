@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.Main;
@@ -10,7 +11,6 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.BackgroundTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-
+@Presenter
 public class JobInfoPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -50,31 +50,35 @@ public class JobInfoPresenter implements Initializable {
     @FXML
     private TreeTableColumn jobIdColumn;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private EndpointInfo endpointInfo;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final EndpointInfo endpointInfo;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final LoggingService loggingService;
 
     private Stage stage;
+
+    @Inject
+    public JobInfoPresenter(final ResourceBundle resourceBundle,
+                            final Ds3Common ds3Common,
+                            final Workers workers,
+                            final JobWorkers jobWorkers,
+                            final EndpointInfo endpointInfo,
+                            final JobInterruptionStore jobInterruptionStore,
+                            final SettingsStore settingsStore,
+                            final LoggingService loggingService) {
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.endpointInfo = endpointInfo;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -99,7 +103,7 @@ public class JobInfoPresenter implements Initializable {
                     }
                 }
             } else {
-                BackgroundTask.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
+                ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
                 Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"), Alert.AlertType.INFORMATION);
                 LOG.info("Network in unreachable");
             }
@@ -236,7 +240,7 @@ public class JobInfoPresenter implements Initializable {
                 });
             }
         } else {
-            BackgroundTask.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
+            ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"));
             Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable"), Alert.AlertType.INFORMATION);
             LOG.info("Network in unreachable");
         }

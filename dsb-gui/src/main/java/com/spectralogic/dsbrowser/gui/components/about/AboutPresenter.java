@@ -1,5 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.about;
 
+import com.google.inject.Inject;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.Constants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,18 +17,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-
+@Presenter
 public class AboutPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(AboutPresenter.class);
 
     @FXML
     private Label copyRightLabel1, copyRightLabel2;
+
     @FXML
     private Hyperlink hyperlink;
-
-    private ResourceBundle resourceBundle = null;
 
     @FXML
     private Label title;
@@ -34,9 +34,15 @@ public class AboutPresenter implements Initializable {
     @FXML
     private Label buildVersion;
 
+    private final ResourceBundle resourceBundle;
+
+    @Inject
+    public AboutPresenter(final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
+    }
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         title.setText(resourceBundle.getString("title"));
         buildVersion.setText(resourceBundle.getString("buildVersion"));
         hyperlink.setOnAction(event -> {

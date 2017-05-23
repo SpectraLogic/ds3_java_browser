@@ -22,7 +22,8 @@ public class Ds3DeleteFilesTask extends Ds3Task {
     private String errorMsg;
     private final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap;
 
-    public Ds3DeleteFilesTask(final Ds3Client ds3Client, final ImmutableList<String> buckets,
+    public Ds3DeleteFilesTask(final Ds3Client ds3Client,
+                              final ImmutableList<String> buckets,
                               final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap) {
         this.ds3Client = ds3Client;
         this.buckets = buckets;
@@ -51,9 +52,8 @@ public class Ds3DeleteFilesTask extends Ds3Task {
         return Optional.empty();
     }
 
-
+    @Override
     public String getErrorMsg() {
         return errorMsg;
     }
-
 }

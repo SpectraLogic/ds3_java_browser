@@ -3,6 +3,8 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -45,6 +47,7 @@ import java.net.URL;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
+@Presenter
 public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
@@ -66,41 +69,22 @@ public class Ds3TreeTablePresenter implements Initializable {
     @FXML
     private TreeTableColumn fullPath;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
-    private JobWorkers jobWorkers;
-
-    @Inject
-    private Session session;
-
-    @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
+    @ModelContext
     private Ds3PanelPresenter ds3PanelPresenter;
 
-    @Inject
-    private DataFormat dataFormat;
+    @ModelContext
+    private Session session;
 
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private SavedJobPrioritiesStore savedJobPrioritiesStore;
-
-    @Inject
-    private JobInterruptionStore jobInterruptionStore;
-
-    @Inject
-    private SettingsStore settingsStore;
-
-    @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private LoggingService loggingService;
+    private final Workers workers;
+    private final JobWorkers jobWorkers;
+    private final ResourceBundle resourceBundle;
+    private final DataFormat dataFormat;
+    private final Ds3Common ds3Common;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final SettingsStore settingsStore;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final LoggingService loggingService;
 
     private ContextMenu contextMenu;
 
@@ -110,9 +94,35 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private boolean isFirstTime = true;
 
+    @Inject
+    public Ds3TreeTablePresenter(final Session session,
+                                 final ResourceBundle resourceBundle,
+                                 final DataFormat dataFormat,
+                                 final Workers workers,
+                                 final JobWorkers jobWorkers,
+                                 final Ds3Common ds3Common,
+                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                 final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                                 final JobInterruptionStore jobInterruptionStore,
+                                 final SettingsStore settingsStore,
+                                 final LoggingService loggingService) {
+        this.session = session;
+        this.resourceBundle = resourceBundle;
+        this.dataFormat = dataFormat;
+        this.workers = workers;
+        this.jobWorkers = jobWorkers;
+        this.ds3Common = ds3Common;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.settingsStore = settingsStore;
+        this.loggingService = loggingService;
+    }
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+            LOG.debug("Loading new session tab for Session [{}]", session.getSessionName());
             loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
             initContextMenu();
             initTreeTableView();
@@ -123,7 +133,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void setTreeTableViewBehaviour() {
-
         ds3TreeTable.setOnDragEntered(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragOver(event -> event.acceptTransferModes(TransferMode.COPY));
         ds3TreeTable.setOnDragDropped(event -> {
@@ -198,6 +207,9 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
+                LOG.info("Loading Session {}", session.getSessionName());
+                loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
+
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItems().setVisible(true);
@@ -209,12 +221,14 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
                 }
             } else {
+                LOG.info("No current session.");
                 ds3PanelPresenter.setBlank(true);
                 ds3PanelPresenter.disableSearch(true);
             }
         });
 
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
+        LOG.info("Getting buckets from {}", session.getEndpoint());
         workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
@@ -393,7 +407,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                     final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService);
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, resourceBundle);
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");
@@ -442,68 +456,63 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        {
-            if (event.isControlDown() || event.isShiftDown()) {
-                if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
-                    rowNameList.add(row.getTreeItem().getValue().getName());
+        if (event.isControlDown() || event.isShiftDown()) {
+            if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
+                rowNameList.add(row.getTreeItem().getValue().getName());
+                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                ds3TreeTable.getSelectionModel().select(row.getIndex());
+            } else {
+                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                ds3TreeTable.getSelectionModel().clearSelection(row.getIndex());
+                rowNameList.remove(row.getTreeItem().getValue().getName());
+                manageItemsCount(row.getTreeItem());
+            }
+        } else if (event.getClickCount() == 2) {
+            if (!row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                final ProgressIndicator progress = new ProgressIndicator();
+                progress.setMaxSize(90, 90);
+                ds3TreeTable.setPlaceholder(new StackPane(progress));
+                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                ds3TreeTable.getSelectionModel().select(row.getIndex());
+                ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
+                ds3Common.setDs3TreeTableView(ds3TreeTable);
+                if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                    if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
+                        ds3TreeTable.setPlaceholder(null);
+                    row.getTreeItem().setExpanded(true);
+                    ds3TreeTable.setShowRoot(false);
+                    ds3TreeTable.setRoot(row.getTreeItem());
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                    ds3TreeTable.getSelectionModel().select(row.getIndex());
-                } else {
-                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                    ds3TreeTable.getSelectionModel().clearSelection(row.getIndex());
-                    rowNameList.remove(row.getTreeItem().getValue().getName());
-                    manageItemsCount(row.getTreeItem());
-                }
-            } else if (event.getClickCount() == 2) {
-                if (!row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                    final ProgressIndicator progress = new ProgressIndicator();
-                    progress.setMaxSize(90, 90);
-                    ds3TreeTable.setPlaceholder(new StackPane(progress));
-                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                    ds3TreeTable.getSelectionModel().select(row.getIndex());
-                    ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
-                    ds3Common.setDs3TreeTableView(ds3TreeTable);
-                    if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                        if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
-                            ds3TreeTable.setPlaceholder(null);
-                        row.getTreeItem().setExpanded(true);
-                        ds3TreeTable.setShowRoot(false);
-                        ds3TreeTable.setRoot(row.getTreeItem());
-                        ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                    }
                 }
             }
-            else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
-                try {
+        } else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
+            try {
+                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    loadMore(row.getTreeItem());
+                }
+            } catch (final Exception e) {
+                LOG.error("Not able to get tree item", e);
+            }
+        } else {
+            try {
+                rowNameList.clear();
+                if (null == row.getTreeItem()) {
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                } else {
+                    rowNameList.add(row.getTreeItem().getValue().getName());
+                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
                     if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                         loadMore(row.getTreeItem());
                     }
-                } catch (final Exception e) {
-                    LOG.error("Not able to get tree item",e);
                 }
-            }
-
-            else {
-                try {
-                    rowNameList.clear();
-                    if (null == row.getTreeItem()) {
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                    } else {
-                        rowNameList.add(row.getTreeItem().getValue().getName());
-                        ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                        if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                            loadMore(row.getTreeItem());
-                        }
-                    }
-                    if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
-                        ds3PanelPresenter.getDs3PathIndicator().setText("");
-                        ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
-                    } else {
-                        ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
-                    }
-                } catch (final Exception e) {
-                    LOG.error("Unable to get value of selected item", e);
+                if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
+                    ds3PanelPresenter.getDs3PathIndicator().setText("");
+                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
+                } else {
+                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
                 }
+            } catch (final Exception e) {
+                LOG.error("Unable to get value of selected item", e);
             }
         }
     }

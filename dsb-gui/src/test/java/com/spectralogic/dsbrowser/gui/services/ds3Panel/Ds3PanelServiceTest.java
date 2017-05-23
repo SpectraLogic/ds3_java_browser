@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -54,7 +55,7 @@ public class Ds3PanelServiceTest {
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
                         SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME,
-                        null);
+                        null, null);
                 workers.execute(createBucketTask);
                 //Checking is bucket empty
                 successFlag = Ds3PanelService.checkIfBucketEmpty(SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME, session);

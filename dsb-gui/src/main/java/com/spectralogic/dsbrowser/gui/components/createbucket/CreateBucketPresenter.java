@@ -1,10 +1,11 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+@Presenter
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
@@ -39,26 +41,27 @@ public class CreateBucketPresenter implements Initializable {
     @FXML
     private Button createBucketButton;
 
-    @Inject
-    private Workers workers;
-
-    @Inject
+    @ModelContext
     private CreateBucketWithDataPoliciesModel createBucketWithDataPoliciesModel;
 
-    @Inject
-    private ResourceBundle resourceBundle;
+    private final Workers workers;
+    private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final LoggingService loggingService;
 
     @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-
-    @Inject
-    private Ds3PanelPresenter ds3PanelPresenter;
-
-    @Inject
-    private Ds3Common ds3Common;
-
-    @Inject
-    private LoggingService loggingService;
+    public CreateBucketPresenter(final Workers workers,
+                                 final ResourceBundle resourceBundle,
+                                 final Ds3Common ds3Common,
+                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                 final LoggingService loggingService) {
+        this.workers = workers;
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -100,10 +103,13 @@ public class CreateBucketPresenter implements Initializable {
                 final CreateBucketModel dataPolicy = first.get();
 
                 final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
-                        createBucketWithDataPoliciesModel.getSession().getClient(), bucketNameField.getText().trim(), loggingService);
+                        createBucketWithDataPoliciesModel.getSession().getClient(),
+                        bucketNameField.getText().trim(),
+                        resourceBundle,
+                        loggingService);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
-                    LOG.info("Bucket is created");
+                    LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());

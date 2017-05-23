@@ -25,11 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
-public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableValue>>> {
+public class GetServiceTask extends Ds3Task {
 
     private final static Logger LOG = LoggerFactory.getLogger(GetServiceTask.class);
 
@@ -45,7 +43,7 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                           final Workers workers,
                           final Ds3Common ds3Common,
                           final LoggingService loggingService) {
-        partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
+        this.partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
         this.session = session;
         this.workers = workers;
         this.ds3Common = ds3Common;
@@ -56,9 +54,10 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() throws Exception {
         final GetServiceResponse response = session.getClient().getService(new GetServiceRequest());
-        if (null != response && null != response.getListAllMyBucketsResult()
+        if (null != response
+                && null != response.getListAllMyBucketsResult()
                 && !Guard.isNullOrEmpty(response.getListAllMyBucketsResult().getBuckets())) {
-            final List<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
+            final ImmutableList<Ds3TreeTableValue> buckets = response.getListAllMyBucketsResult()
                     .getBuckets().stream()
                     .map(bucket -> {
                         final HBox hbox = new HBox();
@@ -67,8 +66,7 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                         return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                                 0, DateFormat.formatDate(bucket.getCreationDate()), StringConstants.TWO_DASH,
                                 false, hbox);
-                    }).collect(Collectors.toList());
-            buckets.sort(Comparator.comparing(t -> t.getName().toLowerCase()));
+                    }).sorted(Comparator.comparing(b -> b.getName().toLowerCase())).collect(GuavaCollectors.immutableList());
 
             loggingService.logMessage(resourceBundle.getString("receivedBucketList"), LogType.SUCCESS);
             Platform.runLater(() -> {
@@ -81,14 +79,17 @@ public class GetServiceTask extends Task<ObservableList<TreeItem<Ds3TreeTableVal
                             .collect(GuavaCollectors.immutableList());
                     if (!Guard.isNullOrEmpty(treeItems)) {
                         partialResults.get().addAll(treeItems);
+                        ds3Common.getDs3PanelPresenter().disableSearch(false);
                     } else {
-                        LOG.info("No bucket found");
+                        ds3Common.getDs3PanelPresenter().disableSearch(true);
+                        LOG.info("No buckets found");
                     }
                 } else {
                     LOG.info("Ds3Common is null");
                 }
             });
         } else {
+            LOG.info("No buckets found");
             ds3Common.getDs3PanelPresenter().disableSearch(true);
         }
         return this.partialResults.get();

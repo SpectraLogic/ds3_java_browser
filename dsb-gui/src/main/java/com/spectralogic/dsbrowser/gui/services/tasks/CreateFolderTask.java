@@ -30,13 +30,14 @@ public class CreateFolderTask extends Ds3Task {
                             final CreateFolderModel createFolderModel,
                             final String folderName,
                             final List<Ds3Object> ds3ObjectList,
-                            final LoggingService loggingService) {
+                            final LoggingService loggingService,
+                            final ResourceBundle resourceBundle) {
         this.ds3Client = ds3Client;
         this.createFolderModel = createFolderModel;
         this.folderName = folderName;
         this.ds3ObjectList = ds3ObjectList;
         this.loggingService = loggingService;
-        resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.resourceBundle = resourceBundle;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class Ds3Common {
 
     private TreeTableView localTreeTableView;
 
-    private  TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
+    private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
 
     private Label localFilePathIndicator;
 

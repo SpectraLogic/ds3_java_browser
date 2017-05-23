@@ -17,6 +17,7 @@ import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class Ds3GetJob extends Ds3JobTask {
-
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
     private final List<Ds3TreeTableValueCustom> list;
     private final Path fileTreeModel;
@@ -49,7 +49,15 @@ public class Ds3GetJob extends Ds3JobTask {
     private final ResourceBundle resourceBundle;
     private UUID jobId;
 
-    public Ds3GetJob(final List<Ds3TreeTableValueCustom> list, final Path fileTreeModel, final Ds3Client client, final String jobPriority, final int maximumNumberOfParallelThreads, final JobInterruptionStore jobInterruptionStore, final Ds3Common ds3Common) {
+    public Ds3GetJob(final List<Ds3TreeTableValueCustom> list,
+                     final Path fileTreeModel,
+                     final Ds3Client client,
+                     final String jobPriority,
+                     final int maximumNumberOfParallelThreads,
+                     final JobInterruptionStore jobInterruptionStore,
+                     final Ds3Common ds3Common,
+                     final ResourceBundle resourceBundle,
+                     final LoggingService loggingService) {
         this.list = list;
         this.fileTreeModel = fileTreeModel;
         this.ds3Client = client;
@@ -59,7 +67,8 @@ public class Ds3GetJob extends Ds3JobTask {
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Common = ds3Common;
-        this.resourceBundle = ResourceBundleProperties.getResourceBundle();
+        this.resourceBundle = resourceBundle;
+        this.loggingService = loggingService;
     }
 
     @Override
@@ -72,8 +81,8 @@ public class Ds3GetJob extends Ds3JobTask {
             if (CheckNetwork.isReachable(ds3Client)) {
                 final String startJobDate = DateFormat.formatDate(new Date());
                 updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
-                loggingService.logMessage(StringBuilderUtil.jobInitiatedString
-                        (JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint())
+                loggingService.logMessage(
+                        StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint())
                         .toString(), LogType.INFO);
                 updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
 
@@ -330,7 +339,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return map;
     }
 
-
+    @Override
     public UUID getJobId() {
         return jobId;
     }

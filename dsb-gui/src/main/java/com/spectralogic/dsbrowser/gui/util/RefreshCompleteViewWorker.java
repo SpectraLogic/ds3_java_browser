@@ -76,6 +76,10 @@ public final class RefreshCompleteViewWorker {
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
                         }
                     });
+                    getServiceTask.setOnFailed(event -> {
+                        LOG.info("GetServiceTask failed");
+                        ds3TreeTableView.setRoot(null);
+                    });
                 }
             } else {
                 LOG.info("TreeView is null");
