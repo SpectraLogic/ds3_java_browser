@@ -52,6 +52,8 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
 
+    private final LazyAlert alert = new LazyAlert("Error");
+
     private final List<String> rowNameList = new ArrayList<>();
 
     @FXML
@@ -156,16 +158,16 @@ public class Ds3TreeTablePresenter implements Initializable {
         deleteBucket.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
-        physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers));
+        physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle));
 
         metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
-        metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers));
+        metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers, resourceBundle));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService));
+        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, resourceBundle));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
+        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
@@ -443,7 +445,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     });
                 }
             } else {
-                Ds3Alert.show(null, "Operation not allowed here", Alert.AlertType.ERROR);
+                alert.showAlert("Operation not allowed here.");
             }
             event.consume();
         }

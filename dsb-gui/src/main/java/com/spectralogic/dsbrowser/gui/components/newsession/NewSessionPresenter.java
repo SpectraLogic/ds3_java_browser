@@ -1,9 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
@@ -13,6 +11,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.Constants;
 import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.PropertyItem;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.collections.FXCollections;
@@ -37,6 +36,8 @@ import java.util.ResourceBundle;
 public class NewSessionPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(NewSessionPresenter.class);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     private final NewSessionModel model = new NewSessionModel();
 
@@ -121,10 +122,10 @@ public class NewSessionPresenter implements Initializable {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
-                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.getDefaultSession()));
+                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.getDefaultSession()), resourceBundle);
                         sessionValidates(connection);
                     } else {
-                        Ds3Alert.show(resourceBundle.getString("newSession"), resourceBundle.getString("alreadyExistSession"), Alert.AlertType.ERROR);
+                        alert.showAlert(resourceBundle.getString("alreadyExistSession"));
                     }
                 }
             });
@@ -158,20 +159,20 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("selectToDeleteSession"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("selectToDeleteSession"));
         } else {
             if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
                 ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
-                        Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("cannotdeletesession"), Alert.AlertType.ERROR);
+                        alert.showAlert(resourceBundle.getString("cannotdeletesession"));
                     } else {
                         savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionDeletedSuccess"), Alert.AlertType.INFORMATION);
+                        alert.showAlert(resourceBundle.getString("sessionDeletedSuccess"));
                     }
                 });
             } else {
                 savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionDeletedSuccess"), Alert.AlertType.INFORMATION);
+                alert.showAlert(resourceBundle.getString("sessionDeletedSuccess"));
             }
         }
     }
@@ -191,11 +192,11 @@ public class NewSessionPresenter implements Initializable {
         if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
             || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
             if (!NewSessionModelValidation.validationNewSession(model)) {
-                final Session session = createConnectionTask.createConnection(model);
+                final Session session = createConnectionTask.createConnection(model, resourceBundle);
                 sessionValidates(session);
             }
         } else {
-            Ds3Alert.show(resourceBundle.getString("newSession"), resourceBundle.getString("alreadyExistSession"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("alreadyExistSession"));
         }
     }
 
@@ -212,7 +213,7 @@ public class NewSessionPresenter implements Initializable {
                         newSessionModel.setDefaultSession(true);
                         final Optional<SavedSession> first = defaultSession.stream().findFirst();
                         if (first.isPresent()) {
-                            final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false));
+                            final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false), resourceBundle);
                             if (session != null) {
                                 savedSessionStore.addSession(session);
                                 try {
@@ -229,14 +230,14 @@ public class NewSessionPresenter implements Initializable {
 
                 }
             }
-            final Session session = createConnectionTask.createConnection(newSessionModel);
+            final Session session = createConnectionTask.createConnection(newSessionModel, resourceBundle);
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
                 final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
-                    Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("noNewChanges"), Alert.AlertType.INFORMATION);
+                    alert.showAlert(resourceBundle.getString("noNewChanges"));
                 } else if (i == -2) {
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("alreadyExistSession"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("alreadyExistSession"));
                 } else {
                     savedSessions.getSelectionModel().select(i);
                     try {
@@ -245,9 +246,9 @@ public class NewSessionPresenter implements Initializable {
                         LOG.error("Failed to save session: ", e);
                     }
                     if (i <= previousSize) {
-                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionUpdatedSuccessfully"), Alert.AlertType.INFORMATION);
+                        alert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"));
                     } else {
-                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sessionSavedSuccessfully"), Alert.AlertType.INFORMATION);
+                        alert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"));
                     }
                 }
             }

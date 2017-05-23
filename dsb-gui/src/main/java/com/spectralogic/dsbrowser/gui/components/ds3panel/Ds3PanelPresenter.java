@@ -62,6 +62,8 @@ public class Ds3PanelPresenter implements Initializable {
     private final Image LENS_ICON = new Image(ImageURLs.LENS_ICON);
     private final Image CROSS_ICON = new Image(ImageURLs.CROSS_ICON);
 
+    private final LazyAlert alert = new LazyAlert("Error");
+
     @FXML
     private Label ds3PathIndicator;
 
@@ -226,11 +228,11 @@ public class Ds3PanelPresenter implements Initializable {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObject(true));
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
-        ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService));
+        ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
         ds3NewBucket.setOnAction(event -> {
             LOG.debug("Attempting to create bucket...");
-            CreateService.createBucketPrompt(ds3Common, workers, loggingService);
+            CreateService.createBucketPrompt(ds3Common, workers, loggingService, resourceBundle);
         });
 
         ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
@@ -426,7 +428,7 @@ public class Ds3PanelPresenter implements Initializable {
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
                 if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation) && (null == root || null == root.getValue())) {
                     LOG.info("Files not selected");
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("fileSelect"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("fileSelect"));
                     return;
                 } else if (Guard.isNullOrEmpty(selectedItemsAtSourceLocation)) {
                     final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -439,12 +441,12 @@ public class Ds3PanelPresenter implements Initializable {
                 if (fileRootItem.equals(resourceBundle.getString("myComputer"))) {
                     if (Guard.isNullOrEmpty(selectedItemsAtDestination)) {
                         LOG.info("Location not selected");
-                        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("sourceFileSelectError"), Alert.AlertType.INFORMATION);
+                        alert.showAlert(resourceBundle.getString("sourceFileSelectError"));
                         return;
                     }
                 }
                 if (selectedItemsAtDestination.size() > 1) {
-                    Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("multipleDestError"), Alert.AlertType.ERROR);
+                    alert.showAlert(resourceBundle.getString("multipleDestError"));
                     return;
                 }
                 final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
@@ -505,10 +507,10 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to get data from black pearl:", e);
                 loggingService.logMessage(resourceBundle.getString("somethingWentWrong"), LogType.ERROR);
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("somethingWentWrong"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("somethingWentWrong"));
             }
         } else {
-            Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("invalidSession"), Alert.AlertType.ERROR);
+            alert.showAlert(resourceBundle.getString("invalidSession"));
         }
     }
 
@@ -546,22 +548,19 @@ public class Ds3PanelPresenter implements Initializable {
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {
                 LOG.info("No files selected");
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("noFiles"), Alert.AlertType.ERROR);
-            } else {
-                final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-                values = builder.add(root).build().asList();
+                alert.showAlert(resourceBundle.getString("noFiles"));
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             if (isButtonEvent) {
                 LOG.error("You can only recursively delete a folder.  Please select the folder to delete, Right click, and select \'Delete Folder...\'");
-                Ds3Alert.show(resourceBundle.getString("error"), resourceBundle.getString("canRecursivelyDelete"), Alert.AlertType.ERROR);
+                alert.showAlert(resourceBundle.getString("canRecursivelyDelete"));
             } else {
                 LOG.info("Going to delete the folder");
-                DeleteService.deleteFolder(ds3Common, values, loggingService);
+                DeleteService.deleteFolder(ds3Common, values, loggingService, resourceBundle);
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going to delete the bucket");
-            DeleteService.deleteBucket(ds3Common, values, workers, loggingService);
+            DeleteService.deleteBucket(ds3Common, values, workers, loggingService, resourceBundle);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
             LOG.info("Going to delete the file(s)");
             DeleteService.deleteFiles(ds3Common, values);
@@ -627,7 +626,7 @@ public class Ds3PanelPresenter implements Initializable {
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                Ds3PanelService.filterChanged(ds3Common, workers, loggingService);
+                Ds3PanelService.filterChanged(ds3Common, workers, loggingService, resourceBundle);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {

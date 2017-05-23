@@ -7,7 +7,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -29,6 +29,8 @@ import java.util.concurrent.Executors;
 public class SettingPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private ComboBox<String> getJobPriority, putJobPriority;
@@ -153,7 +155,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("filePropertiesSettingsUpdated"), Alert.AlertType.INFORMATION);
+            alert.showAlert(resourceBundle.getString("filePropertiesSettingsUpdated"));
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -163,14 +165,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("performanceSettingsUpdated"), Alert.AlertType.INFORMATION);
+        alert.showAlert(resourceBundle.getString("performanceSettingsUpdated"));
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("loggingSettingsUpdated"), Alert.AlertType.INFORMATION);
+        alert.showAlert(resourceBundle.getString("loggingSettingsUpdated"));
     }
 
     public void saveJobSettings() {
@@ -184,7 +186,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setShowCachedJobSettings(false);
             }
-            Ds3Alert.show(resourceBundle.getString("information"), resourceBundle.getString("jobsSettingsUpdated"), Alert.AlertType.INFORMATION);
+            alert.showAlert(resourceBundle.getString("jobsSettingsUpdated"));
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }

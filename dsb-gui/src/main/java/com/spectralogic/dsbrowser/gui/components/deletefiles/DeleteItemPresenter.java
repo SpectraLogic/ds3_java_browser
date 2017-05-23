@@ -12,8 +12,8 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,6 +34,8 @@ import java.util.ResourceBundle;
 public class DeleteItemPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteItemPresenter.class);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TextField deleteField;
@@ -156,6 +158,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        Ds3Alert.show(null, alertMessage, Alert.AlertType.INFORMATION);
+        alert.showAlert(alertMessage);
     }
 }
