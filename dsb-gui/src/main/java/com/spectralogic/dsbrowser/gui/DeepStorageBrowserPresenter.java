@@ -188,7 +188,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
                     if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                         jobButton.setDisable(false);
-                        final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, DeepStorageBrowserPresenter.this, ds3Common));
+                        final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, this, ds3Common));
                         Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") +
                                 StringConstants.SPACE + endpoint);
                     } else {
