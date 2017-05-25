@@ -4,7 +4,7 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
+<?import com.spectralogic.dsbrowser.gui.util.CustomPasswordTextControl?>
 
 <HBox stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
@@ -46,6 +46,24 @@
                                 <Insets/>
                             </VBox.margin>
                         </AnchorPane>
+                        <GridPane fx:id="newSessionPane">
+                            <children>
+                                <Label fx:id="sessionNameLabel" GridPane.rowIndex="1" />
+                                <TextField fx:id="sessionName" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <Label fx:id="endpointLabel" GridPane.rowIndex="2" />
+                                <TextField fx:id="endpoint" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <Label fx:id="accessKeyLabel" GridPane.rowIndex="3" />
+                                <TextField fx:id="accessKey" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                <Label fx:id="secretKeyLabel" GridPane.rowIndex="4" />
+                                <CustomPasswordTextControl fx:id="secretKey" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+
+                                <Label fx:id="portNoLabel" GridPane.rowIndex="5" />
+                                <TextField fx:id="portNo" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                <Label fx:id="proxyServerLabel" GridPane.rowIndex="6" />
+                                <TextField fx:id="proxyServer" focusTraversable="false" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+
+                            </children>
+                        </GridPane>
 
                         <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                             <children>

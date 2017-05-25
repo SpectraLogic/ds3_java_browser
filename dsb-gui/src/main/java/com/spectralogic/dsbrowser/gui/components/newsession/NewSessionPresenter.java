@@ -9,16 +9,16 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.util.Constants;
-import com.spectralogic.dsbrowser.gui.util.Ds3Alert;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import com.spectralogic.dsbrowser.gui.util.PropertyItem;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.controlsfx.control.PropertySheet;
@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -51,10 +52,19 @@ public class NewSessionPresenter implements Initializable {
     private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
     @FXML
-    private Label selectExistingLabel, createNewLabel;
+    private Label selectExistingLabel, createNewLabel, sessionNameLabel, endpointLabel, accessKeyLabel, secretKeyLabel, portNoLabel, proxyServerLabel;
 
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
+
+    @FXML
+    private TextField sessionName, endpoint, accessKey, portNo, proxyServer;
+
+    @FXML
+    private CheckBox defaultSession;
+
+    @FXML
+    private CustomPasswordTextControl secretKey;
 
     private final ResourceBundle resourceBundle;
     private final Ds3SessionStore ds3SessionStore;
@@ -77,7 +87,6 @@ public class NewSessionPresenter implements Initializable {
         try {
             initGUIElement();
             initSessionList();
-            initPropertySheet();
         } catch (final Exception e) {
             LOG.error("Failed to load NewSessionPresenter: ", e);
         }
@@ -90,11 +99,16 @@ public class NewSessionPresenter implements Initializable {
         deleteSessionButton.setText(resourceBundle.getString("deleteSessionButton"));
         selectExistingLabel.setText(resourceBundle.getString("selectExistingLabel"));
         createNewLabel.setText(resourceBundle.getString("createNewLabel"));
+        sessionNameLabel.setText(resourceBundle.getString("nameLabel"));
+        endpointLabel.setText(resourceBundle.getString("endpointLabel"));
+        accessKeyLabel.setText(resourceBundle.getString("accessIDLabel"));
+        portNoLabel.setText(resourceBundle.getString("portNo"));
+        proxyServerLabel.setText(resourceBundle.getString("proxyServer"));
+        secretKeyLabel.setText(resourceBundle.getString("secretIDLabel"));
         saveSessionButtonTooltip.setText(resourceBundle.getString("saveSessionButtonTooltip"));
         cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
         openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
         deleteSessionButtonTooltip.setText(resourceBundle.getString("deleteSessionTooltip"));
-
     }
 
     private void initSessionList() {
@@ -133,22 +147,6 @@ public class NewSessionPresenter implements Initializable {
         });
         savedSessions.setEditable(false);
         savedSessions.setItems(savedSessionStore.getSessions());
-    }
-
-    private void initPropertySheet() {
-        final ObservableList<PropertySheet.Item> items = FXCollections.observableArrayList();
-        items.add(new PropertyItem(resourceBundle.getString("nameLabel"), model.sessionNameProperty(), "Access Credentials", resourceBundle.getString("nameDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("endpointLabel"), model.endpointProperty(), "Access Credentials", resourceBundle.getString("endPointDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("portNo"), model.portNoProperty(), "Access Credentials", resourceBundle.getString("portNumberDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("proxyServer"), model.proxyServerProperty(), "Access Credentials", resourceBundle.getString("proxyDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("accessIDLabel"), model.accessKeyProperty(), "Access Credentials", resourceBundle.getString("accessKeyDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("secretIDLabel"), model.secretKeyProperty(), "Access Credentials", resourceBundle.getString("secretKeyDescription"), String.class));
-        items.add(new PropertyItem(resourceBundle.getString("defaultSession"), model.defaultSessionProperty(), "Access Credentials", resourceBundle.getString("defaultSessionDescription"), Boolean.class));
-        final PropertySheet propertySheet = new PropertySheet(items);
-        propertySheet.setMode(PropertySheet.Mode.NAME);
-        propertySheet.setModeSwitcherVisible(false);
-        propertySheet.setSearchBoxVisible(false);
-        propertySheetAnchor.getChildren().add(propertySheet);
     }
 
     public void cancelSession() {
