@@ -1,5 +1,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -10,6 +11,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
@@ -17,11 +19,9 @@ import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
-import java.util.stream.Collectors;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 
@@ -47,35 +47,32 @@ public class CloseConfirmationHandler {
      */
     public void closeConfirmationAlert(final Event event) {
         LOG.info("Initiating close event");
-        if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
-            final List<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream().filter(task -> task.getProgress() != 1).collect(Collectors.toList());
-            if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
+        final ImmutableList<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream()
+                .filter(task -> task.getProgress() != 1).collect(GuavaCollectors.immutableList());
+        if (Guard.isNullOrEmpty(jobWorkers.getTasks()) || Guard.isNullOrEmpty(notCachedRunningTasks)) {
                 event.consume();
                 shutdownService.shutdown();
-            } else {
-                final Optional<ButtonType> closeResponse;
-                if (1 == notCachedRunningTasks.size()) {
-                    closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                            notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"),
-                            Alert.AlertType.CONFIRMATION, null,
-                            resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
-                } else {
-                    closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                            notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"),
-                            Alert.AlertType.CONFIRMATION, null,
-                            resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
-                }
-                if (closeResponse.get().equals(ButtonType.OK)) {
-                    event.consume();
-                    shutdownService.shutdown();
-                }
-                if (closeResponse.get().equals(ButtonType.CANCEL)) {
-                    event.consume();
-                }
-            }
         } else {
-            event.consume();
-            shutdownService.shutdown();
+            final Optional<ButtonType> closeResponse;
+            if (1 == notCachedRunningTasks.size()) {
+                closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"),
+                        Alert.AlertType.CONFIRMATION, null,
+                        resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
+            } else {
+                closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"),
+                        Alert.AlertType.CONFIRMATION, null,
+                        resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
+            }
+            closeResponse.ifPresent(response -> {
+                if (response.equals(ButtonType.OK)) {
+                    shutdownService.shutdown();
+                    event.consume();
+                } else if (response.equals(ButtonType.CANCEL)) {
+                    event.consume();
+                }
+            });
         }
     }
 
@@ -105,8 +102,11 @@ public class CloseConfirmationHandler {
      * @param width  width
      * @param height height
      */
-    public void setPreferences(final double x, final double y, final double width, final double height
-            , final boolean isWindowMaximized) {
+    public void setPreferences(final double x,
+                               final double y,
+                               final double width,
+                               final double height,
+                               final boolean isWindowMaximized) {
         LOG.info("Setting up windows preferences");
         final Preferences preferences = Preferences.userRoot().node(NODE_NAME);
         preferences.putDouble(WINDOW_POSITION_X, x);

@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -52,11 +53,13 @@ public class JobInfoPresenter implements Initializable {
     @FXML
     private TreeTableColumn jobIdColumn;
 
+    @ModelContext
+    private EndpointInfo endpointInfo;
+
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
     private final Workers workers;
     private final JobWorkers jobWorkers;
-    private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final LoggingService loggingService;
@@ -68,7 +71,6 @@ public class JobInfoPresenter implements Initializable {
                             final Ds3Common ds3Common,
                             final Workers workers,
                             final JobWorkers jobWorkers,
-                            final EndpointInfo endpointInfo,
                             final JobInterruptionStore jobInterruptionStore,
                             final SettingsStore settingsStore,
                             final LoggingService loggingService) {
@@ -76,7 +78,6 @@ public class JobInfoPresenter implements Initializable {
         this.ds3Common = ds3Common;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
-        this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.loggingService = loggingService;
