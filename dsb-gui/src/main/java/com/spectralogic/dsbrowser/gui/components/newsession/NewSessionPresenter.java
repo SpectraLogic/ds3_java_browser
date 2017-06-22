@@ -100,11 +100,29 @@ public class NewSessionPresenter implements Initializable {
         selectExistingLabel.setText(resourceBundle.getString("selectExistingLabel"));
         createNewLabel.setText(resourceBundle.getString("createNewLabel"));
         sessionNameLabel.setText(resourceBundle.getString("nameLabel"));
+        sessionName.textProperty().addListener((obs, oldName, newName) -> {
+            model.setSessionName(newName);
+        });
         endpointLabel.setText(resourceBundle.getString("endpointLabel"));
+        endpoint.textProperty().addListener((obs, oldEndpoint, newEndpoint) -> {
+            model.setEndpoint(newEndpoint);
+        });
         accessKeyLabel.setText(resourceBundle.getString("accessIDLabel"));
-        portNoLabel.setText(resourceBundle.getString("portNo"));
-        proxyServerLabel.setText(resourceBundle.getString("proxyServer"));
+        accessKey.textProperty().addListener((obs, oldAccessKey, newAccessKey) -> {
+            model.setAccessKey(newAccessKey);
+        });
         secretKeyLabel.setText(resourceBundle.getString("secretIDLabel"));
+        secretKey.getTextField().textProperty().addListener((obs, oldSecretKey, newSecretKey) -> {
+            model.setSecretKey(newSecretKey);
+        });
+        portNoLabel.setText(resourceBundle.getString("portNo"));
+        portNo.textProperty().addListener((obs, oldPortNo, newPortNo) -> {
+            model.setPortno(newPortNo);
+        });
+        proxyServerLabel.setText(resourceBundle.getString("proxyServer"));
+        proxyServer.textProperty().addListener((obs, oldProxy, newProxy) -> {
+            model.setProxyServer(newProxy);
+        });
         saveSessionButtonTooltip.setText(resourceBundle.getString("saveSessionButtonTooltip"));
         cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
         openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
@@ -115,15 +133,23 @@ public class NewSessionPresenter implements Initializable {
         model.setPortno(Constants.PORT_NUMBER);
         savedSessions.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                sessionName.textProperty().setValue(newSelection.getName());
                 model.setSessionName(newSelection.getName());
+                endpoint.textProperty().setValue(newSelection.getEndpoint());
                 model.setEndpoint(newSelection.getEndpoint());
+                accessKey.textProperty().setValue(newSelection.getCredentials().getAccessId());
                 model.setAccessKey(newSelection.getCredentials().getAccessId());
-                model.setPortno(newSelection.getPortNo());
+                secretKey.getTextField().textProperty().setValue(newSelection.getCredentials().getSecretKey());
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
+                portNo.textProperty().setValue(newSelection.getPortNo());
+                model.setPortno(newSelection.getPortNo());
+                proxyServer.textProperty().setValue(newSelection.getProxyServer());
                 model.setProxyServer(newSelection.getProxyServer());
                 if (newSelection.getDefaultSession() == null) {
+                    defaultSession.selectedProperty().setValue(false);
                     model.setDefaultSession(false);
                 } else {
+                    defaultSession.selectedProperty().setValue(newSelection.getDefaultSession());
                     model.setDefaultSession(newSelection.getDefaultSession());
                 }
             } else {
@@ -176,12 +202,19 @@ public class NewSessionPresenter implements Initializable {
     }
 
     public void clearFields() {
+        endpoint.textProperty().setValue(null);
         model.setEndpoint(null);
+        secretKey.getTextField().textProperty().setValue(null);
         model.setSecretKey(null);
+        accessKey.textProperty().setValue(null);
         model.setAccessKey(null);
+        portNo.textProperty().setValue(null);
         model.setPortno(Constants.PORT_NUMBER);
+        proxyServer.textProperty().setValue(null);
         model.setProxyServer(null);
+        sessionName.textProperty().setValue(null);
         model.setSessionName(null);
+        defaultSession.selectedProperty().setValue(false);
         model.setDefaultSession(false);
     }
 

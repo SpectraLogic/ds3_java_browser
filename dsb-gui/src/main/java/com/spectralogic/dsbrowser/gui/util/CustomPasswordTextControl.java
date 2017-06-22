@@ -57,10 +57,10 @@ public class CustomPasswordTextControl extends GridPane {
 
             if (isShown.getValue()) {
                 showButton.setGraphic(Icon.getIcon(FontAwesomeIcon.EYE_SLASH));
-                support.registerValidator(textField, Validator.createEmptyValidator(validatorToolTip));
+                //support.registerValidator(textField, Validator.createEmptyValidator(validatorToolTip));
             } else {
                 showButton.setGraphic(Icon.getIcon(FontAwesomeIcon.EYE));
-                support.registerValidator(passwordField, Validator.createEmptyValidator(validatorToolTip));
+                //support.registerValidator(passwordField, Validator.createEmptyValidator(validatorToolTip));
             }
         });
     }
@@ -96,5 +96,9 @@ public class CustomPasswordTextControl extends GridPane {
 
     public String getText() {
         return textField.getText();
+    }
+
+    public TextField getTextField() {
+        return textField;
     }
 }
