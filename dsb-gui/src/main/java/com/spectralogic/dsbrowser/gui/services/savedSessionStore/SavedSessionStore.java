@@ -142,6 +142,10 @@ public class SavedSessionStore {
         } else if (session.getProxyServer() != null) {
             return true;
         }
+        if (savedSession.getDefaultSession() != session.getDefaultSession()) {
+            return true;
+        }
+
         return false;
     }
 

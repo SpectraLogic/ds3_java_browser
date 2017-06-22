@@ -11,8 +11,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -21,12 +19,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import org.controlsfx.control.PropertySheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -52,7 +48,7 @@ public class NewSessionPresenter implements Initializable {
     private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
     @FXML
-    private Label selectExistingLabel, createNewLabel, sessionNameLabel, endpointLabel, accessKeyLabel, secretKeyLabel, portNoLabel, proxyServerLabel;
+    private Label selectExistingLabel, createNewLabel, sessionNameLabel, endpointLabel, accessKeyLabel, secretKeyLabel, portNoLabel, proxyServerLabel, defaultSessionLabel;
 
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
@@ -93,36 +89,34 @@ public class NewSessionPresenter implements Initializable {
     }
 
     private void initGUIElement() {
+        sessionNameLabel.setText(resourceBundle.getString("nameLabel"));
+        sessionName.textProperty().bindBidirectional(model.sessionNameProperty());
+
+        endpointLabel.setText(resourceBundle.getString("endpointLabel"));
+        endpoint.textProperty().bindBidirectional(model.endpointProperty());
+
+        accessKeyLabel.setText(resourceBundle.getString("accessIDLabel"));
+        accessKey.textProperty().bindBidirectional(model.accessKeyProperty());
+
+        secretKeyLabel.setText(resourceBundle.getString("secretIDLabel"));
+        secretKey.getTextField().textProperty().bindBidirectional(model.secretKeyProperty());
+
+        portNoLabel.setText(resourceBundle.getString("portNo"));
+        portNo.textProperty().bindBidirectional(model.portNoProperty());
+
+        proxyServerLabel.setText(resourceBundle.getString("proxyServer"));
+        proxyServer.textProperty().bindBidirectional(model.proxyServerProperty());
+
+        defaultSessionLabel.setText(resourceBundle.getString("defaultSession"));
+        defaultSession.selectedProperty().bindBidirectional(model.defaultSessionProperty());
+
         saveSessionButton.setText(resourceBundle.getString("saveSessionButton"));
         openSessionButton.setText(resourceBundle.getString("openSessionButton"));
         cancelSessionButton.setText(resourceBundle.getString("cancelSessionButton"));
         deleteSessionButton.setText(resourceBundle.getString("deleteSessionButton"));
         selectExistingLabel.setText(resourceBundle.getString("selectExistingLabel"));
         createNewLabel.setText(resourceBundle.getString("createNewLabel"));
-        sessionNameLabel.setText(resourceBundle.getString("nameLabel"));
-        sessionName.textProperty().addListener((obs, oldName, newName) -> {
-            model.setSessionName(newName);
-        });
-        endpointLabel.setText(resourceBundle.getString("endpointLabel"));
-        endpoint.textProperty().addListener((obs, oldEndpoint, newEndpoint) -> {
-            model.setEndpoint(newEndpoint);
-        });
-        accessKeyLabel.setText(resourceBundle.getString("accessIDLabel"));
-        accessKey.textProperty().addListener((obs, oldAccessKey, newAccessKey) -> {
-            model.setAccessKey(newAccessKey);
-        });
-        secretKeyLabel.setText(resourceBundle.getString("secretIDLabel"));
-        secretKey.getTextField().textProperty().addListener((obs, oldSecretKey, newSecretKey) -> {
-            model.setSecretKey(newSecretKey);
-        });
-        portNoLabel.setText(resourceBundle.getString("portNo"));
-        portNo.textProperty().addListener((obs, oldPortNo, newPortNo) -> {
-            model.setPortno(newPortNo);
-        });
-        proxyServerLabel.setText(resourceBundle.getString("proxyServer"));
-        proxyServer.textProperty().addListener((obs, oldProxy, newProxy) -> {
-            model.setProxyServer(newProxy);
-        });
+
         saveSessionButtonTooltip.setText(resourceBundle.getString("saveSessionButtonTooltip"));
         cancelSessionButtonTooltip.setText(resourceBundle.getString("cancelSessionButtonTooltip"));
         openSessionButtonTooltip.setText(resourceBundle.getString("openSessionButtonTooltip"));
@@ -133,23 +127,15 @@ public class NewSessionPresenter implements Initializable {
         model.setPortno(Constants.PORT_NUMBER);
         savedSessions.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                sessionName.textProperty().setValue(newSelection.getName());
                 model.setSessionName(newSelection.getName());
-                endpoint.textProperty().setValue(newSelection.getEndpoint());
                 model.setEndpoint(newSelection.getEndpoint());
-                accessKey.textProperty().setValue(newSelection.getCredentials().getAccessId());
                 model.setAccessKey(newSelection.getCredentials().getAccessId());
-                secretKey.getTextField().textProperty().setValue(newSelection.getCredentials().getSecretKey());
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
-                portNo.textProperty().setValue(newSelection.getPortNo());
                 model.setPortno(newSelection.getPortNo());
-                proxyServer.textProperty().setValue(newSelection.getProxyServer());
                 model.setProxyServer(newSelection.getProxyServer());
-                if (newSelection.getDefaultSession() == null) {
-                    defaultSession.selectedProperty().setValue(false);
+                if (newSelection.getDefaultSession() == null || newSelection.getDefaultSession() == null) {
                     model.setDefaultSession(false);
                 } else {
-                    defaultSession.selectedProperty().setValue(newSelection.getDefaultSession());
                     model.setDefaultSession(newSelection.getDefaultSession());
                 }
             } else {
@@ -202,17 +188,17 @@ public class NewSessionPresenter implements Initializable {
     }
 
     public void clearFields() {
-        endpoint.textProperty().setValue(null);
+        endpoint.textProperty().setValue("");
         model.setEndpoint(null);
-        secretKey.getTextField().textProperty().setValue(null);
+        secretKey.getTextField().textProperty().setValue("");
         model.setSecretKey(null);
-        accessKey.textProperty().setValue(null);
+        accessKey.textProperty().setValue("");
         model.setAccessKey(null);
-        portNo.textProperty().setValue(null);
+        portNo.textProperty().setValue("");
         model.setPortno(Constants.PORT_NUMBER);
-        proxyServer.textProperty().setValue(null);
+        proxyServer.textProperty().setValue("");
         model.setProxyServer(null);
-        sessionName.textProperty().setValue(null);
+        sessionName.textProperty().setValue("");
         model.setSessionName(null);
         defaultSession.selectedProperty().setValue(false);
         model.setDefaultSession(false);
