@@ -97,8 +97,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private boolean isFirstTime = true;
 
     @Inject
-    public Ds3TreeTablePresenter(final Session session,
-                                 final ResourceBundle resourceBundle,
+    public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
                                  final DataFormat dataFormat,
                                  final Workers workers,
                                  final JobWorkers jobWorkers,
@@ -108,7 +107,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                                  final JobInterruptionStore jobInterruptionStore,
                                  final SettingsStore settingsStore,
                                  final LoggingService loggingService) {
-        this.session = session;
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.workers = workers;
