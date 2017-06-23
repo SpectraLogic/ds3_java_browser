@@ -148,7 +148,7 @@ public class NewSessionPresenter implements Initializable {
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
                 model.setPortno(newSelection.getPortNo());
                 model.setProxyServer(newSelection.getProxyServer());
-                if (newSelection.getDefaultSession() == null || newSelection.getDefaultSession() == null) {
+                if (newSelection.getDefaultSession() == null) {
                     model.setDefaultSession(false);
                 } else {
                     model.setDefaultSession(newSelection.getDefaultSession());
