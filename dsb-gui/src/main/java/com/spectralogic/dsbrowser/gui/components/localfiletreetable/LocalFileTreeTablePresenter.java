@@ -88,6 +88,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final SettingsStore settingsStore;
     private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
+    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -105,7 +106,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                        final JobInterruptionStore jobInterruptionStore,
                                        final SettingsStore settingsStore,
                                        final EndpointInfo endpointInfo,
-                                       final LoggingService loggingService) {
+                                       final LoggingService loggingService,
+                                       final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.fileTreeTableProvider = fileTreeTableProvider;
@@ -118,6 +120,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.settingsStore = settingsStore;
         this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
 
     @Override
@@ -315,9 +318,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         .map(i -> new File(i.getValue().getPath().toString()))
                         .collect(GuavaCollectors.immutableList());
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                startPutJob(session.getClient(), files, bucket, targetDir,
-                        ds3Common.getDeepStorageBrowserPresenter(), priority,
-                        jobInterruptionStore, ds3Common, settingsStore, treeItem);
+                startPutJob(session.getClient(), files, bucket, targetDir, priority,
+                        jobInterruptionStore, treeItem);
             } else {
                 LOG.info("No item selected from server side");
             }
@@ -458,11 +460,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final List<File> files,
                              final String bucket,
                              final String targetDir,
-                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                              final String priority,
                              final JobInterruptionStore jobInterruptionStore,
-                             final Ds3Common ds3Common,
-                             final SettingsStore settingsStore,
                              final TreeItem<Ds3TreeTableValue> treeItem) {
         final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, resourceBundle);
         jobWorkers.execute(putJob);
