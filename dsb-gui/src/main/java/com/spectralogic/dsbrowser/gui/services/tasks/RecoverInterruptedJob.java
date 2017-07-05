@@ -61,7 +61,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final String date = DateFormat.formatDate(new Date());
             updateTitle(StringBuilderUtil.getRecoverJobTransferringForTitle(filesAndFolderMap.getType(), endpointInfo
                     .getEndpoint(), date).toString());
-            endpointInfo.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
                             filesAndFolderMap.getDate()).toString(), LogType.INFO);
 
@@ -76,7 +76,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 job.attachObjectCompletedListener(s -> {
                     LOG.info("Object Transfer Completed {}", s);
                     getTransferRates(jobStartInstant, totalSent, totalJobSize, s, filesAndFolderMap.getTargetLocation());
-                    endpointInfo.getDeepStorageBrowserPresenter().logText(
+                    loggingService.logMessage(
                             resourceBundle.getString("successfullyTransferred")
                                     + StringConstants.SPACE + s + StringConstants.SPACE
                                     + resourceBundle.getString("to") + StringConstants.SPACE
@@ -118,7 +118,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                 + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                                 FileSizeFormat.getFileSizeType(totalJobSize), filesAndFolderMap.getTargetLocation(),
                                 DateFormat.formatDate(new Date()), null, false).toString());
-                        endpointInfo.getDeepStorageBrowserPresenter().logText(
+                        loggingService.logMessage(
                                 resourceBundle.getString("recovering") + StringConstants.SPACE
                                         + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                                         FileSizeFormat.getFileSizeType(totalJobSize), filesAndFolderMap.getTargetLocation(),
@@ -127,7 +127,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                         updateMessage(resourceBundle.getString("recovering") + StringConstants.SPACE
                                 + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
                                 filesAndFolderMap.getTargetLocation(), DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable));
-                        endpointInfo.getDeepStorageBrowserPresenter().logText(
+                        loggingService.logMessage(
                                 resourceBundle.getString("recovering") + StringConstants.SPACE
                                         + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
                                         filesAndFolderMap.getTargetLocation(), DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable), LogType.SUCCESS);
@@ -143,7 +143,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                         response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
                     }
                 }
-                endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("jobSize")
+                loggingService.logMessage(resourceBundle.getString("jobSize")
                         + StringConstants.SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + StringConstants.SPACE
                         + resourceBundle.getString("recoveryCompleted") + StringConstants.SPACE
                         + filesAndFolderMap.getTargetLocation() + StringConstants.SPACE
@@ -155,13 +155,13 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         } catch (final FailedRequestException e) {
             isJobFailed = true;
             LOG.error("Request to black pearl failed", e);
-            endpointInfo.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     resourceBundle.getString("jobNotFound"), LogType.INFO);
             cancel();
         } catch (final Exception e) {
             isJobFailed = true;
             LOG.error("Encountered an exception when executing a job", e);
-            endpointInfo.getDeepStorageBrowserPresenter().logText(
+            loggingService.logMessage(
                     resourceBundle.getString("encounteredException") + e
                             + resourceBundle.getString("userInterruption"), LogType.ERROR);
             updateInterruptedJobsBtn(jobInterruptionStore, uuid);
