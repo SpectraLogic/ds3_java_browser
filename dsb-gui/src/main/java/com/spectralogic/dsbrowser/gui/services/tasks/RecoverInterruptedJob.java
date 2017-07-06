@@ -41,12 +41,13 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final ResourceBundle resourceBundle;
     private final boolean isCacheJobEnable;
 
-    public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final boolean isCacheJobEnable) {
+    public RecoverInterruptedJob(final UUID uuid,
+                                 final EndpointInfo endpointInfo,
+                                 final JobInterruptionStore jobInterruptionStore,
+                                 final boolean isCacheJobEnable) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
-        this.ds3Common = endpointInfo.getDs3Common();
         this.jobInterruptionStore = jobInterruptionStore;
-        ds3Client = endpointInfo.getClient();
         this.isCacheJobEnable = isCacheJobEnable;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
     }

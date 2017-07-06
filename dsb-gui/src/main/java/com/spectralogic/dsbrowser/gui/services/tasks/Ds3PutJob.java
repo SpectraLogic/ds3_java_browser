@@ -16,8 +16,10 @@ import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -56,7 +58,8 @@ public class Ds3PutJob extends Ds3JobTask {
                      final String jobPriority,
                      final int maximumNumberOfParallelThreads,
                      final JobInterruptionStore jobIdsModel,
-                     final Ds3Common ds3Common,
+                     final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                     final Session currentSession,
                      final SettingsStore settings,
                      final LoggingService loggingService,
                      final ResourceBundle resourceBundle) {
@@ -67,10 +70,11 @@ public class Ds3PutJob extends Ds3JobTask {
         this.jobPriority = jobPriority;
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobIdsModel;
-        this.ds3Common = ds3Common;
         this.settings = settings;
         this.loggingService = loggingService;
         this.resourceBundle = resourceBundle;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.currentSession = currentSession;
     }
 
     @Override
@@ -152,7 +156,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
 
                 waitForPermanentStorageTransfer(totalJobSize);
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
             } else {
                 hostNotAvaialble();
             }

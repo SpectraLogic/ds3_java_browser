@@ -18,10 +18,12 @@ import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
@@ -55,7 +57,8 @@ public class Ds3GetJob extends Ds3JobTask {
                      final String jobPriority,
                      final int maximumNumberOfParallelThreads,
                      final JobInterruptionStore jobInterruptionStore,
-                     final Ds3Common ds3Common,
+                     final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                     final Session currentSession,
                      final ResourceBundle resourceBundle,
                      final LoggingService loggingService) {
         this.list = list;
@@ -66,9 +69,10 @@ public class Ds3GetJob extends Ds3JobTask {
         this.map = new HashMap<>();
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
+        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.currentSession = currentSession;
     }
 
     @Override
@@ -158,7 +162,7 @@ public class Ds3GetJob extends Ds3JobTask {
                     updateProgress(totalJobSize, totalJobSize);
                     //Can't assign final.
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                            ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
+                            ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                     loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
                 }
             } else {
