@@ -6,12 +6,10 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 public class CreateFolderView extends FXMLView {
     public CreateFolderView(final CreateFolderModel createFolderModel) {
         super(name -> {
-            switch (name) {
-                case StringConstants.CASE_CREATEFOLDER:
-                    return createFolderModel;
-                default:
+                    if (name.equals(StringConstants.CASE_CREATEFOLDER)) {
+                        return createFolderModel;
+                    }
                     return null;
-            }
         });
     }
 }

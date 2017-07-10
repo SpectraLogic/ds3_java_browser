@@ -21,7 +21,7 @@ public final class DeleteFilesPopup {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public static void show(final Ds3Task deleteTask, final Ds3Common ds3Common) {
-        final DeleteItemView deleteView = new DeleteItemView(deleteTask, ds3Common);
+        final DeleteItemView deleteView = new DeleteItemView(deleteTask);
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
         if (ds3TreeTableView != null) {
 
