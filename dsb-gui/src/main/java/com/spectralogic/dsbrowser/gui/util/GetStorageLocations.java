@@ -43,23 +43,26 @@ public final class GetStorageLocations {
             });
             if (ejectedTapesCount.intValue() != 0) {
                 final ImageView ejectedTapeIcon = new ImageView();
+                final String toolTipMessage = pluralize(ejectedTapesCount.intValue(), resourceBundle, "ejected", "ejecteds");
                 ejectedTapeIcon.setImage(EJECTEDTAPES);
                 ejectedTapeIcon.setFitHeight(15);
                 ejectedTapeIcon.setFitWidth(15);
-                Tooltip.install(ejectedTapeIcon, new Tooltip(Integer.toString(ejectedTapesCount.intValue()) + resourceBundle.getString("ejected")));
+                Tooltip.install(ejectedTapeIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(ejectedTapeIcon);
             }
             if ((storageTapeCount - ejectedTapesCount.intValue()) != 0) {
                 final ImageView storageTapeIcon = new ImageView();
+                final int tapeCount = storageTapeCount - ejectedTapesCount.intValue();
+                final String toolTipMessage = pluralize(tapeCount, resourceBundle, "storage", "storages");
                 storageTapeIcon.setImage(STORAGETAPES);
                 storageTapeIcon.setFitHeight(15);
                 storageTapeIcon.setFitWidth(15);
-                Tooltip.install(storageTapeIcon, new Tooltip(Integer.toString(storageTapeCount - ejectedTapesCount.intValue()) + resourceBundle.getString("storage")));
+                Tooltip.install(storageTapeIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(storageTapeIcon);
             }
         }
 
-        if (Guard.isNotNullAndNotEmpty(placement.getPools())) {
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getPools())) {
             final int onlineDiskCount = placement.getPools().size();
             placement.getPools().forEach(i -> {
                 if (i.getType().equals(PoolType.NEARLINE)) {
@@ -68,18 +71,20 @@ public final class GetStorageLocations {
             });
             if (nearLineDiskCount.intValue() != 0) {
                 final ImageView nearlineDiskIcon = new ImageView();
+                final String toolTipMessage = pluralize(nearLineDiskCount.intValue(), resourceBundle, "nearLine", "nearLines");
                 nearlineDiskIcon.setImage(NEARLINEDISK);
                 nearlineDiskIcon.setFitHeight(15);
                 nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue()) + resourceBundle.getString("nearLine")));
+                Tooltip.install(nearlineDiskIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
             if ((nearLineDiskCount.intValue() - onlineDiskCount) != 0) {
                 final ImageView onlineDiskIcon = new ImageView();
+                final String toolTipMessage = pluralize(nearLineDiskCount.intValue() - onlineDiskCount, resourceBundle, "online", "onlines");
                 onlineDiskIcon.setImage(ONLINEDISK);
                 onlineDiskIcon.setFitHeight(15);
                 onlineDiskIcon.setFitWidth(15);
-                Tooltip.install(onlineDiskIcon, new Tooltip(Integer.toString(nearLineDiskCount.intValue() - onlineDiskCount) + resourceBundle.getString("online")));
+                Tooltip.install(onlineDiskIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(onlineDiskIcon);
             }
         }
@@ -93,7 +98,7 @@ public final class GetStorageLocations {
             placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
         }
 
-        if (Guard.isNotNullAndNotEmpty(placement.getDs3Targets())) {
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getDs3Targets())) {
             placement.getDs3Targets().forEach(i -> {
                 if (!i.getReplicatedUserDefaultDataPolicy().isEmpty()) {
                     replicationCount.incrementAndGet();
@@ -101,27 +106,29 @@ public final class GetStorageLocations {
             });
             if (replicationCount.intValue() != 0) {
                 final ImageView replicationIcon = new ImageView();
+                final String toolTipMessage = pluralize(replicationCount.intValue(), resourceBundle, "replication", "replications");
                 replicationIcon.setImage(REPLICATION);
                 replicationIcon.setFitHeight(15);
                 replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(replicationCount.intValue()) + resourceBundle.getString("replication")));
+                Tooltip.install(replicationIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(replicationIcon);
             }
         }
 
-        if (Guard.isNotNullAndNotEmpty(placement.getAzureTargets())) {
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getAzureTargets())) {
             azureCloud = placement.getAzureTargets().size();
         }
-        if (Guard.isNotNullAndNotEmpty(placement.getS3Targets())) {
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getS3Targets())) {
             amazoneCloud = placement.getS3Targets().size();
         }
         cloudCount = azureCloud + amazoneCloud;
         if (cloudCount != 0) {
             final ImageView cloudIcon = new ImageView();
+            final String toolTipMessage = pluralize(cloudCount, resourceBundle, "cloud", "clouds");
             cloudIcon.setImage(CLOUD);
             cloudIcon.setFitHeight(15);
             cloudIcon.setFitWidth(15);
-            Tooltip.install(cloudIcon, new Tooltip(Integer.toString(cloudCount) + resourceBundle.getString("cloud")));
+            Tooltip.install(cloudIcon, new Tooltip(toolTipMessage));
             placementIconTooltipHbox.getChildren().add(cloudIcon);
         }
 
@@ -133,6 +140,14 @@ public final class GetStorageLocations {
             placementIconTooltipHbox.getChildren().add(hbox);
         }
         return placementIconTooltipHbox;
+    }
+
+    private static String pluralize(final int count, final  ResourceBundle resourceBundle, final String one, final String many) {
+        if(count == 1) {
+            return count + " " + resourceBundle.getString(one);
+        } else {
+            return count + " " + resourceBundle.getString(many);
+        }
     }
 }
 
