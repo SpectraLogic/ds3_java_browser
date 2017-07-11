@@ -95,7 +95,7 @@ public final class CreateService {
             final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
             final Optional<String> bucketElement = buckets.stream().findFirst();
             if (bucketElement.isPresent()) {
-                CreateFolderPopup.show(new CreateFolderModel(ds3Common.getCurrentSession().getClient(), location, bucketElement.get()), ds3Common.getDeepStorageBrowserPresenter(), resourceBundle);
+                CreateFolderPopup.show(new CreateFolderModel(ds3Common.getCurrentSession().getClient(), location, bucketElement.get()), resourceBundle);
             }
             Ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }

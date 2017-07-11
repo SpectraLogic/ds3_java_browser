@@ -232,8 +232,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
                 closeConfirmationHandler.closeConfirmationAlert(event);
             });
-            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView(this);
-            final Ds3PanelView ds3PanelView = new Ds3PanelView(this);
+            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
+            final Ds3PanelView ds3PanelView = new Ds3PanelView();
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
             ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
 

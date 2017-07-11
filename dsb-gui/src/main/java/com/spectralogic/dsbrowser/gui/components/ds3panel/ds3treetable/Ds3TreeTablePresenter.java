@@ -216,9 +216,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3PanelPresenter.getPaneItems().setText(info);
                 //Make Select All menu item disable if current visible item is Bucket or empty else enable it
                 if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
-                    ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(true);
+                    deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
                 } else {
-                    ds3Common.getDeepStorageBrowserPresenter().getSelectAllMenuItem().setDisable(false);
+                    deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(false);
                 }
             } else {
                 LOG.info("No current session.");
@@ -407,7 +407,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                     final String targetDir = value.getDirectoryName();
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                     final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, ds3Common, settingsStore, loggingService, resourceBundle);
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority,
+                            settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
+                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");
@@ -621,12 +623,12 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void checkInterruptedJob(final String endpoint) {
         if (jobInterruptionStore.getJobIdsModel().getEndpoints() != null) {
             final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
-            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), null);
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, deepStorageBrowserPresenter.getJobProgressView(), null);
             if (!Guard.isMapNullOrEmpty(jobIDMap)) {
-                ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(String.valueOf(jobIDMap.size()));
+                deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(jobIDMap.size()));
             } else {
-                ds3Common.getDeepStorageBrowserPresenter().getLblCount().setText(StringConstants.EMPTY_STRING);
-                ds3Common.getDeepStorageBrowserPresenter().getJobButton().setDisable(true);
+                deepStorageBrowserPresenter.getLblCount().setText(StringConstants.EMPTY_STRING);
+                deepStorageBrowserPresenter.getJobButton().setDisable(true);
             }
         }
     }

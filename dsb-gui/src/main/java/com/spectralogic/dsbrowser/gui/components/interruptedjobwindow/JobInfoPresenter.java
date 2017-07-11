@@ -119,7 +119,7 @@ public class JobInfoPresenter implements Initializable {
             @Override
             protected String call() throws Exception {
                 jobIDMap.entrySet().forEach(i -> {
-                    endpointInfo.getDeepStorageBrowserPresenter().logText("Initiating job cancel for " + i.getKey(), LogType.INFO);
+                    loggingService.logMessage("Initiating job cancel for " + i.getKey(), LogType.INFO);
                     try {
                         endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                         LOG.info("Cancelled job.");
@@ -146,7 +146,7 @@ public class JobInfoPresenter implements Initializable {
     }
 
     private void initTreeTableView() {
-        endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs view", LogType.INFO);
+        loggingService.logMessage("Loading interrupted jobs view", LogType.INFO);
         jobListTreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (jobListTreeTable == null) {
             jobListTreeTable.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
@@ -171,7 +171,7 @@ public class JobInfoPresenter implements Initializable {
         final Task getJobIDs = new Task() {
             @Override
             protected Object call() throws Exception {
-                endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
+                loggingService.logMessage("Loading interrupted jobs", LogType.INFO);
                 //to show jobs in reverse order
                 final Map<String, FilesAndFolderMap> jobIDHashMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 final TreeMap<String, FilesAndFolderMap> jobIDTreeMap = new TreeMap(jobIDHashMap);
@@ -221,17 +221,17 @@ public class JobInfoPresenter implements Initializable {
                             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                         });
                         recoverInterruptedJob.setOnFailed(event -> {
-                            endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
+                            loggingService.logMessage("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                         });
                         recoverInterruptedJob.setOnCancelled(event -> {
                             try {
                                 endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
-                                endpointInfo.getDeepStorageBrowserPresenter().logText("Cancel job status : 200", LogType.SUCCESS);
+                                loggingService.logMessage("Cancel job status : 200", LogType.SUCCESS);
                                 RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                             } catch (final IOException e) {
-                                endpointInfo.getDeepStorageBrowserPresenter().logText("Failed to cancel job: " + e, LogType.ERROR);
+                                loggingService.logMessage("Failed to cancel job: " + e, LogType.ERROR);
                             } finally {
                                 final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
                                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, endpointInfo.getDeepStorageBrowserPresenter());
@@ -264,7 +264,7 @@ public class JobInfoPresenter implements Initializable {
         final Task getJobIDs = new Task() {
             @Override
             protected Optional<Object> call() throws Exception {
-                endpointInfo.getDeepStorageBrowserPresenter().logText("Loading interrupted jobs", LogType.INFO);
+                loggingService.logMessage("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 if (jobIDMap == null) {
                     if (jobIDMap.size() == 0) {

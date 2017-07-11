@@ -8,13 +8,10 @@ public class PhysicalPlacementView extends FXMLView {
 
     public PhysicalPlacementView(final PhysicalPlacement ds3PhysicalPlacement) {
         super(name -> {
-            switch (name) {
-                case StringConstants.CASE_DS3PHYSICALPLACEMENT:
-                    return ds3PhysicalPlacement;
-                default:
-                    return null;
+            if (name.equals(StringConstants.CASE_DS3PHYSICALPLACEMENT)) {
+                return ds3PhysicalPlacement;
             }
+            return null;
         });
-
     }
 }

@@ -6,12 +6,10 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 public class CreateBucketView extends FXMLView {
     public CreateBucketView(final CreateBucketWithDataPoliciesModel createBucketTask) {
         super(name -> {
-            switch (name) {
-                case StringConstants.CASE_BUCKETWITHDATAPOLOCY:
-                    return createBucketTask;
-                default:
-                    return null;
+            if (name.equals(StringConstants.CASE_BUCKETWITHDATAPOLOCY)) {
+                return createBucketTask;
             }
+            return null;
         });
     }
 }
