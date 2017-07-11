@@ -47,10 +47,10 @@ public class Ds3CancelSingleJobTask extends Task {
     protected CancelJobSpectraS3Response call() throws Exception {
         try {
             final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
-            endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS);
+            loggingService.logMessage(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS);
         } catch (final Exception e) {
             LOG.error("Unable to cancel " + jobType + "  job", e);
-            endpointInfo.getDeepStorageBrowserPresenter().logText(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR);
             fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
         } finally {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);

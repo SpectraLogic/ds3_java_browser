@@ -4,7 +4,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -31,7 +31,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     protected ResourceBundle resourceBundle;
     protected Ds3Client ds3Client;
-    protected Ds3Common ds3Common;
+    protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    protected Session currentSession;
     protected LoggingService loggingService;
     protected Ds3ClientHelpers.Job job = null;
 
@@ -60,10 +61,6 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     public Ds3Client getDs3Client() {
         return ds3Client;
-    }
-
-    public Ds3Common getDs3Common() {
-        return ds3Common;
     }
 
     AtomicLong addDataTransferListener(final long totalJobSize) {
@@ -111,23 +108,21 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter().getJobProgressView(), jobId);
-        final Session session = ds3Common.getCurrentSession();
-        if (session != null) {
-            final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
+        if (currentSession != null) {
+            final String currentSelectedEndpoint = currentSession.getEndpoint() + COLON + currentSession.getPortNo();
             if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
-                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, ds3Common.getDeepStorageBrowserPresenter());
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
             }
         }
     }
 
     void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), ds3Common.getDeepStorageBrowserPresenter(), loggingService);
-        final Session session = ds3Common.getCurrentSession();
-        if (session != null) {
-            final String currentSelectedEndpoint = session.getEndpoint() + COLON + session.getPortNo();
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+        if (currentSession != null) {
+            final String currentSelectedEndpoint = currentSession.getEndpoint() + COLON + currentSession.getPortNo();
             if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
-                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, ds3Common.getDeepStorageBrowserPresenter());
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
             }
         }
     }

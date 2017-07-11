@@ -87,7 +87,7 @@ public final class RefreshCompleteViewWorker {
         }
     }
 
-    private static void setPathIndicator(final Ds3TreeTableItem selectedRoot , final Ds3Common ds3Common) {
+    private static void setPathIndicator(final Ds3TreeTableItem selectedRoot, final Ds3Common ds3Common) {
         String path = selectedRoot.getValue().getFullName();
         if (!selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
             path = selectedRoot.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
