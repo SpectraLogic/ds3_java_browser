@@ -147,13 +147,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
+        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
+        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3Common.getDs3PanelPresenter().ds3DeleteObject(false));
+        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle));
@@ -188,6 +188,18 @@ public class Ds3TreeTablePresenter implements Initializable {
         });
 
         ds3TreeTable.setContextMenu(contextMenu);
+
+        ds3TreeTable.setOnKeyPressed(event -> {
+            LOG.info(event.getCode().getName() + " key pressed...");
+            final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
+
+            if (!Guard.isNullOrEmpty(selectedItems)) {
+                if (event.getCode().equals(KeyCode.DELETE)) {
+                    ds3Common.getDs3PanelPresenter().ds3DeleteObject(false);
+                }
+            }
+            event.consume();
+        });
 
         ds3TreeTable.setRowFactory(view -> setTreeTableViewRowBehaviour());
         ds3TreeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common.getDs3TreeTableView()));
@@ -562,7 +574,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                     }
 
                 } else {
-                    if (!selectedItems.stream().map(TreeItem::getValue).anyMatch(value -> (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
+                    if (!selectedItems.stream().map(TreeItem::getValue).anyMatch(value ->
+                            (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
                     }
                 }

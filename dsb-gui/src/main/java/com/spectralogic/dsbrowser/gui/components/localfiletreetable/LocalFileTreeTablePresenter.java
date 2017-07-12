@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
@@ -47,10 +46,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -153,79 +149,80 @@ public class LocalFileTreeTablePresenter implements Initializable {
             event.consume();
         });
         treeTable.setRowFactory(view -> {
-                    final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
-                    final List<String> rowNameList = new ArrayList<>();
-                    row.setOnMouseClicked(event -> {
-                        LOG.info("Mouse Clicked..");
-                        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-                            selectMultipleItems(rowNameList, row);
-                        } else if (event.getClickCount() == 2) {
-                            if (row.getTreeItem() != null && row.getTreeItem().getValue() != null && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
-                                changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
-                            }
-                        } else {
-                            treeTable.getSelectionModel().clearAndSelect(row.getIndex());
+            final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
+                final List<String> rowNameList = new ArrayList<>();
+                row.setOnMouseClicked(event -> {
+                    LOG.info("Mouse Clicked..");
+                    if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
+                        selectMultipleItems(rowNameList, row);
+                    } else if (event.getClickCount() == 2) {
+                        if (row.getTreeItem() != null
+                         && row.getTreeItem().getValue() != null
+                         && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
+                            changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
                         }
-                    });
-                    row.setOnDragDropped(event -> {
-                        LOG.info("Drop detected..");
-                        if (row.getTreeItem() != null) {
-                            if (!row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
-                                LOG.info("Expanding closed row");
-                                row.getTreeItem().setExpanded(true);
-                            }
+                    } else {
+                        treeTable.getSelectionModel().clearAndSelect(row.getIndex());
+                    }
+                });
+                row.setOnDragDropped(event -> {
+                    LOG.info("Drop detected..");
+                    if (row.getTreeItem() != null) {
+                        if (!row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
+                            LOG.info("Expanding closed row");
+                            row.getTreeItem().setExpanded(true);
                         }
-                        setDragDropEvent(row, event);
-                        event.consume();
+                    }
+                    setDragDropEvent(row, event);
+                    event.consume();
 
-                    });
-                    row.setOnDragOver(event -> {
-                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                        if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
-                            event.acceptTransferModes(TransferMode.COPY);
-                            if (treeItem == null) {
-                                if (fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                                    event.acceptTransferModes(TransferMode.NONE);
-                                }
+                });
+                row.setOnDragOver(event -> {
+                    final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                    if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
+                        event.acceptTransferModes(TransferMode.COPY);
+                        if (treeItem == null) {
+                            if (fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                                event.acceptTransferModes(TransferMode.NONE);
                             }
-                            event.consume();
-                        }
-                    });
-                    row.setOnDragEntered(event -> {
-                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                        if (treeItem != null) {
-                            final InnerShadow is = new InnerShadow();
-                            is.setOffsetY(1.0f);
-                            row.setEffect(is);
-                        } else {
-                            event.acceptTransferModes(TransferMode.NONE);
                         }
                         event.consume();
-                    });
-                    row.setOnDragExited(event -> {
-                        row.setEffect(null);
-                        event.consume();
-                    });
-                    row.setOnDragDetected(event -> {
-                        LOG.info("Drag detected...");
-                        final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
-                        if (!Guard.isNullOrEmpty(selectedItems)) {
-                            LOG.info("Starting drag and drop event");
-                            final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
-                            final ClipboardContent content = new ClipboardContent();
-                            content.putFilesByPath(selectedItems
-                                    .stream()
-                                    .filter(item -> item.getValue() != null)
-                                    .map(i -> i.getValue().getPath().toString())
-                                    .collect(Collectors.toList()));
-                            db.setContent(content);
-                        }
-                        event.consume();
-                    });
-                    return row;
-                }
+                    }
+                });
+                row.setOnDragEntered(event -> {
+                    final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                    if (treeItem != null) {
+                        final InnerShadow is = new InnerShadow();
+                        is.setOffsetY(1.0f);
+                        row.setEffect(is);
+                    } else {
+                        event.acceptTransferModes(TransferMode.NONE);
+                    }
+                    event.consume();
+                });
+                row.setOnDragExited(event -> {
+                    row.setEffect(null);
+                    event.consume();
+                });
+                row.setOnDragDetected(event -> {
+                    LOG.info("Drag detected...");
+                    final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
+                    if (!Guard.isNullOrEmpty(selectedItems)) {
+                        LOG.info("Starting drag and drop event");
+                        final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
+                        final ClipboardContent content = new ClipboardContent();
+                        content.putFilesByPath(selectedItems
+                                .stream()
+                                .filter(item -> item.getValue() != null)
+                                .map(i -> i.getValue().getPath().toString())
+                                .collect(Collectors.toList()));
+                        db.setContent(content);
+                    }
+                    event.consume();
+                });
+                return row;
+            }
         );
-
     }
 
     private void initListeners() {
@@ -377,7 +374,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         treeTable.setRoot(rootTreeItem);
         setExpandBehaviour(treeTable);
         if (lastExpandedNode != null) {
-            if (treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().isPresent()) {
+            if (treeTable.getRoot().getChildren().stream().anyMatch(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName()))) {
                 final TreeItem<FileTreeModel> ds3TreeTableValueTreeItem = treeTable.getRoot().getChildren().stream().filter(i -> i.getValue().getName().equals(lastExpandedNode.getValue().getName())).findFirst().get();
                 ds3TreeTableValueTreeItem.setExpanded(false);
                 if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
@@ -516,7 +513,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 }
 
             });
-            treeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common.getLocalTreeTableView()));
+            treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         });
 
     }
@@ -554,11 +551,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         final Optional<Session> first = ds3SessionStore.getSessions().filter(sessions -> (sessions.getSessionName()
                 + StringConstants.SESSION_SEPARATOR + sessions.getEndpoint()).equals(sessionName)).findFirst();
-        if (first.isPresent()) {
-            return first.get();
-        } else {
-            return null;
-        }
+        return first.orElse(null);
     }
 
     /**

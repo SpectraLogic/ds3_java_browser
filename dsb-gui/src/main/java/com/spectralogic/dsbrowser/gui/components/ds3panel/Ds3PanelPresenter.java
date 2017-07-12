@@ -192,9 +192,9 @@ public class Ds3PanelPresenter implements Initializable {
      */
     private void goToParentDirectory() {
         //if root is null back button will not work
-        if (null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getValue() &&
-                null != ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent()) {
-            if (null == ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent().getValue()) {
+        if (null != getTreeTableView().getRoot().getValue() &&
+                null != getTreeTableView().getRoot().getParent()) {
+            if (null == getTreeTableView().getRoot().getParent().getValue()) {
                 getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                 getDs3PathIndicator().setTooltip(null);
                 capacityLabel.setText(StringConstants.EMPTY_STRING);
@@ -204,15 +204,14 @@ public class Ds3PanelPresenter implements Initializable {
             } else {
                 getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
             }
-            ds3Common.getDs3PanelPresenter().getTreeTableView()
-                    .setRoot(ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getParent());
-            ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false)
-            );
+            getTreeTableView().setRoot(getTreeTableView().getRoot().getParent());
+            getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false));
             try {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
-                ds3Common.getDs3PanelPresenter().getTreeTableView().setPlaceholder(new StackPane(progress));
-                ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
+                getTreeTableView().setPlaceholder(new StackPane(progress));
+                //getTreeTableView().getRoot().refresh();
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
             } catch (final Exception e) {
                 LOG.error("Unable to change root", e);
             }
@@ -515,7 +514,9 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
-                                      final TreeTableView<FileTreeModel> treeTable, final Label fileRootItemLabel, final String fileRootItem) {
+                                      final TreeTableView<FileTreeModel> treeTable,
+                                      final Label fileRootItemLabel,
+                                      final String fileRootItem) {
         final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
         if (first.isPresent()) {
             final TreeItem<FileTreeModel> selectedItem = first.get();
@@ -713,21 +714,19 @@ public class Ds3PanelPresenter implements Initializable {
     private void setItemCountPanelInfo(final FilesCountModel filesCountModel, final TreeItem<Ds3TreeTableValue> selectedRoot) {
         //For no. of folder(s) and file(s)
         if (filesCountModel.getNoOfFiles() == 0 && filesCountModel.getNoOfFolders() == 0) {
-            ds3Common.getDs3PanelPresenter().getInfoLabel().setText(resourceBundle.getString("containsNoItem"));
+            getInfoLabel().setText(resourceBundle.getString("containsNoItem"));
         } else {
-            ds3Common.getDs3PanelPresenter().getInfoLabel()
-                    .setText(StringBuilderUtil.getItemsCountInfoMessage(filesCountModel.getNoOfFolders(),
-                            filesCountModel.getNoOfFiles()).toString());
+            getInfoLabel().setText(StringBuilderUtil.getItemsCountInfoMessage(filesCountModel.getNoOfFolders(),
+                    filesCountModel.getNoOfFiles()).toString());
         }
         //For capacity of bucket or folder
-        ds3Common.getDs3PanelPresenter().getCapacityLabel()
-                .setText(StringBuilderUtil.getCapacityMessage(filesCountModel.getTotalCapacity(),
-                        selectedRoot.getValue().getType()).toString());
+        getCapacityLabel().setText(StringBuilderUtil.getCapacityMessage(filesCountModel.getTotalCapacity(),
+                selectedRoot.getValue().getType()).toString());
     }
 
     private void setVisibilityOfItemsInfo(final boolean visibility) {
-        ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(visibility);
-        ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(visibility);
+        getInfoLabel().setVisible(visibility);
+        getCapacityLabel().setVisible(visibility);
     }
 
     public Label getCapacityLabel() {

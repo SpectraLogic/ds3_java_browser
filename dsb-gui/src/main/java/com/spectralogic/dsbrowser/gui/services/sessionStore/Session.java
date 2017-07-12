@@ -17,13 +17,13 @@ public class Session implements Closeable {
         this(null, null, null, null, null,false);
     }
 
-    public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client,final Boolean dafaultSession) {
+    public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client,final Boolean defaultSession) {
         this.sessionName = sessionName;
         this.endpoint = endpoint;
         this.portNo = portNo;
         this.proxyServer = proxyServer;
         this.client = client;
-        this.defaultSession =  dafaultSession;
+        this.defaultSession = defaultSession;
     }
 
     public Ds3Client getClient() {
