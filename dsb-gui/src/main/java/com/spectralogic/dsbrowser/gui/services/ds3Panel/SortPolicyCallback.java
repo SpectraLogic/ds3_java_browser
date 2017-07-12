@@ -47,9 +47,7 @@ public class SortPolicyCallback implements javafx.util.Callback {
                     ds3TreeTable.getRoot().getChildren().removeAll(ds3TreeTable.getRoot().getChildren());
                     ds3TreeTable.getRoot().getChildren().addAll(treeItems);
                     final Optional<TreeItem<BaseTreeModel>> first = loaderList.stream().findFirst();
-                    if (first.isPresent()) {
-                        ds3TreeTable.getRoot().getChildren().add(first.get());
-                    }
+                    first.ifPresent(baseTreeModelTreeItem -> ds3TreeTable.getRoot().getChildren().add(baseTreeModelTreeItem));
 
                     treeItems.forEach(i -> {
                         if (i.isExpanded()) {
@@ -90,9 +88,7 @@ public class SortPolicyCallback implements javafx.util.Callback {
                 o1.getChildren().addAll(treeItems);
                 final Optional<TreeItem<BaseTreeModel>> first = loaderList.stream().findFirst();
 
-                if (first.isPresent()) {
-                    o1.getChildren().add(first.get());
-                }
+                first.ifPresent(baseTreeModelTreeItem -> o1.getChildren().add(baseTreeModelTreeItem));
 
                 if (!type.equals(StringConstants.TYPE)) {
                     FXCollections.sort(o1.getChildren(), Comparator.comparing(t -> t.getValue().getType().toString()));
