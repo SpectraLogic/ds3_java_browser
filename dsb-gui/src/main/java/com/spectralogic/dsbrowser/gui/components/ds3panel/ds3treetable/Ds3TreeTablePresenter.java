@@ -470,7 +470,7 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        if (event.isControlDown() || event.isShiftDown()) {
+        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
             if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
                 rowNameList.add(row.getTreeItem().getValue().getName());
                 ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
