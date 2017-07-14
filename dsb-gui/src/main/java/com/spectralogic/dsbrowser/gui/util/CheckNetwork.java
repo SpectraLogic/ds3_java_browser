@@ -7,9 +7,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class CheckNetwork {
     private static final Logger LOG = LoggerFactory.getLogger(CheckNetwork.class);
+    private static final Pattern REPLACE = Pattern.compile(Constants.HTTPS_PREFIX, Pattern.LITERAL);
 
     /**
      * Tests to see if the non-secure data path port is reachable
@@ -34,7 +37,7 @@ public final class CheckNetwork {
      */
     public static String formatUrl(final String endpoint) {
         if (endpoint.startsWith(Constants.HTTPS_PREFIX)) {
-            return endpoint.replace(Constants.HTTPS_PREFIX, Constants.HTTP_PREFIX);
+            return REPLACE.matcher(endpoint).replaceAll(Matcher.quoteReplacement(Constants.HTTP_PREFIX));
         } else if (endpoint.startsWith(Constants.HTTP_PREFIX)) {
             return endpoint;
         } else {

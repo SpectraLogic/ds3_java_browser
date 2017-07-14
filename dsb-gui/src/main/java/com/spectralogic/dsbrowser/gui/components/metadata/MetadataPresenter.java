@@ -19,11 +19,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Presenter
 public class MetadataPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
+    private static final Pattern REPLACE = Pattern.compile(StringConstants.STR_T, Pattern.LITERAL);
     private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
     private final Calendar calendar = Calendar.getInstance();
 
@@ -94,7 +97,7 @@ public class MetadataPresenter implements Initializable {
 
     private MetadataEntry getTime(final String time, final String key) {
         if (time.contains(StringConstants.STR_T)) {
-            return new MetadataEntry(key, time.replace(StringConstants.STR_T, StringConstants.SPACE));
+            return new MetadataEntry(key, REPLACE.matcher(time).replaceAll(Matcher.quoteReplacement(StringConstants.SPACE)));
         } else {
             final long creationTimeLong = Long.parseLong(time);
             calendar.setTimeInMillis(creationTimeLong);
