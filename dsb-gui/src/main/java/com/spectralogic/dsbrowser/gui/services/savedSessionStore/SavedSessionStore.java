@@ -98,7 +98,7 @@ public class SavedSessionStore {
     }
 
     public int addSession(final Session session) {
-        int index;
+        int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
@@ -142,11 +142,8 @@ public class SavedSessionStore {
         } else if (session.getProxyServer() != null) {
             return true;
         }
-        if (savedSession.getDefaultSession() != session.getDefaultSession()) {
-            return true;
-        }
+        return savedSession.getDefaultSession() != session.getDefaultSession();
 
-        return false;
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
