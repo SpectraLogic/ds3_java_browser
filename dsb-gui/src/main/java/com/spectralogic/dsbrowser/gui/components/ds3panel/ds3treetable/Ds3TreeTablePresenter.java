@@ -190,15 +190,13 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setContextMenu(contextMenu);
 
         ds3TreeTable.setOnKeyPressed(event -> {
-            LOG.info(event.getCode().getName() + " key pressed...");
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
-
             if (!Guard.isNullOrEmpty(selectedItems)) {
                 if (event.getCode().equals(KeyCode.DELETE)) {
                     ds3Common.getDs3PanelPresenter().ds3DeleteObject(false);
+                    event.consume();
                 }
             }
-            event.consume();
         });
 
         ds3TreeTable.setRowFactory(view -> setTreeTableViewRowBehaviour());
