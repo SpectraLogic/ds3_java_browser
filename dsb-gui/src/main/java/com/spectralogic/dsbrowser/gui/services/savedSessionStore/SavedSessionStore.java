@@ -98,7 +98,7 @@ public class SavedSessionStore {
     }
 
     public int addSession(final Session session) {
-        int index = 0;
+        int index;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
                     SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
