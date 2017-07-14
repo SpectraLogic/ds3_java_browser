@@ -246,7 +246,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private void registerLoggingServiceListener() {
         LOG.info("Registering loggingService observable");
         final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
-        observable.doOnNext( logEvent -> {
+        observable.doOnNext(logEvent -> {
             if (Platform.isFxApplicationThread()) {
                 this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
             } else {
@@ -289,19 +289,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void selectAllItemsInPane() {
-        final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
-        if (null != ds3TreeTable && null != ds3TreeTable.getRoot().getParent()) {
 
-            final ObservableList<String> rowNameList = FXCollections.observableArrayList();
-
-            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            //Selecting all the items of selected root(All visible items)
-            ds3TreeTable.getRoot().getChildren().forEach((child) -> {
-                if (!rowNameList.contains(child.getValue().getName())) {
-                    rowNameList.add(child.getValue().getName());
-                    ds3TreeTable.getSelectionModel().select(child);
-                }
-            });
+        final TreeTableView ds3TreeTable = ds3Common.getDs3TreeTableView();
+        final TreeTableView localFileTreeTableView = ds3Common.getLocalTreeTableView();
+        if (ds3TreeTable != null && ds3TreeTable.isFocused()) {
+            ds3TreeTable.getSelectionModel().selectAll();
+        } else if (localFileTreeTableView != null && localFileTreeTableView.isFocused()) {
+            localFileTreeTableView.getSelectionModel().selectAll();
         }
     }
 

@@ -29,6 +29,8 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -223,6 +225,19 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return row;
             }
         );
+
+        treeTable.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
+                if (newValue) {
+                    LOG.info("Focus gained");
+                    deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(false);
+                } else {
+                    LOG.info("Focus Lost");
+                    deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
+                }
+            }
+        });
     }
 
     private void initListeners() {

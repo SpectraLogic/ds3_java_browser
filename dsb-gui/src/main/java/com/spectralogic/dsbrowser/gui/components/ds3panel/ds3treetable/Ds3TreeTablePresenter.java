@@ -139,6 +139,18 @@ public class Ds3TreeTablePresenter implements Initializable {
             handleDropEvent(event, null);
             event.consume();
         });
+        ds3TreeTable.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
+               if (newValue) {
+                   LOG.info("Focus gained");
+                   deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(false);
+               } else {
+                   LOG.info("Focus Lost");
+                   deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
+               }
+            }
+        });
     }
 
     /**
