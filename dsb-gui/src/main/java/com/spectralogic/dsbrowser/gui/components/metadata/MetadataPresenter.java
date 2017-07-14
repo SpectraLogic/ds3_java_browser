@@ -80,16 +80,7 @@ public class MetadataPresenter implements Initializable {
         metadataTableColValue.setCellFactory
                 (
                         column ->
-                                new TableCell<MetadataEntry, String>() {
-                                    @Override
-                                    protected void updateItem(final String item, final boolean empty) {
-                                        if (item != null) {
-                                            super.updateItem(item, empty);
-                                            setText(item);
-                                            setTooltip(new Tooltip(item));
-                                        }
-                                    }
-                                });
+                                new TableCell());
     }
 
     private void initLabels() {
@@ -197,4 +188,14 @@ public class MetadataPresenter implements Initializable {
     }
 
 
+    private static class TableCell extends javafx.scene.control.TableCell<MetadataEntry, String> {
+        @Override
+        protected void updateItem(final String item, final boolean empty) {
+            if (item != null) {
+                super.updateItem(item, empty);
+                setText(item);
+                setTooltip(new Tooltip(item));
+            }
+        }
+    }
 }

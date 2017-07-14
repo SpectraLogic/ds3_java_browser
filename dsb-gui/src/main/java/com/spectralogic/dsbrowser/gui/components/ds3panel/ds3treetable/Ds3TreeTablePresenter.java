@@ -272,37 +272,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
             });
 
-            sizeColumn.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, Number>() {
+            sizeColumn.setCellFactory(c -> new NumberTreeTableCell());
 
-                @Override
-                protected void updateItem(final Number item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(FileSizeFormat.getFileSizeType(item.longValue()));
-                    }
-                }
-
-            });
-
-            fileType.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, Ds3TreeTableValue.Type>() {
-
-                @Override
-                protected void updateItem(final Ds3TreeTableValue.Type item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        if (item.toString().equals("Loader")) {
-                            setText("");
-                        } else {
-                            setText(item.toString());
-                        }
-                    }
-                }
-
-            });
+            fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
         });
     }
@@ -644,6 +616,38 @@ public class Ds3TreeTablePresenter implements Initializable {
                 deepStorageBrowserPresenter.getJobButton().setDisable(true);
             }
         }
+    }
+
+    private static class NumberTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Number> {
+
+        @Override
+        protected void updateItem(final Number item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+            } else {
+                setText(FileSizeFormat.getFileSizeType(item.longValue()));
+            }
+        }
+
+    }
+
+    private static class TreeTableValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Ds3TreeTableValue.Type> {
+
+        @Override
+        protected void updateItem(final Ds3TreeTableValue.Type item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+            } else {
+                if (item.toString().equals("Loader")) {
+                    setText("");
+                } else {
+                    setText(item.toString());
+                }
+            }
+        }
+
     }
 
     private class ChangeListenerInnerClass implements ChangeListener {

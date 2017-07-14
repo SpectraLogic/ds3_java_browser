@@ -31,24 +31,7 @@ public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends DeepS
             }
         };
 
-        getTasks().addListener(new ListChangeListener<Task<?>>() {
-            @Override
-            public void onChanged(final Change<? extends Task<?>> c) {
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        for (final Task<?> task : c.getAddedSubList()) {
-                            task.addEventHandler(WorkerStateEvent.ANY,
-                                    taskHandler);
-                        }
-                    } else if (c.wasRemoved()) {
-                        for (final Task<?> task : c.getRemoved()) {
-                            task.removeEventHandler(WorkerStateEvent.ANY,
-                                    taskHandler);
-                        }
-                    }
-                }
-            }
-        });
+        getTasks().addListener(new ListChangeListener(taskHandler));
     }
 
     /** {@inheritDoc} */
@@ -106,5 +89,30 @@ public class DeepStorageBrowserTaskProgressView<T extends Task<?>> extends DeepS
      */
     public final void setGraphicFactory(final Callback<T, Node> factory) {
         graphicFactoryProperty().set(factory);
+    }
+
+    private static class ListChangeListener implements javafx.collections.ListChangeListener<Task<?>> {
+        private final EventHandler<WorkerStateEvent> taskHandler;
+
+        public ListChangeListener(final EventHandler<WorkerStateEvent> taskHandler) {
+            this.taskHandler = taskHandler;
+        }
+
+        @Override
+        public void onChanged(final Change<? extends Task<?>> c) {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    for (final Task<?> task : c.getAddedSubList()) {
+                        task.addEventHandler(WorkerStateEvent.ANY,
+                                taskHandler);
+                    }
+                } else if (c.wasRemoved()) {
+                    for (final Task<?> task : c.getRemoved()) {
+                        task.removeEventHandler(WorkerStateEvent.ANY,
+                                taskHandler);
+                    }
+                }
+            }
+        }
     }
 }
