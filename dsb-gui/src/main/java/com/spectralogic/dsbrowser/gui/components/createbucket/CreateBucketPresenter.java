@@ -79,7 +79,7 @@ public class CreateBucketPresenter implements Initializable {
             }
         });
         dataPolicyCombo.setOnAction(event -> {
-            if (!bucketNameField.textProperty().getValue().isEmpty() && ((String) dataPolicyCombo.getValue()) != null) {
+            if (!bucketNameField.textProperty().getValue().isEmpty() && dataPolicyCombo.getValue() != null) {
                 createBucketButton.setDisable(false);
             } else {
                 createBucketButton.setDisable(true);
