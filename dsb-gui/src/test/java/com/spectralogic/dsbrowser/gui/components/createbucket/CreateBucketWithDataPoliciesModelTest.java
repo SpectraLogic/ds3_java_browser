@@ -37,21 +37,21 @@ public class CreateBucketWithDataPoliciesModelTest {
 
     @Test
     public void getSession() throws Exception {
-        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().map(i -> i).collect(GuavaCollectors.immutableList());
+        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().collect(GuavaCollectors.immutableList());
         final CreateBucketWithDataPoliciesModel value = new CreateBucketWithDataPoliciesModel(value1, new Session(), new Workers());
         assertNotEquals(value.getSession(), null);
     }
 
     @Test
     public void getWorkers() throws Exception {
-        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().map(i -> i).collect(GuavaCollectors.immutableList());
+        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().collect(GuavaCollectors.immutableList());
         final CreateBucketWithDataPoliciesModel value = new CreateBucketWithDataPoliciesModel(value1, new Session(), new Workers());
         assertNotEquals(value.getWorkers(), null);
     }
 
     @Test
     public void getDataPolicies() throws Exception {
-        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().map(i -> i).collect(GuavaCollectors.immutableList());
+        final ImmutableList<CreateBucketModel> value1 = new ArrayList<CreateBucketModel>().stream().collect(GuavaCollectors.immutableList());
         final CreateBucketWithDataPoliciesModel value = new CreateBucketWithDataPoliciesModel(value1, new Session(), new Workers());
         assertNotEquals(value.getDataPolicies(), null);
 

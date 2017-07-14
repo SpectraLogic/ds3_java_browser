@@ -20,11 +20,14 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.spectralogic.ds3client.networking.Metadata;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -33,6 +36,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class MetadataPresenterTest {
+    final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Test
     public void testMetadataFromDsb() {
@@ -46,7 +50,7 @@ public class MetadataPresenterTest {
                 new BasicHeader("ds3-flags", "FLAG"),
                 new BasicHeader("ds3-dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("ds3-mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter();
+        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
         final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
         metadataPresenter.createMetadataBuilder(metadata, builder);
         assertThat(builder, is(notNullValue()));
@@ -76,7 +80,7 @@ public class MetadataPresenterTest {
                 new BasicHeader("flags", "FLAG"),
                 new BasicHeader("dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter();
+        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
         final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
         metadataPresenter.createMetadataBuilder(metadata, builder);
         assertThat(builder, is(notNullValue()));
