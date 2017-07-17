@@ -16,12 +16,10 @@ public final class PriorityFilter {
        Or remove the entries from the enum and skip this wholesale.
      */
 
-    public static Priority[] filterPriorities(final Priority[] priorities) {
-        final Priority[] elements = {Priority.BACKGROUND, Priority.CRITICAL};
-        final List<Priority> list = new ArrayList<Priority>(Arrays.asList(priorities));
-        list.removeAll(Arrays.asList(elements));
-        final int size = list.size();
-        return list.toArray(new Priority[size]);
+    private static final Priority[] priorities = { Priority.URGENT, Priority.HIGH, Priority.NORMAL, Priority.LOW };
+
+    public static Priority[] filterPriorities() {
+        return priorities;
     }
 
 }

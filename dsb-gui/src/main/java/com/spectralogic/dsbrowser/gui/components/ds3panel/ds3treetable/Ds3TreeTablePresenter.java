@@ -275,7 +275,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
             });
 
-            sizeColumn.setCellFactory(c -> new NumberTreeTableCell());
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
 
             fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
@@ -621,8 +621,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private static class NumberTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Number> {
-
+    private static class ValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Number> {
         @Override
         protected void updateItem(final Number item, final boolean empty) {
             super.updateItem(item, empty);
