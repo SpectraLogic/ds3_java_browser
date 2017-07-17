@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -40,10 +41,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.EMPTY_STRING;
@@ -60,6 +58,7 @@ public class RecoverInterruptedJobTest {
     private static RecoverInterruptedJob recoverInterruptedJob;
     private final String fileName = SessionConstants.LOCAL_FILE;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setConnection() {
@@ -67,7 +66,7 @@ public class RecoverInterruptedJobTest {
         Platform.runLater(() -> {
             try {
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
 

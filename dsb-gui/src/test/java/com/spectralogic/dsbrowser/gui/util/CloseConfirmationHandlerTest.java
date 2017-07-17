@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.gui.util;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -63,14 +64,15 @@ public class CloseConfirmationHandlerTest {
     private static CloseConfirmationHandler handler;
     private static File file;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
-            handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+            handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
             final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
             if (url != null) {
@@ -103,12 +105,12 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setPortno("8080");
                 newSessionModel.setSecretKey("yVBAvWTG");
                 newSessionModel.setProxyServer(null);
-                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
-                savedSessionStorePrevious.saveSession(createConnectionTask.createConnection(newSessionModel));
+                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle);
+                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session
-                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore();
+                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore(resourceBundle);
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
                 final Optional<SavedSession> savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst();
 
@@ -136,7 +138,7 @@ public class CloseConfirmationHandlerTest {
                 final SavedJobPrioritiesStore savedJobPrioritiesStore = new SavedJobPrioritiesStore(new JobSettings("URGENT", "URGENT", true));
                 handler.saveJobPriorities(savedJobPrioritiesStore);
                 //To get saved job priorities
-                final SavedJobPrioritiesStore savedJobPrioritiesStoreNew = SavedJobPrioritiesStore.loadSavedJobPriorties();
+                final SavedJobPrioritiesStore savedJobPrioritiesStoreNew = SavedJobPrioritiesStore.loadSavedJobPriorities();
                 if (savedJobPrioritiesStoreNew.getJobSettings().getGetJobPriority().equals(Priority.URGENT.toString()) && savedJobPrioritiesStoreNew.getJobSettings().getPutJobPriority().equals(Priority.URGENT.toString())) {
                     successFlag = true;
                 }
@@ -196,7 +198,7 @@ public class CloseConfirmationHandlerTest {
     @Test
     public void saveSettings() throws Exception {
         try {
-            final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.createDefault();
+            final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.DEFAULT;
             final ProcessSettings processSettings = ProcessSettings.createDefault();
             final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
             final LogSettings logSettings = LogSettings.DEFAULT;
@@ -222,24 +224,21 @@ public class CloseConfirmationHandlerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
                 });
                 Thread.sleep(5000);
-                final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds());
+                final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds(), Mockito.mock(LoggingService.class));
                 task.setOnSucceeded(event -> {
-                    handler.shutdownWorkers();
                     successFlag = true;
                     latch.countDown();
                 });
                 task.setOnFailed(event -> {
-                    handler.shutdownWorkers();
                     latch.countDown();
                 });
                 task.setOnCancelled(event -> {
-                    handler.shutdownWorkers();
                     latch.countDown();
                 });
             } catch (final Exception e) {
