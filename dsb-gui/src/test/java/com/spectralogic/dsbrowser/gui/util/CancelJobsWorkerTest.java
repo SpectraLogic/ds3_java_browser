@@ -21,7 +21,6 @@ import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -55,11 +54,11 @@ public class CancelJobsWorkerTest {
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static final Workers workers = new Workers();
     private static Session session;
-    private static String endpoint;
     private static File file;
     private static final UUID jobId = UUID.randomUUID();
     private static JobInterruptionStore jobInterruptionStore;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -69,9 +68,7 @@ public class CancelJobsWorkerTest {
             try {
                 //Initiating session
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
-                //Initializing endpoint
-                endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
                 //Loading resource file
                 final ClassLoader classLoader = ParseJobInterruptionMapTest.class.getClassLoader();
                 final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
@@ -90,7 +87,7 @@ public class CancelJobsWorkerTest {
                 endpointMapList.add(endPointMap);
                 final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);
                 final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
-                jobInterruptionStore1.saveJobInterruptionStore(jobInterruptionStore1);
+                JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore1);
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
             } catch (final Exception io) {
                 io.printStackTrace();
@@ -117,7 +114,7 @@ public class CancelJobsWorkerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, StringConstants.EMPTY_STRING,
                          Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
+                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
@@ -128,7 +125,7 @@ public class CancelJobsWorkerTest {
                 });
                 Thread.sleep(5000);
                 //Cancelling put job task
-                final CancelAllRunningJobsTask cancelAllRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers);
+                final CancelAllRunningJobsTask cancelAllRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers, Mockito.mock(LoggingService.class));
                 cancelAllRunningJobsTask.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();
@@ -163,7 +160,7 @@ public class CancelJobsWorkerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "",
                         Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
+                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
@@ -176,7 +173,7 @@ public class CancelJobsWorkerTest {
                 Thread.sleep(5000);
                 //Cancelling task by session
                 final CancelAllTaskBySession cancelAllRunningJobsBySession = CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers,
-                        jobInterruptionStore, null, workers, session);
+                        jobInterruptionStore, workers, session, Mockito.mock(LoggingService.class));
                 cancelAllRunningJobsBySession.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();

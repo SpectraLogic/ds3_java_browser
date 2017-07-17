@@ -31,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -49,6 +50,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -61,13 +64,14 @@ public class Ds3PutJobTest {
     private static File file;
     private static Ds3PutJob ds3PutJob;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             final ClassLoader classLoader = Ds3PutJobTest.class.getClassLoader();
             final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
             if (url != null) {
@@ -88,7 +92,7 @@ public class Ds3PutJobTest {
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, settingsStore, Mockito.mock(LoggingService.class));
+                ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 taskProgressView.getTasks().add(ds3PutJob);
             } catch (final Exception io) {
                 io.printStackTrace();

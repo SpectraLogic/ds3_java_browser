@@ -55,6 +55,7 @@ public class ParseJobInterruptionMapTest {
     private static final UUID jobId = UUID.randomUUID();
     private static JobInterruptionStore jobInterruptionStore;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -64,7 +65,7 @@ public class ParseJobInterruptionMapTest {
             try {
                 //Initiating session
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file

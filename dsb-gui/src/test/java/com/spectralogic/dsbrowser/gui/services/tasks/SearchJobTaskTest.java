@@ -20,12 +20,12 @@ import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Respons
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -34,6 +34,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -43,6 +45,7 @@ public class SearchJobTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Before
     public void setUp() {
@@ -52,7 +55,7 @@ public class SearchJobTaskTest {
                     SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null,
                     new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 

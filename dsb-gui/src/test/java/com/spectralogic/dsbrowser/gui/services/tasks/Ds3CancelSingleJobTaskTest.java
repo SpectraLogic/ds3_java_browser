@@ -26,10 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
@@ -42,8 +39,10 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -55,6 +54,7 @@ public class Ds3CancelSingleJobTaskTest {
     private static final Workers workers = new Workers();
     private static Session session;
     private boolean successFlag = false;
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
 
     @BeforeClass
@@ -63,7 +63,7 @@ public class Ds3CancelSingleJobTaskTest {
         Platform.runLater(() -> {
             try {
                 final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -100,7 +100,7 @@ public class Ds3CancelSingleJobTaskTest {
                     final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
                     Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                     if (jobIdKeyElement.isPresent()) {
-                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"));
+                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"), null);
                         workers.execute(ds3CancelSingleJobTask);
                         ds3CancelSingleJobTask.setOnSucceeded(event -> {
                             successFlag = true;
