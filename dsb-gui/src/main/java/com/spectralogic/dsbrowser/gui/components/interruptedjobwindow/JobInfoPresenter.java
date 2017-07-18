@@ -190,7 +190,7 @@ public class JobInfoPresenter implements Initializable {
         getJobIDs.setOnSucceeded(event -> {
             jobListTreeTable.setPlaceholder(oldPlaceHolder);
             jobListTreeTable.setRoot(rootTreeItem);
-            sizeColumn.setCellFactory(c -> new TreeTableCell());
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell<JobInfoModel>());
         });
     }
 
@@ -282,18 +282,5 @@ public class JobInfoPresenter implements Initializable {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         });
-    }
-
-    private static class TreeTableCell extends javafx.scene.control.TreeTableCell<JobInfoModel, Number> {
-
-        @Override
-        protected void updateItem(final Number item, final boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText(null);
-            } else {
-                setText(FileSizeFormat.getFileSizeType(item.longValue()));
-            }
-        }
     }
 }

@@ -209,8 +209,8 @@ public class Ds3PanelPresenter implements Initializable {
             try {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
-                getTreeTableView().setPlaceholder(new StackPane(progress));
                 ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
+                ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
             } catch (final Exception e) {
                 LOG.error("Unable to change root", e);
             }

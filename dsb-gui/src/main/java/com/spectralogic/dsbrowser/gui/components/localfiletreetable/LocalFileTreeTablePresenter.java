@@ -506,7 +506,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
-            sizeColumn.setCellFactory(c -> new TableCell());
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell<FileTreeModel>());
             treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         });
 
@@ -595,19 +595,5 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
         }
         return localPath;
-    }
-
-    private static class TableCell extends TreeTableCell<FileTreeModel, Number> {
-
-        @Override
-        protected void updateItem(final Number item, final boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText(null);
-            } else {
-                setText(FileSizeFormat.getFileSizeType(item.longValue()));
-            }
-        }
-
     }
 }
