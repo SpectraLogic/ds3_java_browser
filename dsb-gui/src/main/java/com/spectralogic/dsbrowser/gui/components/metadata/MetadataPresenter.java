@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 @Presenter
 public class MetadataPresenter implements Initializable {
 
-    private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
     private static final Pattern REPLACE = Pattern.compile(StringConstants.STR_T, Pattern.LITERAL);
-    private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
-    private final Calendar calendar = Calendar.getInstance();
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
+    private static final Calendar calendar = Calendar.getInstance();
 
     @FXML
     private Label objectName;
@@ -95,7 +95,7 @@ public class MetadataPresenter implements Initializable {
         nameTooltip.setText(ds3Metadata.getName());
     }
 
-    private MetadataEntry getTime(final String time, final String key) {
+    private static MetadataEntry getTime(final String time, final String key) {
         if (time.contains(StringConstants.STR_T)) {
             return new MetadataEntry(key, REPLACE.matcher(time).replaceAll(Matcher.quoteReplacement(StringConstants.SPACE)));
         } else {
@@ -106,7 +106,7 @@ public class MetadataPresenter implements Initializable {
     }
 
     //create metadata keys for showing on server
-    public ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
+    private static ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
         try {
             //if metadata does not contains creation time key then show all metadata got from bp server without any processing
             if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {
