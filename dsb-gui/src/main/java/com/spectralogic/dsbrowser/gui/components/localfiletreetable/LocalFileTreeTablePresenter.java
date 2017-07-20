@@ -29,6 +29,8 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -223,6 +225,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return row;
             }
         );
+
+        treeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue);
+        });
     }
 
     private void initListeners() {
@@ -500,19 +506,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
-            sizeColumn.setCellFactory(c -> new TreeTableCell<FileTreeModel, Number>() {
-
-                @Override
-                protected void updateItem(final Number item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(FileSizeFormat.getFileSizeType(item.longValue()));
-                    }
-                }
-
-            });
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell<FileTreeModel>());
             treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         });
 

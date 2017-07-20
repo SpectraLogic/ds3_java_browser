@@ -8,7 +8,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelView;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.JobInfoView;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
@@ -27,14 +26,12 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import io.reactivex.Observable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -56,7 +53,7 @@ import java.util.ResourceBundle;
 @Presenter
 public class DeepStorageBrowserPresenter implements Initializable {
 
-    private final static Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
     private final ImageView INTERRUPTEDJOBIMAGEVIEW = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
     private final ImageView CANCELALLJOBIMAGEVIEW = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
 
@@ -90,9 +87,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     @FXML
     private Menu fileMenu, helpMenu, viewMenu, editMenu;
-
-    @FXML
-    private BorderPane borderPane;
 
     private final JobWorkers jobWorkers;
     private final ResourceBundle resourceBundle;
@@ -237,6 +231,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
             localTreeView.getViewAsync(fileSystem.getChildren()::add);
             ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
 
+            inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                selectAllItem.setDisable(oldValue);
+            });
+
         } catch (final Exception e) {
             LOG.error("Encountered an error when creating Main view", e);
             logText(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
@@ -246,7 +244,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private void registerLoggingServiceListener() {
         LOG.info("Registering loggingService observable");
         final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
-        observable.doOnNext( logEvent -> {
+        observable.doOnNext(logEvent -> {
             if (Platform.isFxApplicationThread()) {
                 this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
             } else {
@@ -268,6 +266,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
         helpMenu.setText(resourceBundle.getString("helpMenu"));
         aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
         selectAllItem.setDisable(true);
+
+
     }
 
     public void showSettingsPopup() {
@@ -289,19 +289,11 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void selectAllItemsInPane() {
-        final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
-        if (null != ds3TreeTable && null != ds3TreeTable.getRoot().getParent()) {
-
-            final ObservableList<String> rowNameList = FXCollections.observableArrayList();
-
-            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            //Selecting all the items of selected root(All visible items)
-            ds3TreeTable.getRoot().getChildren().forEach((child) -> {
-                if (!rowNameList.contains(child.getValue().getName())) {
-                    rowNameList.add(child.getValue().getName());
-                    ds3TreeTable.getSelectionModel().select(child);
-                }
-            });
+        final Node focused = this.getBlackPearl().getScene().getFocusOwner();
+        if (focused instanceof TreeTableView) {
+            ((TreeTableView) focused).getSelectionModel().selectAll();
+        } else if (focused instanceof InlineCssTextArea) {
+            ((InlineCssTextArea) focused).selectAll();
         }
     }
 

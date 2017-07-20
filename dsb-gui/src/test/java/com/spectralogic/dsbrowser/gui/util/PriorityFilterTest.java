@@ -10,7 +10,7 @@ public class PriorityFilterTest {
     @Test
     public void filterPriorities() throws Exception {
 
-        final Priority[] priorities = PriorityFilter.filterPriorities(Priority.values());
+        final Priority[] priorities = PriorityFilter.filterPriorities();
         assertThat(priorities[0], is(Priority.valueOf("URGENT")));
     }
 }

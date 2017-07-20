@@ -19,13 +19,16 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Presenter
 public class MetadataPresenter implements Initializable {
 
-    private final static Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
-    private final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
-    private final Calendar calendar = Calendar.getInstance();
+    private static final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
+    private static final Pattern REPLACE = Pattern.compile(StringConstants.STR_T, Pattern.LITERAL);
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
+    private static final Calendar calendar = Calendar.getInstance();
 
     @FXML
     private Label objectName;
@@ -80,16 +83,7 @@ public class MetadataPresenter implements Initializable {
         metadataTableColValue.setCellFactory
                 (
                         column ->
-                                new TableCell<MetadataEntry, String>() {
-                                    @Override
-                                    protected void updateItem(final String item, final boolean empty) {
-                                        if (item != null) {
-                                            super.updateItem(item, empty);
-                                            setText(item);
-                                            setTooltip(new Tooltip(item));
-                                        }
-                                    }
-                                });
+                                new TableCell());
     }
 
     private void initLabels() {
@@ -101,9 +95,9 @@ public class MetadataPresenter implements Initializable {
         nameTooltip.setText(ds3Metadata.getName());
     }
 
-    private MetadataEntry getTime(final String time, final String key) {
+    private static MetadataEntry getTime(final String time, final String key) {
         if (time.contains(StringConstants.STR_T)) {
-            return new MetadataEntry(key, time.replace(StringConstants.STR_T, StringConstants.SPACE));
+            return new MetadataEntry(key, REPLACE.matcher(time).replaceAll(Matcher.quoteReplacement(StringConstants.SPACE)));
         } else {
             final long creationTimeLong = Long.parseLong(time);
             calendar.setTimeInMillis(creationTimeLong);
@@ -112,7 +106,7 @@ public class MetadataPresenter implements Initializable {
     }
 
     //create metadata keys for showing on server
-    public ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
+    private static ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
         try {
             //if metadata does not contains creation time key then show all metadata got from bp server without any processing
             if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {
@@ -197,4 +191,14 @@ public class MetadataPresenter implements Initializable {
     }
 
 
+    private static class TableCell extends javafx.scene.control.TableCell<MetadataEntry, String> {
+        @Override
+        protected void updateItem(final String item, final boolean empty) {
+            if (item != null) {
+                super.updateItem(item, empty);
+                setText(item);
+                setTooltip(new Tooltip(item));
+            }
+        }
+    }
 }

@@ -142,11 +142,8 @@ public class SavedSessionStore {
         } else if (session.getProxyServer() != null) {
             return true;
         }
-        if (savedSession.getDefaultSession() != session.getDefaultSession()) {
-            return true;
-        }
+        return savedSession.getDefaultSession() != session.getDefaultSession();
 
-        return false;
     }
 
     public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
@@ -164,7 +161,7 @@ public class SavedSessionStore {
     //open default session when DSB launched
     public void openDefaultSession(final Ds3SessionStore store) {
         try {
-            final List<SavedSession> defaultSession = getSessions().stream().filter(item -> item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(Collectors.toList());
+            final List<SavedSession> defaultSession = getSessions().stream().filter(item -> (item.getDefaultSession() != null) && item.getDefaultSession().equals(true)).collect(Collectors.toList());
             if (defaultSession.size() == 1) {
                 final Optional<SavedSession> first = defaultSession.stream().findFirst();
                 if (first.isPresent()) {

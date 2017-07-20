@@ -1,6 +1,7 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 public final class FileSizeFormat {
 
@@ -13,6 +14,7 @@ public final class FileSizeFormat {
     private final static double sizeTerra = sizeGo * sizeKb;
     private final static double sizePeta = sizeTerra * sizeKb;
     private final static double sizeExa = sizePeta * sizeKb;
+    private static final Pattern DECIMAL = Pattern.compile("[^.0-9]");
 
     public static String getFileSizeType(final long size) {
 
@@ -39,7 +41,7 @@ public final class FileSizeFormat {
 
     public static long convertSizeToByte(final String size) {
 
-        final double aFloat = Double.valueOf(size.replaceAll("[^.0-9]", StringConstants.EMPTY_STRING));
+        final double aFloat = Double.valueOf(DECIMAL.matcher(size).replaceAll(StringConstants.EMPTY_STRING));
 
         if (size.contains("KB")) {
             return new Double(aFloat * sizeKb).longValue();

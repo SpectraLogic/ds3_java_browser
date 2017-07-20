@@ -139,6 +139,9 @@ public class Ds3TreeTablePresenter implements Initializable {
             handleDropEvent(event, null);
             event.consume();
         });
+        ds3TreeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue);
+        });
     }
 
     /**
@@ -270,37 +273,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
             });
 
-            sizeColumn.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, Number>() {
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
 
-                @Override
-                protected void updateItem(final Number item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(FileSizeFormat.getFileSizeType(item.longValue()));
-                    }
-                }
-
-            });
-
-            fileType.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, Ds3TreeTableValue.Type>() {
-
-                @Override
-                protected void updateItem(final Ds3TreeTableValue.Type item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        if (item.toString().equals("Loader")) {
-                            setText("");
-                        } else {
-                            setText(item.toString());
-                        }
-                    }
-                }
-
-            });
+            fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
         });
     }
@@ -468,7 +443,7 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        if (event.isControlDown() || event.isShiftDown()) {
+        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
             if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
                 rowNameList.add(row.getTreeItem().getValue().getName());
                 ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -642,6 +617,37 @@ public class Ds3TreeTablePresenter implements Initializable {
                 deepStorageBrowserPresenter.getJobButton().setDisable(true);
             }
         }
+    }
+
+    private static class ValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Number> {
+        @Override
+        protected void updateItem(final Number item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+            } else {
+                setText(FileSizeFormat.getFileSizeType(item.longValue()));
+            }
+        }
+
+    }
+
+    private static class TreeTableValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Ds3TreeTableValue.Type> {
+
+        @Override
+        protected void updateItem(final Ds3TreeTableValue.Type item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+            } else {
+                if (item.toString().equals("Loader")) {
+                    setText("");
+                } else {
+                    setText(item.toString());
+                }
+            }
+        }
+
     }
 
     private class ChangeListenerInnerClass implements ChangeListener {
