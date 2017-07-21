@@ -84,7 +84,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                     + filesAndFolderMap.getTargetLocation(), LogType.SUCCESS);
                 });
                 // check whether chunk are available
-                addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation().toString());
+                addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation());
 
                 job.transfer(obj -> {
                             if (filesAndFolderMap.getType().equals(PUT.toString())) {
