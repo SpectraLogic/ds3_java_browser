@@ -16,8 +16,12 @@
 package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.Ds3ClientImpl;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
@@ -46,18 +50,17 @@ import static org.junit.Assert.assertTrue;
 public class Ds3PanelServiceTest {
 
     private final Workers workers = new Workers();
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setUp() {
         new JFXPanel();
-        Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
-        });
+            //public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client,final Boolean defaultSession) {
+        session = new Session("DsBrowserTest", cli);
     }
 
     @Test
@@ -67,7 +70,7 @@ public class Ds3PanelServiceTest {
             try {
                 //Creating empty bucket
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
-                final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
+                final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, client,
                         SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME,
                         null, null);
                 workers.execute(createBucketTask);
@@ -94,9 +97,7 @@ public class Ds3PanelServiceTest {
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
-                if(searchableBuckets.isPresent()) {
-                    successFlag = (!Guard.isNullOrEmpty(searchableBuckets.get()) && searchableBuckets.get().size() == buckets.size());
-                }
+                searchableBuckets.ifPresent(buckets1 -> successFlag = (!Guard.isNullOrEmpty(buckets1) && buckets1.size() == buckets.size()));
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
