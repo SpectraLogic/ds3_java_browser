@@ -89,7 +89,7 @@ public class CreateFolderPresenter implements Initializable {
                     .getBucketName());
             //Instantiating create folder task
             final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                    createFolderModel, folderNameField.textProperty().getValue(),
+                    createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
                     PathUtil.getDs3ObjectList(location, folderNameField.textProperty().getValue()),
                     loggingService, resourceBundle);
             workers.execute(createFolderTask);
