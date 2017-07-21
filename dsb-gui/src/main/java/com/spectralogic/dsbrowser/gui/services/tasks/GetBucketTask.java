@@ -45,7 +45,7 @@ public class GetBucketTask extends Ds3Task {
     private final Workers workers;
     private final TreeTableView ds3TreeTable;
     private final Ds3Common ds3Common;
-    private final int PAGE_LENGTH = 10;
+    private final static int PAGE_LENGTH = 10;
     private final ResourceBundle resourceBundle;
     private final Ds3TreeTableItem ds3TreeTableItem;
     private final LoggingService loggingService;
