@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -246,6 +247,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
+        Platform.runLater(() ->
         getServiceTask.setOnSucceeded(event -> {
             ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
@@ -277,7 +279,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-        });
+        }));
     }
 
     /**
@@ -547,7 +549,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     }
 
                 } else {
-                    if (!selectedItems.stream().map(TreeItem::getValue).anyMatch(value ->
+                    if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
                             (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
                     }

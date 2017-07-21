@@ -23,7 +23,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
@@ -101,7 +99,7 @@ public class SavedSessionStore {
         int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
             index = 1;
         } else if (containsSessionName(sessions, session.getSessionName())) {
             final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
@@ -109,14 +107,14 @@ public class SavedSessionStore {
                 index = sessions.indexOf(savedSession);
                 this.sessions.remove(savedSession);
                 this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
+                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
             } else {
                 return -1;
             }
 
         } else if (!containsSessionName(sessions, session.getSessionName())) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession()));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
             index = sessions.size();
         } else {
             index = -2;
@@ -124,7 +122,7 @@ public class SavedSessionStore {
         return index;
     }
 
-    private boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
+    private static boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
         if (!savedSession.getName().equals(session.getSessionName()))
             return true;
         if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
@@ -142,15 +140,14 @@ public class SavedSessionStore {
         } else if (session.getProxyServer() != null) {
             return true;
         }
-        return savedSession.getDefaultSession() != session.getDefaultSession();
-
+        return savedSession.isDefaultSession() != session.getDefaultSession();
     }
 
-    public boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
+    public static boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
         return list.stream().anyMatch(o -> o.getName().equals(name));
     }
 
-    public boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
+    public static boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
         return list.stream().anyMatch(o -> o.getSessionName().equals(name));
     }
 
@@ -160,19 +157,9 @@ public class SavedSessionStore {
 
     //open default session when DSB launched
     public void openDefaultSession(final Ds3SessionStore store) {
-        try {
-            final List<SavedSession> defaultSession = getSessions().stream().filter(item -> (item.getDefaultSession() != null) && item.getDefaultSession().equals(true)).collect(Collectors.toList());
-            if (defaultSession.size() == 1) {
-                final Optional<SavedSession> first = defaultSession.stream().findFirst();
-                if (first.isPresent()) {
-                    final SavedSession savedSession = first.get();
-                    Platform.runLater(() -> {
-                        store.addSession(createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, true), resourceBundle));
-                    });
-                }
-            }
-        } catch (final Exception e) {
-            LOG.error("Encountered error fetching default session: ", e);
+        final Optional<SavedSession> savedSessions = getSessions().stream().filter(SavedSession::isDefaultSession).findFirst();
+        if (savedSessions.isPresent()) {
+            store.addSession(CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSessions.get(), true), resourceBundle));
         }
     }
 

@@ -14,18 +14,25 @@ public class NewSessionModel {
     private final StringProperty portNo = new SimpleStringProperty();
     private final StringProperty proxyServer = new SimpleStringProperty();
     private final BooleanProperty defaultSession = new SimpleBooleanProperty();
+    private final BooleanProperty useSSL = new SimpleBooleanProperty();
 
     public Boolean getDefaultSession() {
         return defaultSession.get();
     }
 
+    public Boolean getUseSSL() { return useSSL.get(); }
+
     public void setDefaultSession(final Boolean defaultSession) {
         this.defaultSession.set(defaultSession);
     }
 
+    public void setUseSSL(final Boolean useSSL) { this.useSSL.setValue(useSSL);}
+
     public BooleanProperty defaultSessionProperty() {
         return defaultSession;
     }
+
+    public BooleanProperty useSSLProperty() { return useSSL; }
 
     public String getEndpoint() {
         return endpoint.get();
@@ -98,4 +105,19 @@ public class NewSessionModel {
     public StringProperty proxyServerProperty() {
         return proxyServer;
     }
+
+    public String debug() {
+        String s = "";
+        s += "Session Name: " + sessionName.get() + "\n";
+        s += "Endpoint: " + endpoint.get() + "\n";
+        s += "Access Key: " + accessKey.get() + "\n";
+        s += "Secret Key: " + secretKey.get() + "\n";
+        s += "Port: " + portNo.get() + "\n";
+        s += "Proxy: " + proxyServer.get() + "\n";
+        s += "Default: " + defaultSession.get() + "\n";
+        s += "SSL: " + useSSL.get() + "\n";
+
+        return s;
+    }
+
 }
