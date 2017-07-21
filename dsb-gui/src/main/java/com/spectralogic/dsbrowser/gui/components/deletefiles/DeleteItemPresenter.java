@@ -142,7 +142,7 @@ public class DeleteItemPresenter implements Initializable {
     }
 
     private void constructMessageForLog() {
-        String message;
+        final String message;
         String alertMessage = null;
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {

@@ -140,7 +140,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                 final CountDownLatch latch = new CountDownLatch(1);
                 try {
 
-                    String jobId = "";
+                    final String jobId = "";
                     final Ds3Client ds3Client = job.getDs3Client();
                     LOG.info("Cancelled job:{} ", job.getJobId());
 

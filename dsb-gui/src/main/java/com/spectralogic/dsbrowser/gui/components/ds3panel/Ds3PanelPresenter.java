@@ -543,7 +543,7 @@ public class Ds3PanelPresenter implements Initializable {
     public void ds3DeleteObject(final boolean isButtonEvent) {
         LOG.info("Got delete bucket event");
         final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTable.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {

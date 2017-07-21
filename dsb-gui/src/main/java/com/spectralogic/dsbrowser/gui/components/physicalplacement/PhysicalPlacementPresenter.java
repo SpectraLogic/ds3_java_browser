@@ -53,7 +53,7 @@ public class PhysicalPlacementPresenter implements Initializable {
     }
 
     private void initTable() {
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        final Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         parentVBox.setMaxWidth(primaryScreenBounds.getWidth()-100);
         parentVBox.setPrefWidth(primaryScreenBounds.getWidth()-100);
 
