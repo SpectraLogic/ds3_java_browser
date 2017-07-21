@@ -21,7 +21,7 @@ public class LicensePresenter implements Initializable {
         licenseTable.setItems(FXCollections.observableList(getModels()));
     }
 
-    private ImmutableList<LicenseModel> getModels() {
+    private static ImmutableList<LicenseModel> getModels() {
         return ImmutableList.of(new LicenseModel(Constants.LIBRARY_NAME, Constants.LICENSE));
     }
 }

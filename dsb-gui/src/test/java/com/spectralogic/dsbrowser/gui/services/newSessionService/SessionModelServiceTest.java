@@ -17,7 +17,7 @@ public class SessionModelServiceTest {
         final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
                 null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), true);
         final NewSessionModel newSessionModel = SessionModelService.setSessionModel(savedSession,false);
-        if (!savedSession.getDefaultSession().equals(newSessionModel.getDefaultSession())) {
+        if (!savedSession.isDefaultSession().equals(newSessionModel.getDefaultSession())) {
             successFlag = true;
             latch.countDown();
         } else {

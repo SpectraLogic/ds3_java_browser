@@ -63,7 +63,7 @@ public class NewSessionPresenter implements Initializable {
     private Button saveSessionButton, openSessionButton, cancelSessionButton, deleteSessionButton;
 
     @FXML
-    private Label selectExistingLabel, createNewLabel, sessionNameLabel, endpointLabel, accessKeyLabel, secretKeyLabel, portNoLabel, proxyServerLabel, defaultSessionLabel;
+    private Label selectExistingLabel, createNewLabel, sessionNameLabel, endpointLabel, accessKeyLabel, secretKeyLabel, portNoLabel, proxyServerLabel, defaultSessionLabel, useSSLLabel;
 
     @FXML
     private Tooltip saveSessionButtonTooltip, openSessionButtonTooltip, cancelSessionButtonTooltip, deleteSessionButtonTooltip;
@@ -72,7 +72,7 @@ public class NewSessionPresenter implements Initializable {
     private TextField sessionName, endpoint, accessKey, portNo, proxyServer;
 
     @FXML
-    private CheckBox defaultSession;
+    private CheckBox defaultSession, useSSL;
 
     @FXML
     private CustomPasswordTextControl secretKey;
@@ -125,6 +125,9 @@ public class NewSessionPresenter implements Initializable {
         defaultSessionLabel.setText(resourceBundle.getString("defaultSession"));
         defaultSession.selectedProperty().bindBidirectional(model.defaultSessionProperty());
 
+        useSSLLabel.setText(resourceBundle.getString("useSSL"));
+        useSSL.selectedProperty().bindBidirectional(model.useSSLProperty());
+
         saveSessionButton.setText(resourceBundle.getString("saveSessionButton"));
         openSessionButton.setText(resourceBundle.getString("openSessionButton"));
         cancelSessionButton.setText(resourceBundle.getString("cancelSessionButton"));
@@ -142,17 +145,16 @@ public class NewSessionPresenter implements Initializable {
         model.setPortno(Constants.PORT_NUMBER);
         savedSessions.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                final Boolean defaultSession = newSelection.isDefaultSession();
+                final Boolean useSSL = newSelection.isUseSSL();
                 model.setSessionName(newSelection.getName());
                 model.setEndpoint(newSelection.getEndpoint());
                 model.setAccessKey(newSelection.getCredentials().getAccessId());
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
                 model.setPortno(newSelection.getPortNo());
                 model.setProxyServer(newSelection.getProxyServer());
-                if (newSelection.getDefaultSession() == null) {
-                    model.setDefaultSession(false);
-                } else {
-                    model.setDefaultSession(newSelection.getDefaultSession());
-                }
+                model.setDefaultSession(defaultSession == null ? false : defaultSession);
+                model.setUseSSL(useSSL == null ? false : useSSL);
             } else {
                 clearFields();
             }
@@ -162,8 +164,8 @@ public class NewSessionPresenter implements Initializable {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
-                    if (ds3SessionStore.getObservableList().size() == 0 || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
-                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.getDefaultSession()), resourceBundle);
+                    if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
+                        final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.isDefaultSession()), resourceBundle);
                         sessionValidates(connection);
                     } else {
                         alert.showAlert(resourceBundle.getString("alreadyExistSession"));
@@ -217,14 +219,15 @@ public class NewSessionPresenter implements Initializable {
         model.setSessionName(null);
         defaultSession.selectedProperty().setValue(false);
         model.setDefaultSession(false);
+        model.setUseSSL(false);
     }
 
     public void openSession() {
         LOG.info("Performing session validation");
         if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
-            || !savedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
+            || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
             if (!NewSessionModelValidation.validationNewSession(model)) {
-                final Session session = createConnectionTask.createConnection(model, resourceBundle);
+                final Session session = CreateConnectionTask.createConnection(model, resourceBundle);
                 sessionValidates(session);
             }
         } else {
@@ -238,14 +241,14 @@ public class NewSessionPresenter implements Initializable {
         if (!NewSessionModelValidation.validationNewSession(newSessionModel)) {
             if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item ->
-                        item.getDefaultSession() != null && item.getDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());
+                        item.isDefaultSession() != null && item.isDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());
                 if (Guard.isNotNullAndNotEmpty(defaultSession) && !model.getSessionName().equals(defaultSession.get(0).getName())) {
                     final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("defaultSession"), resourceBundle.getString("alreadyExistDefaultSession"), Alert.AlertType.CONFIRMATION, null, resourceBundle.getString("yesButton"), resourceBundle.getString("noButton"));
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         newSessionModel.setDefaultSession(true);
                         final Optional<SavedSession> first = defaultSession.stream().findFirst();
                         if (first.isPresent()) {
-                            final Session session = createConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false), resourceBundle);
+                            final Session session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(first.get(), false), resourceBundle);
                             if (session != null) {
                                 savedSessionStore.addSession(session);
                                 try {
@@ -262,7 +265,7 @@ public class NewSessionPresenter implements Initializable {
 
                 }
             }
-            final Session session = createConnectionTask.createConnection(newSessionModel, resourceBundle);
+            final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle);
             if (session != null) {
                 final int previousSize = savedSessionStore.getSessions().size();
                 final int i = savedSessionStore.addSession(session);

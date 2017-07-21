@@ -24,6 +24,7 @@ public class SessionModelService {
         final NewSessionModel newModel = new NewSessionModel();
         newModel.setSessionName(savedSession.getName());
         newModel.setDefaultSession(defaultSession);
+        newModel.setUseSSL(savedSession.isUseSSL());
         newModel.setAccessKey(savedSession.getCredentials().getAccessId());
         newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
         newModel.setEndpoint(savedSession.getEndpoint());
@@ -38,7 +39,7 @@ public class SessionModelService {
             newModel.setSessionName(model.getSessionName().trim());
         }
         if (model.getEndpoint() != null) {
-            newModel.setEndpoint(model.getEndpoint().trim());
+           newModel.setEndpoint(model.getEndpoint().trim());
         }
         if (model.getAccessKey() != null) {
             newModel.setAccessKey(model.getAccessKey().trim());
@@ -53,6 +54,7 @@ public class SessionModelService {
             newModel.setProxyServer(model.getProxyServer().trim());
         }
         newModel.setDefaultSession(model.getDefaultSession());
+        newModel.setUseSSL(model.isUseSSL());
         return newModel;
     }
 }

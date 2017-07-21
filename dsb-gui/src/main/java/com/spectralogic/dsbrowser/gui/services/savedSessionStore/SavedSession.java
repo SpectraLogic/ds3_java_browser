@@ -31,16 +31,19 @@ public class SavedSession {
     private final String proxyServer;
     @JsonProperty("defaultSession")
     private final Boolean defaultSession;
+    @JsonProperty("useSSL")
+    private final Boolean useSSL;
 
     @JsonCreator
     public SavedSession(@JsonProperty("name") final String name, @JsonProperty("endpoint") final String endpoint, @JsonProperty("portNo") final String portNo, @JsonProperty("proxyServer") final String proxyServer, @JsonProperty("credentials") final SavedCredentials credentials, @JsonProperty("defaultSession")
-    final Boolean defaultSession) {
+    final Boolean defaultSession, @JsonProperty("useSSL") final Boolean useSSL) {
         this.name = name;
         this.endpoint = endpoint;
         this.portNo = portNo;
         this.proxyServer = proxyServer;
         this.credentials = credentials;
-        this.defaultSession=defaultSession;
+        this.defaultSession = defaultSession;
+        this.useSSL = useSSL;
     }
 
     public String getName() {
@@ -63,8 +66,8 @@ public class SavedSession {
         return credentials;
     }
 
-    public Boolean getDefaultSession() {
-        return defaultSession;
-    }
+    public Boolean isDefaultSession() { return defaultSession; }
+
+    public Boolean isUseSSL() { return useSSL; }
 
 }
