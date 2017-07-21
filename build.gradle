@@ -19,7 +19,7 @@ subprojects {
     }
 
     dependencies {
-        compile 'com.spectralogic.ds3:ds3-sdk:3.4.0'
+        compile 'com.spectralogic.ds3:ds3-sdk:3.5.0'
         compile 'com.spectralogic.ds3:ds3-metadata:3.4.0'
         compile 'com.airhacks:afterburner.fx:1.7.0'
         compile 'org.controlsfx:controlsfx:8.40.12'
