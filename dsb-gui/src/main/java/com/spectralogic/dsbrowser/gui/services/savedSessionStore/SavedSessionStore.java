@@ -99,7 +99,7 @@ public class SavedSessionStore {
         int index = 0;
         if (sessions.size() == 0) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.isUseSSL()));
             index = 1;
         } else if (containsSessionName(sessions, session.getSessionName())) {
             final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
@@ -107,14 +107,14 @@ public class SavedSessionStore {
                 index = sessions.indexOf(savedSession);
                 this.sessions.remove(savedSession);
                 this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
+                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.isUseSSL()));
             } else {
                 return -1;
             }
 
         } else if (!containsSessionName(sessions, session.getSessionName())) {
             this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.getUseSSL()));
+                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.isUseSSL()));
             index = sessions.size();
         } else {
             index = -2;

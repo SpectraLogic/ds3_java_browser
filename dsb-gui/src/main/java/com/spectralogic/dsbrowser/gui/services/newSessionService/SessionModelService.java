@@ -54,7 +54,7 @@ public class SessionModelService {
             newModel.setProxyServer(model.getProxyServer().trim());
         }
         newModel.setDefaultSession(model.getDefaultSession());
-        newModel.setUseSSL(model.getUseSSL());
+        newModel.setUseSSL(model.isUseSSL());
         return newModel;
     }
 }

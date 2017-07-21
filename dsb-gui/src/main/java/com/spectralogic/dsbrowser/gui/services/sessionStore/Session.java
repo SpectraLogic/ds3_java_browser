@@ -55,5 +55,5 @@ public class Session implements Closeable {
 
     public Boolean getDefaultSession() { return defaultSession; }
 
-    public Boolean getUseSSL() { return useSSL; }
+    public Boolean isUseSSL() { return useSSL; }
 }

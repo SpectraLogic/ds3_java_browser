@@ -20,7 +20,7 @@ public class NewSessionModel {
         return defaultSession.get();
     }
 
-    public Boolean getUseSSL() { return useSSL.get(); }
+    public Boolean isUseSSL() { return useSSL.get(); }
 
     public void setDefaultSession(final Boolean defaultSession) {
         this.defaultSession.set(defaultSession);
