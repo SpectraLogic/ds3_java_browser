@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -277,6 +278,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
             if (currentSelection.isEmpty()) {
                 alert.showAlert(resourceBundle.getString("fileSelect"));
                 return;
+            }
+            for (final TreeItem<FileTreeModel> fileTreeModelTreeItem : currentSelection) {
+                if (!Files.isReadable(fileTreeModelTreeItem.getValue().getPath())) {
+                    loggingService.logMessage("Cannot read " + fileTreeModelTreeItem.getValue().getPath().toString(), LogType.ERROR);
+                    return;
+                }
             }
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
             ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
@@ -557,6 +564,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void setDragDropEvent(final TreeTableRow<FileTreeModel> row, final DragEvent event) {
         final Path localPath = getSelectedLocalPath(row);
         if (localPath == null) {
+            return;
+        } else if (!Files.isWritable(localPath)) {
+            loggingService.logMessage("Cannot write to folder " + localPath.toString(), LogType.ERROR);
             return;
         }
         final Dragboard db = event.getDragboard();

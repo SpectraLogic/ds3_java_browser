@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public class CreateConnectionTask {
+public final class CreateConnectionTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
     private static final LazyAlert alert = new LazyAlert("Error");
 
-    public Session createConnection(final NewSessionModel newSessionModel, final ResourceBundle resourceBundle) {
+    public static Session createConnection(final NewSessionModel newSessionModel, final ResourceBundle resourceBundle) {
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().equals("")) {
                 newSessionModel.setProxyServer(null);

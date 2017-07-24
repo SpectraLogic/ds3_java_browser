@@ -65,7 +65,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             loggingService.logMessage(
                     StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
                             filesAndFolderMap.getDate()).toString(), LogType.INFO);
-
+            //TODO This is always true even if we don't have a UUID
             if (filesAndFolderMap != null) {
                 final Map<String, Path> filesMap = filesAndFolderMap.getFiles();
                 final Map<String, Path> foldersMap = filesAndFolderMap.getFolders();
