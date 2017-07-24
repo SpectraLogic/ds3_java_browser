@@ -24,16 +24,18 @@ public final class CreateConnectionTask {
 
     public static Session createConnection(final NewSessionModel newSessionModel, final ResourceBundle resourceBundle) {
         try {
-            if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().equals("")) {
+            if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().isEmpty()) {
                 newSessionModel.setProxyServer(null);
             }
             final Ds3Client client = Ds3ClientBuilder
                     .create(newSessionModel.getEndpoint().trim() + ":" + newSessionModel.getPortNo().trim(),
                             new Credentials(newSessionModel.getAccessKey(), newSessionModel.getSecretKey()))
-                    .withHttps(false).withProxy(newSessionModel.getProxyServer())
+                    .withHttps(newSessionModel.isUseSSL()).withCertificateVerification(false)
+                    .withProxy(newSessionModel.getProxyServer())
                     .build();
             client.getService(new GetServiceRequest());
-            return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession());
+            return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession(),
+                    newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address: ", e);
             alert.showAlert(resourceBundle.getString("invalidEndpointMessage"));

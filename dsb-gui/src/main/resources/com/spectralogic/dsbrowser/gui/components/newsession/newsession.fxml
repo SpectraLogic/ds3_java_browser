@@ -62,6 +62,8 @@
                                 <TextField fx:id="proxyServer" GridPane.columnIndex="2" GridPane.rowIndex="6" />
                                 <Label fx:id="defaultSessionLabel" GridPane.rowIndex="7" />
                                 <CheckBox fx:id="defaultSession" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                <Label fx:id="useSSLLabel" GridPane.rowIndex="8" />
+                                <CheckBox fx:id="useSSL" GridPane.columnIndex="2" GridPane.rowIndex="8" />
 
                             </children>
                         </GridPane>

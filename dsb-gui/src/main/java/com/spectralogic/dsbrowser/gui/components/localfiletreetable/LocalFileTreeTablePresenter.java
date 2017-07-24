@@ -155,7 +155,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
                 final List<String> rowNameList = new ArrayList<>();
                 row.setOnMouseClicked(event -> {
-                    LOG.info("Mouse Clicked..");
                     if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
                         selectMultipleItems(rowNameList, row);
                     } else if (event.getClickCount() == 2) {
