@@ -47,6 +47,7 @@ public class CreateConnectionTask {
                             new Credentials(newSessionModel.getAccessKey(), newSessionModel.getSecretKey()))
                     .withHttps(newSessionModel.isUseSSL()).withCertificateVerification(false)
                     .withProxy(newSessionModel.getProxyServer())
+                    .withUserAgent(resourceBundle.getString("eonbrowser") + " " + resourceBundle.getString("buildVersion"))
                     .build();
             client.getService(new GetServiceRequest());
             return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession(),
