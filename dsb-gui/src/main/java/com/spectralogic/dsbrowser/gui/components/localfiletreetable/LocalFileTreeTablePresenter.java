@@ -293,11 +293,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 alert.showAlert(resourceBundle.getString("fileSelect"));
                 return;
             }
-            for (final TreeItem<FileTreeModel> fileTreeModelTreeItem : currentSelection) {
-                if (!Files.isReadable(fileTreeModelTreeItem.getValue().getPath())) {
-                    loggingService.logMessage("Cannot read " + fileTreeModelTreeItem.getValue().getPath().toString(), LogType.ERROR);
-                }
-            }
+            currentSelection.stream().filter(ftmItem ->
+                !Files.isReadable(ftmItem.getValue().getPath())).forEach(unreadable ->
+                    loggingService.logMessage(unreadable.toString() + " is not readable", LogType.ERROR)
+            );
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
             ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
