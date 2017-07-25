@@ -281,7 +281,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             for (final TreeItem<FileTreeModel> fileTreeModelTreeItem : currentSelection) {
                 if (!Files.isReadable(fileTreeModelTreeItem.getValue().getPath())) {
                     loggingService.logMessage("Cannot read " + fileTreeModelTreeItem.getValue().getPath().toString(), LogType.ERROR);
-                    return;
                 }
             }
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
