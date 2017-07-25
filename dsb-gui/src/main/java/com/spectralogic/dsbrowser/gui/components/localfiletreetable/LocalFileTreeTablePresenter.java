@@ -293,10 +293,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 alert.showAlert(resourceBundle.getString("fileSelect"));
                 return;
             }
-            currentSelection.stream().filter(ftmItem ->
-                !Files.isReadable(ftmItem.getValue().getPath())).forEach(unreadable ->
-                    loggingService.logMessage(unreadable.toString() + " is not readable", LogType.ERROR)
-            );
             final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
             ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                     .stream().collect(GuavaCollectors.immutableList());
@@ -578,7 +574,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (localPath == null) {
             return;
         } else if (!Files.isWritable(localPath)) {
-            loggingService.logMessage("Cannot write to folder " + localPath.toString(), LogType.ERROR);
+            loggingService.logMessage("Canceling Job: Cannot write to folder " + localPath.toString(), LogType.ERROR);
             return;
         }
         final Dragboard db = event.getDragboard();

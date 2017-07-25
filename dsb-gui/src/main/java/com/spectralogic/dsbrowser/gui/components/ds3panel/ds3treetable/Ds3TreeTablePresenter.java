@@ -405,12 +405,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                     !selectedItem.getValue().isSearchOn()) {
                 final Dragboard db = event.getDragboard();
                 if (db.hasFiles()) {
-                    for (final File file : db.getFiles()) {
-                        final Path p = file.toPath();
-                        if (!Files.isReadable(p)) {
-                            loggingService.logMessage("File " + p.toAbsolutePath().toString() + " is not readable", LogType.ERROR);
-                        }
-                    }
                     LOG.info("Drop event contains files");
                     // get bucket info and current path
                     final Ds3TreeTableValue value = selectedItem.getValue();

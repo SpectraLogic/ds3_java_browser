@@ -241,6 +241,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 folderMap.put(ds3FileName, path);
             } catch (final IOException e) {
                 LOG.error("Failed to list files for directory : " + path.toString(), e);
+                loggingService.logMessage("Failed to list files for directory " + path.toString(), LogType.ERROR);
             }
         });
         return folderMap;
