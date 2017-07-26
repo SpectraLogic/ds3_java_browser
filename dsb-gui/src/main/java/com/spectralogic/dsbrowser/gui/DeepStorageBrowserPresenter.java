@@ -69,11 +69,18 @@ import java.util.ResourceBundle;
 public class DeepStorageBrowserPresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
-    private final ImageView INTERRUPTEDJOBIMAGEVIEW = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
-    private final ImageView CANCELALLJOBIMAGEVIEW = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
+    private final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView = new DeepStorageBrowserTaskProgressView<>();
+    private final ImageView interruptedJobImageView = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
+    private final ImageView cancelAllJobsImageView = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
+    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.CLOUD);
+    private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.STORAGE_TAPES);
 
+    private final StackPane stackpane = new StackPane();
+    private final AnchorPane anchorPane = new AnchorPane();
+    private final VBox jobProgressVBox = new VBox();
     private final Label lblCount = new Label();
-    private final Button jobButton = new Button();
+    private final Button recoverInterruptedJobsButton = new Button();
+    private final Button cancelInterruptedJobsButton = new Button();
     private final Circle circle = new Circle();
 
     @FXML
@@ -114,7 +121,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final LoggingService loggingService;
     private final ShutdownService shutdownService;
 
-    private DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView;
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
@@ -144,107 +150,22 @@ public class DeepStorageBrowserPresenter implements Initializable {
         try {
             registerLoggingServiceListener();
 
-            initGUIElement(); //Setting up labels from resource file
+            initMenus(); //Setting up labels from resource file
+
             LOG.info("Loading Main view");
             logText(resourceBundle.getString("loadMainView"), LogType.INFO);
 
             final SetToolTipBehavior setToolTipBehavior = new SetToolTipBehavior();
             setToolTipBehavior.setToolTilBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
 
-            final Tooltip jobToolTip = new Tooltip();
-            jobToolTip.setText(resourceBundle.getString("interruptedJobs"));
-            final Tooltip cancelAllToolTip = new Tooltip();
-            cancelAllToolTip.setText(resourceBundle.getString("cancelAllRunningJobs"));
-            jobProgressView = new DeepStorageBrowserTaskProgressView<>();
-            jobProgressView.setPrefHeight(1000);
-            final VBox jobProgressVBox = new VBox();
-            //Implementation and design of Cancel button in bottom pane
-            CANCELALLJOBIMAGEVIEW.setFitHeight(15);
-            CANCELALLJOBIMAGEVIEW.setFitWidth(15);
-            final Button cancelAll = new Button();
-            cancelAll.setTranslateX(70);
-            cancelAll.setTranslateY(4);
-            cancelAll.setTooltip(cancelAllToolTip);
-            cancelAll.setGraphic(CANCELALLJOBIMAGEVIEW);
-            cancelAll.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
-            cancelAll.setOnAction(event -> {
-                final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
-                        resourceBundle.getString("confirmation"), jobWorkers.getTasks().size()
-                                + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
-                        Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"),
-                        resourceBundle.getString("exitBtnJobCancelConfirm"),
-                        resourceBundle.getString("cancelBtnJobCancelConfirm"));
-                if (closeResponse.get().equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, loggingService);
-                    event.consume();
-                }
-                if (closeResponse.get().equals(ButtonType.CANCEL)) {
-                    event.consume();
-                }
-            });
-            INTERRUPTEDJOBIMAGEVIEW.setFitHeight(15);
-            INTERRUPTEDJOBIMAGEVIEW.setFitWidth(15);
-            jobButton.setTranslateX(20);
-            jobButton.setTranslateY(4);
-            jobButton.setTooltip(jobToolTip);
-            jobButton.setGraphic(INTERRUPTEDJOBIMAGEVIEW);
-            jobButton.setDisable(true);
-            jobButton.setOnAction(event -> {
-                if (ds3Common.getCurrentSession() != null) {
-                    final Session session = ds3Common.getCurrentSession();
-                    final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
-                    final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
-                    final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
-                    if (!Guard.isMapNullOrEmpty(jobIDMap)) {
-                        jobButton.setDisable(false);
-                        final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, this, ds3Common));
-                        Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") +
-                                StringConstants.SPACE + endpoint);
-                    } else {
-                        jobButton.setDisable(true);
-                    }
+            initLocalTreeTableView();
+            initDs3TreeTableView();
 
-                } else {
-                    jobButton.setDisable(true);
-                    logText(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
-                }
-            });
-            final StackPane stackpane = new StackPane();
-            stackpane.setLayoutX(45);
-            stackpane.setLayoutY(1);
-            lblCount.setTextFill(Color.WHITE);
-            circle.radiusProperty().setValue(8.0);
-            circle.setStrokeType(StrokeType.INSIDE);
-            circle.setVisible(false);
-            circle.setFill(Color.RED);
-            stackpane.getChildren().add(circle);
-            stackpane.getChildren().add(lblCount);
-            final AnchorPane anchorPane = new AnchorPane();
-            anchorPane.getChildren().addAll(jobButton, stackpane, cancelAll);
-            anchorPane.setMinHeight(35);
-            Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
-            jobsMenuItem.selectedProperty().setValue(true);
-            logsMenuItem.selectedProperty().setValue(true);
-            jobProgressVBox.getChildren().add(anchorPane);
-            jobProgressVBox.getChildren().add(jobProgressView);
-            jobsTab.setContent(jobProgressVBox);
-            logsTab.setContent(scrollPane);
-            jobSplitter.getItems().add(bottomTabPane);
-            jobSplitter.setDividerPositions(0.95);
-            jobsMenuItem.setOnAction(event -> {
-                logsORJobsMenuItemAction(jobsMenuItem, jobProgressVBox, null, jobsTab);
-            });
-            logsMenuItem.setOnAction(event -> {
-                logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
-            });
-            closeMenuItem.setOnAction(event -> {
-                final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
-                closeConfirmationHandler.closeConfirmationAlert(event);
-            });
-            final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
-            final Ds3PanelView ds3PanelView = new Ds3PanelView();
-            localTreeView.getViewAsync(fileSystem.getChildren()::add);
-            ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
+            initRecoverInterruptedJobsButton();
+
+            initCancelInterruptedJobsButton();
+
+            initJobsPane();
 
             inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 selectAllItem.setDisable(oldValue);
@@ -254,6 +175,107 @@ public class DeepStorageBrowserPresenter implements Initializable {
             LOG.error("Encountered an error when creating Main view", e);
             logText(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
         }
+    }
+
+    private void initLocalTreeTableView() {
+        final LocalFileTreeTableView localTreeView = new LocalFileTreeTableView();
+        localTreeView.getViewAsync(fileSystem.getChildren()::add);
+    }
+
+    private void initDs3TreeTableView() {
+        final Ds3PanelView ds3PanelView = new Ds3PanelView();
+        ds3PanelView.getViewAsync(blackPearl.getChildren()::add);
+    }
+
+    private void initJobsPane() {
+        circle.radiusProperty().setValue(8.0);
+        circle.setStrokeType(StrokeType.INSIDE);
+        circle.setVisible(false);
+        circle.setFill(Color.RED);
+
+        lblCount.setTextFill(Color.WHITE);
+
+        stackpane.setLayoutX(45);
+        stackpane.setLayoutY(1);
+        stackpane.getChildren().add(circle);
+        stackpane.getChildren().add(lblCount);
+
+        anchorPane.getChildren().addAll(recoverInterruptedJobsButton, stackpane, cancelInterruptedJobsButton);
+        anchorPane.setMinHeight(35);
+
+        Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
+
+        jobProgressView.setPrefHeight(1000);
+        jobProgressVBox.getChildren().add(anchorPane);
+        jobProgressVBox.getChildren().add(jobProgressView);
+
+        jobsTab.setContent(jobProgressVBox);
+        logsTab.setContent(scrollPane);
+
+        jobSplitter.getItems().add(bottomTabPane);
+        jobSplitter.setDividerPositions(0.95);
+    }
+
+    //Implementation and design of "Recover Interrupted Jobs" button in bottom pane
+    private void initRecoverInterruptedJobsButton() {
+        interruptedJobImageView.setFitHeight(15);
+        interruptedJobImageView.setFitWidth(15);
+        recoverInterruptedJobsButton.setTranslateX(20);
+        recoverInterruptedJobsButton.setTranslateY(4);
+        final Tooltip jobToolTip = new Tooltip();
+        jobToolTip.setText(resourceBundle.getString("interruptedJobs"));
+        recoverInterruptedJobsButton.setTooltip(jobToolTip);
+        recoverInterruptedJobsButton.setGraphic(interruptedJobImageView);
+        recoverInterruptedJobsButton.setDisable(true);
+        recoverInterruptedJobsButton.setOnAction(event -> {
+            if (ds3Common.getCurrentSession() != null) {
+                final Session session = ds3Common.getCurrentSession();
+                final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
+                final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
+                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
+                if (!Guard.isMapNullOrEmpty(jobIDMap)) {
+                    recoverInterruptedJobsButton.setDisable(false);
+                    final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, this, ds3Common));
+                    Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") +
+                            StringConstants.SPACE + endpoint);
+                } else {
+                    recoverInterruptedJobsButton.setDisable(true);
+                }
+
+            } else {
+                recoverInterruptedJobsButton.setDisable(true);
+                logText(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
+            }
+        });
+    }
+
+    //Implementation and design of "Cancel All Interrupted Jobs" button in bottom pane
+    private void initCancelInterruptedJobsButton() {
+        cancelAllJobsImageView.setFitHeight(15);
+        cancelAllJobsImageView.setFitWidth(15);
+        cancelInterruptedJobsButton.setTranslateX(70);
+        cancelInterruptedJobsButton.setTranslateY(4);
+        final Tooltip cancelAllToolTip = new Tooltip();
+        cancelAllToolTip.setText(resourceBundle.getString("cancelAllRunningJobs"));
+        cancelInterruptedJobsButton.setTooltip(cancelAllToolTip);
+        cancelInterruptedJobsButton.setGraphic(cancelAllJobsImageView);
+        cancelInterruptedJobsButton.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
+        cancelInterruptedJobsButton.setOnAction(event -> {
+            final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+                    resourceBundle.getString("confirmation"), jobWorkers.getTasks().size()
+                            + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
+                    Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"),
+                    resourceBundle.getString("exitBtnJobCancelConfirm"),
+                    resourceBundle.getString("cancelBtnJobCancelConfirm"));
+            if (closeResponse.get().equals(ButtonType.OK)) {
+                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, loggingService);
+                event.consume();
+            }
+            if (closeResponse.get().equals(ButtonType.CANCEL)) {
+                event.consume();
+            }
+        });
+
     }
 
     private void registerLoggingServiceListener() {
@@ -268,7 +290,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         }).subscribe();
     }
 
-    private void initGUIElement() {
+    private void initMenus() {
         fileMenu.setText(resourceBundle.getString("fileMenu"));
         sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
@@ -281,8 +303,18 @@ public class DeepStorageBrowserPresenter implements Initializable {
         helpMenu.setText(resourceBundle.getString("helpMenu"));
         aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
         selectAllItem.setDisable(true);
-
-
+        jobsMenuItem.selectedProperty().setValue(true);
+        logsMenuItem.selectedProperty().setValue(true);
+        jobsMenuItem.setOnAction(event -> {
+            logsORJobsMenuItemAction(jobsMenuItem, jobProgressVBox, null, jobsTab);
+        });
+        logsMenuItem.setOnAction(event -> {
+            logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
+        });
+        closeMenuItem.setOnAction(event -> {
+            final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
+            closeConfirmationHandler.closeConfirmationAlert(event);
+        });
     }
 
     public void showSettingsPopup() {
@@ -378,8 +410,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return lblCount;
     }
 
-    public Button getJobButton() {
-        return jobButton;
+    public Button getRecoverInterruptedJobsButton() {
+        return recoverInterruptedJobsButton;
     }
 
     public Circle getCircle() {

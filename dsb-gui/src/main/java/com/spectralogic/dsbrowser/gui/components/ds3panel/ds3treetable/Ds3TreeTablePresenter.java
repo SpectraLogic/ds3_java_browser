@@ -633,7 +633,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(jobIDMap.size()));
             } else {
                 deepStorageBrowserPresenter.getLblCount().setText(StringConstants.EMPTY_STRING);
-                deepStorageBrowserPresenter.getJobButton().setDisable(true);
+                deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(true);
             }
         }
     }

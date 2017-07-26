@@ -58,8 +58,7 @@ public class SettingsStore {
     public SettingsStore(@JsonProperty("logSettings") final LogSettings logSettings,
                          @JsonProperty("processSettings") final ProcessSettings processSettings,
                          @JsonProperty("filePropertiesSettings") final FilePropertiesSettings filePropertiesSettings,
-                         @JsonProperty("showCachedJobSettings")
-                         final ShowCachedJobSettings showCachedJobSettings) {
+                         @JsonProperty("showCachedJobSettings") final ShowCachedJobSettings showCachedJobSettings) {
         this.logSettings = logSettings;
         this.processSettings = processSettings;
         this.filePropertiesSettings = filePropertiesSettings;

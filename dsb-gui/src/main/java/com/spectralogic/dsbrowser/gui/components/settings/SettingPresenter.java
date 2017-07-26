@@ -69,7 +69,7 @@ public class SettingPresenter implements Initializable {
     private Tab loggingTab, performanceTab;
 
     @FXML
-    private Label performanceLabel, showCachedJob;
+    private Label performanceLabel;
 
     @FXML
     private Label locationSetting;
@@ -114,13 +114,13 @@ public class SettingPresenter implements Initializable {
     private Tab fileProperties;
 
     @FXML
-    private Tooltip enableFilePropertiesTooltip, showCachedJobTooltip;
+    private Tooltip enableFilePropertiesTooltip;
 
     @FXML
     private Label enableFileProperties;
 
     @FXML
-    private CheckBox filePropertiesCheckbox, showCachedJobCheckbox;
+    private CheckBox filePropertiesCheckbox;
 
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
@@ -130,7 +130,6 @@ public class SettingPresenter implements Initializable {
 
     private JobSettings jobSettings;
     private FilePropertiesSettings filePropertiesSettings;
-    private ShowCachedJobSettings showCachedJobSettings;
     private LogSettings logSettings;
     private ProcessSettings processSettings;
 
@@ -154,7 +153,6 @@ public class SettingPresenter implements Initializable {
             this.processSettings = settingsStore.getProcessSettings();
             this.jobSettings = savedJobPrioritiesStore.getJobSettings();
             this.filePropertiesSettings = settingsStore.getFilePropertiesSettings();
-            this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
             initGUIElements();
             initPropertyPane();
         } catch (final Exception e) {
@@ -196,11 +194,6 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            if (showCachedJobCheckbox.isSelected()) {
-                settingsStore.setShowCachedJobSettings(true);
-            } else {
-                settingsStore.setShowCachedJobSettings(false);
-            }
             alert.showAlert(resourceBundle.getString("jobsSettingsUpdated"));
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
@@ -219,7 +212,6 @@ public class SettingPresenter implements Initializable {
         Bindings.bindBidirectional(debugLogging.selectedProperty(), logSettings.debugLoggingProperty());
         Bindings.bindBidirectional(performanceFieldValue.textProperty(), processSettings.maximumNumberOfParallelThreadsProperty(), new NumberStringConverter());
         Bindings.bindBidirectional(filePropertiesCheckbox.selectedProperty(), filePropertiesSettings.filePropertiesEnableProperty());
-        Bindings.bindBidirectional(showCachedJobCheckbox.selectedProperty(), showCachedJobSettings.showCachedJobEnableProperty());
     }
 
     private void initGUIElements() {
@@ -231,8 +223,6 @@ public class SettingPresenter implements Initializable {
         fileProperties.setText(resourceBundle.getString("fileProperties"));
         enableFilePropertiesTooltip.setText(resourceBundle.getString("enableFilePropertiesTooltip"));
         performanceLabel.setText(resourceBundle.getString("performanceLabel"));
-        showCachedJob.setText(resourceBundle.getString("showCachedJob"));
-        showCachedJobTooltip.setText(resourceBundle.getString("showCachedJobTooltip"));
         locationSetting.setText(resourceBundle.getString("locationSetting"));
         logSizeSetting.setText(resourceBundle.getString("logSizeSetting"));
         savedLogSetting.setText(resourceBundle.getString("savedLogSetting"));

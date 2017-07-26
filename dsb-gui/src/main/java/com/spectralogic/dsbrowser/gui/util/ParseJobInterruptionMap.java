@@ -23,10 +23,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -139,11 +136,11 @@ public final class ParseJobInterruptionMap {
             try {
                 if (isJobInterrupted) {
                     deepStorageBrowserPresenter.getCircle().setVisible(true);
-                    deepStorageBrowserPresenter.getJobButton().setDisable(false);
+                    deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(false);
                     deepStorageBrowserPresenter.getLblCount().setText(String.valueOf(size));
                 } else {
                     deepStorageBrowserPresenter.getCircle().setVisible(false);
-                    deepStorageBrowserPresenter.getJobButton().setDisable(true);
+                    deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(true);
                     deepStorageBrowserPresenter.getLblCount().setText("");
                 }
             } catch (final Exception e) {

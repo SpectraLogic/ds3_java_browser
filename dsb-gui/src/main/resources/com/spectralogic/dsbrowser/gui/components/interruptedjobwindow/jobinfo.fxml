@@ -81,6 +81,12 @@
                         <Insets bottom="10.0" right="10.0" top="20.0"/>
                     </HBox.margin>
                 </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="showCachedJobsButton" cancelButton="true" mnemonicParsing="false"
+                                                               prefHeight="25.0" prefWidth="90.0" text="Show Jobs in Cache">
+                    <HBox.margin>
+                        <Insets bottom="10.0" right="10.0" top="20.0"/>
+                    </HBox.margin>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
             </children>
             <GridPane.margin>
                 <Insets top="10.0"/>

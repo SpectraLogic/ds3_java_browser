@@ -73,7 +73,7 @@ public class RecoverInterruptedJobTest {
 
                 Mockito.when(deepStorageBrowserPresenter.getCircle()).thenReturn(Mockito.mock(Circle.class));
                 Mockito.when(deepStorageBrowserPresenter.getLblCount()).thenReturn(Mockito.mock(Label.class));
-                Mockito.when(deepStorageBrowserPresenter.getJobButton()).thenReturn(Mockito.mock(Button.class));
+                Mockito.when(deepStorageBrowserPresenter.getRecoverInterruptedJobsButton()).thenReturn(Mockito.mock(Button.class));
                 final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
                 Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
                 Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
