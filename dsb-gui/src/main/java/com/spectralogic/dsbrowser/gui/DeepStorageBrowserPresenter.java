@@ -36,6 +36,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.settings.ShowCachedJobSettings;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import io.reactivex.Observable;
@@ -72,16 +73,17 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView = new DeepStorageBrowserTaskProgressView<>();
     private final ImageView interruptedJobImageView = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
     private final ImageView cancelAllJobsImageView = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
-    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.CLOUD);
+    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
     private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.STORAGE_TAPES);
 
     private final StackPane stackpane = new StackPane();
     private final AnchorPane anchorPane = new AnchorPane();
     private final VBox jobProgressVBox = new VBox();
-    private final Label lblCount = new Label();
+    private final Circle numInterruptedJobsCircle = new Circle();
+    private final Label numInterruptedJobsLabel = new Label();
     private final Button recoverInterruptedJobsButton = new Button();
     private final Button cancelInterruptedJobsButton = new Button();
-    private final Circle circle = new Circle();
+    private final Button toggleShowCachedJobsButton = new Button();
 
     @FXML
     private AnchorPane fileSystem, blackPearl;
@@ -116,6 +118,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
+    private ShowCachedJobSettings showCachedJobSettings;
     private final SavedSessionStore savedSessionStore;
     private final Workers workers;
     private final LoggingService loggingService;
@@ -139,6 +142,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         this.ds3Common = ds3Common;
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
+        this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
         this.savedSessionStore = savedSessionStore;
         this.workers = workers;
         this.loggingService = loggingService;
@@ -162,9 +166,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
             initDs3TreeTableView();
 
             initRecoverInterruptedJobsButton();
-
             initCancelInterruptedJobsButton();
-
+            initToggleShowCachedJobsButton();
             initJobsPane();
 
             inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -188,19 +191,19 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     private void initJobsPane() {
-        circle.radiusProperty().setValue(8.0);
-        circle.setStrokeType(StrokeType.INSIDE);
-        circle.setVisible(false);
-        circle.setFill(Color.RED);
+        numInterruptedJobsCircle.radiusProperty().setValue(8.0);
+        numInterruptedJobsCircle.setStrokeType(StrokeType.INSIDE);
+        numInterruptedJobsCircle.setVisible(false);
+        numInterruptedJobsCircle.setFill(Color.RED);
 
-        lblCount.setTextFill(Color.WHITE);
+        numInterruptedJobsLabel.setTextFill(Color.WHITE);
 
         stackpane.setLayoutX(45);
         stackpane.setLayoutY(1);
-        stackpane.getChildren().add(circle);
-        stackpane.getChildren().add(lblCount);
+        stackpane.getChildren().add(numInterruptedJobsCircle);
+        stackpane.getChildren().add(numInterruptedJobsLabel);
 
-        anchorPane.getChildren().addAll(recoverInterruptedJobsButton, stackpane, cancelInterruptedJobsButton);
+        anchorPane.getChildren().addAll(recoverInterruptedJobsButton, stackpane, cancelInterruptedJobsButton, toggleShowCachedJobsButton);
         anchorPane.setMinHeight(35);
 
         Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
@@ -244,7 +247,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
             } else {
                 recoverInterruptedJobsButton.setDisable(true);
-                logText(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
+                loggingService.logMessage(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
             }
         });
     }
@@ -275,19 +278,38 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 event.consume();
             }
         });
-
     }
 
-    private void registerLoggingServiceListener() {
-        LOG.info("Registering loggingService observable");
-        final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
-        observable.doOnNext(logEvent -> {
-            if (Platform.isFxApplicationThread()) {
-                this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
-            } else {
-                Platform.runLater(() -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()));
-            }
-        }).subscribe();
+    private void initToggleShowCachedJobsButton() {
+        showCachedJobsImageView.setFitHeight(15);
+        showCachedJobsImageView.setFitWidth(15);
+
+        showPersistedJobsImageView.setFitHeight(15);
+        showPersistedJobsImageView.setFitWidth(15);
+
+        toggleShowCachedJobsButton.setTranslateX(120);
+        toggleShowCachedJobsButton.setTranslateY(4);
+
+        final Tooltip toggleShowCachedJobsTooltip = new Tooltip();
+        toggleShowCachedJobsTooltip.setText(resourceBundle.getString("toggleShowCachedJobs"));
+        toggleShowCachedJobsButton.setTooltip(toggleShowCachedJobsTooltip);
+        updateToggleShowCachedJobsButtonGraphic();
+
+        toggleShowCachedJobsButton.setOnAction(event -> {
+            loggingService.logMessage("Click ToggleShowCachedJobsButton", LogType.INFO);
+            LOG.info("Click ToggleShowCachedJobsButton");
+
+            showCachedJobSettings.setShowCachedJob(!showCachedJobSettings.getShowCachedJob());
+            updateToggleShowCachedJobsButtonGraphic();
+        });
+    }
+
+    private void updateToggleShowCachedJobsButtonGraphic() {
+        if (showCachedJobSettings.getShowCachedJob()) {
+            toggleShowCachedJobsButton.setGraphic(showCachedJobsImageView);
+        } else {
+            toggleShowCachedJobsButton.setGraphic(showPersistedJobsImageView);
+        }
     }
 
     private void initMenus() {
@@ -295,26 +317,29 @@ public class DeepStorageBrowserPresenter implements Initializable {
         sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
-        viewMenu.setText(resourceBundle.getString("viewMenu"));
+        closeMenuItem.setOnAction(event -> {
+            final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
+            closeConfirmationHandler.closeConfirmationAlert(event);
+        });
+
         editMenu.setText(resourceBundle.getString("editMenu"));
         selectAllItem.setText(resourceBundle.getString("selectAllItem"));
-        jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
-        logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
-        helpMenu.setText(resourceBundle.getString("helpMenu"));
-        aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
         selectAllItem.setDisable(true);
+
+        viewMenu.setText(resourceBundle.getString("viewMenu"));
+        logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
+        logsMenuItem.setOnAction(event -> {
+            logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
+        });
+        jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         jobsMenuItem.selectedProperty().setValue(true);
         logsMenuItem.selectedProperty().setValue(true);
         jobsMenuItem.setOnAction(event -> {
             logsORJobsMenuItemAction(jobsMenuItem, jobProgressVBox, null, jobsTab);
         });
-        logsMenuItem.setOnAction(event -> {
-            logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
-        });
-        closeMenuItem.setOnAction(event -> {
-            final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
-            closeConfirmationHandler.closeConfirmationAlert(event);
-        });
+
+        helpMenu.setText(resourceBundle.getString("helpMenu"));
+        aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
     }
 
     public void showSettingsPopup() {
@@ -329,10 +354,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public void showSessionPopup() {
         Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
-    }
-
-    public MenuItem getSelectAllMenuItem() {
-        return selectAllItem;
     }
 
     public void selectAllItemsInPane() {
@@ -354,7 +375,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 bottomTabPane.getTabs().add(tab);
             }
             bottomTabPane.getSelectionModel().select(tab);
-            if (!jobSplitter.getItems().stream().anyMatch(i -> i instanceof TabPane)) {
+            if (jobSplitter.getItems().stream().noneMatch(i -> i instanceof TabPane)) {
                 jobSplitter.getItems().add(bottomTabPane);
                 jobSplitter.setDividerPositions(0.75);
             }
@@ -367,7 +388,19 @@ public class DeepStorageBrowserPresenter implements Initializable {
         }
     }
 
-    public void logText(final String log, final LogType type) {
+    private void registerLoggingServiceListener() {
+        LOG.info("Registering loggingService observable");
+        final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
+        observable.doOnNext(logEvent -> {
+            if (Platform.isFxApplicationThread()) {
+                this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
+            } else {
+                Platform.runLater(() -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()));
+            }
+        }).subscribe();
+    }
+
+    private void logText(final String log, final LogType type) {
         if (inlineCssTextArea != null) {
             inlineCssTextArea.appendText(formattedString(log));
             final int size = inlineCssTextArea.getParagraphs().size() - 2;
@@ -378,7 +411,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     //set the same color for all the lines of string log separated by \n
-    public void logTextForParagraph(final String log, final LogType type) {
+    private void logTextForParagraph(final String log, final LogType type) {
         final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
         inlineCssTextArea.appendText(formattedString(log));
         final int size = inlineCssTextArea.getParagraphs().size() - 2;
@@ -406,16 +439,20 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return StringConstants.FORWARD_OPR + StringConstants.SPACE + log + "\n";
     }
 
-    public Label getLblCount() {
-        return lblCount;
+    public MenuItem getSelectAllMenuItem() {
+        return selectAllItem;
+    }
+
+    public Label getNumInterruptedJobsLabel() {
+        return numInterruptedJobsLabel;
     }
 
     public Button getRecoverInterruptedJobsButton() {
         return recoverInterruptedJobsButton;
     }
 
-    public Circle getCircle() {
-        return circle;
+    public Circle getNumInterruptedJobsCircle() {
+        return numInterruptedJobsCircle;
     }
 
     public AnchorPane getFileSystem() {
