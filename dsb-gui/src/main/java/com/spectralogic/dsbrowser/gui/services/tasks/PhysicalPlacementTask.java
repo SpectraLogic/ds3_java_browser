@@ -56,6 +56,7 @@ public class PhysicalPlacementTask extends Ds3Task {
         } else if (value.getType().equals(Ds3TreeTableValue.Type.File)) {
             list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
                     .collect(GuavaCollectors.immutableList());
+        //TODO This always evaluates to true at this point
         } else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
             final PhysicalPlacementTask.GetDirectoryObjects getDirectoryObjects = new PhysicalPlacementTask.GetDirectoryObjects(value.getBucketName(), value.getDirectoryName(), ds3Common);
             workers.execute(getDirectoryObjects);

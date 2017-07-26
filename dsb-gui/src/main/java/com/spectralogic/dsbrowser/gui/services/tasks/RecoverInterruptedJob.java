@@ -80,7 +80,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             loggingService.logMessage(
                     StringBuilderUtil.getRecoverJobTransferringForLogs(filesAndFolderMap.getType(),
                             filesAndFolderMap.getDate()).toString(), LogType.INFO);
-
+            //TODO This is always true even if we don't have a UUID
             if (filesAndFolderMap != null) {
                 final Map<String, Path> filesMap = filesAndFolderMap.getFiles();
                 final Map<String, Path> foldersMap = filesAndFolderMap.getFolders();
@@ -99,7 +99,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                                     + filesAndFolderMap.getTargetLocation(), LogType.SUCCESS);
                 });
                 // check whether chunk are available
-                addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation().toString());
+                addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation());
 
                 job.transfer(obj -> {
                             if (filesAndFolderMap.getType().equals(PUT.toString())) {
