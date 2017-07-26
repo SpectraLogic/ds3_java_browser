@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public class CreateConnectionTask {
+public final class CreateConnectionTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 

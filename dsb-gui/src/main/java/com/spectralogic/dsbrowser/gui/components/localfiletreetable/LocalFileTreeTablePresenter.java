@@ -61,6 +61,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -571,6 +572,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void setDragDropEvent(final TreeTableRow<FileTreeModel> row, final DragEvent event) {
         final Path localPath = getSelectedLocalPath(row);
         if (localPath == null) {
+            return;
+        } else if (!Files.isWritable(localPath)) {
+            loggingService.logMessage("Canceling Job: Cannot write to folder " + localPath.toString(), LogType.ERROR);
             return;
         }
         final Dragboard db = event.getDragboard();
