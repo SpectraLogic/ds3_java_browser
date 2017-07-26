@@ -35,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -266,38 +267,38 @@ public class Ds3TreeTablePresenter implements Initializable {
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
         Platform.runLater(() ->
-        getServiceTask.setOnSucceeded(event -> {
-            ds3TreeTable.setPlaceholder(oldPlaceHolder);
+                getServiceTask.setOnSucceeded(event -> {
+                    ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
-            final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
+                    final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
 
-            children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
-                final BooleanProperty bb = (BooleanProperty) observable;
-                final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
-                ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
-            }));
+                    children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                        final BooleanProperty bb = (BooleanProperty) observable;
+                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                        ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
+                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
+                    }));
 
-            fileName.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, String>() {
+                    fileName.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, String>() {
 
-                @Override
-                protected void updateItem(final String item, final boolean empty) {
-                    super.updateItem(item, empty);
-                    if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
-                        this.getStyleClass().add("styleBold");
-                    } else if (!empty) {
-                        this.getStyleClass().add("styleNormal");
-                    }
-                    this.getStylesheets().add(getClass().getResource("ds3treetable.css").toExternalForm());
-                    setText(item);
-                }
-            });
+                        @Override
+                        protected void updateItem(final String item, final boolean empty) {
+                            super.updateItem(item, empty);
+                            if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
+                                this.getStyleClass().add("styleBold");
+                            } else if (!empty) {
+                                this.getStyleClass().add("styleNormal");
+                            }
+                            this.getStylesheets().add(getClass().getResource("ds3treetable.css").toExternalForm());
+                            setText(item);
+                        }
+                    });
 
-            sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
+                    sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
 
-            fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
-            checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-        }));
+                    fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
+                    checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
+                }));
     }
 
     /**
@@ -392,7 +393,6 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void handleDropEvent(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        {
             LOG.info("Got drop event");
             final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
             if (null != selectedItem) {
@@ -401,10 +401,10 @@ public class Ds3TreeTablePresenter implements Initializable {
                     selectedItem.setExpanded(true);
                 }
             }
-            if (null != selectedItem && null != selectedItem.getValue() &&
-                    !selectedItem.getValue().isSearchOn()) {
+            if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
                 final Dragboard db = event.getDragboard();
                 if (db.hasFiles()) {
+
                     LOG.info("Drop event contains files");
                     // get bucket info and current path
                     final Ds3TreeTableValue value = selectedItem.getValue();
@@ -413,56 +413,69 @@ public class Ds3TreeTablePresenter implements Initializable {
                     LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                     final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
                     //TODO There are two places we put jobs. This needs a refactor
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority,
-                            settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
-                    jobWorkers.execute(putJob);
-                    putJob.setOnSucceeded(e -> {
-                        LOG.info("Succeed");
-                        try {
+                    final List<File> files = new ArrayList<>();
+                    for (final File file : db.getFiles()) {
+                        if (file.isDirectory() && file.listFiles().length == 0) {
+                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), null, loggingService, resourceBundle);
+                            workers.execute(task);
+                            task.setOnSucceeded(e -> {loggingService.logMessage("Created folder", LogType.INFO); });
+                            task.setOnFailed(e -> {loggingService.logMessage("Could not create folder", LogType.ERROR); });
+                        } else {
+                            files.add(file);
+                        }
+                        if (files.isEmpty()) {
+                            return;
+                        }
+                        final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
+                                settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
+                                deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
+                        jobWorkers.execute(putJob);
+                        putJob.setOnSucceeded(e -> {
+                            LOG.info("Succeed");
+                            try {
+                                Ds3PanelService.refresh(selectedItem);
+                                ds3TreeTable.getSelectionModel().clearSelection();
+                                ds3TreeTable.getSelectionModel().select(selectedItem);
+                            } catch (final Exception ex) {
+                                LOG.error("Failed to save job ID", ex);
+                            }
+
+                        });
+                        putJob.setOnFailed(e -> {
+                            LOG.info("setOnFailed");
                             Ds3PanelService.refresh(selectedItem);
                             ds3TreeTable.getSelectionModel().clearSelection();
                             ds3TreeTable.getSelectionModel().select(selectedItem);
-                        } catch (final Exception ex) {
-                            LOG.error("Failed to save job ID", ex);
-                        }
-
-                    });
-                    putJob.setOnFailed(e -> {
-                        LOG.info("setOnFailed");
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                    });
-                    putJob.setOnCancelled(e -> {
-                        LOG.info("setOnCancelled");
-                        if (putJob.getJobId() != null) {
-                            try {
-                                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                            } catch (final IOException e1) {
-                                LOG.error("Failed to cancel job", e1);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        });
+                        putJob.setOnCancelled(e -> {
+                            LOG.info("setOnCancelled");
+                            if (putJob.getJobId() != null) {
+                                try {
+                                    session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                                } catch (final IOException e1) {
+                                    LOG.error("Failed to cancel job", e1);
+                                }
                             }
-                        }
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
-                    });
+                            Ds3PanelService.refresh(selectedItem);
+                            ds3TreeTable.getSelectionModel().clearSelection();
+                            ds3TreeTable.getSelectionModel().select(selectedItem);
+                        });
+                    }
+                } else {
+                    alert.showAlert("Operation not allowed here.");
                 }
-            } else {
-                alert.showAlert("Operation not allowed here.");
+                event.consume();
             }
-            event.consume();
         }
-    }
 
-    /**
-     * To set the behaviour of the mouse click on treeTableView row
-     *
-     * @param event event
-     * @param row   row
-     */
+        /**
+         * To set the behaviour of the mouse click on treeTableView row
+         *
+         * @param event event
+         * @param row   row
+         */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
             if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {

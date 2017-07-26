@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class Ds3PutJob extends Ds3JobTask {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
@@ -107,7 +108,6 @@ public class Ds3PutJob extends Ds3JobTask {
 
                 final ImmutableList<Path> directories = getDirectoriesOrFiles(false);
                 final ImmutableList<Path> files = getDirectoriesOrFiles(true);
-
                 final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
                 final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
 
@@ -287,6 +287,9 @@ public class Ds3PutJob extends Ds3JobTask {
                 final Path parentPath = filePath.getParent();
                 partOfDirBuilder.add(parentPath);
                 isContains = true;
+            } else {
+
+                //TODO Code goes here
             }
             expandedPaths.put(filePath.getParent(), filePath);
             final String ds3ObjPath = getDs3ObjectPath(filePath.getParent(), filePath, isContains, files.size(), directories.size());
