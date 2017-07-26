@@ -298,23 +298,27 @@ public class Ds3PutJob extends Ds3JobTask {
     private void waitForPermanentStorageTransfer(final long totalJobSize) throws Exception {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
         final String dateOfTransfer = DateFormat.formatDate(new Date());
+
+        updateProgress(totalJobSize, totalJobSize);
+        updateMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+                FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer,
+                resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString());
+
+        loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+                FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer,
+                resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString(), LogType.SUCCESS);
+
         if (isCacheJobEnable) {
-            updateProgress(totalJobSize, totalJobSize);
-            updateMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString());
-            updateProgress(totalJobSize, totalJobSize);
-            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), isCacheJobEnable).toString(), LogType.SUCCESS);
-            GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-            while (!response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
+            while (!ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId)).getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
                 Thread.sleep(60000);
-                response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
             }
+
             LOG.info("Job transferred to permanent storage location");
             final String newDate = DateFormat.formatDate(new Date());
-            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate, resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
-        } else {
-            updateProgress(totalJobSize, totalJobSize);
-            updateMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), false).toString());
-            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, dateOfTransfer, resourceBundle.getString("blackPearlCache"), false).toString(), LogType.SUCCESS);
+
+            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+                    FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
+                    resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
         }
     }
 

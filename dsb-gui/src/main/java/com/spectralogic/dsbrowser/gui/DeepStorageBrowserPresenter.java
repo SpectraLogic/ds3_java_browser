@@ -306,9 +306,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     private void updateToggleShowCachedJobsButtonGraphic() {
         if (showCachedJobSettings.getShowCachedJob()) {
-            toggleShowCachedJobsButton.setGraphic(showCachedJobsImageView);
-        } else {
             toggleShowCachedJobsButton.setGraphic(showPersistedJobsImageView);
+        } else {
+            toggleShowCachedJobsButton.setGraphic(showCachedJobsImageView);
         }
     }
 

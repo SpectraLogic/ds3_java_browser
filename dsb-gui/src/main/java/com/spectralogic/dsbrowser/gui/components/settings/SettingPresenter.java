@@ -230,8 +230,8 @@ public class SettingPresenter implements Initializable {
         saveSettingsButton.setText(resourceBundle.getString("saveSettingsButton"));
         cancelSettingsButton.setText(resourceBundle.getString("cancelSettingsButton"));
         browseButton.setText(resourceBundle.getString("browseButton"));
-        saveSettingsPerforanceButton.setText(resourceBundle.getString("saveSettingsPerforanceButton"));
-        cancelSettingsPerforanceButton.setText(resourceBundle.getString("cancelSettingsPerforanceButton"));
+        saveSettingsPerforanceButton.setText(resourceBundle.getString("saveSettingsPerformanceButton"));
+        cancelSettingsPerforanceButton.setText(resourceBundle.getString("cancelSettingsPerformanceButton"));
         performanceTab.setText(resourceBundle.getString("performanceTab"));
         loggingTab.setText(resourceBundle.getString("loggingTab"));
         putJobPriority.getItems().add(resourceBundle.getString("defaultPolicyText"));
