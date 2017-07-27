@@ -155,7 +155,7 @@ public class StringBuilderUtil {
                                                                     final String date,
                                                                     final String location) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(resourceBundle.getString("successfullyTransfered")).append(SPACE)
+        builder.append(resourceBundle.getString("successfullyTransferred")).append(SPACE)
                 .append(fromPath).append(SPACE).append(resourceBundle.getString("to")).append(SPACE)
                 .append(toPath).append(SPACE)
                 .append(resourceBundle.getString("at")).append(SPACE)

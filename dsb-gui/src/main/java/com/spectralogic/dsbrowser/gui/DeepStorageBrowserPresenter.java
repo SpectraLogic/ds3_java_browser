@@ -40,6 +40,7 @@ import com.spectralogic.dsbrowser.gui.services.settings.ShowCachedJobSettings;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import io.reactivex.Observable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -118,12 +119,11 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
-    private ShowCachedJobSettings showCachedJobSettings;
+    private final ShowCachedJobSettings showCachedJobSettings;
     private final SavedSessionStore savedSessionStore;
     private final Workers workers;
     private final LoggingService loggingService;
     private final ShutdownService shutdownService;
-
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
@@ -154,10 +154,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
         try {
             registerLoggingServiceListener();
 
-            initMenus(); //Setting up labels from resource file
-
             LOG.info("Loading Main view");
-            logText(resourceBundle.getString("loadMainView"), LogType.INFO);
+            loggingService.logMessage(resourceBundle.getString("loadMainView"), LogType.INFO);
+
+            initMenus(); //Setting up labels from resource file
 
             final SetToolTipBehavior setToolTipBehavior = new SetToolTipBehavior();
             setToolTipBehavior.setToolTilBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
@@ -176,7 +176,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
         } catch (final Exception e) {
             LOG.error("Encountered an error when creating Main view", e);
-            logText(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
         }
     }
 
@@ -391,13 +391,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private void registerLoggingServiceListener() {
         LOG.info("Registering loggingService observable");
         final Observable<LoggingService.LogEvent> observable = loggingService.getLoggerObservable();
-        observable.doOnNext(logEvent -> {
-            if (Platform.isFxApplicationThread()) {
-                this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType());
-            } else {
-                Platform.runLater(() -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()));
-            }
-        }).subscribe();
+        observable.observeOn(JavaFxScheduler.platform())
+                .doOnNext(logEvent -> this.logTextForParagraph(logEvent.getMessage(), logEvent.getLogType()))
+                .subscribe();
     }
 
     private void logText(final String log, final LogType type) {
