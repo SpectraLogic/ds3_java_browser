@@ -134,6 +134,7 @@ public class DeleteItemPresenter implements Initializable {
     }
 
     public void deleteItems() {
+        closeDialog();
         deleteTask.setOnCancelled(event -> constructMessageForLog());
         deleteTask.setOnFailed(event -> constructMessageForLog());
         deleteTask.setOnSucceeded(event -> {
@@ -141,7 +142,6 @@ public class DeleteItemPresenter implements Initializable {
             LOG.info("Successfully deleted selected item(s).");
 
             DeleteService.managePathIndicator(ds3Common, workers, loggingService);
-            closeDialog();
         });
         workers.execute(deleteTask);
     }
@@ -157,7 +157,7 @@ public class DeleteItemPresenter implements Initializable {
     }
 
     private void constructMessageForLog() {
-        String message;
+        final String message;
         String alertMessage = null;
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {

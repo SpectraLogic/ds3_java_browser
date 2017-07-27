@@ -181,6 +181,7 @@ public final class ParseJobInterruptionMap {
                         jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
                     }
 
+                    //TODO This else if is always true
                 } else if (null != completeArrayList) {
                     final Map<String, Map<String, FilesAndFolderMap>> endpointsHashMap = new HashMap<>();
                     final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();
