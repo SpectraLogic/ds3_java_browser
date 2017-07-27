@@ -287,9 +287,6 @@ public class Ds3PutJob extends Ds3JobTask {
                 final Path parentPath = filePath.getParent();
                 partOfDirBuilder.add(parentPath);
                 isContains = true;
-            } else {
-
-                //TODO Code goes here
             }
             expandedPaths.put(filePath.getParent(), filePath);
             final String ds3ObjPath = getDs3ObjectPath(filePath.getParent(), filePath, isContains, files.size(), directories.size());
