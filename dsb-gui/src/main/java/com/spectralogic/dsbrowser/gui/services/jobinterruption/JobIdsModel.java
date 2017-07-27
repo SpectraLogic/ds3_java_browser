@@ -16,10 +16,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +25,6 @@ public class JobIdsModel {
     public static final JobIdsModel DEFAULT = createDefault();
 
     private static JobIdsModel createDefault() {
-        final String logPath = Paths.get(System.getProperty("user.home"), ".dsbrowser", "log").toString();
         final List<Map<String, Map<String, FilesAndFolderMap>>> jobIdModels = new ArrayList<>();
         return new JobIdsModel(jobIdModels);
     }

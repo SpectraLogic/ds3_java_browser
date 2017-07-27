@@ -123,7 +123,10 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
-        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), jobId);
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
+                jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList()),
+                ds3Client.getConnectionDetails().getEndpoint(),
+                deepStorageBrowserPresenter.getJobProgressView(), jobId);
         if (currentSession != null) {
             final String currentSelectedEndpoint = currentSession.getEndpoint() + COLON + currentSession.getPortNo();
             if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
