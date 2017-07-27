@@ -41,8 +41,6 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -134,6 +132,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
 
+    private static boolean isEmptyDirectory(final Path path, final LoggingService loggingService) {
+        try {
+            return Files.isDirectory(path) && Files.list(path).count() == 0;
+        } catch (final IOException exception) {
+            final String errorMessage = "Unable to get folder properties for " + path.getFileName().toString();
+            loggingService.logMessage(errorMessage, LogType.ERROR);
+            LOG.error(errorMessage, exception);
+        }
+        return false;
+    }
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -181,11 +190,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     });
                     row.setOnDragDropped(event -> {
                         LOG.info("Drop detected..");
-                        if (row.getTreeItem() != null) {
-                            if (!row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
-                                LOG.info("Expanding closed row");
-                                row.getTreeItem().setExpanded(true);
-                            }
+                        if (row.getTreeItem() != null && !row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
+                            LOG.info("Expanding closed row");
+                            row.getTreeItem().setExpanded(true);
                         }
                         setDragDropEvent(row, event);
                         event.consume();
@@ -330,23 +337,25 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                 final Session session = ds3Common.getCurrentSession();
 
-                for(final TreeItem<FileTreeModel> selection : currentSelection) {
-                    final Path path = selection.getValue().getPath();
-                    if(Files.isDirectory(path) && Files.list(path).count() == 0) {
-                        final CreateFolderTask task = new CreateFolderTask(session.getClient(),bucket, path.getFileName().toString(), null, loggingService, resourceBundle);
-                        workers.execute(task);
-                        task.setOnSucceeded(e -> {
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                            loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
+                currentSelection.stream()
+                        .map(selection -> selection.getValue().getPath())
+                        .filter(path -> isEmptyDirectory(path, loggingService))
+                        .forEach(path -> {
+                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, path.getFileName().toString(), null, loggingService, resourceBundle);
+                            workers.execute(task);
+                            task.setOnSucceeded(e -> {
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                                loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
+                            });
+                            task.setOnFailed(e -> {
+                                loggingService.logMessage("failed to create folder " + path.getFileName().toString(), LogType.ERROR);
+                            });
                         });
-                        task.setOnFailed(e -> {loggingService.logMessage("failed to create folder "  + path.getFileName().toString() , LogType.ERROR);});
-                    }
-                }
 
                 final ImmutableList<File> files = currentSelection
                         .stream()
                         .map(i -> i.getValue().getPath())
-                        .filter(path -> !isEmptyFolder(path))
+                        .filter(path -> !isEmptyDirectory(path, loggingService))
                         .map(i -> new File(i.toString()))
                         .collect(GuavaCollectors.immutableList());
 
@@ -365,18 +374,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         } catch (final Exception e) {
             LOG.error("Failed to transfer data to black pearl: ", e);
             loggingService.logMessage("Failed to transfer data to black pearl.", LogType.ERROR);
-        }
-    }
-
-    private static boolean isEmptyFolder(final Path path) {
-        if (Files.isDirectory(path)) {
-            try {
-                return Files.list(path).count() == 0;
-            } catch (final IOException e) {
-                return false;
-            }
-        } else {
-            return false;
         }
     }
 
@@ -613,8 +610,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (db.hasContent(dataFormat)) {
             LOG.info("Drop event contains files");
 
-            @SuppressWarnings("unchecked")
-            final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
+            @SuppressWarnings("unchecked") final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
             final Session session = getSession(db.getString());
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
             startGetJob(list, session, localPath, priority, null);

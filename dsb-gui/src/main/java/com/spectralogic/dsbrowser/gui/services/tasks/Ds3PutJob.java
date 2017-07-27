@@ -32,7 +32,6 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
@@ -53,7 +52,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class Ds3PutJob extends Ds3JobTask {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
@@ -287,9 +285,6 @@ public class Ds3PutJob extends Ds3JobTask {
                 final Path parentPath = filePath.getParent();
                 partOfDirBuilder.add(parentPath);
                 isContains = true;
-            } else {
-
-                //TODO Code goes here
             }
             expandedPaths.put(filePath.getParent(), filePath);
             final String ds3ObjPath = getDs3ObjectPath(filePath.getParent(), filePath, isContains, files.size(), directories.size());
