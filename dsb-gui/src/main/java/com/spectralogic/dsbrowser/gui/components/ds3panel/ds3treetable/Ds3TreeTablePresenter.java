@@ -48,6 +48,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -264,39 +265,42 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
-        Platform.runLater(() ->
-                getServiceTask.setOnSucceeded(event -> {
-                    ds3TreeTable.setPlaceholder(oldPlaceHolder);
+        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+    }
 
-                    final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
+    private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
+        return (event) -> {
+            ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
-                    children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
-                        final BooleanProperty bb = (BooleanProperty) observable;
-                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                        ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
-                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
-                    }));
+            final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
 
-                    fileName.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, String>() {
+            children.forEach(i -> i.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                final BooleanProperty bb = (BooleanProperty) observable;
+                final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                ((Ds3TreeTableItem) bean).setDs3TreeTable(ds3TreeTable);
+                ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint(), bean);
+            }));
 
-                        @Override
-                        protected void updateItem(final String item, final boolean empty) {
-                            super.updateItem(item, empty);
-                            if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
-                                this.getStyleClass().add("styleBold");
-                            } else if (!empty) {
-                                this.getStyleClass().add("styleNormal");
-                            }
-                            this.getStylesheets().add(getClass().getResource("ds3treetable.css").toExternalForm());
-                            setText(item);
-                        }
-                    });
+            fileName.setCellFactory(c -> new TreeTableCell<Ds3TreeTableValue, String>() {
 
-                    sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
+                @Override
+                protected void updateItem(final String item, final boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty && item.equals(resourceBundle.getString("addMoreButton"))) {
+                        this.getStyleClass().add("styleBold");
+                    } else if (!empty) {
+                        this.getStyleClass().add("styleNormal");
+                    }
+                    this.getStylesheets().add(getClass().getResource("ds3treetable.css").toExternalForm());
+                    setText(item);
+                }
+            });
 
-                    fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
-                    checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-                }));
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell());
+
+            fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
+            checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
+        };
     }
 
     /**
