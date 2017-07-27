@@ -62,8 +62,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
@@ -415,15 +413,19 @@ public class Ds3TreeTablePresenter implements Initializable {
                     //TODO There are two places we put jobs. This needs a refactor
                     final List<File> files = new ArrayList<>();
                     for (final File file : db.getFiles()) {
-                        if (file.isDirectory() && file.listFiles().length == 0) {
+                        if (file.isDirectory() && (file.listFiles().length == 0)) {
                             final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), null, loggingService, resourceBundle);
                             workers.execute(task);
-                            task.setOnSucceeded(e -> {loggingService.logMessage("Created folder", LogType.INFO); });
-                            task.setOnFailed(e -> {loggingService.logMessage("Could not create folder", LogType.ERROR); });
+                            task.setOnSucceeded(e -> {
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                                loggingService.logMessage("Created folder " + file.getName(), LogType.INFO);
+                            });
+                            task.setOnFailed(e -> {loggingService.logMessage("Could not create folder " + file.getName(), LogType.ERROR); });
                         } else {
                             files.add(file);
                         }
                         if (files.isEmpty()) {
+                            Ds3PanelService.refresh(selectedItem);
                             return;
                         }
                         final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,

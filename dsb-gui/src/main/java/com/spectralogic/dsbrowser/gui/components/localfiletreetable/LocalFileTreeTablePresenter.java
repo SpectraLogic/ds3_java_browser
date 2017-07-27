@@ -335,8 +335,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     if(Files.isDirectory(path) && Files.list(path).count() == 0) {
                         final CreateFolderTask task = new CreateFolderTask(session.getClient(),bucket, path.getFileName().toString(), null, loggingService, resourceBundle);
                         workers.execute(task);
-                        task.setOnSucceeded(e -> {loggingService.logMessage("Created folder", LogType.INFO);});
-                        task.setOnFailed(e -> {loggingService.logMessage("failed to create folder", LogType.ERROR);});
+                        task.setOnSucceeded(e -> {
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                            loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
+                        });
+                        task.setOnFailed(e -> {loggingService.logMessage("failed to create folder "  + path.getFileName().toString() , LogType.ERROR);});
                     }
                 }
 
