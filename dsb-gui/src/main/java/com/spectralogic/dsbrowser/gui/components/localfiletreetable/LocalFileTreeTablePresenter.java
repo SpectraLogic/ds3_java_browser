@@ -202,10 +202,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
                         if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
                             event.acceptTransferModes(TransferMode.COPY);
-                            if (treeItem == null) {
-                                if (fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                            if (treeItem == null && fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
                                     event.acceptTransferModes(TransferMode.NONE);
-                                }
                             }
                             event.consume();
                         }
