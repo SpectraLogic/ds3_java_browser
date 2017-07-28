@@ -105,7 +105,6 @@ public class Ds3PutJob extends Ds3JobTask {
 
                 final ImmutableList<Path> directories = getDirectoriesOrFiles(false);
                 final ImmutableList<Path> files = getDirectoriesOrFiles(true);
-
                 final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
                 final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
 

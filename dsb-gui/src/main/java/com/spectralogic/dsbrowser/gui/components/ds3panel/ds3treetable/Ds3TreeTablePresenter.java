@@ -35,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -47,6 +48,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -61,8 +63,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 @SuppressWarnings("unchecked")
@@ -265,8 +265,11 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
-        Platform.runLater(() ->
-        getServiceTask.setOnSucceeded(event -> {
+        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+    }
+
+    private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
+        return (event) -> {
             ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
@@ -297,7 +300,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-        }));
+        };
     }
 
     /**
@@ -392,28 +395,46 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void handleDropEvent(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        {
-            LOG.info("Got drop event");
-            final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
-            if (null != selectedItem) {
-                if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
-                    LOG.info("Expanding closed row");
-                    selectedItem.setExpanded(true);
-                }
+        LOG.info("Got drop event");
+        final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
+        if (null != selectedItem) {
+            if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
+                LOG.info("Expanding closed row");
+                selectedItem.setExpanded(true);
             }
-            if (null != selectedItem && null != selectedItem.getValue() &&
-                    !selectedItem.getValue().isSearchOn()) {
-                final Dragboard db = event.getDragboard();
-                if (db.hasFiles()) {
-                    LOG.info("Drop event contains files");
-                    // get bucket info and current path
-                    final Ds3TreeTableValue value = selectedItem.getValue();
-                    final String bucket = value.getBucketName();
-                    final String targetDir = value.getDirectoryName();
-                    LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-                    final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                    //TODO There are two places we put jobs. This needs a refactor
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), db.getFiles(), bucket, targetDir, priority,
+        }
+        if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
+            final Dragboard db = event.getDragboard();
+            if (db.hasFiles()) {
+
+                LOG.info("Drop event contains files");
+                // get bucket info and current path
+                final Ds3TreeTableValue value = selectedItem.getValue();
+                final String bucket = value.getBucketName();
+                final String targetDir = value.getDirectoryName();
+                LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
+                final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
+                //TODO There are two places we put jobs. This needs a refactor
+                final List<File> files = new ArrayList<>();
+                for (final File file : db.getFiles()) {
+                    if (file.isDirectory() && (file.listFiles().length == 0)) {
+                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), null, loggingService, resourceBundle);
+                        workers.execute(task);
+                        task.setOnSucceeded(e -> {
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                            loggingService.logMessage("Created folder " + file.getName(), LogType.INFO);
+                        });
+                        task.setOnFailed(e -> {
+                            loggingService.logMessage("Could not create folder " + file.getName(), LogType.ERROR);
+                        });
+                    } else {
+                        files.add(file);
+                    }
+                    if (files.isEmpty()) {
+                        Ds3PanelService.refresh(selectedItem);
+                        return;
+                    }
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
                             settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
                             deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
                     jobWorkers.execute(putJob);
@@ -451,7 +472,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     });
                 }
             } else {
-                alert.showAlert("Operation not allowed here.");
+                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
             }
             event.consume();
         }
@@ -510,7 +531,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     rowNameList.add(row.getTreeItem().getValue().getName());
                     ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
                     if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        if(event.getClickCount() < 2) {
+                        if (event.getClickCount() < 2) {
                             loadMore(row.getTreeItem());
                         }
                     }
