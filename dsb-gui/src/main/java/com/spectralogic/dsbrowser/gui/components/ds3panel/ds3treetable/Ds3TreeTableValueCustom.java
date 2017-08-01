@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 import java.io.Serializable;
@@ -40,6 +41,8 @@ public class Ds3TreeTableValueCustom implements Serializable {
         this.owner = owner;
         this.searchOn = searchOn;
     }
+
+    public boolean isContainer() { return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.Bucket); }
 
     public boolean isSearchOn() {
         return searchOn;
@@ -91,6 +94,7 @@ public class Ds3TreeTableValueCustom implements Serializable {
                 return getParentDir(this.getFullName());
         }
     }
+
 
     private String getParentDir(final String fullName) {
         final int index = fullName.lastIndexOf('/');

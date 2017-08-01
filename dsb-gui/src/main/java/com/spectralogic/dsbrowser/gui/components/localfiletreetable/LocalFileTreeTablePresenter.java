@@ -36,16 +36,11 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -450,7 +445,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final TreeItem<FileTreeModel> fileTreeItem) {
         final Ds3GetJob getJob = new Ds3GetJob(listFiles, localPath, session.getClient(),
                 priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                deepStorageBrowserPresenter, session, resourceBundle, loggingService);
+                deepStorageBrowserPresenter, resourceBundle, loggingService);
         jobWorkers.execute(getJob);
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");

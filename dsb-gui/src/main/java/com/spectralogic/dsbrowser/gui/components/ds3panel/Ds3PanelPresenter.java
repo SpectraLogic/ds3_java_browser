@@ -492,7 +492,7 @@ public class Ds3PanelPresenter implements Initializable {
                         savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
                 final Ds3GetJob getJob = new Ds3GetJob(selectedItemsAtSourceLocationListCustom, localPath, session.getClient(),
                         priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
-                        jobInterruptionStore, deepStorageBrowserPresenter, session, resourceBundle, loggingService);
+                        jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, loggingService);
                 jobWorkers.execute(getJob);
                 getJob.setOnSucceeded(event -> {
                     LOG.info("Succeed");
