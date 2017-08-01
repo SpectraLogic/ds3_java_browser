@@ -17,6 +17,8 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.inject.Inject;
+import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -44,27 +46,32 @@ import java.util.ResourceBundle;
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
     private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
-    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private final ObservableList<SavedSession> sessions;
     private final ResourceBundle resourceBundle;
+    private final BuildInfoService buildInfoService;
     private boolean dirty = false;
 
     private SavedSessionStore(final List<SavedSession> sessionList,
-                              final ResourceBundle resourceBundle) {
-        this.resourceBundle = resourceBundle;
+                              final ResourceBundle resourceBundle,
+                              final BuildInfoService buildInfoService) {
         this.sessions = FXCollections.observableArrayList(sessionList);
         this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
             if (c.next() && (c.wasAdded() || c.wasRemoved())) {
                 dirty = true;
             }
         });
+
+        this.resourceBundle = resourceBundle;
+        this.buildInfoService = buildInfoService;
     }
 
-    public static SavedSessionStore empty(final ResourceBundle resourceBundle) {
-        return new SavedSessionStore(new ArrayList<>(), resourceBundle);
+    public static SavedSessionStore empty(final ResourceBundle resourceBundle,
+                                          final BuildInfoService buildInfoService) {
+        return new SavedSessionStore(new ArrayList<>(), resourceBundle, buildInfoService);
     }
 
-    public static SavedSessionStore loadSavedSessionStore(final ResourceBundle resourceBundle) throws IOException {
+    public static SavedSessionStore loadSavedSessionStore(final ResourceBundle resourceBundle,
+                                                          final BuildInfoService buildInfoService) throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
@@ -75,7 +82,7 @@ public class SavedSessionStore {
             LOG.info("Creating new empty saved session store");
             sessions = new ArrayList<>();
         }
-        return new SavedSessionStore(sessions, resourceBundle);
+        return new SavedSessionStore(sessions, resourceBundle, buildInfoService);
     }
 
     public static void saveSavedSessionStore(final SavedSessionStore sessionStore) throws IOException {
@@ -159,7 +166,7 @@ public class SavedSessionStore {
     public void openDefaultSession(final Ds3SessionStore store) {
         final Optional<SavedSession> savedSessions = getSessions().stream().filter(SavedSession::isDefaultSession).findFirst();
         if (savedSessions.isPresent()) {
-            store.addSession(CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSessions.get(), true), resourceBundle));
+            store.addSession(CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSessions.get(), true), resourceBundle, buildInfoService));
         }
     }
 
