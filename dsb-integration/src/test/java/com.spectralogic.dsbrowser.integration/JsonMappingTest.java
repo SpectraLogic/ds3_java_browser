@@ -35,7 +35,7 @@ public class JsonMappingTest {
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
 
-        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
 
         Assert.assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), CoreMatchers.is(savedSession.getEndpoint()));
         Assert.assertThat(serializedSessionStore.getSessions().get(0).getName(), CoreMatchers.is(savedSession.getName()));
@@ -50,7 +50,7 @@ public class JsonMappingTest {
         final Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
-        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
 
         Assert.assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), CoreMatchers.is(savedSession.getEndpoint()));
         Assert.assertThat(serializedSessionStore.getSessions().get(0).getName(), CoreMatchers.is(savedSession.getName()));

@@ -34,6 +34,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.sun.javafx.util.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +114,7 @@ public class Ds3GetJob extends Ds3JobTask {
         final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
-        ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath));
+        ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
         } catch (final IOException e) {
@@ -144,7 +145,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private void attachListenersToJob(final Instant startTime, final long totalJobSize, final Ds3ClientHelpers.Job job) {
         job.attachObjectCompletedListener(o -> setObjectCompleteListener(o, startTime, totalJobSize));
         job.attachMetadataReceivedListener(this::setMetadataReceivedListener);
-        job.attachWaitingForChunksListener(Ds3GetJob::setWaitingForChunksListener);
+        job.attachWaitingForChunksListener(this::setWaitingForChunksListener);
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize));
     }
 
@@ -225,12 +226,12 @@ public class Ds3GetJob extends Ds3JobTask {
         return jobId;
     }
 
-    private static void setWaitingForChunksListener(final int retryAfterSeconds) {
+    private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
-            LOG.error("", e);
-            e.printStackTrace();
+            LOG.error("Did not receive chunks before timeout", e);
+            loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR);
         }
     }
 
@@ -256,11 +257,14 @@ public class Ds3GetJob extends Ds3JobTask {
         }
     }
 
-    private static void buildEmptyDirectories(final Ds3Object emtpyDir, final Path fileTreePath) {
+    private static void buildEmptyDirectories(final Ds3Object emtpyDir, final Path fileTreePath, final LoggingService loggingService) {
+        final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
         try {
-            Files.createDirectories(fileTreePath.resolve(emtpyDir.getName()));
+            Files.createDirectories(directoryPath);
         } catch (final IOException e) {
-            LOG.error("", e);
+            final String pathString = directoryPath.toString();
+            LOG.error("Could not create " + pathString, e);
+            loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
     }
 }
