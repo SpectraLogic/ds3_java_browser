@@ -152,11 +152,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 });
 
                 //Can not assign final.
-                GetJobSpectraS3Response response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
+                GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
                 if (isCacheJobEnable && filesAndFolderMap.getType().equals(PUT.toString())) {
                     while (!response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
                         Thread.sleep(60000);
-                        response = client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
+                        response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(job.getJobId()));
                     }
                 }
                 loggingService.logMessage(resourceBundle.getString("jobSize")
@@ -185,7 +185,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     }
 
     private void getJob(final FilesAndFolderMap filesAndFolderMap) throws Exception {
-        final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(client, 100);
+        final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);
         if (filesAndFolderMap.getType().equals(PUT.toString())) {
             job = helpers.recoverWriteJob(uuid);
             updateMessage(StringBuilderUtil.getRecoverJobInitiateTransferTo(job.getBucketName()).toString());

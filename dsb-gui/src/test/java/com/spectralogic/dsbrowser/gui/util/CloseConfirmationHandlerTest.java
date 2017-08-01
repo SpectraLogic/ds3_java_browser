@@ -68,7 +68,7 @@ public class CloseConfirmationHandlerTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
             session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             handler = new CloseConfirmationHandler(null, null, null, null, null, jobWorkers, workers);
             final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
