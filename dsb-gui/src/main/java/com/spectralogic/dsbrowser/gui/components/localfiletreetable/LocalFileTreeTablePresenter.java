@@ -132,6 +132,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
 
+    private static boolean isEmptyDirectory(final Path path, final LoggingService loggingService) {
+        try {
+            return Files.isDirectory(path) && Files.list(path).count() == 0;
+        } catch (final IOException exception) {
+            final String errorMessage = "Unable to get folder properties for " + path.getFileName().toString();
+            loggingService.logMessage(errorMessage, LogType.ERROR);
+            LOG.error(errorMessage, exception);
+        }
+        return false;
+    }
+
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
@@ -162,78 +173,74 @@ public class LocalFileTreeTablePresenter implements Initializable {
             event.consume();
         });
         treeTable.setRowFactory(view -> {
-            final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
-                final List<String> rowNameList = new ArrayList<>();
-                row.setOnMouseClicked(event -> {
-                    if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-                        selectMultipleItems(rowNameList, row);
-                    } else if (event.getClickCount() == 2) {
-                        if (row.getTreeItem() != null
-                         && row.getTreeItem().getValue() != null
-                         && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
-                            changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
+                    final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
+                    final List<String> rowNameList = new ArrayList<>();
+                    row.setOnMouseClicked(event -> {
+                        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
+                            selectMultipleItems(rowNameList, row);
+                        } else if (event.getClickCount() == 2) {
+                            if (row.getTreeItem() != null
+                                    && row.getTreeItem().getValue() != null
+                                    && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
+                                changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
+                            }
+                        } else {
+                            treeTable.getSelectionModel().clearAndSelect(row.getIndex());
                         }
-                    } else {
-                        treeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    }
-                });
-                row.setOnDragDropped(event -> {
-                    LOG.info("Drop detected..");
-                    if (row.getTreeItem() != null) {
-                        if (!row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
+                    });
+                    row.setOnDragDropped(event -> {
+                        LOG.info("Drop detected..");
+                        if (row.getTreeItem() != null && !row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
                             LOG.info("Expanding closed row");
                             row.getTreeItem().setExpanded(true);
                         }
-                    }
-                    setDragDropEvent(row, event);
-                    event.consume();
+                        setDragDropEvent(row, event);
+                        event.consume();
 
-                });
-                row.setOnDragOver(event -> {
-                    final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                    if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
-                        event.acceptTransferModes(TransferMode.COPY);
-                        if (treeItem == null) {
-                            if (fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                                event.acceptTransferModes(TransferMode.NONE);
+                    });
+                    row.setOnDragOver(event -> {
+                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                        if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
+                            event.acceptTransferModes(TransferMode.COPY);
+                            if (treeItem == null && fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                                    event.acceptTransferModes(TransferMode.NONE);
                             }
+                            event.consume();
+                        }
+                    });
+                    row.setOnDragEntered(event -> {
+                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                        if (treeItem != null) {
+                            final InnerShadow is = new InnerShadow();
+                            is.setOffsetY(1.0f);
+                            row.setEffect(is);
+                        } else {
+                            event.acceptTransferModes(TransferMode.NONE);
                         }
                         event.consume();
-                    }
-                });
-                row.setOnDragEntered(event -> {
-                    final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                    if (treeItem != null) {
-                        final InnerShadow is = new InnerShadow();
-                        is.setOffsetY(1.0f);
-                        row.setEffect(is);
-                    } else {
-                        event.acceptTransferModes(TransferMode.NONE);
-                    }
-                    event.consume();
-                });
-                row.setOnDragExited(event -> {
-                    row.setEffect(null);
-                    event.consume();
-                });
-                row.setOnDragDetected(event -> {
-                    LOG.info("Drag detected...");
-                    final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
-                    if (!Guard.isNullOrEmpty(selectedItems)) {
-                        LOG.info("Starting drag and drop event");
-                        final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
-                        final ClipboardContent content = new ClipboardContent();
-                        content.putFilesByPath(selectedItems
-                                .stream()
-                                .filter(item -> item.getValue() != null)
-                                .map(i -> i.getValue().getPath().toString())
-                                .collect(Collectors.toList()));
-                        db.setContent(content);
-                    }
-                    event.consume();
-                });
-                return row;
-            }
+                    });
+                    row.setOnDragExited(event -> {
+                        row.setEffect(null);
+                        event.consume();
+                    });
+                    row.setOnDragDetected(event -> {
+                        LOG.info("Drag detected...");
+                        final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
+                        if (!Guard.isNullOrEmpty(selectedItems)) {
+                            LOG.info("Starting drag and drop event");
+                            final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
+                            final ClipboardContent content = new ClipboardContent();
+                            content.putFilesByPath(selectedItems
+                                    .stream()
+                                    .filter(item -> item.getValue() != null)
+                                    .map(i -> i.getValue().getPath().toString())
+                                    .collect(Collectors.toList()));
+                            db.setContent(content);
+                        }
+                        event.consume();
+                    });
+                    return row;
+                }
         );
 
         treeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
@@ -284,6 +291,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return;
             }
             final ObservableList<TreeItem<FileTreeModel>> currentSelection = treeTable.getSelectionModel().getSelectedItems();
+
             if (currentSelection.isEmpty()) {
                 alert.showAlert(resourceBundle.getString("fileSelect"));
                 return;
@@ -326,10 +334,34 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 final String targetDir = value.getDirectoryName();
                 LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
                 final Session session = ds3Common.getCurrentSession();
+
+                currentSelection.stream()
+                        .map(selection -> selection.getValue().getPath())
+                        .filter(path -> isEmptyDirectory(path, loggingService))
+                        .forEach(path -> {
+                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, path.getFileName().toString(), null, loggingService, resourceBundle);
+                            workers.execute(task);
+                            task.setOnSucceeded(e -> {
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                                loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
+                            });
+                            task.setOnFailed(e -> {
+                                loggingService.logMessage("failed to create folder " + path.getFileName().toString(), LogType.ERROR);
+                            });
+                        });
+
                 final ImmutableList<File> files = currentSelection
                         .stream()
-                        .map(i -> new File(i.getValue().getPath().toString()))
+                        .map(i -> i.getValue().getPath())
+                        .filter(path -> !isEmptyDirectory(path, loggingService))
+                        .map(i -> new File(i.toString()))
                         .collect(GuavaCollectors.immutableList());
+
+                if (files.isEmpty()) {
+                    ds3Common.getDs3TreeTableView().refresh();
+                    return;
+                }
+
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
                 startPutJob(session, files, bucket, targetDir, priority,
                         jobInterruptionStore, treeItem);
@@ -343,7 +375,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private void refreshBlackPearlSideItem(final TreeItem<Ds3TreeTableValue> treeItem) {
+    static private void refreshBlackPearlSideItem(final TreeItem<Ds3TreeTableValue> treeItem) {
         if (treeItem instanceof Ds3TreeTableItem) {
             LOG.info("Refresh row");
             final Ds3TreeTableItem ds3TreeTableItem = (Ds3TreeTableItem) treeItem;
@@ -576,8 +608,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (db.hasContent(dataFormat)) {
             LOG.info("Drop event contains files");
 
-            @SuppressWarnings("unchecked")
-            final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
+            @SuppressWarnings("unchecked") final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
             final Session session = getSession(db.getString());
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
             startGetJob(list, session, localPath, priority, null);
