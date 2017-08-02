@@ -15,8 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob_Test;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
@@ -39,8 +39,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getGraphicType() throws Exception {
-        final ClassLoader classLoader = Ds3GetJob_Test.class.getClassLoader();
-        final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
+        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         Path path = null;
         if (url != null) {
             path = new File(url.getFile()).toPath();
@@ -53,8 +52,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getLeaf() throws Exception {
-        final ClassLoader classLoader = Ds3GetJob_Test.class.getClassLoader();
-        final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
+        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         Path path = null;
         if (url != null) {
             path = new File(url.getFile()).toPath();
@@ -66,8 +64,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getGraphicFont() throws Exception {
-        final ClassLoader classLoader = Ds3GetJob_Test.class.getClassLoader();
-        final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER);
+        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         Path path = null;
         if (url != null) {
             path = new File(url.getFile()).toPath();
@@ -83,8 +80,7 @@ public class FileTreeTableItemTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final ClassLoader classLoader = Ds3GetJob_Test.class.getClassLoader();
-                final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER);
+                final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
                 Path path = null;
                 if (url != null) {
                     path = new File(url.getFile()).toPath();
