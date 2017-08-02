@@ -23,11 +23,13 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStrategyBuilder;
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.networking.Metadata;
+import com.spectralogic.ds3client.utils.SeekableByteChannelInputStream;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -109,6 +111,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
         final Instant startTime = Instant.now();
+        final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName());
         final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
@@ -127,7 +130,9 @@ public class Ds3GetJob extends Ds3JobTask {
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
         try {
-            job.transfer(l -> getTransferJob(prefix, ds3Objects, l));
+//            final TransferStrategyBuilder transferStrategyBuilder = new TransferStrategyBuilder();
+            notifyIfOverwriting(fileName);
+            job.transfer(l -> getTransferJob(prefix,l).buildChannel(l));
         } catch (final IOException e) {
             loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
             LOG.error("Unable to transfer Job", e);
@@ -151,22 +156,21 @@ public class Ds3GetJob extends Ds3JobTask {
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize));
     }
 
-    private SeekableByteChannel getTransferJob(final String prefix, final FluentIterable<Ds3Object> obj, final String l) throws IOException {
+    private Ds3ClientHelpers.ObjectChannelBuilder getTransferJob(final String prefix, final String l) throws IOException {
+        final Ds3ClientHelpers.ObjectChannelBuilder objectChannelBuilder;
         final FileObjectGetter fileObjectGetter = new FileObjectGetter(fileTreePath);
-        final String relativePath = l.replaceFirst(prefix, "");
-        notifyIfOverwriting(obj, relativePath);
         if (prefix.isEmpty()) {
-            return fileObjectGetter.buildChannel(l);
+            objectChannelBuilder = fileObjectGetter;
         } else {
-            return new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + "/").buildChannel(l);
+            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + "/");
         }
+        return objectChannelBuilder;
     }
 
-    private void notifyIfOverwriting(final FluentIterable<Ds3Object> ds3Obj, final String relativePath) {
-        loggingService.logMessage(fileTreePath.resolve(relativePath.replaceFirst("/", "")).toString(), LogType.INFO);
-        if (Files.exists(fileTreePath.resolve(relativePath.replaceFirst("/", "")))) {
+    private void notifyIfOverwriting(final String name) {
+        if (Files.exists(fileTreePath.resolve(name))) {
             loggingService.logMessage(resourceBundle.getString("fileOverridden")
-                    + StringConstants.SPACE + ds3Obj + StringConstants.SPACE
+                    + StringConstants.SPACE + name + StringConstants.SPACE
                     + resourceBundle.getString("to")
                     + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
         }
