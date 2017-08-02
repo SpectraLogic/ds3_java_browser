@@ -42,7 +42,7 @@ public class SavedSessionStoreTest {
         new JFXPanel();
         Platform.runLater(() -> {
             savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
             latch.countDown();
         });
@@ -59,7 +59,7 @@ public class SavedSessionStoreTest {
     public void saveSavedSessionStoreTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
         savedSession = new SavedSession("NewSession1", SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
         final int previousSize = savedSessionStore.getSessions().size();
         savedSessionStore.getSessions().add(savedSession);
         SavedSessionStore.saveSavedSessionStore(savedSessionStore);

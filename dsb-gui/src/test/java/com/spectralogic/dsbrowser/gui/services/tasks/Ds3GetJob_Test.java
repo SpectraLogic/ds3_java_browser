@@ -60,7 +60,7 @@ public class Ds3GetJob_Test {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
             // pre assuming that file is the direct child of bucket
             final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
@@ -80,7 +80,7 @@ public class Ds3GetJob_Test {
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
-                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common);
+                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, deepStorageBrowserPresenter);
                 taskProgressView.getTasks().add(ds3GetJob);
             } catch (final IOException io) {
                 io.printStackTrace();

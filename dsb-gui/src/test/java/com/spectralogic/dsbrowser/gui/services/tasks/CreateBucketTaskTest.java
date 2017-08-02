@@ -44,7 +44,7 @@ public class CreateBucketTaskTest {
     public void setUp() throws Exception {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
         });
     }

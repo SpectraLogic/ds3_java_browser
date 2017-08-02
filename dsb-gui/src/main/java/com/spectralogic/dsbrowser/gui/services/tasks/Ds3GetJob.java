@@ -34,7 +34,6 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
-import com.sun.javafx.util.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,13 +121,16 @@ public class Ds3GetJob extends Ds3JobTask {
             loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
             return;
         }
-        jobId = job.getJobId();
+        if (job != null) {
+            jobId = job.getJobId();
+        }
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
         try {
             job.transfer(l -> getTransferJob(prefix, ds3Objects, l));
         } catch (final IOException e) {
-            e.printStackTrace();
+            loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
+            LOG.error("Unable to transfer Job", e);
         }
         updateUI(totalJobSize);
     }
@@ -161,6 +163,7 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private void notifyIfOverwriting(final FluentIterable<Ds3Object> ds3Obj, final String relativePath) {
+        loggingService.logMessage(fileTreePath.resolve(relativePath.replaceFirst("/", "")).toString(), LogType.INFO);
         if (Files.exists(fileTreePath.resolve(relativePath.replaceFirst("/", "")))) {
             loggingService.logMessage(resourceBundle.getString("fileOverridden")
                     + StringConstants.SPACE + ds3Obj + StringConstants.SPACE
@@ -228,6 +231,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
+            loggingService.logMessage("Attempting Retry", LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
             LOG.error("Did not receive chunks before timeout", e);

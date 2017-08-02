@@ -66,7 +66,7 @@ public class Ds3PutJobTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
             final ClassLoader classLoader = Ds3PutJobTest.class.getClassLoader();
             final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);

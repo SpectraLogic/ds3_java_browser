@@ -66,7 +66,7 @@ public class RecoverInterruptedJobTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
                 session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);

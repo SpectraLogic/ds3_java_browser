@@ -63,8 +63,8 @@ public class ParseJobInterruptionMapTest {
         Platform.runLater(() -> {
             try {
                 //Initiating session
-                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false),);
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 //Loading resource file
