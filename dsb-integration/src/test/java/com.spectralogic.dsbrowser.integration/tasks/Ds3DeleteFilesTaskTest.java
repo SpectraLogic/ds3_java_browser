@@ -53,7 +53,7 @@ public class Ds3DeleteFilesTaskTest {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME,
                     SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null,
                     new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
-                    false);
+                    false, false);
             session = new CreateConnectionTask().createConnection(
                     SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });

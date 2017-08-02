@@ -30,7 +30,7 @@ public class SessionModelServiceTest {
     public void createDefaultSessionTest() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), true);
+                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), true, false);
         final NewSessionModel newSessionModel = SessionModelService.setSessionModel(savedSession,false);
         if (!savedSession.isDefaultSession().equals(newSessionModel.getDefaultSession())) {
             successFlag = true;
