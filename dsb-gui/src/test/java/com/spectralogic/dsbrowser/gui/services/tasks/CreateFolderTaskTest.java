@@ -15,12 +15,15 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
+import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -30,6 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -39,6 +44,8 @@ public class CreateFolderTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final LoggingService loggingService = new LoggingServiceImpl();
 
     @Before
     public void setUp() {
@@ -46,7 +53,7 @@ public class CreateFolderTaskTest {
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
                     null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 
@@ -62,9 +69,8 @@ public class CreateFolderTaskTest {
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
                         createFolderModel.getBucketName());
                 //Instantiating create folder task
-                final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel,
-                        folderName, PathUtil.getDs3ObjectList(location, folderName),
-                        null, null);
+                final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(), createFolderModel.getBucketName(),
+                        folderName, PathUtil.getDs3ObjectList(location, folderName), loggingService, resourceBundle);
                 workers.execute(createFolderTask);
                 //Validating test case
                 createFolderTask.setOnSucceeded(event -> {
