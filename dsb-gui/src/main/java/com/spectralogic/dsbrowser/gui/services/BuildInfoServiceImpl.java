@@ -32,8 +32,8 @@ public class BuildInfoServiceImpl implements BuildInfoService{
     private static final String buildPropertiesVersion = "version";
     private static final String buildPropertiesDate = "build.date";
 
-    static final String dateTimeFormatterPattern = "EEE MMM dd kk:mm:ss z yyyy";  // build.date="Wed Mar 15 11:10:25 MDT 2017"
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateTimeFormatterPattern);
+    static final String dateTimeFormatterPattern = "EEE MMM dd kk:mm:ss zzz yyyy";  // build.date="Wed Mar 15 11:10:25 MDT 2017"
+    static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateTimeFormatterPattern);
 
     private final String buildVersion;
     private final LocalDateTime buildDateTime;

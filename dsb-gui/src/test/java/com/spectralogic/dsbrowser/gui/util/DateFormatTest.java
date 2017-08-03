@@ -28,7 +28,7 @@ public class DateFormatTest {
     public void formatDateTest() throws Exception {
         final Date date = new Date(1485757788120l);
         final String formatedDate = DateFormat.formatDate(date);
-        assertThat(formatedDate, is("1/30/2017 11:59:48"));
+        assertThat(formatedDate, is("1/29/2017 23:29:48"));
     }
 
     @Test
