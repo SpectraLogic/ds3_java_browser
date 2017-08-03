@@ -20,8 +20,6 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.spectralogic.ds3client.networking.Metadata;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;

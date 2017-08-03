@@ -30,11 +30,11 @@ import org.junit.Test;
 import org.reactfx.collection.LiveArrayList;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class SavedSessionStoreTest {
     private static Session session;

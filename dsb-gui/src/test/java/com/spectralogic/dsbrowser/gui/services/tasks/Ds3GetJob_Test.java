@@ -15,8 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -24,8 +22,6 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
-import com.spectralogic.dsbrowser.gui.injector.providers.ResourceBundleProvider;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -48,7 +44,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

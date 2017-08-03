@@ -16,8 +16,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;

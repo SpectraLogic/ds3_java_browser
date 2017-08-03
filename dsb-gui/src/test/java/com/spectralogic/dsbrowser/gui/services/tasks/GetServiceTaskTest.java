@@ -18,8 +18,6 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;

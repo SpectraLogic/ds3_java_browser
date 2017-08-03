@@ -16,8 +16,8 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
-import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;

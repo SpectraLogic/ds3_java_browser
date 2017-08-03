@@ -14,6 +14,7 @@
  */
 
 package com.spectralogic.dsbrowser.gui.services.newSessionService;
+
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
@@ -21,6 +22,7 @@ import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+
 import static org.junit.Assert.assertTrue;
 
 public class SessionModelServiceTest {

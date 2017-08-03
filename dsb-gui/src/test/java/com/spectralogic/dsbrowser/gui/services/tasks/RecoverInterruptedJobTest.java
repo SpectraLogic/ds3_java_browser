@@ -16,12 +16,10 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;

@@ -15,37 +15,22 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.JobRequestType;
-import com.spectralogic.ds3client.models.Priority;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
-import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.URL;

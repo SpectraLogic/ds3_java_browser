@@ -16,9 +16,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.ds3client.models.JobRequestType;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -27,7 +24,6 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJobTest;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
