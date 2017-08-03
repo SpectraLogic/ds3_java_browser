@@ -28,10 +28,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
+
 
 public class FileTreeTableItemTest {
 
@@ -39,11 +39,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getGraphicType() throws Exception {
-        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        Path path = null;
-        if (url != null) {
-            path = new File(url.getFile()).toPath();
-        }
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers());
@@ -52,11 +48,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getLeaf() throws Exception {
-        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        Path path = null;
-        if (url != null) {
-            path = new File(url.getFile()).toPath();
-        }
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
         Assert.assertTrue(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).isLeaf());
@@ -64,11 +56,7 @@ public class FileTreeTableItemTest {
 
     @Test
     public void getGraphicFont() throws Exception {
-        final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        Path path = null;
-        if (url != null) {
-            path = new File(url.getFile()).toPath();
-        }
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
         Assert.assertNotNull(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).getGraphicFont(fileTreeModel));
@@ -80,22 +68,19 @@ public class FileTreeTableItemTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final URL url = ResourceUtils.class.getClassLoader().getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-                Path path = null;
-                if (url != null) {
-                    path = new File(url.getFile()).toPath();
-                }
+                final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER);
+                final File testFolder = path.toFile();
+                final int numFiles = testFolder.list().length;
                 final FileTreeTableProvider fileTreeTableProvider = new FileTreeTableProvider();
                 final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
                 final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers());
                 fileTreeTableItem.refresh();
                 final ObservableList<TreeItem<FileTreeModel>> children = fileTreeTableItem.getChildren();
-                if (children.size() == path.toFile().list().length) {
+                if (children.size() == numFiles) {
                     successFlag = true;
                 }
                 latch.countDown();
-            }
-            catch (final Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
