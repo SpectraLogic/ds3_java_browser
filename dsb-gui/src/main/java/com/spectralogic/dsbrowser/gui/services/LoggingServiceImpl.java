@@ -19,6 +19,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import org.slf4j.Logger;
 
 public class LoggingServiceImpl implements LoggingService {
     private final PublishSubject<LogEvent> subject  = PublishSubject.create();
@@ -32,4 +33,12 @@ public class LoggingServiceImpl implements LoggingService {
     public void logMessage(final String message, final LogType logType) {
         subject.onNext(new LogEvent(message, logType)); // log an event to all subscribers (in our case: DeepStorageBrowserPresenter::logText())
     }
+
+
+    @Override
+    public void showAndLogErrror (final String message, final Logger log, final Exception e) {
+        logMessage(message,LogType.ERROR);
+        log.error(message,e);
+    }
+
 }

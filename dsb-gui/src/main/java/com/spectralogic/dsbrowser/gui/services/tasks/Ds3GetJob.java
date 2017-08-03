@@ -23,13 +23,11 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
-import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStrategyBuilder;
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl;
 import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.networking.Metadata;
-import com.spectralogic.ds3client.utils.SeekableByteChannelInputStream;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -40,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -112,16 +109,16 @@ public class Ds3GetJob extends Ds3JobTask {
     private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
+        final String fullName = selectedItem.getFullName();
         final String prefix = getParent(selectedItem.getFullName());
-        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
+        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, fullName);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
         ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
         } catch (final IOException e) {
-            LOG.error("Unable to get Jobs", e);
-            loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
+            loggingService.showAndLogErrror("Unable to get jobs from Black Pearl", LOG, e);
             return;
         }
         if (job != null) {
@@ -129,13 +126,11 @@ public class Ds3GetJob extends Ds3JobTask {
         }
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
+        notifyIfOverwriting(fileName);
         try {
-//            final TransferStrategyBuilder transferStrategyBuilder = new TransferStrategyBuilder();
-            notifyIfOverwriting(fileName);
             job.transfer(l -> getTransferJob(prefix,l).buildChannel(l));
-        } catch (final IOException e) {
-            loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
-            LOG.error("Unable to transfer Job", e);
+        } catch (final IOException | NullPointerException e) {
+            loggingService.showAndLogErrror("Unable to transfer job", LOG, e);
         }
         updateUI(totalJobSize);
     }
@@ -208,7 +203,7 @@ public class Ds3GetJob extends Ds3JobTask {
         try {
             metadataReceivedListener.metadataReceived(string, metadata);
         } catch (final Exception e) {
-            LOG.error("Error in metadata receiving", e);
+            loggingService.showAndLogErrror("Error in receiving metadata", LOG, e);
         }
     }
 
@@ -218,14 +213,14 @@ public class Ds3GetJob extends Ds3JobTask {
                 .sum();
     }
 
-    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
-        Iterable<Contents> c;
+    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final String fullName) {
+        Iterable<Contents> contentsIterator;
         try {
-            c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
+            contentsIterator = wrappedDs3Client.listObjects(bucketName, fullName);
         } catch (final IOException e) {
-            c = FluentIterable.from(new Contents[0]);
+            contentsIterator = FluentIterable.from(new Contents[0]);
         }
-        return FluentIterable.from(c).transform(contents -> new Ds3Object(contents.getKey(), contents.getSize()));
+        return FluentIterable.from(contentsIterator).transform(contents -> new Ds3Object(contents.getKey(), contents.getSize()));
     }
 
     @Override
@@ -238,8 +233,7 @@ public class Ds3GetJob extends Ds3JobTask {
             loggingService.logMessage("Attempting Retry", LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
-            LOG.error("Did not receive chunks before timeout", e);
-            loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR);
+            loggingService.showAndLogErrror("Did not receive chunks before timeout", LOG, e);
         }
     }
 
@@ -271,8 +265,7 @@ public class Ds3GetJob extends Ds3JobTask {
             Files.createDirectories(directoryPath);
         } catch (final IOException e) {
             final String pathString = directoryPath.toString();
-            LOG.error("Could not create " + pathString, e);
-            loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
+            loggingService.showAndLogErrror("Could not create " + pathString, LOG, e);
         }
     }
 }
