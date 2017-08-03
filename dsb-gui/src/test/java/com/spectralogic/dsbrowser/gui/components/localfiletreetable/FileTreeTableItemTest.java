@@ -38,31 +38,6 @@ public class FileTreeTableItemTest {
     private boolean successFlag =  false;
 
     @Test
-    public void getGraphicType() throws Exception {
-        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
-        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
-        final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers());
-        Assert.assertNotNull(fileTreeTableItem.getGraphicType(fileTreeModel));
-    }
-
-    @Test
-    public void getLeaf() throws Exception {
-        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
-        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
-        Assert.assertTrue(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).isLeaf());
-    }
-
-    @Test
-    public void getGraphicFont() throws Exception {
-        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
-        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
-        Assert.assertNotNull(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).getGraphicFont(fileTreeModel));
-    }
-
-    @Test
     public void refresh() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
@@ -88,5 +63,32 @@ public class FileTreeTableItemTest {
         latch.await();
         Assert.assertTrue(successFlag);
     }
+
+    @Test
+    public void getGraphicType() throws Exception {
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
+        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
+        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
+        final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers());
+        Assert.assertNotNull(fileTreeTableItem.getGraphicType(fileTreeModel));
+    }
+
+    @Test
+    public void getLeaf() throws Exception {
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
+        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
+        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
+        Assert.assertTrue(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).isLeaf());
+    }
+
+    @Test
+    public void getGraphicFont() throws Exception {
+        final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
+        final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
+        final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
+        Assert.assertNotNull(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers()).getGraphicFont(fileTreeModel));
+    }
+
+
 
 }
