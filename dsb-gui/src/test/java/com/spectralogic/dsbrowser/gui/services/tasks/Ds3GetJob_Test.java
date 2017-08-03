@@ -19,17 +19,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
+import com.spectralogic.dsbrowser.gui.injector.providers.ResourceBundleProvider;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
+import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
@@ -43,7 +47,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -55,13 +61,15 @@ public class Ds3GetJob_Test {
     private static Session session;
     private static Ds3GetJob ds3GetJob;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final LoggingService loggingService = new LoggingServiceImpl();
 
     @BeforeClass
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             // pre assuming that file is the direct child of bucket
             final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
             final ArrayList<Ds3TreeTableValueCustom> listTreeTable = new ArrayList();
@@ -80,7 +88,7 @@ public class Ds3GetJob_Test {
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             try {
-                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), ds3Common, deepStorageBrowserPresenter);
+                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, resourceBundle, loggingService);
                 taskProgressView.getTasks().add(ds3GetJob);
             } catch (final IOException io) {
                 io.printStackTrace();
@@ -110,93 +118,6 @@ public class Ds3GetJob_Test {
             }
         });
         latch.await(20, TimeUnit.SECONDS);
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void createFileMap() throws Exception {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableMap fileMap = ds3GetJob.createFileMap(listItems).build();
-                if (fileMap.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void createFolderMap() throws Exception {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FOLDER, Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableMap fileMap = ds3GetJob.createFolderMap(listItems).build();
-                if (fileMap.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void getDs3Object() throws Exception {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FOLDER, Ds3TreeTableValue.Type.Directory, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
-                if (ds3ObjectList.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void addAllDescendants() throws Exception {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_FILES, Ds3TreeTableValue.Type.File, 3718, "2/07/2017 10:28:17", "spectra", false);
-                final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
-
-                itemList.add(ds3TreeTableValueCustomFile);
-                final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);
-                if (childMap.size() == 0 || (childMap.size() == 1 && childMap.get(SessionConstants.ALREADY_EXIST_FILES) == null)) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
-            }
-        });
-        countDownLatch.await();
         assertTrue(successFlag);
     }
 
