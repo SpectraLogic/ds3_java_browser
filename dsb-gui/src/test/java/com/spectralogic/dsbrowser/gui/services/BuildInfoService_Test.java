@@ -28,8 +28,6 @@ public class BuildInfoService_Test {
     public void parseDateString() {
         final String buildDate = "Wed Mar 15 11:10:25 MDT 2017";
         final LocalDateTime ldt = LocalDateTime.parse(buildDate, BuildInfoServiceImpl.dtf);
-        final String formattedDate = ldt.format(BuildInfoServiceImpl.dtf);
-        //final String formattedDate = ldt.format(BuildInfoServiceImpl.dtf);
-        assertThat(formattedDate, is(buildDate));
+        assertThat(ldt.toString(), is("2017-03-15T11:10:25"));
     }
 }
