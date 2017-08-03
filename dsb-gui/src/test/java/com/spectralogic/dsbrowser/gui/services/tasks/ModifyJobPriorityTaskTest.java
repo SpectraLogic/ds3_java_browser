@@ -17,7 +17,9 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
+import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -25,6 +27,7 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
@@ -32,9 +35,7 @@ import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.TestCase.assertTrue;
@@ -43,6 +44,7 @@ public class ModifyJobPriorityTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Before
     public void setUp() throws Exception {
@@ -53,7 +55,7 @@ public class ModifyJobPriorityTaskTest {
                     new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
                     false, false);
             session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false));
+                    SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 

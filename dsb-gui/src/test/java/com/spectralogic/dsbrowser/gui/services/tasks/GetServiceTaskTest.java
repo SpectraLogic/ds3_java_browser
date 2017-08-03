@@ -19,11 +19,13 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter;
+import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -34,6 +36,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -43,6 +47,7 @@ public class GetServiceTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Before
     public void setUp() throws Exception {
@@ -50,7 +55,7 @@ public class GetServiceTaskTest {
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
                     null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false, false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 
@@ -64,7 +69,7 @@ public class GetServiceTaskTest {
                         Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(getServiceTask);
                 getServiceTask.setOnSucceeded(event -> {
-                    successFlag=true;
+                    successFlag = true;
                     latch.countDown();
                 });
                 getServiceTask.setOnFailed(event -> {
@@ -73,12 +78,12 @@ public class GetServiceTaskTest {
                 getServiceTask.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            }catch (final Exception e){
+            } catch (final Exception e) {
                 e.printStackTrace();
                 latch.countDown();
             }
-            });
-            latch.await();
-            assertTrue(successFlag);
-        }
+        });
+        latch.await();
+        assertTrue(successFlag);
     }
+}

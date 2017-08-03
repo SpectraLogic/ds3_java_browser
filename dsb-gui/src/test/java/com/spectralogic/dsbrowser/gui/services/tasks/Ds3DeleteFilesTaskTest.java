@@ -22,6 +22,7 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
@@ -32,9 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -45,6 +44,7 @@ public class Ds3DeleteFilesTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Before
     public void setUp() {
@@ -55,7 +55,7 @@ public class Ds3DeleteFilesTaskTest {
                     new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
                     false, false);
             session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false));
+                    SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 

@@ -20,12 +20,15 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.TestCase.assertTrue;
@@ -35,6 +38,7 @@ public class Ds3DeleteBucketTaskTest {
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Before
     public void setUp() throws Exception {
@@ -43,9 +47,9 @@ public class Ds3DeleteBucketTaskTest {
             final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME,
                     SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null,
                     new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
-                    false);
+                    false, false);
             session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false));
+                    SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 

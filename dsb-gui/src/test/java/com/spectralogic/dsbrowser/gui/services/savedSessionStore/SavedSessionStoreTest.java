@@ -75,34 +75,6 @@ public class SavedSessionStoreTest {
     }
 
     @Test
-    public void saveSessionTest() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final SavedSessionStore savedSessionStore1 = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-                savedSessionStore1.saveSession(session);
-                final SavedSessionStore savedSessionStore2 = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-                final Optional<SavedSession> session = savedSessionStore2.getSessions().stream().filter(savedSession ->
-                        savedSession.getName().equals(SessionConstants.SESSION_NAME)).findFirst();
-                successFlag = null != session;
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void isSessionUpdatedTest() throws Exception {
-        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-        session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
-        assertFalse(savedSessionStore.isSessionUpdated(savedSession, session));
-    }
-
-    @Test
     public void containsSessionNameTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
         assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), SessionConstants.SESSION_NAME));
