@@ -26,6 +26,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 public class PathUtil_Test {
     @Test
@@ -48,6 +49,7 @@ public class PathUtil_Test {
 
     @Test
     public void convertWindowsPaths() {
+        assumeTrue(System.getProperty("os.name").startsWith("Windows"));
         final String result = PathUtil.toDs3Obj(Paths.get("\\parent\\path\\"), Paths.get("\\parent\\path\\subdir\\file.txt"));
         assertThat(result, is("subdir/file.txt"));
     }
