@@ -109,16 +109,16 @@ public class Ds3GetJob extends Ds3JobTask {
     private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
-        final String fullName = selectedItem.getFullName();
         final String prefix = getParent(selectedItem.getFullName());
-        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, fullName);
+        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
         ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
         } catch (final IOException e) {
-            loggingService.showAndLogErrror("Unable to get jobs from Black Pearl", LOG, e);
+            LOG.error("Unable to get Jobs", e);
+            loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
             return;
         }
         if (job != null) {
@@ -126,11 +126,12 @@ public class Ds3GetJob extends Ds3JobTask {
         }
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
-        notifyIfOverwriting(fileName);
         try {
+            notifyIfOverwriting(fileName);
             job.transfer(l -> getTransferJob(prefix).buildChannel(l));
-        } catch (final IOException | NullPointerException e) {
-            loggingService.showAndLogErrror("Unable to transfer job", LOG, e);
+        } catch (final IOException e) {
+            loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
+            LOG.error("Unable to transfer Job", e);
         }
         updateUI(totalJobSize);
     }
@@ -203,7 +204,7 @@ public class Ds3GetJob extends Ds3JobTask {
         try {
             metadataReceivedListener.metadataReceived(string, metadata);
         } catch (final Exception e) {
-            loggingService.showAndLogErrror("Error in receiving metadata", LOG, e);
+            LOG.error("Error in metadata receiving", e);
         }
     }
 
@@ -213,14 +214,14 @@ public class Ds3GetJob extends Ds3JobTask {
                 .sum();
     }
 
-    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final String fullName) {
-        Iterable<Contents> contentsIterator;
+    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
+        Iterable<Contents> c;
         try {
-            contentsIterator = wrappedDs3Client.listObjects(bucketName, fullName);
+            c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
         } catch (final IOException e) {
-            contentsIterator = FluentIterable.from(new Contents[0]);
+            c = FluentIterable.from(new Contents[0]);
         }
-        return FluentIterable.from(contentsIterator).transform(contents -> new Ds3Object(contents.getKey(), contents.getSize()));
+        return FluentIterable.from(c).transform(contents -> new Ds3Object(contents.getKey(), contents.getSize()));
     }
 
     @Override
@@ -233,7 +234,8 @@ public class Ds3GetJob extends Ds3JobTask {
             loggingService.logMessage("Attempting Retry", LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
-            loggingService.showAndLogErrror("Did not receive chunks before timeout", LOG, e);
+            LOG.error("Did not receive chunks before timeout", e);
+            loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR);
         }
     }
 
@@ -247,18 +249,15 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(final String path) {
-        final String resultantString;
+    private static String getParent(String path) {
         if (path.endsWith("/")) {
-            resultantString = path.substring(0, path.length() - 1);
-        } else{
-            resultantString = path;
+            path = path.substring(0, path.length() - 1);
         }
-        final int lastIndexOf = resultantString.lastIndexOf('/');
+        final int lastIndexOf = path.lastIndexOf('/');
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return resultantString.substring(0, lastIndexOf);
+            return path.substring(0, lastIndexOf);
         }
     }
 
@@ -268,7 +267,8 @@ public class Ds3GetJob extends Ds3JobTask {
             Files.createDirectories(directoryPath);
         } catch (final IOException e) {
             final String pathString = directoryPath.toString();
-            loggingService.showAndLogErrror("Could not create " + pathString, LOG, e);
+            LOG.error("Could not create " + pathString, e);
+            loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
     }
 }

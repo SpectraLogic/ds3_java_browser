@@ -7,8 +7,6 @@ public interface LoggingService {
     Observable<LogEvent> getLoggerObservable();
     void logMessage(final String message, final LogType logType);
 
-    void showAndLogErrror(final String message, final Logger log, final Exception e);
-
     class LogEvent {
         private final String message;
         private final LogType logType;

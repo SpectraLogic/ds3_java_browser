@@ -34,11 +34,4 @@ public class LoggingServiceImpl implements LoggingService {
         subject.onNext(new LogEvent(message, logType)); // log an event to all subscribers (in our case: DeepStorageBrowserPresenter::logText())
     }
 
-
-    @Override
-    public void showAndLogErrror (final String message, final Logger log, final Exception e) {
-        logMessage(message,LogType.ERROR);
-        log.error(message,e);
-    }
-
 }
