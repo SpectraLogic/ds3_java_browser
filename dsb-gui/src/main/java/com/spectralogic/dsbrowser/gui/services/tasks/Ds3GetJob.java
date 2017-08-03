@@ -128,7 +128,7 @@ public class Ds3GetJob extends Ds3JobTask {
         attachListenersToJob(startTime, totalJobSize, job);
         notifyIfOverwriting(fileName);
         try {
-            job.transfer(l -> getTransferJob(prefix,l).buildChannel(l));
+            job.transfer(l -> getTransferJob(prefix).buildChannel(l));
         } catch (final IOException | NullPointerException e) {
             loggingService.showAndLogErrror("Unable to transfer job", LOG, e);
         }
@@ -151,7 +151,7 @@ public class Ds3GetJob extends Ds3JobTask {
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize));
     }
 
-    private Ds3ClientHelpers.ObjectChannelBuilder getTransferJob(final String prefix, final String l) throws IOException {
+    private Ds3ClientHelpers.ObjectChannelBuilder getTransferJob(final String prefix) throws IOException {
         final Ds3ClientHelpers.ObjectChannelBuilder objectChannelBuilder;
         final FileObjectGetter fileObjectGetter = new FileObjectGetter(fileTreePath);
         if (prefix.isEmpty()) {
@@ -247,15 +247,18 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(String path) {
+    private static String getParent(final String path) {
+        final String resultantString;
         if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
+            resultantString = path.substring(0, path.length() - 1);
+        } else{
+            resultantString = path;
         }
-        final int lastIndexOf = path.lastIndexOf('/');
+        final int lastIndexOf = resultantString.lastIndexOf('/');
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return path.substring(0, lastIndexOf);
+            return resultantString.substring(0, lastIndexOf);
         }
     }
 
