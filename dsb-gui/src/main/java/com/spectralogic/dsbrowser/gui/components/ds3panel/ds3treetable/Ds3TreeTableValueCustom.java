@@ -42,7 +42,7 @@ public class Ds3TreeTableValueCustom implements Serializable {
         this.searchOn = searchOn;
     }
 
-    public boolean isContainer() { return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.Bucket); }
+    public boolean isContainer() { return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File); }
 
     public boolean isSearchOn() {
         return searchOn;

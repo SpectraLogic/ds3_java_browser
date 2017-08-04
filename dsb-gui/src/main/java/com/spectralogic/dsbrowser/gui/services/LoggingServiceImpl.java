@@ -19,7 +19,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import org.slf4j.Logger;
 
 public class LoggingServiceImpl implements LoggingService {
     private final PublishSubject<LogEvent> subject  = PublishSubject.create();

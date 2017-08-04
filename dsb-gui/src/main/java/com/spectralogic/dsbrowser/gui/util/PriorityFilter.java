@@ -17,10 +17,6 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.ds3client.models.Priority;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public final class PriorityFilter {
 
     /*
