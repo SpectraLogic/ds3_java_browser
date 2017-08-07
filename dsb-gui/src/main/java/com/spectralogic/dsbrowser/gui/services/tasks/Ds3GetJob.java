@@ -87,6 +87,10 @@ public class Ds3GetJob extends Ds3JobTask {
         return (object.getSize() == 0) && (object.getName().endsWith("/"));
     }
 
+    private static boolean isFullDirectory(final Ds3Object object) {
+        return !isEmptyDirectory(object);
+    }
+
     @SuppressWarnings("Guava")
     @Override
     public void executeJob() throws Exception {
@@ -113,9 +117,10 @@ public class Ds3GetJob extends Ds3JobTask {
         final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
-        ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
+        ds3Objects.filter(Ds3GetJob::isEmptyDirectory)
+                .forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
-            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
+            job = getJobFromIterator(bucketName, ds3Objects.filter(Ds3GetJob::isFullDirectory));
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
             loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
