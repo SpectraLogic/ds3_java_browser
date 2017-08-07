@@ -57,10 +57,10 @@ public final class CreateConnectionTask {
             return new Session(newSessionModel.getSessionName(), newSessionModel.getEndpoint(), newSessionModel.getPortNo(), newSessionModel.getProxyServer(), client, newSessionModel.getDefaultSession(),
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
-            LOG.error("Invalid Endpoint Server Name or IP Address: ", e);
+            LOG.error("Invalid Endpoint Server Name or IP Address", e);
             alert.showAlert(resourceBundle.getString("invalidEndpointMessage"));
         } catch (final FailedRequestUsingMgmtPortException e) {
-            LOG.error("Attempted data access on management port -- check endpoint: ", e);
+            LOG.error("Attempted data access on management port -- check endpoint", e);
             alert.showAlert(resourceBundle.getString("checkEndpoint"));
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
@@ -68,21 +68,21 @@ public final class CreateConnectionTask {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
                     alert.showAlert(resourceBundle.getString("failToAuthenticateMessage"));
                 } else {
-                    LOG.error("Invalid Access ID or Secret Key: ", e);
+                    LOG.error("Invalid Access ID or Secret Key", e);
                     alert.showAlert(resourceBundle.getString("invalidIDKEYMessage"));
                 }
             } else if (e.getStatusCode() == 301) {
-                LOG.error("BlackPearl return an unexpected status code, indicating we are attempting to make a data path request on the Management port: ", e);
+                LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
                 alert.showAlert(resourceBundle.getString("invalidEndpointMessage"));
             } else {
-                LOG.error("BlackPearl return an unexpected status code: ", e);
+                LOG.error("BlackPearl returned an unexpected status code", e);
                 alert.showAlert(resourceBundle.getString("unexpectedStatusMessage"));
             }
         } catch (final IOException ioe) {
-            LOG.error("Encountered a networking error: ", ioe);
+            LOG.error("Encountered a networking error", ioe);
             alert.showAlert(resourceBundle.getString("networkErrorMessage"));
         } catch (final RuntimeException rte) {
-            LOG.error("Something went wrong: ", rte);
+            LOG.error("Something went wrong", rte);
             alert.showAlert(resourceBundle.getString("authenticationAlert"));
         }
         return null;
