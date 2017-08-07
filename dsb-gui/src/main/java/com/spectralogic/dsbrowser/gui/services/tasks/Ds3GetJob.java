@@ -128,7 +128,11 @@ public class Ds3GetJob extends Ds3JobTask {
         attachListenersToJob(startTime, totalJobSize, job);
         try {
             notifyIfOverwriting(fileName);
-            job.transfer(l -> getTransferJob(prefix).buildChannel(l));
+            if (job != null) {
+                job.transfer(getTransferJob(prefix));
+            } else {
+                throw new IOException("Something went wrong getting the job");
+            }
         } catch (final IOException e) {
             loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
             LOG.error("Unable to transfer Job", e);
@@ -219,9 +223,17 @@ public class Ds3GetJob extends Ds3JobTask {
         try {
             c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
         } catch (final IOException e) {
+            LOG.error("Failed to list objects", e);
+            loggingService.logMessage("Failed to list objects for " + bucketName, LogType.ERROR);
             c = FluentIterable.from(new Contents[0]);
         }
-        return FluentIterable.from(c).transform(contents -> new Ds3Object(contents.getKey(), contents.getSize()));
+        return FluentIterable.from(c).transform(contents -> {
+            if (contents != null) {
+                return new Ds3Object(contents.getKey(), contents.getSize());
+            } else  {
+                return null;
+            }
+        });
     }
 
     @Override
