@@ -261,15 +261,18 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(String path) {
+    private static String getParent(final String path) {
+        final String resultPath;
         if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
+            resultPath = path.substring(0, path.length() - 1);
+        } else {
+            resultPath = path;
         }
-        final int lastIndexOf = path.lastIndexOf('/');
+        final int lastIndexOf = resultPath.lastIndexOf('/');
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return path.substring(0, lastIndexOf);
+            return resultPath.substring(0, lastIndexOf);
         }
     }
 
