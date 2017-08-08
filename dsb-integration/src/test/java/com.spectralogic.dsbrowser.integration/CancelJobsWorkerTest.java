@@ -16,8 +16,10 @@
 package com.spectralogic.dsbrowser.integration;
 
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -35,6 +37,9 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -42,7 +47,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -59,6 +65,11 @@ public class CancelJobsWorkerTest {
     private static JobInterruptionStore jobInterruptionStore;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private final static String testFolder = "files/";
+    private final static String testFile = "SampleFiles.txt";
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final String TEST_ENV_NAME = "CancelJobsWorkerTest";
+    private final static String bucketName = "CancelJobsWorkerTestBucket";
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -67,16 +78,28 @@ public class CancelJobsWorkerTest {
         Platform.runLater(() -> {
             try {
                 //Initiating session
-                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+                final SavedSession savedSession = new SavedSession(
+                        TEST_ENV_NAME,
+                        client.getConnectionDetails().getEndpoint(),
+                        "80",
+                        null,
+                        new SavedCredentials(
+                                client.getConnectionDetails().getCredentials().getClientId(),
+                                client.getConnectionDetails().getCredentials().getKey()),
+                        false,
+                        false);
                 session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
                 //Loading resource file
-                final ClassLoader classLoader = ParseJobInterruptionMapTest.class.getClassLoader();
-                final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-                if (url != null) {
-                    CancelJobsWorkerTest.file = new File(url.getFile());
+                final Path path;
+                try {
+                    path = ResourceUtils.loadFileResource(testFolder + testFile);
+                    CancelJobsWorkerTest.file = path.toFile();
+                } catch (URISyntaxException | FileNotFoundException e) {
+                    e.printStackTrace();
                 }
+
                 final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put(SessionConstants.LOCAL_FILE, file.toPath());
+                filesMap.put(testFile, file.toPath());
                 //Storing a interrupted job into resource file
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
@@ -112,7 +135,7 @@ public class CancelJobsWorkerTest {
 
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, StringConstants.EMPTY_STRING,
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, StringConstants.EMPTY_STRING,
                          Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 //Starting put job task
@@ -142,7 +165,7 @@ public class CancelJobsWorkerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -158,7 +181,7 @@ public class CancelJobsWorkerTest {
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "",
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "",
                         Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 //Starting put job task
@@ -190,6 +213,6 @@ public class CancelJobsWorkerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

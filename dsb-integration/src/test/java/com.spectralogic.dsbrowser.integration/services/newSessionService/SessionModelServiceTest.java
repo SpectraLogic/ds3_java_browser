@@ -14,10 +14,12 @@
  */
 
 package com.spectralogic.dsbrowser.integration.services.newSessionService;
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
+import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -25,12 +27,21 @@ import static org.junit.Assert.assertTrue;
 
 public class SessionModelServiceTest {
     private boolean successFlag = false;
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
 
     @Test
     public void createDefaultSessionTest() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), true);
+        final SavedSession savedSession = new SavedSession(
+                "createDefaultSessionTest",
+                client.getConnectionDetails().getEndpoint(),
+                "80",
+                null,
+                new SavedCredentials(
+                        client.getConnectionDetails().getCredentials().getClientId(),
+                        client.getConnectionDetails().getCredentials().getKey()),
+                true,
+                false);
         final NewSessionModel newSessionModel = SessionModelService.setSessionModel(savedSession,false);
         if (!savedSession.isDefaultSession().equals(newSessionModel.getDefaultSession())) {
             successFlag = true;
@@ -39,6 +50,6 @@ public class SessionModelServiceTest {
             latch.countDown();
         }
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

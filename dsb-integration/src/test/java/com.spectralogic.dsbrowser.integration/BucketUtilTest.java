@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
@@ -25,6 +27,9 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.util.BucketUtil;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.layout.HBox;
@@ -44,29 +49,40 @@ public class BucketUtilTest {
     private static Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final String TEST_ENV_NAME = "BucketUtilTest";
+    private static final String BUCKET_UTIL_TEST_BUCKET_NAME = "BucketUtilTest_Bucket";
 
     @BeforeClass
     public static void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(
+                    TEST_ENV_NAME,
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 
     @Test
     public void createRequest() throws Exception {
-        final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET,
+        final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                 false, Mockito.mock(HBox.class));
-        final GetBucketRequest request1 = BucketUtil.createRequest(ds3TreeTableValue, SessionConstants.ALREADY_EXIST_BUCKET,
+        final GetBucketRequest request1 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Mockito.mock(Ds3TreeTableItem.class), 100);
-        ds3TreeTableValue.setMarker(SessionConstants.FOLDER_INSIDE_EXISTING_BUCKET);
-        final GetBucketRequest request2 = BucketUtil.createRequest(ds3TreeTableValue, SessionConstants.ALREADY_EXIST_BUCKET,
+        ds3TreeTableValue.setMarker("testFolder/");
+        final GetBucketRequest request2 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Mockito.mock(Ds3TreeTableItem.class), 100);
         successFlag = (request1 != null && request2 != null) ? true : false;
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -74,10 +90,10 @@ public class BucketUtilTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET,
+                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));
-                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, SessionConstants.ALREADY_EXIST_BUCKET,
+                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Mockito.mock(Ds3TreeTableItem.class), 100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
@@ -87,7 +103,7 @@ public class BucketUtilTest {
                         .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                         .collect(Collectors.toList());
                 final List<Ds3TreeTableValue> filterFilesList = BucketUtil.getFilterFilesList(ds3ObjectListFiles,
-                        bucketResponse, SessionConstants.ALREADY_EXIST_BUCKET, session);
+                        bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME, session);
                 successFlag = (null != filterFilesList) ? true : false;
                 latch.countDown();
             } catch (final Exception e) {
@@ -96,7 +112,7 @@ public class BucketUtilTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -104,14 +120,14 @@ public class BucketUtilTest {
         final CountDownLatch latch = new CountDownLatch(2);
         Platform.runLater(() -> {
             try {
-                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET,
+                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));
-                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, SessionConstants.ALREADY_EXIST_BUCKET,
+                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Mockito.mock(Ds3TreeTableItem.class), 100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 latch.countDown();
-                final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, SessionConstants.ALREADY_EXIST_BUCKET);
+                final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME);
                 successFlag = (null != directoryValues) ? true : false;
                 latch.countDown();
             } catch (final Exception e) {
@@ -121,7 +137,7 @@ public class BucketUtilTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 }

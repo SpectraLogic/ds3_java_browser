@@ -15,11 +15,15 @@
 
 package com.spectralogic.dsbrowser.integration.services.savedSessionStore;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
@@ -39,14 +43,24 @@ public class SavedSessionStoreTest {
     private static SavedSession savedSession;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static String testSessionName = "testSession_savedSessionStore_test";
 
     @BeforeClass
     public static void setUp() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
-            savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            savedSession = new SavedSession(
+                    "SavedSessionStoreTests",
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             latch.countDown();
         });
@@ -56,19 +70,27 @@ public class SavedSessionStoreTest {
     @Test
     public void loadSavedSessionStoreTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-        Assert.assertNotNull(savedSessionStore);
+        assertNotNull(savedSessionStore);
     }
 
     @Test
     public void saveSavedSessionStoreTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-        savedSession = new SavedSession("NewSession1", SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+        savedSession = new SavedSession(
+                "NewSession1",
+                client.getConnectionDetails().getEndpoint(),
+                "80",
+                null,
+                new SavedCredentials(
+                        client.getConnectionDetails().getCredentials().getClientId(),
+                        client.getConnectionDetails().getCredentials().getKey()),
+                false,
+                false);
         final int previousSize = savedSessionStore.getSessions().size();
         savedSessionStore.getSessions().add(savedSession);
         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
         final  int currentSize=savedSessionStore.getSessions().size();
-        Assert.assertTrue((previousSize + 1) == currentSize);
+        assertTrue((previousSize + 1) == currentSize);
     }
 
     @Test
@@ -80,7 +102,7 @@ public class SavedSessionStoreTest {
                 savedSessionStore1.addSession(session);
                 final SavedSessionStore savedSessionStore2 = SavedSessionStore.loadSavedSessionStore(resourceBundle);
                 final Optional<SavedSession> session = savedSessionStore2.getSessions().stream().filter(savedSession ->
-                        savedSession.getName().equals(SessionConstants.SESSION_NAME)).findFirst();
+                        savedSession.getName().equals(testSessionName)).findFirst();
                 successFlag = null != session;
                 latch.countDown();
             } catch (final Exception e) {
@@ -89,20 +111,20 @@ public class SavedSessionStoreTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
     public void isSessionUpdatedTest() throws Exception {
         final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore(resourceBundle).getSessions();
         session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
-        Assert.assertFalse(SavedSessionStore.loadSavedSessionStore(resourceBundle).containsSessionName(savedSessions, session.getSessionName()));
+        assertFalse(SavedSessionStore.loadSavedSessionStore(resourceBundle).containsSessionName(savedSessions, session.getSessionName()));
     }
 
     @Test
     public void containsSessionNameTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-        Assert.assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), SessionConstants.SESSION_NAME));
+        assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
     }
 
     @Test
@@ -110,7 +132,7 @@ public class SavedSessionStoreTest {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle);
         final ObservableList<Session> list = new LiveArrayList<>();
         list.add(session);
-        Assert.assertTrue(savedSessionStore.containsNewSessionName(list, SessionConstants.SESSION_NAME));
+        assertTrue(savedSessionStore.containsNewSessionName(list, testSessionName));
     }
 
     @Test
@@ -128,6 +150,6 @@ public class SavedSessionStoreTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

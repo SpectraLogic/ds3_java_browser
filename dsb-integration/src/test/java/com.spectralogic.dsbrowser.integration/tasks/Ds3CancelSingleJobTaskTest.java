@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
@@ -26,13 +27,15 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -45,6 +48,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * THERE MUST BE AN INTERRUPTED JOB IN LOCAL FILE SYSTEM TO SUCCESSFULLY RUN THIS TEST CASE
  */
@@ -55,6 +60,7 @@ public class Ds3CancelSingleJobTaskTest {
     private static Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
 
 
     @BeforeClass
@@ -62,7 +68,16 @@ public class Ds3CancelSingleJobTaskTest {
         new JFXPanel();
         Platform.runLater(() -> {
             try {
-                final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+                final SavedSession savedSession = new SavedSession(
+                        "CreateBucketTaskTest",
+                        client.getConnectionDetails().getEndpoint(),
+                        "80",
+                        null,
+                        new SavedCredentials(
+                                client.getConnectionDetails().getCredentials().getClientId(),
+                                client.getConnectionDetails().getCredentials().getKey()),
+                        false,
+                        false);
                 session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -124,7 +139,7 @@ public class Ds3CancelSingleJobTaskTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 

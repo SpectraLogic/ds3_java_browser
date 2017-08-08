@@ -20,7 +20,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -31,9 +33,11 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -45,7 +49,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -59,7 +64,8 @@ import static org.junit.Assert.assertTrue;
 public class Ds3PutJobTest {
 
     private static final JobWorkers jobWorkers = new JobWorkers(10);
-    private final static String bucketName = SessionConstants.ALREADY_EXIST_BUCKET;
+    private final static String bucketName = "Ds3PutJobTestBucket";
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
     private static File file;
     private static Ds3PutJob ds3PutJob;
@@ -70,12 +76,23 @@ public class Ds3PutJobTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(
+                    "Ds3PutJobTest",
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
-            final ClassLoader classLoader = Ds3PutJobTest.class.getClassLoader();
-            final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-            if (url != null) {
-                Ds3PutJobTest.file = new File(url.getFile());
+            final Path path;
+            try {
+                path = ResourceUtils.loadFileResource("files/SampleFiles.txt");
+                Ds3PutJobTest.file = path.toFile();
+            } catch (URISyntaxException | FileNotFoundException e) {
+                e.printStackTrace();
             }
             final List<File> filesList = new ArrayList<>();
             filesList.add(file);
@@ -120,7 +137,7 @@ public class Ds3PutJobTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 
@@ -147,7 +164,7 @@ public class Ds3PutJobTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -172,7 +189,7 @@ public class Ds3PutJobTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -191,7 +208,7 @@ public class Ds3PutJobTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 }

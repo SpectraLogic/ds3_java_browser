@@ -15,9 +15,12 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
+import com.spectralogic.dsbrowser.gui.util.JsonMapping;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -29,19 +32,30 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class JsonMappingTest {
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+
     @Test
     public void fromJson() throws Exception {
         final Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
 
-        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+        final SavedSession savedSession = new SavedSession(
+                "CheckNetwork_Test",
+                client.getConnectionDetails().getEndpoint(),
+                "80",
+                null,
+                new SavedCredentials(
+                        client.getConnectionDetails().getCredentials().getClientId(),
+                        client.getConnectionDetails().getCredentials().getKey()),
+                false,
+                false);
 
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), CoreMatchers.is(savedSession.getEndpoint()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getName(), CoreMatchers.is(savedSession.getName()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), CoreMatchers.is(savedSession.getCredentials().getAccessId()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), CoreMatchers.is(savedSession.getCredentials().getSecretKey()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), CoreMatchers.is(savedSession.getPortNo()));
+        assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
+        assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
+        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
+        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), is(savedSession.getCredentials().getSecretKey()));
+        assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), is(savedSession.getPortNo()));
 
     }
 
@@ -50,13 +64,22 @@ public class JsonMappingTest {
         final Path PATH = Paths.get(System.getProperty("user.home"), ".dsbrowser", "sessions.json");
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
-        final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+        final SavedSession savedSession = new SavedSession(
+                "CheckNetwork_Test",
+                client.getConnectionDetails().getEndpoint(),
+                "80",
+                null,
+                new SavedCredentials(
+                        client.getConnectionDetails().getCredentials().getClientId(),
+                        client.getConnectionDetails().getCredentials().getKey()),
+                false,
+                false);
 
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), CoreMatchers.is(savedSession.getEndpoint()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getName(), CoreMatchers.is(savedSession.getName()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), CoreMatchers.is(savedSession.getCredentials().getAccessId()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), CoreMatchers.is(savedSession.getCredentials().getSecretKey()));
-        Assert.assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), CoreMatchers.is(savedSession.getPortNo()));
+        assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
+        assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
+        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
+        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), is(savedSession.getCredentials().getSecretKey()));
+        assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), is(savedSession.getPortNo()));
     }
 
 }

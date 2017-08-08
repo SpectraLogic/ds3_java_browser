@@ -18,22 +18,15 @@ package com.spectralogic.dsbrowser.integration.services.ds3Panel;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.Ds3ClientImpl;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
-import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
-import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
-import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeTableView;
@@ -52,15 +45,18 @@ public class Ds3PanelServiceTest {
     private final Workers workers = new Workers();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
-    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private boolean successFlag = false;
-    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @BeforeClass
     public static void setUp() {
         new JFXPanel();
-            //public Session(final String sessionName, final String endpoint, final String portNo, final String proxyServer, final Ds3Client client,final Boolean defaultSession) {
-        session = new Session("DsBrowserTest", cli);
+        session = new Session("Ds3PanelServiceTest",
+                client.getConnectionDetails().getEndpoint(),
+                "80",
+                null,
+                client,
+                false,
+                false);
     }
 
     @Test
@@ -69,13 +65,15 @@ public class Ds3PanelServiceTest {
         Platform.runLater(() -> {
             try {
                 //Creating empty bucket
+                final String bucketName = "emptyTestBucket";
                 final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, client,
-                        SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME,
+                        bucketName,
                         null, null);
                 workers.execute(createBucketTask);
+
                 //Checking is bucket empty
-                successFlag = Ds3PanelService.checkIfBucketEmpty(SessionConstants.DS3_PANEL_SERVICE_TEST_BUCKET_NAME, session);
+                successFlag = Ds3PanelService.checkIfBucketEmpty(bucketName, session);
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -83,7 +81,7 @@ public class Ds3PanelServiceTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 
@@ -105,6 +103,6 @@ public class Ds3PanelServiceTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
@@ -25,8 +27,9 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
@@ -46,14 +49,22 @@ public class SearchJobTaskTest {
     private Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final String TEST_ENV_NAME = "DeleteFilesTaskTest";
 
     @Before
     public void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME,
-                    SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null,
-                    new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY),
+            final SavedSession savedSession = new SavedSession(
+                    TEST_ENV_NAME,
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
                     false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
@@ -67,7 +78,8 @@ public class SearchJobTaskTest {
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
-                final SearchJobTask searchJobTask = new SearchJobTask(buckets, SessionConstants.TEXT_TO_SEARCH, session,
+                final String searchText = "11";
+                final SearchJobTask searchJobTask = new SearchJobTask(buckets, searchText, session,
                         workers, Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(searchJobTask);
                 latch.countDown();
@@ -80,6 +92,6 @@ public class SearchJobTaskTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

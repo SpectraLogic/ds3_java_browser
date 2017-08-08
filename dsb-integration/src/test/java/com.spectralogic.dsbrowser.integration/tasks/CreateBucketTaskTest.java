@@ -15,20 +15,29 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
+import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -43,12 +52,38 @@ public class CreateBucketTaskTest {
     private Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final String TEST_ENV_NAME = "CreateBucketTaskTest";
+    private static final String CREATE_BUCKET_TASK_TEST_BUCKET_NAME = "CreateBucketTaskTest_Bucket";
+    private static TempStorageIds envStorageIds;
+    private static UUID envDataPolicyId;
+
+    @BeforeClass
+    public static void startup() throws IOException {
+        envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+        envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+    }
+
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
+    }
 
     @Before
     public void setUp() throws Exception {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(
+                    "CreateBucketTaskTest",
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
@@ -58,10 +93,10 @@ public class CreateBucketTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final CreateBucketModel createBucketModel = new CreateBucketModel(SessionConstants.DATA_POLICY_NAME,
-                        UUID.fromString(SessionConstants.DATA_POLICY_UUID));
+                final CreateBucketModel createBucketModel = new CreateBucketModel(TEST_ENV_NAME + "_dp",
+                        envDataPolicyId);
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
-                        SessionConstants.CREATE_BUCKET_TASK_TEST_BUCKET_NAME + StringConstants.UNDER_SCORE +
+                        CREATE_BUCKET_TASK_TEST_BUCKET_NAME + StringConstants.UNDER_SCORE +
                                 +LocalDateTime.now().getSecond(), null, null);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
@@ -80,6 +115,6 @@ public class CreateBucketTaskTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

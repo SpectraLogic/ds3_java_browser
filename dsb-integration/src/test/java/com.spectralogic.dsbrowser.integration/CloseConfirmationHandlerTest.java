@@ -16,8 +16,10 @@
 package com.spectralogic.dsbrowser.integration;
 
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -38,21 +40,25 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
+import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.URL;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -60,6 +66,7 @@ public class CloseConfirmationHandlerTest {
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static final Workers workers = new Workers();
     private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
     private static CloseConfirmationHandler handler;
     private static File file;
@@ -70,13 +77,23 @@ public class CloseConfirmationHandlerTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO, null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
+            final SavedSession savedSession = new SavedSession(
+                    "CloseConfirmationTest",
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
             session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
-            final ClassLoader classLoader = CloseConfirmationHandlerTest.class.getClassLoader();
-            final URL url = classLoader.getResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
-            if (url != null) {
-                CloseConfirmationHandlerTest.file = new File(url.getFile());
+            try {
+                final Path path = ResourceUtils.loadFileResource("/files");
+                if (path != null) {
+                    file = path.toFile();
+                }
+            } catch (URISyntaxException | FileNotFoundException e) {
+                e.printStackTrace();
             }
         });
     }
@@ -85,10 +102,10 @@ public class CloseConfirmationHandlerTest {
     public void setPreferences() throws Exception {
         Platform.runLater(() -> {
             handler.setPreferences(100, 100, 200, 200, false);
-            Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getX()), Double.valueOf(100));
-            Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getY()), Double.valueOf(100));
-            Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getWidth()), Double.valueOf(200));
-            Assert.assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getHeight()), Double.valueOf(200));
+            assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getX()), Double.valueOf(100));
+            assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getY()), Double.valueOf(100));
+            assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getWidth()), Double.valueOf(200));
+            assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getHeight()), Double.valueOf(200));
         });
     }
 
@@ -101,9 +118,9 @@ public class CloseConfirmationHandlerTest {
                 final NewSessionModel newSessionModel = new NewSessionModel();
                 newSessionModel.setSessionName(session.getSessionName());
                 newSessionModel.setEndpoint(session.getEndpoint());
-                newSessionModel.setAccessKey("c3VsYWJoamFpbg==");
-                newSessionModel.setPortno("8080");
-                newSessionModel.setSecretKey("yVBAvWTG");
+                newSessionModel.setPortno("80");
+                newSessionModel.setAccessKey(client.getConnectionDetails().getCredentials().getClientId());
+                newSessionModel.setSecretKey(client.getConnectionDetails().getCredentials().getKey());
                 newSessionModel.setProxyServer(null);
                 final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle);
                 savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle));
@@ -127,7 +144,7 @@ public class CloseConfirmationHandlerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -149,7 +166,7 @@ public class CloseConfirmationHandlerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -192,7 +209,7 @@ public class CloseConfirmationHandlerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -209,7 +226,7 @@ public class CloseConfirmationHandlerTest {
         } catch (final Exception e) {
             e.printStackTrace();
         }
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
     @Test
@@ -224,7 +241,7 @@ public class CloseConfirmationHandlerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, SessionConstants.ALREADY_EXIST_BUCKET, "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "cancelAllTasksBucket", "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
@@ -247,6 +264,6 @@ public class CloseConfirmationHandlerTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

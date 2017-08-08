@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
@@ -24,8 +26,9 @@ import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelSer
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.SessionConstants;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -44,17 +47,26 @@ import static org.junit.Assert.assertTrue;
 
 public class GetBucketTaskTest {
     private final Workers workers = new Workers();
+    private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private final static String bucketName = "TestGetBucketTask";
 
     @BeforeClass
     public static void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
-            final SavedSession savedSession = new SavedSession(SessionConstants.SESSION_NAME, SessionConstants.SESSION_PATH, SessionConstants.PORT_NO,
-                    null, new SavedCredentials(SessionConstants.ACCESS_ID, SessionConstants.SECRET_KEY), false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+            final SavedSession savedSession = new SavedSession(bucketName,
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
+            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
         });
     }
 
@@ -63,10 +75,17 @@ public class GetBucketTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try{
-                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(SessionConstants.ALREADY_EXIST_BUCKET, SessionConstants.ALREADY_EXIST_BUCKET,
-                        Ds3TreeTableValue.Type.Bucket, 0L, StringConstants.EMPTY_STRING, StringConstants.TWO_DASH,
-                        false, Mockito.mock(HBox.class));
-                final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(), SessionConstants.ALREADY_EXIST_BUCKET, session, ds3TreeTableValue,
+                final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(bucketName,
+                        bucketName,
+                        Ds3TreeTableValue.Type.Bucket,
+                        0L,
+                        StringConstants.EMPTY_STRING,
+                        StringConstants.TWO_DASH,
+                        false,
+                        Mockito.mock(HBox.class));
+                final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
+                        bucketName,
+                        session, ds3TreeTableValue,
                         false, workers, Mockito.mock(Ds3TreeTableItem.class),
                         Mockito.mock(TreeTableView.class), Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(getBucketTask);
@@ -86,6 +105,6 @@ public class GetBucketTaskTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 }

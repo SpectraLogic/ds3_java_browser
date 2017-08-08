@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import javafx.application.Platform;
@@ -28,6 +29,8 @@ import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.assertTrue;
 
 public class GetMediaDeviceTaskTest {
 
@@ -67,7 +70,7 @@ public class GetMediaDeviceTaskTest {
             }
         });
         latch.await();
-        Assert.assertTrue(successFlag);
+        assertTrue(successFlag);
     }
 
 }
