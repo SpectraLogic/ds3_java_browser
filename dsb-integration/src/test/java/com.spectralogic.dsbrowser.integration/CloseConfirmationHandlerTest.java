@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -72,6 +73,7 @@ public class CloseConfirmationHandlerTest {
     private static File file;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
     public static void setConnection() {
@@ -85,7 +87,7 @@ public class CloseConfirmationHandlerTest {
                     new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
             try {
                 final Path path = ResourceUtils.loadFileResource("/files");
@@ -122,12 +124,12 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setAccessKey(client.getConnectionDetails().getCredentials().getClientId());
                 newSessionModel.setSecretKey(client.getConnectionDetails().getCredentials().getKey());
                 newSessionModel.setProxyServer(null);
-                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle);
-                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle));
+                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session
-                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore(resourceBundle);
+                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
                 final Optional<SavedSession> savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst();
 

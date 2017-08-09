@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -51,6 +52,7 @@ public class Ds3DeleteFilesTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final String TEST_ENV_NAME = "DeleteFilesTaskTest";
     private static final String DELETE_FILES_TASK_TEST_BUCKET_NAME = "DeleteFilesTaskTest_Bucket";
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @Before
     public void setUp() {
@@ -67,7 +69,7 @@ public class Ds3DeleteFilesTaskTest {
                     false,
                     false);
             session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+                    SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
         });
     }
 

@@ -19,6 +19,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -57,6 +58,7 @@ public class CreateBucketTaskTest {
     private static final String CREATE_BUCKET_TASK_TEST_BUCKET_NAME = "CreateBucketTaskTest_Bucket";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
     public static void startup() throws IOException {
@@ -84,7 +86,7 @@ public class CreateBucketTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
         });
     }
 

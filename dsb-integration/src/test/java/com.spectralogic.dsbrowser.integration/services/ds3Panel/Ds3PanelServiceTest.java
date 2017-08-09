@@ -20,20 +20,26 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.Bucket;
+import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
+import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeTableView;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -44,8 +50,13 @@ public class Ds3PanelServiceTest {
 
     private final Workers workers = new Workers();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static Session session;
     private boolean successFlag = false;
+    private static final String TEST_ENV_NAME = "Ds3PanelServiceTest";
+    private static final String DS3_PANEL_SERVICE_TEST_BUCKET_NAME = "Ds3PanelServiceTest_Bucket";
+    private static TempStorageIds envStorageIds;
+    private static UUID envDataPolicyId;
 
     @BeforeClass
     public static void setUp() {
@@ -57,6 +68,19 @@ public class Ds3PanelServiceTest {
                 client,
                 false,
                 false);
+        try {
+            envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+            envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+            HELPERS.ensureBucketExists(DS3_PANEL_SERVICE_TEST_BUCKET_NAME, envDataPolicyId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
     }
 
     @Test
@@ -66,10 +90,9 @@ public class Ds3PanelServiceTest {
             try {
                 //Creating empty bucket
                 final String bucketName = "emptyTestBucket";
-                final CreateBucketModel createBucketModel = new CreateBucketModel("fake", UUID.fromString("b8ae2e65-b665-4733-bd48-f7ab760c43f3"));
+                final CreateBucketModel createBucketModel = new CreateBucketModel("test_dp", envDataPolicyId);
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, client,
-                        bucketName,
-                        null, null);
+                        bucketName,null, null);
                 workers.execute(createBucketTask);
 
                 //Checking is bucket empty

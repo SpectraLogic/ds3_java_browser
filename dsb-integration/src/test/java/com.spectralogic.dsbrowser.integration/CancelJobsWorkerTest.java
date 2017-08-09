@@ -23,6 +23,7 @@ import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -68,6 +69,7 @@ public class CancelJobsWorkerTest {
     private final static String testFolder = "files/";
     private final static String testFile = "SampleFiles.txt";
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "CancelJobsWorkerTest";
     private final static String bucketName = "CancelJobsWorkerTestBucket";
 
@@ -88,7 +90,7 @@ public class CancelJobsWorkerTest {
                                 client.getConnectionDetails().getCredentials().getKey()),
                         false,
                         false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
                 //Loading resource file
                 final Path path;
                 try {

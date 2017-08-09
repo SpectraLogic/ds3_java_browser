@@ -19,6 +19,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
+import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -56,6 +57,7 @@ public class Ds3DeleteBucketTaskTest {
     private static final String DELETE_BUCKET_TASK_TEST_BUCKET_NAME = "Ds3DeleteBucketTaskTest_Bucket";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
     public static void startup() throws IOException {
@@ -84,7 +86,7 @@ public class Ds3DeleteBucketTaskTest {
                     false,
                     false);
             session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false), resourceBundle);
+                    SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             try {
                 HELPERS.ensureBucketExists(DELETE_BUCKET_TASK_TEST_BUCKET_NAME, envDataPolicyId);
             } catch (IOException e) {
