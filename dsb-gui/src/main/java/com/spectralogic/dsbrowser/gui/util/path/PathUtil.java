@@ -25,4 +25,8 @@ public final class PathUtil {
        trie.addAll(treeItems, t -> t.getValue().getFullPath().split("/"));
        return trie.toList();
     }
+
+    public static String getFileName(String string) {
+        
+    }
 }
