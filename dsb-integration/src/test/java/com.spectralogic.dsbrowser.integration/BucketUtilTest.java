@@ -19,6 +19,8 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -34,13 +36,16 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.layout.HBox;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -51,9 +56,12 @@ public class BucketUtilTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final String TEST_ENV_NAME = "BucketUtilTest";
     private static final String BUCKET_UTIL_TEST_BUCKET_NAME = "BucketUtilTest_Bucket";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static TempStorageIds envStorageIds;
+    private static UUID envDataPolicyId;
 
     @BeforeClass
     public static void setUp() {
@@ -70,7 +78,19 @@ public class BucketUtilTest {
                     false,
                     false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            try {
+                envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+                envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
+    }
+
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
     }
 
     @Test
@@ -92,6 +112,8 @@ public class BucketUtilTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
+                HELPERS.ensureBucketExists(BUCKET_UTIL_TEST_BUCKET_NAME, envDataPolicyId);
+
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));
@@ -122,6 +144,8 @@ public class BucketUtilTest {
         final CountDownLatch latch = new CountDownLatch(2);
         Platform.runLater(() -> {
             try {
+                HELPERS.ensureBucketExists(BUCKET_UTIL_TEST_BUCKET_NAME, envDataPolicyId);
+
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));

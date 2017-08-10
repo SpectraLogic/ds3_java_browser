@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -37,6 +39,8 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
+import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -47,10 +51,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -64,9 +65,12 @@ public class Ds3GetJob_Test {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final String TEST_ENV_NAME = "Ds3GetJob_Test";
     private static final String DS3GETJOB_TEST_BUCKET_NAME = "Ds3GetJob_Test_Bucket";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static TempStorageIds envStorageIds;
+    private static UUID envDataPolicyId;
 
     @BeforeClass
     public static void setConnection() {
@@ -93,7 +97,7 @@ public class Ds3GetJob_Test {
             listTreeTable.add(ds3TreeTableValueCustom);
             Path path = null;
             try {
-                path = ResourceUtils.loadFileResource("/files");
+                path = ResourceUtils.loadFileResource("files/");
             } catch (URISyntaxException | FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -109,6 +113,14 @@ public class Ds3GetJob_Test {
                 taskProgressView.getTasks().add(ds3GetJob);
             } catch (final IOException io) {
                 io.printStackTrace();
+            }
+
+            try {
+                envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+                envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+                HELPERS.ensureBucketExists(DS3GETJOB_TEST_BUCKET_NAME, envDataPolicyId);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

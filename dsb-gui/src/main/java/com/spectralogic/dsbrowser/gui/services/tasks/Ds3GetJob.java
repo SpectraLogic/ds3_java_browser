@@ -99,10 +99,9 @@ public class Ds3GetJob extends Ds3JobTask {
             updateTitle(resourceBundle.getString("blackPearlHealth"));
             if (CheckNetwork.isReachable(ds3Client)) {
                 final String startJobDate = DateFormat.formatDate(new Date());
-                updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
-                loggingService.logMessage(
-                        StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint())
-                        .toString(), LogType.INFO);
+                final String jobInitiatedString = StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString();
+                updateTitle(jobInitiatedString);
+                loggingService.logMessage(jobInitiatedString, LogType.INFO);
                 updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
 
                 final ImmutableList<Ds3TreeTableValueCustom> directories = getDirectoriesOrFiles(list, false);

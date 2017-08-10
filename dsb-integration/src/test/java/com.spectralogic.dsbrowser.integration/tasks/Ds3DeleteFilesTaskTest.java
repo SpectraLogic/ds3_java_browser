@@ -18,6 +18,10 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.models.ChecksumType;
+import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -29,14 +33,21 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
+import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -50,9 +61,12 @@ public class Ds3DeleteFilesTaskTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final String TEST_ENV_NAME = "DeleteFilesTaskTest";
     private static final String DELETE_FILES_TASK_TEST_BUCKET_NAME = "DeleteFilesTaskTest_Bucket";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static TempStorageIds envStorageIds;
+    private static UUID envDataPolicyId;
 
     @Before
     public void setUp() {
@@ -70,18 +84,40 @@ public class Ds3DeleteFilesTaskTest {
                     false);
             session = new CreateConnectionTask().createConnection(
                     SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            try {
+                envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+                envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+                HELPERS.ensureBucketExists(DELETE_FILES_TASK_TEST_BUCKET_NAME, envDataPolicyId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
+    }
+
     @Test
-    public void deleteFiles() throws Exception {
+    public void deleteFiles() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
+                Path path = null;
+                try {
+                    path = ResourceUtils.loadFileResource("files/");
+                } catch (URISyntaxException | FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
+                HELPERS.startWriteJob(DELETE_FILES_TASK_TEST_BUCKET_NAME, objectsList);
+
                 final ImmutableList<String> buckets = ImmutableList.of(DELETE_FILES_TASK_TEST_BUCKET_NAME);
 
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(
-                        DELETE_FILES_TASK_TEST_BUCKET_NAME, "SampleFiles.txt",
+                        DELETE_FILES_TASK_TEST_BUCKET_NAME, "files/SampleFiles.txt",
                         Ds3TreeTableValue.Type.File, 0L, StringConstants.EMPTY_STRING,
                         StringConstants.TWO_DASH, false, Mockito.mock(HBox.class));
 

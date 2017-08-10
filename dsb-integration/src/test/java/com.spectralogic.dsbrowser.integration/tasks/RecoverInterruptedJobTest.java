@@ -165,8 +165,7 @@ public class RecoverInterruptedJobTest {
                         successFlag = true;
                         latch.countDown();
                     }
-                }
-                else {
+                } else {
                     LOG.info("No job found to recover");
                     latch.countDown();
                 }

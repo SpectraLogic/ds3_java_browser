@@ -71,7 +71,6 @@ public class Ds3PanelServiceTest {
         try {
             envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
             envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-            HELPERS.ensureBucketExists(DS3_PANEL_SERVICE_TEST_BUCKET_NAME, envDataPolicyId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,6 +89,8 @@ public class Ds3PanelServiceTest {
             try {
                 //Creating empty bucket
                 final String bucketName = "emptyTestBucket";
+                HELPERS.ensureBucketExists(bucketName, envDataPolicyId);
+
                 final CreateBucketModel createBucketModel = new CreateBucketModel("test_dp", envDataPolicyId);
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, client,
                         bucketName,null, null);
@@ -113,6 +114,8 @@ public class Ds3PanelServiceTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
+                HELPERS.ensureBucketExists(DS3_PANEL_SERVICE_TEST_BUCKET_NAME, envDataPolicyId);
+
                 final Optional<ImmutableList<Bucket>> searchableBuckets = Ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
 
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();

@@ -17,6 +17,8 @@ package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.DeleteBucketRequest;
+import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
@@ -34,10 +36,7 @@ import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -51,9 +50,9 @@ import static org.junit.Assert.assertTrue;
 public class CreateFolderTaskTest {
 
     private final Workers workers = new Workers();
-    private Session session;
+    private static Session session;
     private boolean successFlag = false;
-    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final String TEST_ENV_NAME = "CreateFolderTaskTest";
@@ -63,19 +62,7 @@ public class CreateFolderTaskTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
-    public static void startup() throws IOException {
-        envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
-        envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-    }
-
-    @AfterClass
-    public static void teardown() throws IOException {
-        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
-        client.close();
-    }
-
-    @Before
-    public void setUp() {
+    public static void setUp() {
         new JFXPanel();
         Platform.runLater(() -> {
             final SavedSession savedSession = new SavedSession(
@@ -89,17 +76,29 @@ public class CreateFolderTaskTest {
                     false,
                     false);
             session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            try {
+                envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
+                envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
+                HELPERS.ensureBucketExists(CREATE_FOLDER_TASK_TEST_BUCKET_NAME, envDataPolicyId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
+    }
+
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
     }
 
     @Test
     public void createFolder() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+        final String folderName = "testFolder_" + LocalDateTime.now().getSecond();
         Platform.runLater(() -> {
             try {
-                HELPERS.ensureBucketExists(CREATE_FOLDER_TASK_TEST_BUCKET_NAME, envDataPolicyId);
 
-                final String folderName = "testFolder_" + LocalDateTime.now().getSecond();
                 final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
                 final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
                         createFolderModel.getBucketName());
@@ -131,6 +130,8 @@ public class CreateFolderTaskTest {
             }
         });
         latch.await();
+        client.deleteFolderRecursivelySpectraS3(new DeleteFolderRecursivelySpectraS3Request(CREATE_FOLDER_TASK_TEST_BUCKET_NAME, folderName));
         assertTrue(successFlag);
+
     }
 }

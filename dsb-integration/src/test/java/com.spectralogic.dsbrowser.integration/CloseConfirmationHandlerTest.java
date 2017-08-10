@@ -90,7 +90,7 @@ public class CloseConfirmationHandlerTest {
             session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
             try {
-                final Path path = ResourceUtils.loadFileResource("/files");
+                final Path path = ResourceUtils.loadFileResource("files/");
                 if (path != null) {
                     file = path.toFile();
                 }

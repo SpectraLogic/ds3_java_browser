@@ -17,6 +17,8 @@ package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.decorators.PutFolderRequest;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
@@ -26,7 +28,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
@@ -46,7 +47,10 @@ public class Ds3DeleteFolderTaskTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
+    private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static final String bucketName = "DeleteFolderTaskTestBucket";
+    private static final String folderName = "testFolder/";
 
     @Before
     public void setUp() {
@@ -68,11 +72,13 @@ public class Ds3DeleteFolderTaskTest {
 
     @Test
     public void deleteFolder() throws Exception {
+        HELPERS.ensureBucketExists(bucketName);
+        HELPERS.createFolder(bucketName, folderName);
+
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final Ds3DeleteFolderTask deleteFolderTask = new Ds3DeleteFolderTask(session.getClient(),
-                        "DeleteFolderTaskTestBucket", "testFolder/");
+                final Ds3DeleteFolderTask deleteFolderTask = new Ds3DeleteFolderTask(session.getClient(), bucketName, folderName);
                 workers.execute(deleteFolderTask);
                 deleteFolderTask.setOnSucceeded(event -> {
                     successFlag = true;

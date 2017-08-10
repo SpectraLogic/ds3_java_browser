@@ -45,7 +45,7 @@ public class SavedSessionStoreTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
-    private static String testSessionName = "testSession_savedSessionStore_test";
+    private static String testSessionName = "SavedSessionStoreTest";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
@@ -54,7 +54,7 @@ public class SavedSessionStoreTest {
         new JFXPanel();
         Platform.runLater(() -> {
             savedSession = new SavedSession(
-                    "SavedSessionStoreTests",
+                    testSessionName,
                     client.getConnectionDetails().getEndpoint(),
                     "80",
                     null,
@@ -126,7 +126,9 @@ public class SavedSessionStoreTest {
     @Test
     public void containsSessionNameTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+        savedSessionStore.getSessions().add(savedSession);
         assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
+        savedSessionStore.getSessions().remove(savedSession);
     }
 
     @Test

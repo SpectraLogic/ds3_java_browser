@@ -41,7 +41,7 @@ public class JsonMappingTest {
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
 
         final SavedSession savedSession = new SavedSession(
-                "CheckNetwork_Test",
+                "SM2U-11",
                 client.getConnectionDetails().getEndpoint(),
                 "80",
                 null,
@@ -54,7 +54,6 @@ public class JsonMappingTest {
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
-        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), is(savedSession.getCredentials().getSecretKey()));
         assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), is(savedSession.getPortNo()));
 
     }
@@ -65,7 +64,7 @@ public class JsonMappingTest {
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
         final SavedSession savedSession = new SavedSession(
-                "CheckNetwork_Test",
+                "SM2U-11",
                 client.getConnectionDetails().getEndpoint(),
                 "80",
                 null,
@@ -78,7 +77,6 @@ public class JsonMappingTest {
         assertThat(serializedSessionStore.getSessions().get(0).getEndpoint(), is(savedSession.getEndpoint()));
         assertThat(serializedSessionStore.getSessions().get(0).getName(), is(savedSession.getName()));
         assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getAccessId(), is(savedSession.getCredentials().getAccessId()));
-        assertThat(serializedSessionStore.getSessions().get(0).getCredentials().getSecretKey(), is(savedSession.getCredentials().getSecretKey()));
         assertThat(serializedSessionStore.getSessions().get(0).getPortNo(), is(savedSession.getPortNo()));
     }
 
