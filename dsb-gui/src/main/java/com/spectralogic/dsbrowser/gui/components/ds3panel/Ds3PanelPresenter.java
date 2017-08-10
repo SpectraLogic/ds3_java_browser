@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
@@ -42,6 +43,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.path.PathUtil;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -129,7 +131,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
 
-    private GetNoOfItemsTask itemsTask;
+    private GetNoOfItemsTaskClean itemsTask;
 
     @Inject
     public Ds3PanelPresenter(final ResourceBundle resourceBundle,
@@ -696,9 +698,9 @@ public class Ds3PanelPresenter implements Initializable {
                 selectedItems.add(root);
             }
             //start a new task for calculating
-            itemsTask = new GetNoOfItemsTask(ds3TreeTableView, ds3Common, selectedItems);
+            //itemsTask = new GetNoOfItemsTask(ds3TreeTableView, ds3Common, selectedItems);
+            itemsTask = new GetNoOfItemsTaskClean(ds3Common.getCurrentSession().getClient(), FluentIterable.from(PathUtil.minimumPaths(selectedItems)).transform(TreeItem::getValue));
             workers.execute(itemsTask);
-
             itemsTask.setOnSucceeded(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                         .stream().collect(GuavaCollectors.immutableList());
@@ -710,7 +712,7 @@ public class Ds3PanelPresenter implements Initializable {
                     }
                 }
                 //for number of files and folders
-                final FilesCountModel filesCountModel = itemsTask.getValue();
+                final FilesCountModelClean filesCountModel = itemsTask.getValue();
                 if (selectedRoot == null || selectedRoot.getValue() == null || getSession() == null || null == filesCountModel) {
                     setVisibilityOfItemsInfo(false);
                 } else {
@@ -725,13 +727,13 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    private void setItemCountPanelInfo(final FilesCountModel filesCountModel, final TreeItem<Ds3TreeTableValue> selectedRoot) {
+    private void setItemCountPanelInfo(final FilesCountModelClean filesCountModel, final TreeItem<Ds3TreeTableValue> selectedRoot) {
         //For no. of folder(s) and file(s)
         if (filesCountModel.getNoOfFiles() == 0 && filesCountModel.getNoOfFolders() == 0) {
             getInfoLabel().setText(resourceBundle.getString("containsNoItem"));
         } else {
-            getInfoLabel().setText(StringBuilderUtil.getItemsCountInfoMessage(filesCountModel.getNoOfFolders(),
-                    filesCountModel.getNoOfFiles()).toString());
+            getInfoLabel().setText(StringBuilderUtil.getItemsCountInfoMessage(java.lang.Math.toIntExact(filesCountModel.getNoOfFolders()),
+                    java.lang.Math.toIntExact(filesCountModel.getNoOfFiles())).toString());
         }
         //For capacity of bucket or folder
         getCapacityLabel().setText(StringBuilderUtil.getCapacityMessage(filesCountModel.getTotalCapacity(),
@@ -766,8 +768,6 @@ public class Ds3PanelPresenter implements Initializable {
     public Label getPaneItems() {
         return paneItems;
     }
-
-
 }
 
 
