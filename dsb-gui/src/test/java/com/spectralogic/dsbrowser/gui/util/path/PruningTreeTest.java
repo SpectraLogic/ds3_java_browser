@@ -13,17 +13,15 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
  *  ****************************************************************************
  */
 
+import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import javafx.scene.control.TreeItem;
+public class PruningTreeTest {
 
-import java.util.List;
-
-public final class PathUtil {
-    public static List<TreeItem<Ds3TreeTableValue>> minimumPaths(final List<TreeItem<Ds3TreeTableValue>> treeItems)  {
-       final PruningTree<String,TreeItem<Ds3TreeTableValue>> pruningTree = new PruningTree<>(null);
-       pruningTree.addAll(treeItems, t -> t.getValue().getFullPath().split("/"));
-       return pruningTree.toList();
+    @Test
+    public void EmptyTreeIsEmpty() {
+        final PruningTree<String,String> pt = new PruningTree<>(null);
+        assertThat(pt.toList().size(), is(0));
     }
-
 }

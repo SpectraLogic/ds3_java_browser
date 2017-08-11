@@ -14,18 +14,16 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
  */
 
 import com.google.common.collect.ImmutableList;
+import javafx.util.Pair;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
-public class Trie<T> {
-    private final Map<String, Trie<T>> children = new HashMap<>();
-    private final T value;
+public class PruningTree<K, V> {
+    private final Map<K, PruningTree<K, V>> children = new HashMap<>();
+    private final V value;
 
-    public Trie(final T root) {
+    PruningTree(final V root) {
         this.value = root;
     }
 
@@ -33,49 +31,50 @@ public class Trie<T> {
         return value != null;
     }
 
-    public void add(final String[] path, final T value) {
+    public void add(final K[] path, final V value) {
         if (isLeaf()) {
             return;
         }
         if (path.length == 1) {
-            children.put(path[0], new Trie<>(value));
+            children.put(path[0], new PruningTree<>(value));
         } else {
-            final Trie<T> trie;
+            final PruningTree<K, V> pruningTree;
             if (children.containsKey(path[0])) {
-                trie = children.get(path[0]);
-                children.put(path[0], trie);
+                pruningTree = children.get(path[0]);
+                children.put(path[0], pruningTree);
             } else {
-                trie = new Trie<>(null);
+                pruningTree = new PruningTree<>(null);
             }
-            trie.add(Arrays.copyOfRange(path, 1, path.length), value);
+            pruningTree.add(Arrays.copyOfRange(path, 1, path.length), value);
         }
     }
 
-    public void addAll(final List<String[]> paths, final List<T> list) {
+    public void add(final Pair<K[], V> pair) {
+        add(pair.getKey(), pair.getValue());
+    }
+
+    public void addAll(final List<K[]> paths, final List<V> list) {
         for (int i = 0; i < list.size(); i++) {
             this.add(paths.get(i), list.get((i)));
         }
     }
 
-    public void addAll(final List<T> list,  final Function<T, String[]> f) {
+    public void addAll(final List<V> list, final Function<V, K[]> f) {
         list.forEach(item -> add(f.apply(item), item));
     }
 
-
-    public ImmutableList<T> toList() {
-        final ImmutableList.Builder<T> builder = new ImmutableList.Builder<>();
-        getChildren(builder);
+    public ImmutableList<V> toList() {
+        final ImmutableList.Builder<V> builder = new ImmutableList.Builder<>();
+        final Stack<PruningTree<K, V>> childStack = new Stack<>();
+        childStack.push(this);
+        while (!childStack.empty()) {
+            final PruningTree<K, V> currentPruningTree = childStack.pop();
+            if (currentPruningTree.isLeaf()) {
+                builder.add(currentPruningTree.value);
+            }
+            currentPruningTree.children.forEach((k, v) -> childStack.push(v));
+        }
         return builder.build();
     }
-
-    private void getChildren(final ImmutableList.Builder<T> builder) {
-        if (value != null) {
-            builder.add(value);
-        }
-        if (!children.isEmpty()) {
-            children.forEach((k, v) -> v.getChildren(builder));
-        }
-    }
-
 
 }
