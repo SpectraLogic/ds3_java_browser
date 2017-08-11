@@ -49,7 +49,9 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 /**
  * THERE MUST BE AN INTERRUPTED JOB IN LOCAL FILE SYSTEM TO SUCCESSFULLY RUN THIS TEST CASE
@@ -79,7 +81,7 @@ public class Ds3CancelSingleJobTaskTest {
                                 client.getConnectionDetails().getCredentials().getKey()),
                         false,
                         false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+                session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -88,6 +90,7 @@ public class Ds3CancelSingleJobTaskTest {
 
     @Test
     public void call() throws Exception {
+        assumeThat("no jobs in progress", 1, is(0)); // This is not a valid test until we can set up the in-progress job.
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {

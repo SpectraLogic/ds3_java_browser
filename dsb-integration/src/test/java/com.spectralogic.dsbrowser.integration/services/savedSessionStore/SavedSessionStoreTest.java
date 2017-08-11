@@ -63,7 +63,7 @@ public class SavedSessionStoreTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             latch.countDown();
         });
         latch.await();
@@ -126,9 +126,7 @@ public class SavedSessionStoreTest {
     @Test
     public void containsSessionNameTest() throws Exception {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
-        savedSessionStore.getSessions().add(savedSession);
         assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
-        savedSessionStore.getSessions().remove(savedSession);
     }
 
     @Test

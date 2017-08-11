@@ -43,6 +43,7 @@ import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -125,6 +126,11 @@ public class Ds3GetJob_Test {
         });
     }
 
+    @AfterClass
+    public static void teardown() throws IOException {
+        IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
+        client.close();
+    }
 
     @Test
     public void executeJob() throws Exception {

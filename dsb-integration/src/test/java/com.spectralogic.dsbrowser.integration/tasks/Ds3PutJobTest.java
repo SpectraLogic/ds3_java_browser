@@ -88,7 +88,7 @@ public class Ds3PutJobTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             final Path path;
             try {
                 path = ResourceUtils.loadFileResource("files/SampleFiles.txt");

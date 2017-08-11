@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
@@ -39,7 +40,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -87,15 +88,15 @@ public class Ds3DeleteFilesTaskTest {
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-                HELPERS.ensureBucketExists(DELETE_FILES_TASK_TEST_BUCKET_NAME, envDataPolicyId);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    @AfterClass
-    public static void teardown() throws IOException {
+    @After
+    public void teardown() throws IOException {
+        client.deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(DELETE_FILES_TASK_TEST_BUCKET_NAME).withForce(true));
         IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
         client.close();
     }
@@ -105,6 +106,7 @@ public class Ds3DeleteFilesTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
+                HELPERS.ensureBucketExists(DELETE_FILES_TASK_TEST_BUCKET_NAME, envDataPolicyId);
                 Path path = null;
                 try {
                     path = ResourceUtils.loadFileResource("files/");

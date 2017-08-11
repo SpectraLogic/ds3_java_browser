@@ -49,6 +49,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
+import static org.hamcrest.Matchers.is;
 
 /**
  * THERE MUST BE AN INTERRUPTED JOB IN LOCAL FILE SYSTEM TO SUCCESSFULLY RUN THIS TEST CASE
@@ -132,6 +134,8 @@ public class RecoverInterruptedJobTest {
 
     @Test
     public void executeJob() throws Exception {
+        assumeThat("no jobs in progress", 1, is(0)); // This is not a valid test until we can set up the in-progress job.
+
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
@@ -156,25 +160,7 @@ public class RecoverInterruptedJobTest {
 
     @Test
     public void getSkipPath() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                if(recoverInterruptedJob != null) {
-                    final String skipPath = recoverInterruptedJob.getSkipPath(fileName, new HashMap<>());
-                    if (skipPath.equals(StringConstants.EMPTY_STRING)) {
-                        successFlag = true;
-                        latch.countDown();
-                    }
-                } else {
-                    LOG.info("No job found to recover");
-                    latch.countDown();
-                }
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
+        final String skipPath = RecoverInterruptedJob.getSkipPath(fileName, new HashMap<>());
+        assertTrue(skipPath.equals(StringConstants.EMPTY_STRING));
     }
 }
