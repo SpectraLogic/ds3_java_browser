@@ -12,12 +12,11 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
-
-import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PruningTreeTest {
     private final PruningTree<String, String> pt = new PruningTree<>();
@@ -27,5 +26,9 @@ public class PruningTreeTest {
         assertThat(pt.toList().size(), is(0));
     }
 
-
+    @Test
+    public void SingleItemTest() {
+        pt.add("foo".split("/"), "bar");
+        assertThat(pt.toList(), containsInAnyOrder("bar"));
+    }
 }

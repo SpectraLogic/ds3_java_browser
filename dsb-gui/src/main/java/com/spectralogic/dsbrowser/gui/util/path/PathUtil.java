@@ -16,12 +16,13 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
 
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
 
 import java.util.List;
 
 public final class PathUtil {
     public static List<TreeItem<Ds3TreeTableValue>> minimumPaths(final List<TreeItem<Ds3TreeTableValue>> treeItems)  {
-       final PruningTree<String,TreeItem<Ds3TreeTableValue>> pruningTree = new PruningTree<>(null);
+       final PruningTree<String,TreeItem<Ds3TreeTableValue>> pruningTree = new PruningTree<String, TreeItem<Ds3TreeTableValue>>();
        pruningTree.addAll(treeItems, t -> t.getValue().getFullPath().split("/"));
        return pruningTree.toList();
     }
