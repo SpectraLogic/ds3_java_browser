@@ -23,8 +23,12 @@ public class PruningTree<K, V> {
     private final Map<K, PruningTree<K, V>> children = new HashMap<>();
     private final V value;
 
-    PruningTree(final V root) {
+    private PruningTree(final V root) {
         this.value = root;
+    }
+
+    public PruningTree() {
+        this.value = null;
     }
 
     private boolean isLeaf() {
@@ -43,7 +47,7 @@ public class PruningTree<K, V> {
                 pruningTree = children.get(path[0]);
                 children.put(path[0], pruningTree);
             } else {
-                pruningTree = new PruningTree<>(null);
+                pruningTree = new PruningTree<>();
             }
             pruningTree.add(Arrays.copyOfRange(path, 1, path.length), value);
         }

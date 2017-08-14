@@ -13,15 +13,19 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
  *  ****************************************************************************
  */
 
+import org.junit.Before;
 import org.junit.Test;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PruningTreeTest {
+    private final PruningTree<String, String> pt = new PruningTree<>();
 
     @Test
     public void EmptyTreeIsEmpty() {
-        final PruningTree<String,String> pt = new PruningTree<>(null);
         assertThat(pt.toList().size(), is(0));
     }
+
+
 }
