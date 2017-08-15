@@ -15,12 +15,14 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.helpers.FileObjectGetter;
 import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.utils.Guard;
@@ -55,15 +57,18 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final boolean isCacheJobEnable;
+    private final boolean isFilePropertiesEnabled;
 
     public RecoverInterruptedJob(final UUID uuid,
                                  final EndpointInfo endpointInfo,
                                  final JobInterruptionStore jobInterruptionStore,
-                                 final boolean isCacheJobEnable) {
+                                 final boolean isCacheJobEnable,
+                                 final boolean isFilePropertiesEnabled) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
         this.isCacheJobEnable = isCacheJobEnable;
+        this.isFilePropertiesEnabled = isFilePropertiesEnabled;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
     }
 
@@ -101,6 +106,11 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 // check whether chunk are available
                 addWaitingForChunkListener(totalJobSize, filesAndFolderMap.getTargetLocation());
 
+                // Check for metadata
+                if (isFilePropertiesEnabled) {
+                    LOG.info("Registering metadata access Implementation");
+                    job.withMetadata(new MetadataAccessImpl(ImmutableMap.copyOf(filesMap)));
+                }
                 job.transfer(obj -> {
                             if (filesAndFolderMap.getType().equals(PUT.toString())) {
                                 if (!Guard.isMapNullOrEmpty(filesMap) && filesMap.containsKey(obj)) {
