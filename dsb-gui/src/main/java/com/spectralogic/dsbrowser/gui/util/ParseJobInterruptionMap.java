@@ -100,9 +100,9 @@ public final class ParseJobInterruptionMap {
         final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = completeArrayList.stream()
                 .filter(i -> i.containsKey(endpoint)).findFirst();
         if (first.isPresent()) {
-            final Map<String, Map<String, FilesAndFolderMap>> endpointsMap = new HashMap(first.get());
+            final Map<String, Map<String, FilesAndFolderMap>> endpointsMap = new HashMap<>(first.get());
             if (!Guard.isMapNullOrEmpty(endpointsMap)) {
-                final HashMap<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsMap.entrySet()
+                final Map<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsMap.entrySet()
                         .stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
                 completeArrayList.remove(endpointsMap);
                 if (endpointHashMap.containsKey(endpoint)) {

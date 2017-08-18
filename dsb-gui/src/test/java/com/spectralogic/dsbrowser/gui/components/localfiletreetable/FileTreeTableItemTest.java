@@ -68,7 +68,7 @@ public class FileTreeTableItemTest {
     }
 
     @Test
-    public void refresh() throws FileNotFoundException, URISyntaxException, InterruptedException {
+    public void refresh() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
@@ -85,7 +85,7 @@ public class FileTreeTableItemTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (FileNotFoundException | URISyntaxException e) {
+            } catch (final FileNotFoundException | URISyntaxException e) {
                 e.printStackTrace();
                 latch.countDown();
                 fail();
