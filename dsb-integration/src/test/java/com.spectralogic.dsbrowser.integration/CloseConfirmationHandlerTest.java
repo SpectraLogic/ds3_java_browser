@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
@@ -54,6 +56,7 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
@@ -61,6 +64,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class CloseConfirmationHandlerTest {
@@ -94,14 +98,15 @@ public class CloseConfirmationHandlerTest {
                 if (path != null) {
                     file = path.toFile();
                 }
-            } catch (URISyntaxException | FileNotFoundException e) {
+            } catch (final URISyntaxException | FileNotFoundException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
 
     @Test
-    public void setPreferences() throws Exception {
+    public void setPreferences() {
         Platform.runLater(() -> {
             handler.setPreferences(100, 100, 200, 200, false);
             assertEquals(Double.valueOf(ApplicationPreferences.getInstance().getX()), Double.valueOf(100));
@@ -112,7 +117,7 @@ public class CloseConfirmationHandlerTest {
     }
 
     @Test
-    public void saveSessionStore() throws Exception {
+    public void saveSessionStore() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
@@ -140,9 +145,10 @@ public class CloseConfirmationHandlerTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();
@@ -150,7 +156,7 @@ public class CloseConfirmationHandlerTest {
     }
 
     @Test
-    public void saveJobProperties() throws Exception {
+    public void saveJobProperties() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
@@ -162,9 +168,10 @@ public class CloseConfirmationHandlerTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();
@@ -172,7 +179,7 @@ public class CloseConfirmationHandlerTest {
     }
 
     @Test
-    public void saveInterruptionJobs() throws Exception {
+    public void saveInterruptionJobs() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
@@ -205,9 +212,10 @@ public class CloseConfirmationHandlerTest {
                     }
                 }
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();
@@ -215,35 +223,39 @@ public class CloseConfirmationHandlerTest {
     }
 
     @Test
-    public void saveSettings() throws Exception {
+    public void saveSettings() {
+        final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.DEFAULT;
+        final ProcessSettings processSettings = ProcessSettings.createDefault();
+        final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
+        final LogSettings logSettings = LogSettings.DEFAULT;
+
+        new SettingsStore(logSettings, processSettings, filePropertiesSettings, showCachedJobSettings);
+        SettingsStore settingsStoreNew = null;
         try {
-            final FilePropertiesSettings filePropertiesSettings = FilePropertiesSettings.DEFAULT;
-            final ProcessSettings processSettings = ProcessSettings.createDefault();
-            final ShowCachedJobSettings showCachedJobSettings = ShowCachedJobSettings.createDefault();
-            final LogSettings logSettings = LogSettings.DEFAULT;
-            new SettingsStore(logSettings, processSettings, filePropertiesSettings, showCachedJobSettings);
-            final SettingsStore settingsStoreNew = SettingsStore.loadSettingsStore();
-            final ShowCachedJobSettings showCachedJobSettingsNew = settingsStoreNew.getShowCachedJobSettings();
-            successFlag = showCachedJobSettingsNew.getShowCachedJob();
-        } catch (final Exception e) {
+            settingsStoreNew = SettingsStore.loadSettingsStore();
+        } catch (final IOException e) {
             e.printStackTrace();
+            fail();
         }
-        assertTrue(successFlag);
+
+        final ShowCachedJobSettings showCachedJobSettingsNew = settingsStoreNew.getShowCachedJobSettings();
+        assertTrue(showCachedJobSettingsNew.getShowCachedJob());
     }
 
     @Test
-    public void cancelAllRunningTasks() throws Exception {
+    public void cancelAllRunningTasks() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final List<File> filesList = new ArrayList<>();
-            filesList.add(file);
+            final ImmutableList<File> filesList = ImmutableList.of(file);
             try {
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "cancelAllTasksBucket", "", Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "cancelAllTasksBucket", "",
+                        Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(),
+                        deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
@@ -260,9 +272,10 @@ public class CloseConfirmationHandlerTest {
                 task.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (final Exception e) {
+            } catch (final InterruptedException | IOException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();

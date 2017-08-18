@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
@@ -49,6 +51,7 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
@@ -56,6 +59,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CancelJobsWorkerTest {
     private static final JobWorkers jobWorkers = new JobWorkers(10);
@@ -91,17 +95,19 @@ public class CancelJobsWorkerTest {
                         false,
                         false);
                 session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+
                 //Loading resource file
                 final Path path;
                 try {
                     path = ResourceUtils.loadFileResource(testFolder + testFile);
                     CancelJobsWorkerTest.file = path.toFile();
-                } catch (URISyntaxException | FileNotFoundException e) {
+                } catch (final URISyntaxException | FileNotFoundException e) {
                     e.printStackTrace();
+                    fail();
                 }
 
-                final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put(testFile, file.toPath());
+                final ImmutableMap<String, Path> filesMap = new ImmutableMap.Builder<String, Path>().put(testFile, file.toPath()).build();
+
                 //Storing a interrupted job into resource file
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
                 final Map<String, FilesAndFolderMap> jobIdMap = new HashMap<>();
@@ -114,9 +120,10 @@ public class CancelJobsWorkerTest {
                 final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore1);
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
-            } catch (final Exception io) {
+            } catch (final IOException io) {
                 io.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await(5, TimeUnit.SECONDS);
@@ -127,19 +134,18 @@ public class CancelJobsWorkerTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final List<File> filesList = new ArrayList<>();
-                filesList.add(file);
+                final ImmutableList<File> filesList = ImmutableList.of(file);
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-
 
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, StringConstants.EMPTY_STRING,
                          Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
@@ -149,6 +155,7 @@ public class CancelJobsWorkerTest {
                     System.out.println("Put job failed");
                 });
                 Thread.sleep(5000);
+
                 //Cancelling put job task
                 final CancelAllRunningJobsTask cancelAllRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers, Mockito.mock(LoggingService.class));
                 cancelAllRunningJobsTask.setOnSucceeded(event -> {
@@ -161,9 +168,10 @@ public class CancelJobsWorkerTest {
                 cancelAllRunningJobsTask.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (final Exception e) {
+            } catch (final InterruptedException | IOException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();
@@ -181,11 +189,13 @@ public class CancelJobsWorkerTest {
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
+
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "",
                         Priority.URGENT.toString(), 5,
                         JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
@@ -196,6 +206,7 @@ public class CancelJobsWorkerTest {
                     System.out.println("Put job fail");
                 });
                 Thread.sleep(5000);
+
                 //Cancelling task by session
                 final CancelAllTaskBySession cancelAllRunningJobsBySession = CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers,
                         jobInterruptionStore, workers, session, Mockito.mock(LoggingService.class));
@@ -209,7 +220,7 @@ public class CancelJobsWorkerTest {
                 cancelAllRunningJobsBySession.setOnCancelled(event -> {
                     latch.countDown();
                 });
-            } catch (final Exception e) {
+            } catch (final InterruptedException | IOException e) {
                 e.printStackTrace();
                 latch.countDown();
             }

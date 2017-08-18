@@ -17,8 +17,6 @@ package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.commands.decorators.PutFolderRequest;
-import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
@@ -45,6 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class Ds3DeleteFolderTaskTest {
@@ -83,8 +82,9 @@ public class Ds3DeleteFolderTaskTest {
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
                 HELPERS.ensureBucketExists(bucketName, envDataPolicyId);
                 latch.countDown();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
         latch.await();
@@ -97,12 +97,11 @@ public class Ds3DeleteFolderTaskTest {
     }
 
     @Test
-    public void deleteFolder() throws Exception {
+    public void deleteFolder() throws IOException, InterruptedException {
         HELPERS.createFolder(bucketName, folderName);
 
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
                 final Ds3DeleteFolderTask deleteFolderTask = new Ds3DeleteFolderTask(session.getClient(), bucketName, folderName);
                 workers.execute(deleteFolderTask);
                 deleteFolderTask.setOnSucceeded(event -> {
@@ -111,10 +110,6 @@ public class Ds3DeleteFolderTaskTest {
                 });
                 deleteFolderTask.setOnFailed(event -> latch.countDown());
                 deleteFolderTask.setOnCancelled(event -> latch.countDown());
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
-            }
         });
         latch.await();
         assertTrue(successFlag);

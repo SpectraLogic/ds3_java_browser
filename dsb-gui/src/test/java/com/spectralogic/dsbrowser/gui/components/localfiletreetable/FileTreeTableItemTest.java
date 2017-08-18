@@ -28,9 +28,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.Assert.fail;
 
 
 public class FileTreeTableItemTest {
@@ -38,7 +43,7 @@ public class FileTreeTableItemTest {
     private boolean successFlag =  false;
 
     @Test
-    public void getGraphicType() throws Exception {
+    public void getGraphicType() throws URISyntaxException, IOException {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
@@ -47,7 +52,7 @@ public class FileTreeTableItemTest {
     }
 
     @Test
-    public void getLeaf() throws Exception {
+    public void getLeaf() throws URISyntaxException, IOException {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
@@ -55,7 +60,7 @@ public class FileTreeTableItemTest {
     }
 
     @Test
-    public void getGraphicFont() throws Exception {
+    public void getGraphicFont() throws FileNotFoundException, URISyntaxException {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
@@ -63,7 +68,7 @@ public class FileTreeTableItemTest {
     }
 
     @Test
-    public void refresh() throws Exception {
+    public void refresh() throws FileNotFoundException, URISyntaxException, InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
@@ -80,9 +85,10 @@ public class FileTreeTableItemTest {
                     successFlag = true;
                 }
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (FileNotFoundException | URISyntaxException e) {
                 e.printStackTrace();
                 latch.countDown();
+                fail();
             }
         });
         latch.await();

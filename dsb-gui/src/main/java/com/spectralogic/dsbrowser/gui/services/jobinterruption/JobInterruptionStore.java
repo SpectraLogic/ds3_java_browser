@@ -67,8 +67,9 @@ public class JobInterruptionStore {
         }
         try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
             JsonMapping.toJson(outputStream, store);
+        } catch (final IOException e) {
+            LOG.error("Unable to persist to InterruptedJobsStore");
         }
-
     }
 
     public JobInterruptionStore(@JsonProperty("jobIdsModel") final JobIdsModel jobIdsModel) {

@@ -57,6 +57,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class Ds3GetJob_Test {
 
@@ -99,8 +100,9 @@ public class Ds3GetJob_Test {
             Path path = null;
             try {
                 path = ResourceUtils.loadFileResource("files/");
-            } catch (URISyntaxException | FileNotFoundException e) {
+            } catch (final URISyntaxException | FileNotFoundException e) {
                 e.printStackTrace();
+                fail();
             }
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
@@ -109,19 +111,16 @@ public class Ds3GetJob_Test {
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
+
             try {
                 ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, resourceBundle, null);
                 taskProgressView.getTasks().add(ds3GetJob);
-            } catch (final IOException io) {
-                io.printStackTrace();
-            }
-
-            try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
                 HELPERS.ensureBucketExists(DS3GETJOB_TEST_BUCKET_NAME, envDataPolicyId);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
@@ -133,123 +132,98 @@ public class Ds3GetJob_Test {
     }
 
     @Test
-    public void executeJob() throws Exception {
+    public void executeJob() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                jobWorkers.execute(ds3GetJob);
-                ds3GetJob.setOnSucceeded(event -> {
-                    if (!ds3GetJob.isJobFailed()) {
-                        successFlag = true;
-                    }
-                    latch.countDown();
-
-                });
-                ds3GetJob.setOnFailed(event -> latch.countDown());
-                ds3GetJob.setOnCancelled(event -> latch.countDown());
-            } catch (final Exception e) {
-                e.printStackTrace();
+            jobWorkers.execute(ds3GetJob);
+            ds3GetJob.setOnSucceeded(event -> {
+                if (!ds3GetJob.isJobFailed()) {
+                    successFlag = true;
+                }
                 latch.countDown();
-            }
+
+            });
+            ds3GetJob.setOnFailed(event -> latch.countDown());
+            ds3GetJob.setOnCancelled(event -> latch.countDown());
         });
         latch.await(20, TimeUnit.SECONDS);
         assertTrue(successFlag);
     }
 
     @Test
-    public void createFileMap() throws Exception {
+    public void createFileMap() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
-                        "SampleFiles.txt",
-                        Ds3TreeTableValue.Type.File,
-                        3718,
-                        "2/07/2017 10:28:17",
-                        "spectra",
-                        false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableMap fileMap = ds3GetJob.createFileMap(listItems).build();
-                if (fileMap.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
+            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
+                    "SampleFiles.txt",
+                    Ds3TreeTableValue.Type.File,
+                    3718,
+                    "2/07/2017 10:28:17",
+                    "spectra",
+                    false);
+            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+            final ImmutableMap fileMap = ds3GetJob.createFileMap(listItems).build();
+            if (fileMap.size() == 1) {
+                successFlag = true;
             }
+            countDownLatch.countDown();
         });
         countDownLatch.await();
         assertTrue(successFlag);
     }
 
     @Test
-    public void createFolderMap() throws Exception {
+    public void createFolderMap() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
-                        "testFolder/", Ds3TreeTableValue.Type.Directory,
-                        3718, "2/07/2017 10:28:17", "spectra", false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableMap fileMap = ds3GetJob.createFolderMap(listItems).build();
-                if (fileMap.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
+            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
+                    "testFolder/", Ds3TreeTableValue.Type.Directory,
+                    3718, "2/07/2017 10:28:17", "spectra", false);
+            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+            final ImmutableMap fileMap = ds3GetJob.createFolderMap(listItems).build();
+            if (fileMap.size() == 1) {
+                successFlag = true;
             }
+            countDownLatch.countDown();
         });
         countDownLatch.await();
         assertTrue(successFlag);
     }
 
     @Test
-    public void getDs3Object() throws Exception {
+    public void getDs3Object() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
-                        "testFolder/", Ds3TreeTableValue.Type.Directory,
-                        3718, "2/07/2017 10:28:17", "spectra", false);
-                final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
-                final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
-                if (ds3ObjectList.size() == 1) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
+            final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
+                    "testFolder/", Ds3TreeTableValue.Type.Directory,
+                    3718, "2/07/2017 10:28:17", "spectra", false);
+            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+            final ImmutableList ds3ObjectList = ds3GetJob.getDS3Object(listItems);
+            if (ds3ObjectList.size() == 1) {
+                successFlag = true;
             }
+            countDownLatch.countDown();
         });
         countDownLatch.await();
         assertTrue(successFlag);
     }
 
     @Test
-    public void addAllDescendants() throws Exception {
+    public void addAllDescendants() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
 
-                final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
-                        "SampleFiles.txt", Ds3TreeTableValue.Type.File,
-                        3718, "2/07/2017 10:28:17", "spectra", false);
-                final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
+            final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
+                    "SampleFiles.txt", Ds3TreeTableValue.Type.File,
+                    3718, "2/07/2017 10:28:17", "spectra", false);
+            final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
 
-                itemList.add(ds3TreeTableValueCustomFile);
-                final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);
-                if (childMap.size() == 0 || (childMap.size() == 1 && childMap.get("SampleFiles.txt") == null)) {
-                    successFlag = true;
-                }
-                countDownLatch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
+            itemList.add(ds3TreeTableValueCustomFile);
+            final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);
+            if (childMap.size() == 0 || (childMap.size() == 1 && childMap.get("SampleFiles.txt") == null)) {
+                successFlag = true;
             }
+            countDownLatch.countDown();
         });
         countDownLatch.await();
         assertTrue(successFlag);

@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
@@ -41,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
@@ -48,6 +51,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class ParseJobInterruptionMapTest {
@@ -65,7 +69,7 @@ public class ParseJobInterruptionMapTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
@@ -91,8 +95,9 @@ public class ParseJobInterruptionMapTest {
                 try {
                     path = ResourceUtils.loadFileResource("files/SampleFiles.txt");
                     ParseJobInterruptionMapTest.file = path.toFile();
-                } catch (URISyntaxException | FileNotFoundException e) {
+                } catch (final URISyntaxException | FileNotFoundException e) {
                     e.printStackTrace();
+                    fail();
                 }
                 final Map<String, Path> filesMap = new HashMap<>();
                 filesMap.put("SampleFiles.txt", file.toPath());
@@ -109,7 +114,7 @@ public class ParseJobInterruptionMapTest {
                 final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
                 jobInterruptionStore1.saveJobInterruptionStore(jobInterruptionStore1);
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -118,7 +123,7 @@ public class ParseJobInterruptionMapTest {
     }
 
     @Test
-    public void saveValuesToFiles() throws Exception {
+    public void saveValuesToFiles() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
@@ -158,7 +163,7 @@ public class ParseJobInterruptionMapTest {
                     LOG.error("No interrupted job present");
                 }
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
             }
@@ -169,51 +174,45 @@ public class ParseJobInterruptionMapTest {
     }
 
     @Test
-    public void getJobIDMap() throws Exception {
+    public void getJobIDMap() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
-                        jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint,
-                        new DeepStorageBrowserTaskProgressView<>(), null);
-                final Map<String, Map<String, FilesAndFolderMap>> filesAndFolderMap1 = jobInterruptionStore
-                        .getJobIdsModel()
-                        .getEndpoints().get(0);
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
+                    jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint,
+                    new DeepStorageBrowserTaskProgressView<>(), null);
+            final Map<String, Map<String, FilesAndFolderMap>> filesAndFolderMap1 = jobInterruptionStore
+                    .getJobIdsModel()
+                    .getEndpoints().get(0);
 
-                //Get root key of interrupted jobs id map
-                final Optional<String> resultMapKayElement = filesAndFolderMap1.entrySet().stream()
-                        .map(Map.Entry::getKey)
-                        .findFirst();
-                boolean result = true;
+            //Get root key of interrupted jobs id map
+            final Optional<String> resultMapKayElement = filesAndFolderMap1.entrySet().stream()
+                    .map(Map.Entry::getKey)
+                    .findFirst();
+            boolean result = true;
 
-                //Check if all keys/jobs id are equal
-                if (!resultMapKayElement.isPresent() || (jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size())) {
-                    result = false;
-                } else {
-                    for (final String key : jobIDMap.keySet()) {
-                        if (!jobIDMap.get(key).equals(filesAndFolderMap1.get(resultMapKayElement.get()).get(key))) {
-                            result = false;
-                        }
+            //Check if all keys/jobs id are equal
+            if (!resultMapKayElement.isPresent() || (jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size())) {
+                result = false;
+            } else {
+                for (final String key : jobIDMap.keySet()) {
+                    if (!jobIDMap.get(key).equals(filesAndFolderMap1.get(resultMapKayElement.get()).get(key))) {
+                        result = false;
                     }
                 }
-                successFlag = result;
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
             }
+            successFlag = result;
+            latch.countDown();
         });
         latch.await();
         assertTrue(successFlag);
     }
 
     @Test
-    public void removeJobIdFromFile() throws Exception {
+    public void removeJobIdFromFile() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Map<String, Path> filesMap = new HashMap<>();
-                filesMap.put("demoFile.txt", file.toPath());
+            final Map<String, Path> filesMap = new HashMap<>();
+            filesMap.put("demoFile.txt", file.toPath());
 
                 //Creating jobIdMap
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, new HashMap<>(), JobRequestType.PUT.toString(), "2/03/2017 17:26:31", false, "additional", 2567L, "demo");
@@ -225,49 +224,61 @@ public class ParseJobInterruptionMapTest {
                 endpointMapList.add(endPointMap);
 
 
-                //Saving an interrupted job to file to make method independent
-                final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);
-                final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
-                jobInterruptionStore1.saveJobInterruptionStore(jobInterruptionStore1);
+            //Saving an interrupted job to file to make method independent
+            final JobIdsModel jobIdsModel = new JobIdsModel(endpointMapList);
+            final JobInterruptionStore jobInterruptionStore1 = new JobInterruptionStore(jobIdsModel);
+            try {
+                JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore1);
                 jobInterruptionStore = JobInterruptionStore.loadJobIds();
-                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapElement = jobInterruptionStore.getJobIdsModel()
-                        .getEndpoints().stream().filter(endpoint1 -> endpoint1.containsKey(session.getEndpoint() +
-                                StringConstants.COLON + session.getPortNo())).findFirst();
+            } catch (final IOException e) {
+                e.printStackTrace();
+                fail();
+            }
 
-                //Getting jobId which to be removed
-                if(endPointsMapElement.isPresent()) {
-                    final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = endPointsMapElement.get();
-                    final Optional<String> resultMapKayElement = endPointsMapElement.get().entrySet().stream()
+            final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapElement = jobInterruptionStore.getJobIdsModel()
+                    .getEndpoints().stream().filter(endpoint1 -> endpoint1.containsKey(session.getEndpoint() +
+                            StringConstants.COLON + session.getPortNo())).findFirst();
+
+            //Getting jobId which to be removed
+            if(endPointsMapElement.isPresent()) {
+                final Map<String, Map<String, FilesAndFolderMap>> endPointsMap = endPointsMapElement.get();
+                final Optional<String> resultMapKayElement = endPointsMapElement.get().entrySet().stream()
+                        .map(Map.Entry::getKey)
+                        .findFirst();
+                if (resultMapKayElement.isPresent()) {
+                    final Optional<String> jobIdToBeRemovedElement = endPointsMap.get(resultMapKayElement.get()).entrySet().stream()
                             .map(Map.Entry::getKey)
                             .findFirst();
-                    if (resultMapKayElement.isPresent()) {
-                        final Optional<String> jobIdToBeRemovedElement = endPointsMap.get(resultMapKayElement.get()).entrySet().stream()
-                                .map(Map.Entry::getKey)
-                                .findFirst();
-                        if (jobIdToBeRemovedElement.isPresent()) {
-                            //Removing job from file
+                    if (jobIdToBeRemovedElement.isPresent()) {
+                        //Removing job from file
+                        try {
                             ParseJobInterruptionMap.removeJobIdFromFile(jobInterruptionStore, jobIdToBeRemovedElement.get(), session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                        } catch (final IOException e) {
+                            e.printStackTrace();
+                            fail();
+                        }
 
-                            final boolean isJobPresent = readNewJobId();
-                            //Validating test case
-                            if (!isJobPresent) {
-                                successFlag = true;
-                            }
+                        final boolean isJobPresent = readNewJobId();
+                        //Validating test case
+                        if (!isJobPresent) {
+                            successFlag = true;
                         }
                     }
                 }
-                latch.countDown();
-            } catch (final Exception e) {
-                e.printStackTrace();
-                latch.countDown();
             }
+            latch.countDown();
         });
         latch.await();
         assertTrue(successFlag);
     }
 
-    private boolean readNewJobId() throws Exception {
-        jobInterruptionStore = JobInterruptionStore.loadJobIds();
+    private boolean readNewJobId() {
+        try {
+            jobInterruptionStore = JobInterruptionStore.loadJobIds();
+        } catch (final IOException e) {
+            e.printStackTrace();
+            fail();
+        }
 
         final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMapNewelement = jobInterruptionStore
                 .getJobIdsModel()

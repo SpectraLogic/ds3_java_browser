@@ -54,6 +54,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class Ds3DeleteFilesTaskTest {
 
@@ -88,8 +89,9 @@ public class Ds3DeleteFilesTaskTest {
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
@@ -110,9 +112,12 @@ public class Ds3DeleteFilesTaskTest {
                 Path path = null;
                 try {
                     path = ResourceUtils.loadFileResource("files/");
-                } catch (URISyntaxException | FileNotFoundException e) {
+                } catch (final URISyntaxException | FileNotFoundException e) {
                     e.printStackTrace();
+                    latch.countDown();
+                    fail();
                 }
+
                 Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
                 HELPERS.startWriteJob(DELETE_FILES_TASK_TEST_BUCKET_NAME, objectsList);
 
@@ -145,10 +150,11 @@ public class Ds3DeleteFilesTaskTest {
                 deleteFilesTask.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();
+                    fail();
                 });
                 deleteFilesTask.setOnFailed(event -> latch.countDown());
                 deleteFilesTask.setOnCancelled(event -> latch.countDown());
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
             }

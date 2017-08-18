@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.commands.DeleteBucketRequest;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
@@ -46,6 +45,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CreateFolderTaskTest {
 
@@ -80,8 +80,9 @@ public class CreateFolderTaskTest {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
                 HELPERS.ensureBucketExists(CREATE_FOLDER_TASK_TEST_BUCKET_NAME, envDataPolicyId);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
@@ -93,45 +94,39 @@ public class CreateFolderTaskTest {
     }
 
     @Test
-    public void createFolder() throws Exception {
+    public void createFolder() throws InterruptedException, IOException {
         final CountDownLatch latch = new CountDownLatch(1);
         final String folderName = "testFolder_" + LocalDateTime.now().getSecond();
         Platform.runLater(() -> {
-            try {
+            final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
+            final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
+                    createFolderModel.getBucketName());
 
-                final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
-                final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
-                        createFolderModel.getBucketName());
+            //Instantiating create folder task
+            final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(),
+                    createFolderModel.getBucketName(),
+                    folderName,
+                    PathUtil.getDs3ObjectList(location, folderName),
+                    null,
+                    null);
+            workers.execute(createFolderTask);
 
-                //Instantiating create folder task
-                final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(),
-                        createFolderModel.getBucketName(),
-                        folderName,
-                        PathUtil.getDs3ObjectList(location, folderName),
-                        null,
-                        null);
-                workers.execute(createFolderTask);
-
-                //Validating test case
-                createFolderTask.setOnSucceeded(event -> {
-                    successFlag = true;
-                    //Releasing main thread
-                    latch.countDown();
-                });
-                createFolderTask.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                createFolderTask.setOnCancelled(event -> {
-                    latch.countDown();
-                });
-            } catch (final Exception e) {
-                e.printStackTrace();
+            //Validating test case
+            createFolderTask.setOnSucceeded(event -> {
+                successFlag = true;
+                //Releasing main thread
                 latch.countDown();
-            }
+            });
+            createFolderTask.setOnFailed(event -> {
+                latch.countDown();
+            });
+            createFolderTask.setOnCancelled(event -> {
+                latch.countDown();
+            });
         });
         latch.await();
+
         client.deleteFolderRecursivelySpectraS3(new DeleteFolderRecursivelySpectraS3Request(CREATE_FOLDER_TASK_TEST_BUCKET_NAME, folderName));
         assertTrue(successFlag);
-
     }
 }

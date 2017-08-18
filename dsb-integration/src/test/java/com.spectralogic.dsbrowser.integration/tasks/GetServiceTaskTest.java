@@ -51,6 +51,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class GetServiceTaskTest {
 
@@ -85,8 +86,9 @@ public class GetServiceTaskTest {
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
@@ -99,32 +101,36 @@ public class GetServiceTaskTest {
     }
 
     @Test
-    public void getServiceTask() throws Exception {
+    public void getServiceTask() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
                 HELPERS.ensureBucketExists(bucketName);
 
-                final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
-                final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                        Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
-                workers.execute(getServiceTask);
-                getServiceTask.setOnSucceeded(event -> {
-                    successFlag=true;
-                    latch.countDown();
-                });
-                getServiceTask.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                getServiceTask.setOnCancelled(event -> {
-                    latch.countDown();
-                });
             }catch (final Exception e){
                 e.printStackTrace();
                 latch.countDown();
             }
+
+            final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
+            final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
+                    Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
+            workers.execute(getServiceTask);
+            getServiceTask.setOnSucceeded(event -> {
+                successFlag=true;
+                latch.countDown();
             });
-            latch.await();
-            assertTrue(successFlag);
-        }
+            getServiceTask.setOnFailed(event -> {
+                latch.countDown();
+                fail();
+            });
+            getServiceTask.setOnCancelled(event -> {
+                latch.countDown();
+                fail();
+            });
+        });
+        latch.await();
+        assertTrue(successFlag);
     }
+
+}

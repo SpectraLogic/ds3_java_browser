@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -43,6 +44,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +53,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
 /**
@@ -70,75 +73,77 @@ public class Ds3CancelSingleJobTaskTest {
     public static void setConnection() {
         new JFXPanel();
         Platform.runLater(() -> {
-            try {
-                final SavedSession savedSession = new SavedSession(
-                        "CreateBucketTaskTest",
-                        client.getConnectionDetails().getEndpoint(),
-                        "80",
-                        null,
-                        new SavedCredentials(
-                                client.getConnectionDetails().getCredentials().getClientId(),
-                                client.getConnectionDetails().getCredentials().getKey()),
-                        false,
-                        false);
-                session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
+            final SavedSession savedSession = new SavedSession(
+                    "CreateBucketTaskTest",
+                    client.getConnectionDetails().getEndpoint(),
+                    "80",
+                    null,
+                    new SavedCredentials(
+                            client.getConnectionDetails().getCredentials().getClientId(),
+                            client.getConnectionDetails().getCredentials().getKey()),
+                    false,
+                    false);
+            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
         });
     }
 
     @Test
-    public void call() throws Exception {
+    public void call() throws InterruptedException {
         assumeThat("no jobs in progress", 1, is(0)); // This is not a valid test until we can set up the in-progress job.
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final Ds3Client ds3Client = session.getClient();
-                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
-                Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsCircle()).thenReturn(Mockito.mock(Circle.class));
-                Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsLabel()).thenReturn(Mockito.mock(Label.class));
-                Mockito.when(deepStorageBrowserPresenter.getRecoverInterruptedJobsButton()).thenReturn(Mockito.mock(Button.class));
-                final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
-                Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
-                final JobInterruptionStore jobInterruptionStore = JobInterruptionStore.loadJobIds();
-                final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMap = jobInterruptionStore.getJobIdsModel()
-                        .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint() + StringConstants
-                                .COLON + session.getPortNo())).findFirst();
-                if (endPointsMap.isPresent()) {
-                    final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get().get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
-                    final Optional<String> jobIdKeyElement = stringFilesAndFolderMapMap.entrySet().stream()
-                            .map(Map.Entry::getKey)
-                            .findFirst();
-                    final EndpointInfo endPointInfo = new EndpointInfo(session.getEndpoint() + StringConstants.COLON + session.getPortNo(),
-                            ds3Client,
-                            stringFilesAndFolderMapMap,
-                            deepStorageBrowserPresenter,
-                            ds3Common
-                    );
-                    final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
-                    Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
-                    if (jobIdKeyElement.isPresent()) {
-                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"), null);
-                        workers.execute(ds3CancelSingleJobTask);
-                        ds3CancelSingleJobTask.setOnSucceeded(event -> {
-                            successFlag = true;
-                            latch.countDown();
 
-                        });
-                        ds3CancelSingleJobTask.setOnFailed(event -> latch.countDown());
-                        ds3CancelSingleJobTask.setOnCancelled(event -> latch.countDown());
-                    } else {
-                        LOG.info("No job available to cancel");
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        Platform.runLater(() -> {
+            final Ds3Client ds3Client = session.getClient();
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
+            Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsCircle()).thenReturn(Mockito.mock(Circle.class));
+            Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsLabel()).thenReturn(Mockito.mock(Label.class));
+            Mockito.when(deepStorageBrowserPresenter.getRecoverInterruptedJobsButton()).thenReturn(Mockito.mock(Button.class));
+            final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
+            Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
+
+            JobInterruptionStore jobInterruptionStore = null;
+            try {
+                jobInterruptionStore = JobInterruptionStore.loadJobIds();
+            } catch (final IOException e) {
+                e.printStackTrace();
+                latch.countDown();
+                fail();
+            }
+
+            final Optional<Map<String, Map<String, FilesAndFolderMap>>> endPointsMap = jobInterruptionStore.getJobIdsModel()
+                    .getEndpoints().stream().filter(endpoint -> endpoint.containsKey(session.getEndpoint() + StringConstants
+                            .COLON + session.getPortNo())).findFirst();
+            if (endPointsMap.isPresent()) {
+                final Map<String, FilesAndFolderMap> stringFilesAndFolderMapMap = endPointsMap.get().get(session.getEndpoint() + StringConstants.COLON + session.getPortNo());
+                final Optional<String> jobIdKeyElement = stringFilesAndFolderMapMap.entrySet().stream()
+                        .map(Map.Entry::getKey)
+                        .findFirst();
+                final EndpointInfo endPointInfo = new EndpointInfo(session.getEndpoint() + StringConstants.COLON + session.getPortNo(),
+                        ds3Client,
+                        stringFilesAndFolderMapMap,
+                        deepStorageBrowserPresenter,
+                        ds3Common
+                );
+
+                final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+                Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
+                if (jobIdKeyElement.isPresent()) {
+                    final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"), null);
+                    workers.execute(ds3CancelSingleJobTask);
+                    ds3CancelSingleJobTask.setOnSucceeded(event -> {
+                        successFlag = true;
                         latch.countDown();
-                    }
+
+                    });
+                    ds3CancelSingleJobTask.setOnFailed(event -> latch.countDown());
+                    ds3CancelSingleJobTask.setOnCancelled(event -> latch.countDown());
                 } else {
                     LOG.info("No job available to cancel");
                     latch.countDown();
                 }
-
-            } catch (final Exception e) {
-                e.printStackTrace();
+            } else {
+                LOG.info("No job available to cancel");
                 latch.countDown();
             }
         });

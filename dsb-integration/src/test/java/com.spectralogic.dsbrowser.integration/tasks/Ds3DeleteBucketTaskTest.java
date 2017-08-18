@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class Ds3DeleteBucketTaskTest {
@@ -89,34 +90,30 @@ public class Ds3DeleteBucketTaskTest {
                     SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             try {
                 HELPERS.ensureBucketExists(DELETE_BUCKET_TASK_TEST_BUCKET_NAME, envDataPolicyId);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
+                fail();
             }
         });
     }
 
     @Test
-    public void deleteBucket() throws Exception {
+    public void deleteBucket() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try {
-                final Ds3DeleteBucketTask deleteBucketTask = new Ds3DeleteBucketTask(session.getClient(),
-                        DELETE_BUCKET_TASK_TEST_BUCKET_NAME);
-                workers.execute(deleteBucketTask);
-                deleteBucketTask.setOnSucceeded(event -> {
-                    successFlag = true;
-                    latch.countDown();
-                });
-                deleteBucketTask.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                deleteBucketTask.setOnCancelled(event -> {
-                    latch.countDown();
-                });
-            } catch (final Exception e) {
-                e.printStackTrace();
+            final Ds3DeleteBucketTask deleteBucketTask = new Ds3DeleteBucketTask(session.getClient(),
+                    DELETE_BUCKET_TASK_TEST_BUCKET_NAME);
+            workers.execute(deleteBucketTask);
+            deleteBucketTask.setOnSucceeded(event -> {
+                successFlag = true;
                 latch.countDown();
-            }
+            });
+            deleteBucketTask.setOnFailed(event -> {
+                latch.countDown();
+            });
+            deleteBucketTask.setOnCancelled(event -> {
+                latch.countDown();
+            });
         });
         latch.await();
         assertTrue(successFlag);

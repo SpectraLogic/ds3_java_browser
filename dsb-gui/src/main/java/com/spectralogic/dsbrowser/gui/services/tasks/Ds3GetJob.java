@@ -91,7 +91,7 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     @Override
-    public void executeJob() throws Exception {
+    public void executeJob() {
         //Job start time
         final Instant jobStartTimeInstant = Instant.now();
         LOG.info("Get Job started");
@@ -211,7 +211,7 @@ public class Ds3GetJob extends Ds3JobTask {
                                         final ImmutableList<Ds3Object> objects,
                                         final ImmutableMap.Builder<String, Path> fileMap,
                                         final ImmutableMap.Builder<String, Path> folderMap,
-                                        final long totalJobSize) throws Exception {
+                                        final long totalJobSize) throws IOException {
         final ImmutableList<String> buckets = getBuckets(filteredNode);
         final String bucket = buckets.stream().findFirst().get();
         final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);

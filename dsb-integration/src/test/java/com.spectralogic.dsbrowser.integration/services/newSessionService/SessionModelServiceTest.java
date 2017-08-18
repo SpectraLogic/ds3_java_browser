@@ -29,7 +29,6 @@ public class SessionModelServiceTest {
     private boolean successFlag = false;
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
 
-    /*
     @Test
     public void createDefaultSessionTest() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -53,5 +52,4 @@ public class SessionModelServiceTest {
         latch.await();
         assertTrue(successFlag);
     }
-    */
 }
