@@ -91,7 +91,7 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     @Override
-    public void executeJob() throws Exception {
+    public void executeJob() {
         //Job start time
         final Instant jobStartTimeInstant = Instant.now();
         LOG.info("Get Job started");
@@ -99,10 +99,9 @@ public class Ds3GetJob extends Ds3JobTask {
             updateTitle(resourceBundle.getString("blackPearlHealth"));
             if (CheckNetwork.isReachable(ds3Client)) {
                 final String startJobDate = DateFormat.formatDate(new Date());
-                updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
-                loggingService.logMessage(
-                        StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint())
-                        .toString(), LogType.INFO);
+                final String jobInitiatedString = StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString();
+                updateTitle(jobInitiatedString);
+                loggingService.logMessage(jobInitiatedString, LogType.INFO);
                 updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
 
                 final ImmutableList<Ds3TreeTableValueCustom> directories = getDirectoriesOrFiles(list, false);
@@ -212,7 +211,7 @@ public class Ds3GetJob extends Ds3JobTask {
                                         final ImmutableList<Ds3Object> objects,
                                         final ImmutableMap.Builder<String, Path> fileMap,
                                         final ImmutableMap.Builder<String, Path> folderMap,
-                                        final long totalJobSize) throws Exception {
+                                        final long totalJobSize) throws IOException {
         final ImmutableList<String> buckets = getBuckets(filteredNode);
         final String bucket = buckets.stream().findFirst().get();
         final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, 100);

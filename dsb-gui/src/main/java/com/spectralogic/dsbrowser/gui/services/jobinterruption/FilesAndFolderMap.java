@@ -41,8 +41,14 @@ public class FilesAndFolderMap {
     private String bucket;
 
     @JsonCreator
-    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files, @JsonProperty("folders") final Map<String, Path> folders, @JsonProperty("type") final String type, @JsonProperty("date") final String date, @JsonProperty("nonAdjecent")
-    final boolean nonAdjacent, @JsonProperty("targetLocation") final String targetLocation, @JsonProperty("totalJobSize") final long totalJobSize, @JsonProperty("bucket") final String bucket) {
+    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files,
+                             @JsonProperty("folders") final Map<String, Path> folders,
+                             @JsonProperty("type") final String type,
+                             @JsonProperty("date") final String date,
+                             @JsonProperty("nonAdjacent") final boolean nonAdjacent,
+                             @JsonProperty("targetLocation") final String targetLocation,
+                             @JsonProperty("totalJobSize") final long totalJobSize,
+                             @JsonProperty("bucket") final String bucket) {
         this.files = files;
         this.folders = folders;
         this.type = type;
