@@ -85,7 +85,7 @@ public class ParseJobInterruptionMapTest {
                                 client.getConnectionDetails().getCredentials().getKey()),
                         false,
                         false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+                session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
 
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();

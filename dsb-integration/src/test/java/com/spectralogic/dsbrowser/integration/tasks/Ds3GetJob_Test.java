@@ -86,7 +86,7 @@ public class Ds3GetJob_Test {
                     new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             // pre assuming that file is the direct child of bucket
             final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
                     "SampleFiles.txt",
@@ -95,7 +95,7 @@ public class Ds3GetJob_Test {
                     "2/07/2017 10:28:17",
                     "spectra",
                     false);
-            final ArrayList<Ds3TreeTableValueCustom> listTreeTable = new ArrayList<>();
+            final List<Ds3TreeTableValueCustom> listTreeTable = new ArrayList<>();
             listTreeTable.add(ds3TreeTableValueCustom);
             Path path = null;
             try {
@@ -216,7 +216,7 @@ public class Ds3GetJob_Test {
             final Ds3TreeTableValueCustom ds3TreeTableValueCustomFile = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
                     "SampleFiles.txt", Ds3TreeTableValue.Type.File,
                     3718, "2/07/2017 10:28:17", "spectra", false);
-            final ArrayList<Ds3TreeTableValueCustom> itemList = new ArrayList();
+            final List<Ds3TreeTableValueCustom> itemList = new ArrayList<>();
 
             itemList.add(ds3TreeTableValueCustomFile);
             final Map<Path, Path> childMap = ds3GetJob.addAllDescendants(ds3TreeTableValueCustomFile, itemList, null);

@@ -94,7 +94,7 @@ public class CancelJobsWorkerTest {
                                 client.getConnectionDetails().getCredentials().getKey()),
                         false,
                         false);
-                session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+                session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
 
                 //Loading resource file
                 final Path path;

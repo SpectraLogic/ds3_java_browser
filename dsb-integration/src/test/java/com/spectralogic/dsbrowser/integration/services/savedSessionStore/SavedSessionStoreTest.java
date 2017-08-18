@@ -119,7 +119,7 @@ public class SavedSessionStoreTest {
     @Test
     public void isSessionUpdatedTest() throws Exception {
         final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).getSessions();
-        session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+        session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
         assertFalse(SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).containsSessionName(savedSessions, session.getSessionName()));
     }
 
