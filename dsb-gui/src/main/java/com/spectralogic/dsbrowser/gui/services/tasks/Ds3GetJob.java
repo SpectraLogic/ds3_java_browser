@@ -33,10 +33,10 @@ import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,10 +92,6 @@ public class Ds3GetJob extends Ds3JobTask {
         return (object.getSize() == 0) && (object.getName().endsWith("/"));
     }
 
-    private static boolean isFullDirectory(final Ds3Object object) {
-        return !isEmptyDirectory(object);
-    }
-
     @SuppressWarnings("Guava")
     @Override
     public void executeJob() throws Exception {
@@ -103,9 +99,9 @@ public class Ds3GetJob extends Ds3JobTask {
             hostNotAvaialble();
             return;
         }
+        final String startJobDate = DateFormat.formatDate(new Date());
         final ImmutableMap<String, Path> fileMap = getFileMap(selectedItems);
         final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
-        final String startJobDate = DateFormat.formatDate(new Date());
         updateTitle(getJobStart(startJobDate, client));
         loggingService.logMessage(getJobStart(startJobDate, client), LogType.INFO);
         updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
@@ -117,27 +113,6 @@ public class Ds3GetJob extends Ds3JobTask {
                         .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem, fileMap, folderMap)));
     }
 
-    private static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
-        final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
-                value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
-        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
-        fileList.forEach(file -> {
-            fileMap.put(file.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
-        });
-        return fileMap.build();
-    }
-
-    private static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
-        final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
-                !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
-        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
-        folderList.forEach(folder -> {
-            fileMap.put(folder.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
-        });
-        return fileMap.build();
-    }
-
-
     private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem, final ImmutableMap<String, Path> fileMap, final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
@@ -145,16 +120,10 @@ public class Ds3GetJob extends Ds3JobTask {
         final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
-        ds3Objects.filter(Ds3GetJob::isEmptyDirectory)
-                .forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
 
-        //Save job to file
-        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(),
-                "GET", bucketName);
-
+        ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
-            job = getJobFromIterator(bucketName, ds3Objects.filter(Ds3GetJob::isFullDirectory));
+            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
             loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
@@ -163,6 +132,9 @@ public class Ds3GetJob extends Ds3JobTask {
         if (job != null) {
             jobId = job.getJobId();
         }
+        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
+                client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(),
+                "GET", bucketName);
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
         try {
@@ -178,18 +150,13 @@ public class Ds3GetJob extends Ds3JobTask {
         }
         updateUI(totalJobSize);
         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
+                client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
     }
-
-
 
     private void updateUI(final long totalJobSize) {
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(getJobTransferred(totalJobSize));
         updateProgress(totalJobSize, totalJobSize);
-        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
         loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client).toString(), LogType.SUCCESS);
     }
 
@@ -305,18 +272,15 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(final String path) {
-        final String resultPath;
+    private static String getParent(String path) {
         if (path.endsWith("/")) {
-            resultPath = path.substring(0, path.length() - 1);
-        } else {
-            resultPath = path;
+            path = path.substring(0, path.length() - 1);
         }
-        final int lastIndexOf = resultPath.lastIndexOf('/');
+        final int lastIndexOf = path.lastIndexOf('/');
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return resultPath.substring(0, lastIndexOf);
+            return path.substring(0, lastIndexOf);
         }
     }
 
@@ -330,4 +294,25 @@ public class Ds3GetJob extends Ds3JobTask {
             loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
     }
+
+    private static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
+                value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        fileList.forEach(file -> {
+            fileMap.put(file.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
+    private static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
+                !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        folderList.forEach(folder -> {
+            fileMap.put(folder.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
 }

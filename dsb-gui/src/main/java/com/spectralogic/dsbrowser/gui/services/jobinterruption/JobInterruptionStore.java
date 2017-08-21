@@ -48,9 +48,9 @@ public class JobInterruptionStore {
                 final SerializedJobInterruptionStore serializedJobInterruptionStore = JsonMapping.fromJson(inputStream, SerializedJobInterruptionStore.class);
                 final JobIdsModel jobIdsModel = serializedJobInterruptionStore.getJobIdsModel();
                 return new JobInterruptionStore(jobIdsModel);
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 Files.delete(PATH);
-                LOG.info("Creating new empty job ids store");
+                LOG.info("Creating new empty job ids store", e);
                 return empty();
             }
         } else {
@@ -67,8 +67,9 @@ public class JobInterruptionStore {
         }
         try (final OutputStream outputStream = Files.newOutputStream(PATH, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
             JsonMapping.toJson(outputStream, store);
+        } catch (final IOException e) {
+            LOG.error("Unable to persist to InterruptedJobsStore", e);
         }
-
     }
 
     public JobInterruptionStore(@JsonProperty("jobIdsModel") final JobIdsModel jobIdsModel) {

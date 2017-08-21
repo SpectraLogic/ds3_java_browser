@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.*?>
+<!--
+  ~ *******************************************************************************
+  ~    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+  ~    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+  ~    this file except in compliance with the License. A copy of the License is located at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    or in the "license" file accompanying this file.
+  ~    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+  ~    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  ~    specific language governing permissions and limitations under the License.
+  ~ *******************************************************************************
+  -->
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8"
+            fx:controller="com.spectralogic.dsbrowser.gui.components.license.LicensePresenter">
+    <children>
+        <TableView fx:id="licenseTable" layoutX="152.0" layoutY="51.0" maxHeight="1.7976931348623157E308"
+                   maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <columns>
+                <TableColumn maxWidth="200.0" minWidth="50.0" prefWidth="150.0" text="Name">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="libraryName"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn maxWidth="950.0" prefWidth="650.0" resizable="false" text="License">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="license"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>

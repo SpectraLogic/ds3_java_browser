@@ -197,17 +197,13 @@ public class Ds3PutJob extends Ds3JobTask {
     private Ds3ClientHelpers.Job getJob(final ImmutableList<Ds3Object> objects,
                                         final ImmutableMap.Builder<String, Path> fileMap,
                                         final ImmutableMap.Builder<String, Path> folderMap,
-                                        final long totalJobSize) throws Exception {
+                                        final long totalJobSize) throws IOException {
         final Ds3ClientHelpers helpers = Ds3ClientHelpers.wrap(ds3Client, Constants.RETRY_AFTER_COUNT);
         final Ds3ClientHelpers.Job job = helpers.startWriteJob(bucket, objects).withMaxParallelRequests(maximumNumberOfParallelThreads);
         jobId = job.getJobId();
-        try {
-            final String targetLocation = PathUtil.toDs3Path(bucket, targetDir);
-            ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(),
-                    ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, JobRequestType.PUT.toString(), bucket);
-        } catch (final Exception e) {
-            LOG.error("Failed to save job id: ", e);
-        }
+        final String targetLocation = PathUtil.toDs3Path(bucket, targetDir);
+        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap.build(), folderMap.build(),
+                ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, targetLocation, JobRequestType.PUT.toString(), bucket);
         return job;
     }
 
@@ -227,7 +223,9 @@ public class Ds3PutJob extends Ds3JobTask {
      * @param expandedPaths    expandedPaths
      * @param partOfDirBuilder partOfDirBuilder
      */
-    public ImmutableMap.Builder<String, Path> createFolderMap(final ImmutableList<Path> directories, final ImmutableMultimap.Builder<Path, Path> expandedPaths, final ImmutableSet.Builder<Path> partOfDirBuilder) {
+    public ImmutableMap.Builder<String, Path> createFolderMap(final ImmutableList<Path> directories,
+                                                              final ImmutableMultimap.Builder<Path, Path> expandedPaths,
+                                                              final ImmutableSet.Builder<Path> partOfDirBuilder) {
         final ImmutableMap.Builder<String, Path> folderMap = ImmutableMap.builder();
         directories.forEach(path -> {
             try {
@@ -254,7 +252,7 @@ public class Ds3PutJob extends Ds3JobTask {
      * @param dirCount  count of directories
      * @return String path
      */
-    public String getDs3ObjectPath(final Path key, final Path value, final boolean contains, final int fileCount, final int dirCount) {
+    public static String getDs3ObjectPath(final Path key, final Path value, final boolean contains, final int fileCount, final int dirCount) {
         final String ds3ObjPath;
         if (fileCount == 0) {
             ds3ObjPath = PathUtil.toDs3Obj(key, value, contains);
@@ -276,7 +274,10 @@ public class Ds3PutJob extends Ds3JobTask {
      * @param partOfDirBuilder partOfDirBuilder
      * @param expandedPaths    expandedPaths
      */
-    public ImmutableMap.Builder<String, Path> createFileMap(final ImmutableList<Path> files, final ImmutableList<Path> directories, final ImmutableSet.Builder<Path> partOfDirBuilder, final ImmutableMultimap.Builder<Path, Path> expandedPaths) {
+    public ImmutableMap.Builder<String, Path> createFileMap(final ImmutableList<Path> files,
+                                                            final ImmutableList<Path> directories,
+                                                            final ImmutableSet.Builder<Path> partOfDirBuilder,
+                                                            final ImmutableMultimap.Builder<Path, Path> expandedPaths) {
         final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
         files.forEach(filePath -> {
             boolean isContains = false;
@@ -293,7 +294,7 @@ public class Ds3PutJob extends Ds3JobTask {
         return fileMap;
     }
 
-    private void waitForPermanentStorageTransfer(final long totalJobSize) throws Exception {
+    private void waitForPermanentStorageTransfer(final long totalJobSize) throws IOException, InterruptedException {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
         final String dateOfTransfer = DateFormat.formatDate(new Date());
 

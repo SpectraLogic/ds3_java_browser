@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import com.spectralogic.dsbrowser.gui.util.Ds3Button?>
+<!--
+  ~ *******************************************************************************
+  ~    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+  ~    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+  ~    this file except in compliance with the License. A copy of the License is located at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    or in the "license" file accompanying this file.
+  ~    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+  ~    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  ~    specific language governing permissions and limitations under the License.
+  ~ *******************************************************************************
+  -->
+
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          stylesheets="@../../common.css"
+          fx:controller="com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPresenter" alignment="center" hgap="10" vgap="10">
+    <padding>
+        <Insets top="25" right="25" bottom="10" left="25"/>
+    </padding>
+    <Label text="New Bucket">
+        <font>
+            <Font name="System Bold" size="18.0"/>
+        </font>
+    </Label>
+
+    <Label fx:id="bucketNameFieldLabel"
+           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+    <TextField fx:id="bucketNameField" promptText="e.g. my_bucket"
+               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+    <Label fx:id="dataPolicyComboLabel"
+           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <ComboBox fx:id="dataPolicyCombo" prefHeight="25.0" prefWidth="269.0"
+              promptText="Select data policy" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+    <HBox spacing="10" alignment="bottom_right"
+          GridPane.columnIndex="1" GridPane.rowIndex="4">
+        <Ds3Button fx:id="createBucketButton" disable="true" mnemonicParsing="false" onAction="#createBucket"
+                text="Create"/>
+        <Ds3Button cancelButton="true" mnemonicParsing="false" onAction="#cancelCreateBucket" text="Cancel"/>
+    </HBox>
+
+</GridPane>
