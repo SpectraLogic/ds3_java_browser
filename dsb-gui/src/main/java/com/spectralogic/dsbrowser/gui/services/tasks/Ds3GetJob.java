@@ -117,7 +117,7 @@ public class Ds3GetJob extends Ds3JobTask {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName());
-        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
+        final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
 
@@ -229,7 +229,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 .sum();
     }
 
-    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
+    public FluentIterable<Ds3Object> getDS3Objects(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
         Iterable<Contents> c;
         try {
             c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
@@ -295,7 +295,7 @@ public class Ds3GetJob extends Ds3JobTask {
         }
     }
 
-    private static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+    public static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
         final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
                 value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
         final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
@@ -305,7 +305,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return fileMap.build();
     }
 
-    private static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+    public static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
         final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
                 !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
         final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
