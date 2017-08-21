@@ -121,7 +121,7 @@ public class MetadataPresenter implements Initializable {
     }
 
     //create metadata keys for showing on server
-    private static ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
+    static ImmutableList.Builder<MetadataEntry> createMetadataBuilder(final Metadata metadata, final ImmutableList.Builder<MetadataEntry> builder) {
         try {
             //if metadata does not contains creation time key then show all metadata got from bp server without any processing
             if (metadata.get(StringConstants.CREATION_TIME_KEY).size() > 0) {

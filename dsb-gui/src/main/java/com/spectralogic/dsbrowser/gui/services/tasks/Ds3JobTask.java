@@ -145,7 +145,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         }
     }
 
-    boolean isJobFailed() {
+    public boolean isJobFailed() {
         return isJobFailed;
     }
 
