@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.PutObjectRequest;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.Priority;
@@ -194,6 +195,11 @@ public class Ds3GetJob_Test {
     public void getDs3Object() throws InterruptedException {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         Platform.runLater(() -> {
+            try {
+                HELPERS.createFolder(DS3GETJOB_TEST_BUCKET_NAME, "testFolder/");
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
             final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
                     "testFolder/", Ds3TreeTableValue.Type.Directory,
                     3718, "2/07/2017 10:28:17", "spectra", false);

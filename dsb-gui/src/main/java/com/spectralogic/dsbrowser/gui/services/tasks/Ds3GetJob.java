@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("Guava")
 public class Ds3GetJob extends Ds3JobTask {
-    private static final int retryAfter = 100;
+    private static final int RETRY_AFTER = 100;
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
     private final List<Ds3TreeTableValueCustom> selectedItems;
@@ -78,7 +78,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
         this.client = client;
-        this.wrappedDs3Client = Ds3ClientHelpers.wrap(client, retryAfter);
+        this.wrappedDs3Client = Ds3ClientHelpers.wrap(client, RETRY_AFTER);
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
         this.jobPriority = jobPriority;

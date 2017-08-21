@@ -1,7 +1,6 @@
 package com.spectralogic.dsbrowser.api.services.logging;
 
 import io.reactivex.Observable;
-import org.slf4j.Logger;
 
 public interface LoggingService {
     Observable<LogEvent> getLoggerObservable();
