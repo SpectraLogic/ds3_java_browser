@@ -27,7 +27,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJobClean;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -174,7 +174,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore, loggingService));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore, loggingService, ds3Common));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -215,7 +215,7 @@ public class JobInfoPresenter implements Initializable {
             if (jobIDMap != null) {
                 jobIDMap.entrySet().forEach(i -> {
                     try {
-                        final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore, settingsStore.getShowCachedJobSettings().getShowCachedJob(), settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled());
+                        final RecoverInterruptedJobClean recoverInterruptedJob = new RecoverInterruptedJobClean(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore, ds3Common.getCurrentSession().getClient(), loggingService,  settingsStore, resourceBundle);
                         jobWorkers.execute(recoverInterruptedJob);
                         final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());

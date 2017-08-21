@@ -1,0 +1,297 @@
+/* ****************************************************************************
+ *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ *  **************************************************************************** */
+
+package com.spectralogic.dsbrowser.gui.services.tasks;
+
+import com.google.common.collect.ImmutableMap;
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.helpers.FileObjectGetter;
+import com.spectralogic.ds3client.helpers.FileObjectPutter;
+import com.spectralogic.ds3client.helpers.JobRecoveryException;
+import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
+import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
+import com.spectralogic.ds3client.models.JobRequestType;
+import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
+import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
+import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.util.DateFormat;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
+import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.spectralogic.ds3client.models.JobRequestType.*;
+import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+
+public class RecoverInterruptedJobClean extends Ds3JobTask {
+
+    private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJobClean.class);
+
+    private final UUID uuid;
+    private final EndpointInfo endpointInfo;
+    private final JobInterruptionStore jobInterruptionStore;
+    private final ResourceBundle resourceBundle;
+    private final SettingsStore settingsStore;
+
+    public RecoverInterruptedJobClean(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
+        this.uuid = uuid;
+        this.endpointInfo = endpointInfo;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.ds3Client = client;
+        this.loggingService = loggingService;
+        this.resourceBundle = resourceBundle;
+        this.settingsStore = settingsStore;
+    }
+
+    @Override
+    public void executeJob() throws Exception {
+        final FilesAndFolderMap filesAndFolderMap = getFilesAndFolderMap(endpointInfo, uuid);
+        final JobRequestType jobRequestType = JobRequestType.valueOf(filesAndFolderMap.getType());
+        this.job = getJob(ds3Client, uuid, jobRequestType, loggingService);
+        if (job == null) {
+            return;
+        }
+        final UUID jobId = job.getJobId();
+        final String bucketName = job.getBucketName();
+        final String date = DateFormat.formatDate(new Date());
+        final Instant jobStartInstant = Instant.now();
+        final String targetLocation = filesAndFolderMap.getTargetLocation();
+        final String jobDate = filesAndFolderMap.getDate();
+        final String endpointName = endpointInfo.getEndpoint();
+        final String message = buildMessage(jobRequestType, bucketName);
+        final String titleMessage = buildTitle(date, jobRequestType, endpointName);
+        final String logMessage = buildLogMessage(jobRequestType, jobDate);
+        final Map<String, Path> filesMap = filesAndFolderMap.getFiles();
+        final Map<String, Path> foldersMap = filesAndFolderMap.getFolders();
+        final long totalJobSize = filesAndFolderMap.getTotalJobSize();
+        final AtomicLong totalSent = addDataTransferListener(totalJobSize);
+        final boolean isFilePropertiesEnabled = settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled();
+        final boolean isNonAdjacent = filesAndFolderMap.isNonAdjacent();
+        final boolean isCacheJobEnable = settingsStore.getShowCachedJobSettings().getShowCachedJob();
+        final String buildGetRecoveringMessage = buildGetRecoveringMessage(targetLocation, totalJobSize, resourceBundle);
+        final String buildPutRecoveringMessage = buildPutRecoveringMessage(targetLocation, totalJobSize, isCacheJobEnable, resourceBundle);
+        final String buildFinalMessage = buildFinalMessage(targetLocation, totalJobSize, resourceBundle);
+
+
+        updateTitle(titleMessage);
+        loggingService.logMessage(logMessage, INFO);
+
+        updateMessage(message);
+
+        job.attachObjectCompletedListener(s -> onCompleteListener(jobStartInstant, targetLocation, totalJobSize, totalSent, s));
+        addWaitingForChunkListener(totalJobSize, targetLocation);
+
+        if (isFilePropertiesEnabled) {
+            LOG.info("Registering metadata access Implementation");
+            job.withMetadata(new MetadataAccessImpl(ImmutableMap.copyOf(filesMap)));
+        }
+
+        job.transfer(objectName -> buildTransfer(targetLocation, jobRequestType, filesMap, foldersMap, isNonAdjacent, objectName));
+
+        if (jobRequestType == GET) {
+            updateMessage(buildGetRecoveringMessage);
+            loggingService.logMessage(buildGetRecoveringMessage, SUCCESS);
+        } else {
+            updateMessage(buildPutRecoveringMessage);
+            loggingService.logMessage(buildPutRecoveringMessage, SUCCESS);
+        }
+        updateProgress(totalJobSize, totalJobSize);
+
+        final GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+        if (cacheIsEnabledAndIsPut(filesAndFolderMap, isCacheJobEnable)) {
+            retryJob(response, ds3Client, jobId);
+        }
+        loggingService.logMessage(buildFinalMessage, SUCCESS);
+        removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
+
+    }
+
+    private static String buildFinalMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
+        return resourceBundle.getString("jobSize")
+                + StringConstants.SPACE + FileSizeFormat.getFileSizeType(totalJobSize) + StringConstants.SPACE
+                + resourceBundle.getString("recoveryCompleted") + StringConstants.SPACE
+                + targetLocation + StringConstants.SPACE
+                + resourceBundle.getString("storageLocation");
+    }
+
+    private static void retryJob(GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
+        while (jobIsNotComplete(response)) {
+            Thread.sleep(60000);
+            response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+        }
+    }
+
+    private static boolean cacheIsEnabledAndIsPut(final FilesAndFolderMap filesAndFolderMap, final boolean isCacheJobEnable) {
+        return isCacheJobEnable && filesAndFolderMap.getType().equals(PUT.toString());
+    }
+
+    private static boolean jobIsNotComplete(final GetJobSpectraS3Response response) {
+        return !response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED);
+    }
+
+    private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle) {
+        return resourceBundle.getString("recovering") + StringConstants.SPACE
+                + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
+                targetLocation, DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
+    }
+
+    private static String buildGetRecoveringMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
+        return resourceBundle.getString("recovering") + StringConstants.SPACE
+                + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
+                FileSizeFormat.getFileSizeType(totalJobSize), targetLocation,
+                DateFormat.formatDate(new Date()), null, false).toString();
+    }
+
+    private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final boolean isNonAdjacent, final String objectName) throws IOException {
+        if (jobRequestType == PUT) {
+            if (!Guard.isMapNullOrEmpty(filesMap) && filesMap.containsKey(objectName)) {
+                return new FileObjectPutter(filesMap.get(objectName)).buildChannel(StringConstants.EMPTY_STRING);
+            } else {
+                return new FileObjectPutter(getFinalJobPath(foldersMap, objectName)).buildChannel(StringConstants.EMPTY_STRING);
+            }
+        } else {
+            if (isNonAdjacent) {
+                return new FileObjectGetter(Paths.get(targetLocation)).buildChannel(objectName);
+            } else {
+                final String skipPath = getSkipPath(objectName, foldersMap);
+                if (Guard.isStringNullOrEmpty(skipPath)) {
+                    return new FileObjectGetter(Paths.get(targetLocation)).buildChannel(objectName);
+                } else {
+                    return new PrefixRemoverObjectChannelBuilder(
+                            new FileObjectGetter(Paths.get(targetLocation)), skipPath)
+                            .buildChannel(objectName.substring((StringConstants.FORWARD_SLASH + skipPath).length()));
+                }
+            }
+
+        }
+    }
+
+    private static String getSkipPath(final String obj, final Map<String, Path> foldersMap) {
+        final File file = new File(obj);
+        if (Guard.isMapNullOrEmpty(foldersMap)) {
+            if (file.getParent() != null) {
+                return file.getParent();
+            }
+        }
+        return StringConstants.EMPTY_STRING;
+    }
+
+    private static Path getFinalJobPath(final Map<String, Path> foldersMap, final String obj) {
+        final Map.Entry<String, Path> stringPathEntry = foldersMap
+                .entrySet()
+                .stream()
+                .filter(value -> obj.contains(value.getKey()))
+                .findFirst().get();
+
+        final String restOfThePath = obj.replaceFirst(stringPathEntry.getKey(), StringConstants.EMPTY_STRING);
+        return Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
+    }
+
+    private void onCompleteListener(final Instant jobStartInstant, final String targetLocation, final long totalJobSize, final AtomicLong totalSent, final String s) {
+        LOG.info("Object Transfer Completed {}", s);
+        getTransferRates(jobStartInstant, totalSent, totalJobSize, s, targetLocation);
+        loggingService.logMessage(
+                buildSuccessMessage(targetLocation, s, resourceBundle), SUCCESS);
+    }
+
+    private static String buildSuccessMessage(final String targetLocation, final String s, final ResourceBundle resourceBundle) {
+        return resourceBundle.getString("successfullyTransferred")
+                + StringConstants.SPACE + s + StringConstants.SPACE
+                + resourceBundle.getString("to") + StringConstants.SPACE
+                + targetLocation;
+    }
+
+    private static String buildLogMessage(final JobRequestType type, final String date) {
+        return StringBuilderUtil.getRecoverJobTransferringForLogs(type.toString(), date).toString();
+    }
+
+    private static String buildTitle(final String date, final JobRequestType type, final String endpointName) {
+        return StringBuilderUtil.getRecoverJobTransferringForTitle(type.toString(), endpointName, date).toString();
+    }
+
+    private static String buildMessage(final JobRequestType jobRequestType, final String bucketName) {
+        switch (jobRequestType) {
+            case PUT:
+                return StringBuilderUtil.getRecoverJobInitiateTransferTo(bucketName).toString();
+            case GET:
+                return StringBuilderUtil.getRecoverJobInitiateTransferFrom(bucketName).toString();
+            default:
+                return "ERROR";
+        }
+    }
+
+    private static FilesAndFolderMap getFilesAndFolderMap(final EndpointInfo endpointInfo, final UUID uuid) {
+        return endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
+    }
+
+    private static Ds3ClientHelpers.Job getJob(final Ds3Client ds3Client, final UUID uuid, final JobRequestType jobRequestType, final LoggingService loggingService) {
+        switch (jobRequestType) {
+            case PUT:
+                return buildWriteJob(ds3Client, uuid, loggingService);
+            case GET:
+                return buildReadJob(ds3Client, uuid, loggingService);
+            default:
+                return null;
+        }
+    }
+
+
+    private static Ds3ClientHelpers.Job buildWriteJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
+        final String uuidText = uuid.toString();
+        try {
+            return Ds3ClientHelpers.wrap(ds3Client, 100).recoverWriteJob(uuid);
+        } catch (final IOException e) {
+            loggingService.logMessage("Unable to performe IO for " + uuidText, ERROR);
+            LOG.error("Unable to build write job", e);
+        } catch (final JobRecoveryException e) {
+            loggingService.logMessage("Unable to recover job for " + uuidText, ERROR);
+            LOG.error("Unable to build write job", e);
+        }
+        return null;
+    }
+
+    private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
+        try {
+            return Ds3ClientHelpers.wrap(ds3Client, 100).recoverReadJob(uuid);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        } catch (final JobRecoveryException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public UUID getJobId() {
+        return uuid;
+    }
+}
