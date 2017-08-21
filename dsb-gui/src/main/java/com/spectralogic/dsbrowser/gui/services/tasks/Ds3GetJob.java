@@ -17,6 +17,8 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -34,12 +36,15 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -98,6 +103,8 @@ public class Ds3GetJob extends Ds3JobTask {
             hostNotAvaialble();
             return;
         }
+        final ImmutableMap<String, Path> fileMap = getFileMap(selectedItems);
+        final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
         final String startJobDate = DateFormat.formatDate(new Date());
         updateTitle(getJobStart(startJobDate, client));
         loggingService.logMessage(getJobStart(startJobDate, client), LogType.INFO);
@@ -107,10 +114,31 @@ public class Ds3GetJob extends Ds3JobTask {
                 .map(Ds3TreeTableValueCustom::getBucketName).distinct()
                 .forEach(bucketName -> selectedItems.stream()
                         .filter(item -> bucketName.equals(item.getBucketName()))
-                        .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem)));
+                        .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem, fileMap, folderMap)));
     }
 
-    private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
+    private static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
+                value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        fileList.forEach(file -> {
+            fileMap.put(file.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
+    private static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
+                !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        folderList.forEach(folder -> {
+            fileMap.put(folder.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
+
+    private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem, final ImmutableMap<String, Path> fileMap, final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName());
@@ -119,6 +147,12 @@ public class Ds3GetJob extends Ds3JobTask {
         final Ds3ClientHelpers.Job job;
         ds3Objects.filter(Ds3GetJob::isEmptyDirectory)
                 .forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
+
+        //Save job to file
+        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
+                ds3Client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(),
+                "GET", bucketName);
+
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(Ds3GetJob::isFullDirectory));
         } catch (final IOException e) {
@@ -143,7 +177,12 @@ public class Ds3GetJob extends Ds3JobTask {
             LOG.error("Unable to transfer Job", e);
         }
         updateUI(totalJobSize);
+        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
+                ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, ds3Client).toString(), LogType.SUCCESS);
     }
+
+
 
     private void updateUI(final long totalJobSize) {
         updateProgress(totalJobSize, totalJobSize);
