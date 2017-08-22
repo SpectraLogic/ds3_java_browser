@@ -32,4 +32,5 @@ public class LoggingServiceImpl implements LoggingService {
     public void logMessage(final String message, final LogType logType) {
         subject.onNext(new LogEvent(message, logType)); // log an event to all subscribers (in our case: DeepStorageBrowserPresenter::logText())
     }
+
 }

@@ -18,7 +18,7 @@ hs_err_pid*
 .gradle/
 build/
 classes/
-
+dsb-integration/out/
 ### .Net
 .vs/
 bin/
@@ -28,3 +28,5 @@ obj/
 *.suo
 ### Ignoring build.gradle~
 *~
+### MacOS
+.DS_Store

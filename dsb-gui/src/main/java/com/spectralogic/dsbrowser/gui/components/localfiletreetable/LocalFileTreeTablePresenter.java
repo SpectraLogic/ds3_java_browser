@@ -477,7 +477,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final TreeItem<FileTreeModel> fileTreeItem) {
         final Ds3GetJob getJob = new Ds3GetJob(listFiles, localPath, session.getClient(),
                 priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                deepStorageBrowserPresenter, session, resourceBundle, loggingService);
+                deepStorageBrowserPresenter, resourceBundle, loggingService);
         jobWorkers.execute(getJob);
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");

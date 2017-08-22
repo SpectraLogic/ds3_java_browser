@@ -16,11 +16,6 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.PutObjectRequest;
-import com.spectralogic.ds3client.commands.decorators.PutFolderRequest;
-import com.spectralogic.ds3client.commands.decorators.PutFolderResponse;
-import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Response;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;

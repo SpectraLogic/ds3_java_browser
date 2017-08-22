@@ -20,7 +20,7 @@ import org.junit.Test;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class BuildInfoService_Test {
 
