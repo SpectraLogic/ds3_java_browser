@@ -125,6 +125,9 @@ public class ShutdownServiceImpl implements ShutdownService {
         System.exit(0);
     }
 
+    /*
+     * Cancel any jobs that are not fully uploaded to cache
+     */
     private class ShutdownTask extends Task {
 
         private final ImmutableList<Ds3JobTask> outstandingJobs;
@@ -161,8 +164,8 @@ public class ShutdownServiceImpl implements ShutdownService {
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
-                } catch (final Exception e1) {
-                    LOG.error("Failed to cancel job", e1);
+                } catch (final InterruptedException  | IOException e) {
+                    LOG.error("Failed to cancel job", e);
                 }
             });
             return null;

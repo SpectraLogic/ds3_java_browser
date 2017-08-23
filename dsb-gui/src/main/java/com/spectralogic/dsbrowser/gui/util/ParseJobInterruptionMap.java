@@ -31,6 +31,7 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,8 +49,8 @@ public final class ParseJobInterruptionMap {
         if (!Guard.isNullOrEmpty(endpoints) && endpoints.stream().anyMatch(i -> i.containsKey(endpoint))
                 && !Guard.isStringNullOrEmpty(endpoint)) {
 
-            final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = endpoints.stream().filter(i -> i
-                    .containsKey(endpoint)).findFirst();
+            final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = endpoints.stream()
+                    .filter(i -> i.containsKey(endpoint)).findFirst();
             if (first.isPresent()) {
                 final Map<String, Map<String, FilesAndFolderMap>> endpointMap = first.get();
                 final Map<String, FilesAndFolderMap> jobIDMap = endpointMap.get(endpoint);
@@ -70,7 +71,8 @@ public final class ParseJobInterruptionMap {
     }
 
     public static Map<String, FilesAndFolderMap> removeJobID(final JobInterruptionStore jobInterruptionStore,
-                                                             final String uuid, final String endpoint,
+                                                             final String uuid,
+                                                             final String endpoint,
                                                              final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                                                              final LoggingService loggingService) {
         final ImmutableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = jobInterruptionStore.getJobIdsModel().getEndpoints().stream().collect(GuavaCollectors.immutableList());
@@ -78,7 +80,7 @@ public final class ParseJobInterruptionMap {
                 && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
             try {
                 removeJobIdFromFile(jobInterruptionStore, uuid, endpoint);
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 LOG.error("Encountered an exception when trying to remove a job", e);
                 loggingService.logMessage("Failed to remove job id: " + e, LogType.ERROR);
             }
@@ -91,17 +93,18 @@ public final class ParseJobInterruptionMap {
     }
 
     public static void removeJobIdFromFile(final JobInterruptionStore jobInterruptionStore,
-                                           final String uuid, final String endpoint) throws Exception {
+                                           final String uuid,
+                                           final String endpoint) throws IOException {
         final Map<String, FilesAndFolderMap> jobIdMap;
         final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
-        final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = completeArrayList.stream().filter(i
-                -> i.containsKey(endpoint)).findFirst();
+        final Optional<Map<String, Map<String, FilesAndFolderMap>>> first = completeArrayList.stream()
+                .filter(i -> i.containsKey(endpoint)).findFirst();
         if (first.isPresent()) {
-            final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = first.get();
-            if (!Guard.isMapNullOrEmpty(endpointsImmutableMap)) {
-                final HashMap<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsImmutableMap.entrySet()
+            final Map<String, Map<String, FilesAndFolderMap>> endpointsMap = new HashMap<>(first.get());
+            if (!Guard.isMapNullOrEmpty(endpointsMap)) {
+                final Map<String, Map<String, FilesAndFolderMap>> endpointHashMap = endpointsMap.entrySet()
                         .stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, HashMap::new));
-                completeArrayList.remove(endpointsImmutableMap);
+                completeArrayList.remove(endpointsMap);
                 if (endpointHashMap.containsKey(endpoint)) {
                     jobIdMap = endpointHashMap.get(endpoint)
                             .entrySet()
@@ -131,37 +134,37 @@ public final class ParseJobInterruptionMap {
     }
 
     private static void setInterruptJobStatus(final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                                              final boolean isJobInterrupted, final int size) {
+                                              final boolean isJobInterrupted,
+                                              final int size) {
         Platform.runLater(() -> {
-            try {
-                if (isJobInterrupted) {
-                    deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(true);
-                    deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(false);
-                    deepStorageBrowserPresenter.getNumInterruptedJobsLabel().setText(String.valueOf(size));
-                } else {
-                    deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(false);
-                    deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(true);
-                    deepStorageBrowserPresenter.getNumInterruptedJobsLabel().setText("");
-                }
-            } catch (final Exception e) {
-                LOG.error("not able to set Job status", e);
+            if (isJobInterrupted) {
+                deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(true);
+                deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(false);
+                deepStorageBrowserPresenter.getNumInterruptedJobsLabel().setText(String.valueOf(size));
+            } else {
+                deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(false);
+                deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(true);
+                deepStorageBrowserPresenter.getNumInterruptedJobsLabel().setText("");
             }
         });
     }
 
     public static void saveValuesToFiles(final JobInterruptionStore jobInterruptionStore,
-                                         final ImmutableMap<String, Path> filesMap,
-                                         final ImmutableMap<String, Path> foldersMap,
-                                         final String endpoint, final UUID jobId,
-                                         final long totalJobSize, final String targetLocation,
-                                         final String jobType, final String bucket) {
+                                         final Map<String, Path> filesMap,
+                                         final Map<String, Path> foldersMap,
+                                         final String endpoint,
+                                         final UUID jobId,
+                                         final long totalJobSize,
+                                         final String targetLocation,
+                                         final String jobType,
+                                         final String bucket) {
         if (jobInterruptionStore != null && jobInterruptionStore.getJobIdsModel() != null) {
-            try {
                 final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
                 boolean isNonAdjacent = false;
                 if (!Guard.isMapNullOrEmpty(filesMap) && !Guard.isMapNullOrEmpty(foldersMap)) {
                     isNonAdjacent = true;
                 }
+
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, foldersMap, jobType, DateFormat.formatDate(new Date()), isNonAdjacent, targetLocation, totalJobSize, bucket);
                 if (!Guard.isNullOrEmpty(completeArrayList) && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {
 
@@ -169,31 +172,29 @@ public final class ParseJobInterruptionMap {
                             .stream().filter(i -> i.containsKey(endpoint)).findFirst();
 
                     if (first.isPresent()) {
-                        final Map<String, Map<String, FilesAndFolderMap>> endpointsImmutableMap = first.get();
-                        if (!Guard.isMapNullOrEmpty(endpointsImmutableMap) && endpointsImmutableMap.containsKey(endpoint)) {
-                            final Map<String, FilesAndFolderMap> jobIdImmutableMap = endpointsImmutableMap.get(endpoint);
+                        final Map<String, Map<String, FilesAndFolderMap>> endpointsMap = first.get();
+
+                        if (!Guard.isMapNullOrEmpty(endpointsMap) && endpointsMap.containsKey(endpoint)) {
+                            final Map<String, FilesAndFolderMap> jobIdImmutableMap = endpointsMap.get(endpoint);
                             jobIdImmutableMap.put(jobId.toString(), filesAndFolderMap);
                         } else {
-                            final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();
-                            jobIdHashMap.put(jobId.toString(), filesAndFolderMap);
-                            endpointsImmutableMap.put(endpoint, jobIdHashMap);
+                            final ImmutableMap<String, FilesAndFolderMap> jobIdHashMap = ImmutableMap.of(jobId.toString(), filesAndFolderMap);
+                            endpointsMap.put(endpoint, jobIdHashMap);
                         }
                         jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
                     }
-
-                    //TODO This else if is always true
-                } else if (null != completeArrayList) {
+                } else {
                     final Map<String, Map<String, FilesAndFolderMap>> endpointsHashMap = new HashMap<>();
                     final Map<String, FilesAndFolderMap> jobIdHashMap = new HashMap<>();
                     jobIdHashMap.put(jobId.toString(), filesAndFolderMap);
                     endpointsHashMap.put(endpoint, jobIdHashMap);
                     completeArrayList.add(endpointsHashMap);
                     jobInterruptionStore.getJobIdsModel().setEndpoints(completeArrayList);
-                } else {
                     LOG.info("No entry found");
                 }
+            try {
                 JobInterruptionStore.saveJobInterruptionStore(jobInterruptionStore);
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 LOG.error("Failed to save job ids", e);
             }
         }

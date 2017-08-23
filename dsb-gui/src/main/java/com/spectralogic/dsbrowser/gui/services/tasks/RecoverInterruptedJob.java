@@ -225,7 +225,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
      * @param foldersMap folder directory map
      * @return skipped path
      */
-    public String getSkipPath(final String obj, final Map<String, Path> foldersMap) {
+    public static String getSkipPath(final String obj, final Map<String, Path> foldersMap) {
         final File file = new File(obj);
         if (Guard.isMapNullOrEmpty(foldersMap)) {
             if (file.getParent() != null) {
