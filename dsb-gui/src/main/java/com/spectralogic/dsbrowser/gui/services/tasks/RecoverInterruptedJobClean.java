@@ -47,10 +47,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.Date;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RecoverInterruptedJobClean extends Ds3JobTask {
@@ -96,12 +93,10 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         final long totalJobSize = filesAndFolderMap.getTotalJobSize();
         final AtomicLong totalSent = addDataTransferListener(totalJobSize);
         final boolean isFilePropertiesEnabled = settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled();
-        final boolean isNonAdjacent = filesAndFolderMap.isNonAdjacent();
         final boolean isCacheJobEnable = settingsStore.getShowCachedJobSettings().getShowCachedJob();
         final String buildGetRecoveringMessage = buildGetRecoveringMessage(targetLocation, totalJobSize, resourceBundle);
         final String buildPutRecoveringMessage = buildPutRecoveringMessage(targetLocation, totalJobSize, isCacheJobEnable, resourceBundle);
         final String buildFinalMessage = buildFinalMessage(targetLocation, totalJobSize, resourceBundle);
-
 
         updateTitle(titleMessage);
         loggingService.logMessage(logMessage, INFO);
@@ -111,14 +106,14 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         job.attachObjectCompletedListener(s -> onCompleteListener(jobStartInstant, targetLocation, totalJobSize, totalSent, s));
         addWaitingForChunkListener(totalJobSize, targetLocation);
 
-        if (isFilePropertiesEnabled) {
+        if (isFilePropertiesEnabled && !filesMap.isEmpty()) {
             LOG.info("Registering metadata access Implementation");
             job.withMetadata(new MetadataAccessImpl(ImmutableMap.copyOf(filesMap)));
         }
 
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize, totalSent));
 
-        job.transfer(objectName -> buildTransfer(targetLocation, jobRequestType, filesMap, foldersMap, isNonAdjacent, objectName));
+        job.transfer(objectName -> buildTransfer(targetLocation, jobRequestType, filesMap, foldersMap, objectName));
 
         Platform.runLater(() -> {
             updateProgressAndLog(jobRequestType, totalJobSize, totalSent, buildGetRecoveringMessage, buildPutRecoveringMessage);
@@ -198,7 +193,7 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
                 DateFormat.formatDate(new Date()), null, false).toString();
     }
 
-    private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final boolean isNonAdjacent, final String objectName) throws IOException {
+    private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final String objectName) throws IOException {
         if (jobRequestType == PUT) {
             if (!Guard.isMapNullOrEmpty(filesMap) && filesMap.containsKey(objectName)) {
                 return new FileObjectPutter(filesMap.get(objectName)).buildChannel(StringConstants.EMPTY_STRING);
@@ -206,20 +201,16 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
                 return new FileObjectPutter(getFinalJobPath(foldersMap, objectName)).buildChannel(StringConstants.EMPTY_STRING);
             }
         } else {
-            if (isNonAdjacent) {
+            final String skipPath = getSkipPath(objectName, foldersMap);
+            if (Guard.isStringNullOrEmpty(skipPath)) {
                 return new FileObjectGetter(Paths.get(targetLocation)).buildChannel(objectName);
             } else {
-                final String skipPath = getSkipPath(objectName, foldersMap);
-                if (Guard.isStringNullOrEmpty(skipPath)) {
-                    return new FileObjectGetter(Paths.get(targetLocation)).buildChannel(objectName);
-                } else {
-                    return new PrefixRemoverObjectChannelBuilder(
-                            new FileObjectGetter(Paths.get(targetLocation)), skipPath)
-                            .buildChannel(objectName.substring((StringConstants.FORWARD_SLASH + skipPath).length()));
-                }
+                return new PrefixRemoverObjectChannelBuilder(
+                        new FileObjectGetter(Paths.get(targetLocation)), skipPath)
+                        .buildChannel(objectName.substring((StringConstants.FORWARD_SLASH + skipPath).length()));
             }
-
         }
+
     }
 
     private static String getSkipPath(final String obj, final Map<String, Path> foldersMap) {
@@ -235,19 +226,20 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
     private static Path getFinalJobPath(final Map<String, Path> foldersMap, final String obj) {
         final String startOfPath;
         if (foldersMap.isEmpty()) {
-           startOfPath = "";
+            startOfPath = "";
         } else {
             startOfPath = foldersMap.keySet().toArray(new String[1])[0];
         }
 
         final int last = startOfPath.lastIndexOf('/');
         final String result;
-        if(last > 0) {
+        if (last > 0) {
             result = startOfPath.substring(0, last);
         } else {
-            result = "";
+            result = "/";
         }
-        return Paths.get(result, obj);
+        final Path resultPath = Paths.get("/", result, obj);
+        return resultPath;
     }
 
     private void onCompleteListener(final Instant jobStartInstant, final String targetLocation, final long totalJobSize, final AtomicLong totalSent, final String s) {

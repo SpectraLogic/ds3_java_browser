@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 
@@ -33,7 +34,7 @@ public class FilesAndFolderMap {
     private String type;
     @JsonProperty("date")
     private String date;
-    @JsonProperty("nonAdjacent")
+    @JsonIgnoreProperties("nonAdjacent")
     private boolean nonAdjacent;
     @JsonProperty("targetLocation")
     private String targetLocation;
@@ -77,9 +78,9 @@ public class FilesAndFolderMap {
         this.totalJobSize = totalJobSize;
     }
 
-    public boolean isNonAdjacent() {
+    /*public boolean isNonAdjacent() {
         return nonAdjacent;
-    }
+    }*/
 
     public void setNonAdjacent(final boolean nonAdjacent) {
         this.nonAdjacent = nonAdjacent;
