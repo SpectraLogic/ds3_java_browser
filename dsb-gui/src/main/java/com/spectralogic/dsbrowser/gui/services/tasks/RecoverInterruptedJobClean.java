@@ -34,6 +34,7 @@ import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,7 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
 
     @Override
     public void executeJob() throws Exception {
-        final FilesAndFolderMap filesAndFolderMap = getFilesAndFolderMap(endpointInfo, uuid);
+        final FilesAndFolderMap filesAndFolderMap = FilesAndFolderMap.buildFromEndpoint(endpointInfo, uuid);
         final JobRequestType jobRequestType = JobRequestType.valueOf(filesAndFolderMap.getType());
         this.job = getJob(ds3Client, uuid, jobRequestType, loggingService);
         if (job == null) {
@@ -115,8 +116,41 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
             job.withMetadata(new MetadataAccessImpl(ImmutableMap.copyOf(filesMap)));
         }
 
+        job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize, totalSent));
+
         job.transfer(objectName -> buildTransfer(targetLocation, jobRequestType, filesMap, foldersMap, isNonAdjacent, objectName));
 
+        Platform.runLater(() -> {
+            updateProgressAndLog(jobRequestType, totalJobSize, totalSent, buildGetRecoveringMessage, buildPutRecoveringMessage);
+        });
+
+        try {
+            waitForTransfer(filesAndFolderMap, jobId, isCacheJobEnable, ds3Client);
+        } catch (final IOException e) {
+            LOG.error("IO", e);
+
+        } catch (final InterruptedException e) {
+            LOG.error("Interuption", e);
+
+        }
+        loggingService.logMessage(buildFinalMessage, SUCCESS);
+        removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
+
+    }
+
+    private void setDataTransferredListener(final long l, final Long totalJobSize, final AtomicLong totalSent) {
+        updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
+        totalSent.addAndGet(l);
+    }
+
+    private static void waitForTransfer(final FilesAndFolderMap filesAndFolderMap, final UUID jobId, final boolean isCacheJobEnable, final Ds3Client ds3Client) throws IOException, InterruptedException {
+        final GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+        if (cacheIsEnabledAndIsPut(filesAndFolderMap, isCacheJobEnable)) {
+            retryJob(response, ds3Client, jobId);
+        }
+    }
+
+    private void updateProgressAndLog(final JobRequestType jobRequestType, final long totalJobSize, final AtomicLong totalSent, final String buildGetRecoveringMessage, final String buildPutRecoveringMessage) {
         if (jobRequestType == GET) {
             updateMessage(buildGetRecoveringMessage);
             loggingService.logMessage(buildGetRecoveringMessage, SUCCESS);
@@ -124,15 +158,7 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
             updateMessage(buildPutRecoveringMessage);
             loggingService.logMessage(buildPutRecoveringMessage, SUCCESS);
         }
-        updateProgress(totalJobSize, totalJobSize);
-
-        final GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
-        if (cacheIsEnabledAndIsPut(filesAndFolderMap, isCacheJobEnable)) {
-            retryJob(response, ds3Client, jobId);
-        }
-        loggingService.logMessage(buildFinalMessage, SUCCESS);
-        removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
-
+        updateProgress(totalSent.get(), totalJobSize);
     }
 
     private static String buildFinalMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
@@ -143,10 +169,11 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
                 + resourceBundle.getString("storageLocation");
     }
 
-    private static void retryJob(GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
-        while (jobIsNotComplete(response)) {
+    private static void retryJob(final GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
+        GetJobSpectraS3Response r = response;
+        while (jobIsNotComplete(r)) {
             Thread.sleep(60000);
-            response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+            r = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
         }
     }
 
@@ -206,14 +233,21 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
     }
 
     private static Path getFinalJobPath(final Map<String, Path> foldersMap, final String obj) {
-        final Map.Entry<String, Path> stringPathEntry = foldersMap
-                .entrySet()
-                .stream()
-                .filter(value -> obj.contains(value.getKey()))
-                .findFirst().get();
+        final String startOfPath;
+        if (foldersMap.isEmpty()) {
+           startOfPath = "";
+        } else {
+            startOfPath = foldersMap.keySet().toArray(new String[1])[0];
+        }
 
-        final String restOfThePath = obj.replaceFirst(stringPathEntry.getKey(), StringConstants.EMPTY_STRING);
-        return Paths.get(stringPathEntry.getValue().toString(), restOfThePath);
+        final int last = startOfPath.lastIndexOf('/');
+        final String result;
+        if(last > 0) {
+            result = startOfPath.substring(0, last);
+        } else {
+            result = "";
+        }
+        return Paths.get(result, obj);
     }
 
     private void onCompleteListener(final Instant jobStartInstant, final String targetLocation, final long totalJobSize, final AtomicLong totalSent, final String s) {
@@ -249,10 +283,6 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         }
     }
 
-    private static FilesAndFolderMap getFilesAndFolderMap(final EndpointInfo endpointInfo, final UUID uuid) {
-        return endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
-    }
-
     private static Ds3ClientHelpers.Job getJob(final Ds3Client ds3Client, final UUID uuid, final JobRequestType jobRequestType, final LoggingService loggingService) {
         switch (jobRequestType) {
             case PUT:
@@ -263,7 +293,6 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
                 return null;
         }
     }
-
 
     private static Ds3ClientHelpers.Job buildWriteJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
         final String uuidText = uuid.toString();

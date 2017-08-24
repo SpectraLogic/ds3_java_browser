@@ -17,9 +17,11 @@ package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 
 public class FilesAndFolderMap {
 
@@ -121,6 +123,10 @@ public class FilesAndFolderMap {
 
     public void setType(final String type) {
         this.type = type;
+    }
+
+    public static FilesAndFolderMap buildFromEndpoint(final EndpointInfo endpointInfo, final UUID uuid) {
+        return endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
     }
 
 }
