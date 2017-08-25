@@ -169,13 +169,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle));
@@ -215,7 +215,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
             if (!Guard.isNullOrEmpty(selectedItems)) {
                 if (event.getCode().equals(KeyCode.DELETE)) {
-                    ds3Common.getDs3PanelPresenter().ds3DeleteObject(false);
+                    ds3Common.getDs3PanelPresenter().ds3DeleteObject();
                     event.consume();
                 }
             }
@@ -510,35 +510,27 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
             }
         } else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
-            try {
-                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                    loadMore(row.getTreeItem());
-                }
-            } catch (final Exception e) {
-                LOG.error("Not able to get tree item", e);
+            if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                loadMore(row.getTreeItem());
             }
         } else {
-            try {
-                rowNameList.clear();
-                if (null == row.getTreeItem()) {
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                } else {
-                    rowNameList.add(row.getTreeItem().getValue().getName());
-                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        if (event.getClickCount() < 2) {
-                            loadMore(row.getTreeItem());
-                        }
+            rowNameList.clear();
+            if (null == row.getTreeItem()) {
+                ds3TreeTable.getSelectionModel().clearSelection();
+            } else {
+                rowNameList.add(row.getTreeItem().getValue().getName());
+                ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
+                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    if (event.getClickCount() < 2) {
+                        loadMore(row.getTreeItem());
                     }
                 }
-                if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
-                    ds3PanelPresenter.getDs3PathIndicator().setText("");
-                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
-                } else {
-                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
-                }
-            } catch (final Exception e) {
-                LOG.error("Unable to get value of selected item", e);
+            }
+            if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
+                ds3PanelPresenter.getDs3PathIndicator().setText("");
+                ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
+            } else {
+                ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
             }
         }
     }
@@ -589,6 +581,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                     if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
                             (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
+                    } else if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
+                            (value.getType() == Ds3TreeTableValue.Type.File) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
+                        deleteFolder.setDisable(false);
                     }
                 }
             }
