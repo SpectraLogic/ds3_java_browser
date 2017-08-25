@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -102,7 +103,7 @@ public class Ds3DeleteFoldersTaskTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-                final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(session.getClient(), bucketName, folderName);
+                final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(session.getClient(), ImmutableMultimap.of(bucketName, folderName));
                 workers.execute(deleteFolderTask);
                 deleteFolderTask.setOnSucceeded(event -> {
                     successFlag = true;
