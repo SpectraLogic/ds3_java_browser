@@ -430,52 +430,52 @@ public class Ds3TreeTablePresenter implements Initializable {
                     } else {
                         files.add(file);
                     }
-                    if (files.isEmpty()) {
-                        Ds3PanelService.refresh(selectedItem);
-                        return;
-                    }
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
-                            settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
-                    jobWorkers.execute(putJob);
-                    putJob.setOnSucceeded(e -> {
-                        LOG.info("Succeed");
-                        try {
-                            Ds3PanelService.refresh(selectedItem);
-                            ds3TreeTable.getSelectionModel().clearSelection();
-                            ds3TreeTable.getSelectionModel().select(selectedItem);
-                        } catch (final Exception ex) {
-                            LOG.error("Failed to save job ID", ex);
-                        }
-
-                    });
-                    putJob.setOnFailed(e -> {
-                        LOG.info("setOnFailed");
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                    });
-                    putJob.setOnCancelled(e -> {
-                        LOG.info("setOnCancelled");
-                        if (putJob.getJobId() != null) {
-                            try {
-                                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                            } catch (final IOException e1) {
-                                LOG.error("Failed to cancel job", e1);
-                            }
-                        }
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
-                    });
                 }
-            } else {
-                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+                if (files.isEmpty()) {
+                    Ds3PanelService.refresh(selectedItem);
+                    return;
+                }
+                final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
+                        settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
+                        deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
+                jobWorkers.execute(putJob);
+                putJob.setOnSucceeded(e -> {
+                    LOG.info("Succeed");
+                    try {
+                        Ds3PanelService.refresh(selectedItem);
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3TreeTable.getSelectionModel().select(selectedItem);
+                    } catch (final Exception ex) {
+                        LOG.error("Failed to save job ID", ex);
+                    }
+
+                });
+                putJob.setOnFailed(e -> {
+                    LOG.info("setOnFailed");
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                });
+                putJob.setOnCancelled(e -> {
+                    LOG.info("setOnCancelled");
+                    if (putJob.getJobId() != null) {
+                        try {
+                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                        } catch (final IOException e1) {
+                            LOG.error("Failed to cancel job", e1);
+                        }
+                    }
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                });
             }
-            event.consume();
+        } else {
+            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
         }
+        event.consume();
     }
 
     /**
