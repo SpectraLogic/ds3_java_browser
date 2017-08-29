@@ -235,7 +235,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     @SuppressWarnings("unchecked")
     private void initListeners() {
-        ds3DeleteButton.setOnAction(event -> ds3DeleteObject(/*true*/));
+        ds3DeleteButton.setOnAction(event -> ds3DeleteObject());
         ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
