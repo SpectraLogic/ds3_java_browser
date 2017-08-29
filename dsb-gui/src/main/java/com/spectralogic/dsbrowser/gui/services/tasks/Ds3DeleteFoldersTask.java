@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpectraS3Request;
@@ -31,18 +30,32 @@ import java.util.Map;
 import java.util.Optional;
 
 
+/**
+ * Delete one or more folders
+ *
+ */
 public class Ds3DeleteFoldersTask extends Ds3Task {
     private final static Logger LOG = LoggerFactory.getLogger(CancelAllRunningJobsTask.class);
     private final Ds3Client ds3Client;
     private final ImmutableMultimap<String, String> deleteFoldersMap;
 
+    /**
+     * @param ds3Client
+     * @param deleteFoldersMultimap - an ImmutableMultimap of buckets and associated folders to delete.
+     */
     public Ds3DeleteFoldersTask(final Ds3Client ds3Client,
-                                final ImmutableMultimap<String, String> deleteFoldersMap) {
+                                final ImmutableMultimap<String, String> deleteFoldersMultimap) {
         this.ds3Client = ds3Client;
-        this.deleteFoldersMap = deleteFoldersMap;
+        this.deleteFoldersMap = deleteFoldersMultimap;
     }
 
 
+    /**
+     * Attempt to send a DeleteFolderRecursivelySpectraS3Request per Bucket / FolderPath entry pair in the
+     * given ImmutableMultimap.
+     *
+     * Aggregate any failures into Ds3Client::errorMsg
+     */
     @Override
     protected Optional<Object> call() {
         boolean success = true;
