@@ -15,13 +15,11 @@
 
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
-import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
@@ -37,11 +35,7 @@ public final class DeleteFilesPopup {
     public static void show(final Ds3Task deleteTask, final Ds3Common ds3Common) {
         final DeleteItemView deleteView = new DeleteItemView(deleteTask);
         if (ds3Common.getDs3TreeTableView() != null) {
-            ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
-            if (Guard.isNullOrEmpty(selectedPanelItems)) {
-                selectedPanelItems = FXCollections.observableArrayList();
-                selectedPanelItems.add(ds3Common.getDs3TreeTableView().getRoot());
-            }
+            final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
             changeLabelText(selectedPanelItems, deleteView);
         }
     }

@@ -492,7 +492,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 manageItemsCount(row.getTreeItem());
             }
         } else if (event.getClickCount() == 2) {
-            if (!row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+            if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
                 ds3TreeTable.setPlaceholder(new StackPane(progress));
@@ -509,8 +509,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                 }
             }
-        } else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
-            if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+        } else if (event.getButton().equals(MouseButton.SECONDARY)) {
+            if ((row.getTreeItem() != null ) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                LOG.info("Loading more entries...");
                 loadMore(row.getTreeItem());
             }
         } else {

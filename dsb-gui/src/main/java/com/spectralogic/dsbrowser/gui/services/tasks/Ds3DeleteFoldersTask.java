@@ -46,7 +46,7 @@ public class Ds3DeleteFoldersTask extends Ds3Task {
     @Override
     protected Optional<Object> call() {
         boolean success = true;
-        for (Map.Entry<String, String> entry : deleteFoldersMap.entries()) {
+        for (final Map.Entry<String, String> entry : deleteFoldersMap.entries()) {
             final String bucketName = entry.getKey();
             final String folderPath = entry.getValue();
 
@@ -55,7 +55,7 @@ public class Ds3DeleteFoldersTask extends Ds3Task {
                 LOG.info("Deleted folder " + bucketName + ":" + folderPath);
             } catch (final IOException e) {
                 success = false;
-                LOG.error("Failed to delete folder " + bucketName + ":" + folderPath);
+                LOG.error("Failed to delete folder " + bucketName + ":" + folderPath, e);
                 errorMsg = errorMsg.concat("\n" + e.getMessage());
             }
         }
