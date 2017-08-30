@@ -1,7 +1,7 @@
 Building the Browser Yourself
 =============================
 
-To build the Browser manually you will need [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed.  Once Java 8 has been installed you can use [git](https://git-scm.com/) to download the sdk directly, or you can download a source zip for each release.
+To build the BlackPearl Eon Browser manually (we'll refer to it as Eon Browser in the rest of the instructions), you will need [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) installed.  Once Java 8 has been installed you can use [git](https://git-scm.com/) to download the sdk directly, or you can download a source zip for each release.
 
 Once the source code has been copied to your local system, cd into the root directory, and run `./gradlew run` from the command line.  On Windows the command to run is: `./gradlew.bat run`  This will build and run Eon Browser.
 
