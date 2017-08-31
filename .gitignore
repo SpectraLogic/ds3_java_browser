@@ -19,6 +19,7 @@ hs_err_pid*
 build/
 classes/
 dsb-integration/out/
+dsb-gui/out/*
 ### .Net
 .vs/
 bin/
