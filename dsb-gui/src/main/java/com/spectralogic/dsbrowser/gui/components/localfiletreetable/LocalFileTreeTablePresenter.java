@@ -151,8 +151,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             initTableView();
             initListeners();
             initProgressAndPathIndicators();
-        } catch (final Throwable e) {
-            LOG.error("Encountered an error when creating LocalFileTreeTablePresenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error when initializing LocalFileTreeTablePresenter", t);
         }
     }
 

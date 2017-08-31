@@ -71,19 +71,23 @@ public class CreateFolderPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        initGUIElements();
-        folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals(StringConstants.EMPTY_STRING)) {
-                createFolderButton.setDisable(true);
-            } else {
-                createFolderButton.setDisable(false);
-            }
-        });
-        folderNameField.setOnKeyReleased(event -> {
-            if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
-                createFolder();
-            }
-        });
+        try {
+            initGUIElements();
+            folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.equals(StringConstants.EMPTY_STRING)) {
+                    createFolderButton.setDisable(true);
+                } else {
+                    createFolderButton.setDisable(false);
+                }
+            });
+            folderNameField.setOnKeyReleased(event -> {
+                if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
+                    createFolder();
+                }
+            });
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the CreateFolderPresenter", t);
+        }
     }
 
     private void initGUIElements() {
@@ -97,7 +101,6 @@ public class CreateFolderPresenter implements Initializable {
         final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
                 createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
                 loggingService, resourceBundle);
-        workers.execute(createFolderTask);
         //Handling task actions
         createFolderTask.setOnSucceeded(event -> {
             this.closeDialog();
@@ -109,6 +112,7 @@ public class CreateFolderPresenter implements Initializable {
             this.closeDialog();
             alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
         });
+        workers.execute(createFolderTask);
     }
 
     public void cancel() {

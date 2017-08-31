@@ -49,7 +49,7 @@ import java.util.*;
 @Presenter
 public class JobInfoPresenter implements Initializable {
 
-    private final static Logger LOG = LoggerFactory.getLogger(Main.class);
+    private final static Logger LOG = LoggerFactory.getLogger(JobInfoPresenter.class);
 
     private final LazyAlert alert = new LazyAlert("Error");
 
@@ -100,8 +100,12 @@ public class JobInfoPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        initListeners();
-        initTreeTableView();
+        try {
+            initListeners();
+            initTreeTableView();
+        } catch (final Throwable t) {
+            LOG.error("Encountered error when initializing JobInfoPresenter", t);
+        }
     }
 
     private void initListeners() {

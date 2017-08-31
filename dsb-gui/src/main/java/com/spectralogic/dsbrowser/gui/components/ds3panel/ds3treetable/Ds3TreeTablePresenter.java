@@ -146,8 +146,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             initContextMenu();
             initTreeTableView();
             setTreeTableViewBehaviour();
-        } catch (final Exception e) {
-            LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered error when initializing Ds3TreeTablePresenter", t);
         }
     }
 

@@ -81,9 +81,8 @@ public class MetadataPresenter implements Initializable {
         try {
             initLabels();
             initTable();
-
-        } catch (final Exception e) {
-            LOG.error("Failed to create ds3Metadata presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error when initializing MetadataPresenter", t);
         }
     }
 
@@ -94,11 +93,9 @@ public class MetadataPresenter implements Initializable {
         metadataTable.setItems(FXCollections.observableList(builder.build()));
         metadataTable.getSelectionModel().setCellSelectionEnabled(true);
         metadataTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
         //showing tooltip for every column
-        metadataTableColValue.setCellFactory
-                (
-                        column ->
-                                new TableCell());
+        metadataTableColValue.setCellFactory(column -> new TableCell());
     }
 
     private void initLabels() {

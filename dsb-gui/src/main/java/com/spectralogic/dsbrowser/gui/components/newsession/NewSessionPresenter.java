@@ -99,8 +99,8 @@ public class NewSessionPresenter implements Initializable {
         try {
             initGUIElement();
             initSessionList();
-        } catch (final Exception e) {
-            LOG.error("Failed to load NewSessionPresenter: ", e);
+        } catch (final Throwable t) {
+            LOG.error("Failed to initialize NewSessionPresenter", t);
         }
     }
 
