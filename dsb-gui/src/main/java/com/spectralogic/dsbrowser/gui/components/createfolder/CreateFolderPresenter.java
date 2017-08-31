@@ -22,7 +22,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -72,24 +71,19 @@ public class CreateFolderPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        try {
-            initGUIElements();
-            folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue.equals(StringConstants.EMPTY_STRING)) {
-                    createFolderButton.setDisable(true);
-                } else {
-                    createFolderButton.setDisable(false);
-                }
-            });
-            folderNameField.setOnKeyReleased(event -> {
-                if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
-                    createFolder();
-                }
-            });
-
-        } catch (final Exception e) {
-            LOG.error("Encountered an error making the create folder presenter", e);
-        }
+        initGUIElements();
+        folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.equals(StringConstants.EMPTY_STRING)) {
+                createFolderButton.setDisable(true);
+            } else {
+                createFolderButton.setDisable(false);
+            }
+        });
+        folderNameField.setOnKeyReleased(event -> {
+            if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
+                createFolder();
+            }
+        });
     }
 
     private void initGUIElements() {
@@ -99,33 +93,22 @@ public class CreateFolderPresenter implements Initializable {
     }
 
     public void createFolder() {
-        try {
-            final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(), createFolderModel
-                    .getBucketName());
-            //Instantiating create folder task
-            final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                    createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
-                    PathUtil.getDs3ObjectList(location, folderNameField.textProperty().getValue()),
-                    loggingService, resourceBundle);
-            workers.execute(createFolderTask);
-            //Handling task actions
-            createFolderTask.setOnSucceeded(event -> {
-                this.closeDialog();
-                loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
-                        + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
-            });
-            createFolderTask.setOnCancelled(event -> this.closeDialog());
-            createFolderTask.setOnFailed(event -> {
-                this.closeDialog();
-                alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
-            });
-        } catch (final Exception e) {
-            LOG.error("Failed to create folder", e);
-            loggingService.logMessage(resourceBundle.getString("createFolderErr") + StringConstants.SPACE
-                    + folderNameField.textProperty().getValue().trim() + StringConstants.SPACE
-                    + resourceBundle.getString("txtReason") + StringConstants.SPACE + e, LogType.ERROR);
+        //Instantiating create folder task
+        final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
+                createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
+                loggingService, resourceBundle);
+        workers.execute(createFolderTask);
+        //Handling task actions
+        createFolderTask.setOnSucceeded(event -> {
+            this.closeDialog();
+            loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
+                    + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
+        });
+        createFolderTask.setOnCancelled(event -> this.closeDialog());
+        createFolderTask.setOnFailed(event -> {
+            this.closeDialog();
             alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
-        }
+        });
     }
 
     public void cancel() {

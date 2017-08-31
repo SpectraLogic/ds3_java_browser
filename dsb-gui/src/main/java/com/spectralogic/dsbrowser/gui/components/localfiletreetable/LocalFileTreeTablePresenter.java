@@ -339,7 +339,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         .map(selection -> selection.getValue().getPath())
                         .filter(path -> isEmptyDirectory(path, loggingService))
                         .forEach(path -> {
-                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, path.getFileName().toString(), null, loggingService, resourceBundle);
+                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket,
+                                    path.getFileName().toString(), loggingService, resourceBundle);
                             workers.execute(task);
                             task.setOnSucceeded(e -> {
                                 RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);

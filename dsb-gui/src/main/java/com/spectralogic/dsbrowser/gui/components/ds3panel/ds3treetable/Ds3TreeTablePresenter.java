@@ -418,7 +418,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final List<File> files = new ArrayList<>();
                 for (final File file : db.getFiles()) {
                     if (file.isDirectory() && (file.listFiles().length == 0)) {
-                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), null, loggingService, resourceBundle);
+                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), loggingService, resourceBundle);
                         workers.execute(task);
                         task.setOnSucceeded(e -> {
                             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
@@ -440,14 +440,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");
-                        try {
-                            Ds3PanelService.refresh(selectedItem);
-                            ds3TreeTable.getSelectionModel().clearSelection();
-                            ds3TreeTable.getSelectionModel().select(selectedItem);
-                        } catch (final Exception ex) {
-                            LOG.error("Failed to save job ID", ex);
-                        }
-
+                        Ds3PanelService.refresh(selectedItem);
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3TreeTable.getSelectionModel().select(selectedItem);
                     });
                     putJob.setOnFailed(e -> {
                         LOG.info("setOnFailed");
