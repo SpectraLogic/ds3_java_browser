@@ -64,27 +64,31 @@ public class AboutPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        title.setText(resourceBundle.getString("title"));
-        buildVersion.setText(buildInfoService.getBuildVersion());
-        buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
+        try {
+            title.setText(resourceBundle.getString("title"));
+            buildVersion.setText(buildInfoService.getBuildVersion());
+            buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
 
-        dsbReleasesLink.setOnAction( event -> {
-            try {
-                new ProcessBuilder("x-www-browser", Constants.DSB_RELEASES_URL).start();
-            } catch (final IOException e) {
-                LOG.error("Failed to open Spectra Releases in a browser", e);
-            }
-        });
+            dsbReleasesLink.setOnAction(event -> {
+                try {
+                    new ProcessBuilder("x-www-browser", Constants.DSB_RELEASES_URL).start();
+                } catch (final IOException e) {
+                    LOG.error("Failed to open Spectra Releases in a browser", e);
+                }
+            });
 
-        copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
-        apacheLicenseLink.setOnAction(event -> {
-            try {
-                new ProcessBuilder("x-www-browser", Constants.APACHE_URL).start();
-            } catch (final IOException e) {
-                LOG.error("Failed to open apache license in a browser", e);
-            }
-        });
-        copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
+            copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
+            apacheLicenseLink.setOnAction(event -> {
+                try {
+                    new ProcessBuilder("x-www-browser", Constants.APACHE_URL).start();
+                } catch (final IOException e) {
+                    LOG.error("Failed to open apache license in a browser", e);
+                }
+            });
+            copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the AboutPresenter", t);
+        }
     }
 
     public void closeDialog() {

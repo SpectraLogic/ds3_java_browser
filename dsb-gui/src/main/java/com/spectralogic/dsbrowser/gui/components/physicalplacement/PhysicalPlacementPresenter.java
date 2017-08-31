@@ -62,8 +62,8 @@ public class PhysicalPlacementPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             initTable();
-        } catch (final Exception e) {
-            LOG.error("Failed to create Physical Placement presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Failed to initialize PhysicalPlacementPresenter", t);
         }
     }
 

@@ -72,7 +72,11 @@ public class ModifyJobPriorityPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        initGUIElement();
+        try {
+            initGUIElement();
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error when initializing ModifyJobPriorityPresenter", t);
+        }
     }
 
     public void saveModifyJobPriority() {

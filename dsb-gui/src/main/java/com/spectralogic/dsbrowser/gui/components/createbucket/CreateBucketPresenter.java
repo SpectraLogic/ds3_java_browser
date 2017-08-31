@@ -82,24 +82,30 @@ public class CreateBucketPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        LOG.info("Initializing Create Bucket form");
-        initGUIElements();
-        //noinspection unchecked
-        dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(CreateBucketModel::getDataPolicy).collect(Collectors.toList()));
-        bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
-                createBucketButton.setDisable(false);
-            } else {
-                createBucketButton.setDisable(true);
-            }
-        });
-        dataPolicyCombo.setOnAction(event -> {
-            if (!bucketNameField.textProperty().getValue().isEmpty() && dataPolicyCombo.getValue() != null) {
-                createBucketButton.setDisable(false);
-            } else {
-                createBucketButton.setDisable(true);
-            }
-        });
+        try {
+            LOG.info("Initializing Create Bucket form");
+            initGUIElements();
+
+            //noinspection unchecked
+            dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream()
+                    .map(CreateBucketModel::getDataPolicy).collect(Collectors.toList()));
+            bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
+                    createBucketButton.setDisable(false);
+                } else {
+                    createBucketButton.setDisable(true);
+                }
+            });
+            dataPolicyCombo.setOnAction(event -> {
+                if (!bucketNameField.textProperty().getValue().isEmpty() && dataPolicyCombo.getValue() != null) {
+                    createBucketButton.setDisable(false);
+                } else {
+                    createBucketButton.setDisable(true);
+                }
+            });
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the CreateBucketPresenter", t);
+        }
     }
 
     private void initGUIElements() {

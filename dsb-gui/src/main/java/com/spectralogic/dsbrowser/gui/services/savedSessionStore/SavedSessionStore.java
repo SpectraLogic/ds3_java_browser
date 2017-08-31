@@ -165,9 +165,10 @@ public class SavedSessionStore {
     //open default session when DSB launched
     public void openDefaultSession(final Ds3SessionStore store) {
         final Optional<SavedSession> savedSessions = getSessions().stream().filter(SavedSession::isDefaultSession).findFirst();
-        if (savedSessions.isPresent()) {
-            store.addSession(CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSessions.get(), true), resourceBundle, buildInfoService));
-        }
+        savedSessions.ifPresent(savedSession ->
+                store.addSession(
+                        CreateConnectionTask.createConnection(
+                                SessionModelService.setSessionModel(savedSession, true), resourceBundle, buildInfoService)));
     }
 
     public static class SerializedSessionStore {

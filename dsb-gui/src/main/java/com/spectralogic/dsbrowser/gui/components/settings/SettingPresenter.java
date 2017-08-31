@@ -155,8 +155,8 @@ public class SettingPresenter implements Initializable {
             this.filePropertiesSettings = settingsStore.getFilePropertiesSettings();
             initGUIElements();
             initPropertyPane();
-        } catch (final Exception e) {
-            LOG.error("Failed to init SettingPresenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Failed to initialize SettingPresenter", t);
         }
     }
 

@@ -63,6 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -173,15 +174,11 @@ public class Ds3PanelPresenter implements Initializable {
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-            try {
-                //open default session when DSB launched
-                savedSessionStore.openDefaultSession(ds3SessionStore);
-            } catch (final Exception e) {
-                LOG.error("Encountered error fetching default session", e);
-            }
 
-        } catch (final Exception e) {
-            LOG.error("Encountered error when creating Ds3PanelPresenter", e);
+            //open default session when DSB launched
+            savedSessionStore.openDefaultSession(ds3SessionStore);
+        } catch (final Throwable t) {
+            LOG.error("Encountered error when initializing Ds3PanelPresenter", t);
         }
     }
 
