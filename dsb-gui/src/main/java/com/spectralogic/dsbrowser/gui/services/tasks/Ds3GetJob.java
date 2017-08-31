@@ -104,7 +104,7 @@ public class Ds3GetJob extends Ds3JobTask {
         final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
         updateTitle(getJobStart(startJobDate, client));
         loggingService.logMessage(getJobStart(startJobDate, client), LogType.INFO);
-        updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
+        updateMessage(resourceBundle.getString("transferringElipse"));
         selectedItems.stream()
                 .filter(Objects::nonNull)
                 .map(Ds3TreeTableValueCustom::getBucketName).distinct()

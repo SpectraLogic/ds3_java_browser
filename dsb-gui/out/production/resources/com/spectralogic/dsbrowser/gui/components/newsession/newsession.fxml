@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.spectralogic.dsbrowser.gui.util.CustomPasswordTextControl?>
+
+<!--
+  ~ *******************************************************************************
+  ~    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+  ~    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+  ~    this file except in compliance with the License. A copy of the License is located at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    or in the "license" file accompanying this file.
+  ~    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+  ~    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  ~    specific language governing permissions and limitations under the License.
+  ~ *******************************************************************************
+  -->
+
+<HBox stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPresenter">
+    <children>
+        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <children>
+                <VBox layoutX="10.0" layoutY="10.0" spacing="10.0">
+                    <children>
+                        <Label fx:id="selectExistingLabel"/>
+                        <TableView fx:id="savedSessions" prefHeight="200.0" prefWidth="200.0"
+                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <columns>
+                                <TableColumn prefWidth="172.0" text="Name">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="name"/>
+                                    </cellValueFactory>
+                                </TableColumn>
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+                        </TableView>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+        </AnchorPane>
+        <AnchorPane>
+            <children>
+                <VBox spacing="10.0">
+                    <children>
+                        <Label fx:id="createNewLabel"/>
+                        <AnchorPane fx:id="propertySheetAnchor" AnchorPane.bottomAnchor="0.0"
+                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <VBox.margin>
+                                <Insets/>
+                            </VBox.margin>
+                        </AnchorPane>
+                        <GridPane fx:id="newSessionPane" vgap="5" hgap="5">
+                            <children>
+                                <Label fx:id="sessionNameLabel" GridPane.rowIndex="1" />
+                                <TextField fx:id="sessionName" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <Label fx:id="endpointLabel" GridPane.rowIndex="2" />
+                                <TextField fx:id="endpoint" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <Label fx:id="portNoLabel" GridPane.rowIndex="3" />
+                                <TextField fx:id="portNo" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                <Label fx:id="proxyServerLabel" GridPane.rowIndex="4" />
+                                <TextField fx:id="proxyServer" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                <Label fx:id="useSSLLabel" GridPane.rowIndex="5" />
+                                <CheckBox fx:id="useSSL" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                <Label fx:id="accessKeyLabel" GridPane.rowIndex="6" />
+                                <TextField fx:id="accessKey" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                <Label fx:id="secretKeyLabel" GridPane.rowIndex="7" />
+                                <CustomPasswordTextControl fx:id="secretKey" focusTraversable="true" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                <Label fx:id="defaultSessionLabel" GridPane.rowIndex="8" />
+                                <CheckBox fx:id="defaultSession" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                            </children>
+                        </GridPane>
+
+                        <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                            <children>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSessionButton" mnemonicParsing="false" onAction="#saveSession">
+                                    <tooltip>
+                                        <Tooltip fx:id="saveSessionButtonTooltip"/>
+                                    </tooltip>
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="openSessionButton" mnemonicParsing="false" onAction="#openSession">
+                                    <tooltip>
+                                        <Tooltip fx:id="openSessionButtonTooltip"/>
+                                    </tooltip>
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSessionButton" mnemonicParsing="false" onAction="#cancelSession">
+                                    <tooltip>
+                                        <Tooltip fx:id="cancelSessionButtonTooltip"/>
+                                    </tooltip>
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="deleteSessionButton" mnemonicParsing="false" onAction="#deleteSession">
+                                    <tooltip>
+                                        <Tooltip fx:id="deleteSessionButtonTooltip"/>
+                                    </tooltip>
+                                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                            </children>
+                            <padding>
+                                <Insets right="15.0"/>
+                            </padding>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <HBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </HBox.margin>
+        </AnchorPane>
+    </children>
+</HBox>

@@ -23,6 +23,7 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
@@ -101,7 +102,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 final String startJobDate = DateFormat.formatDate(new Date());
                 updateTitle(StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString());
                 loggingService.logMessage(StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, ds3Client.getConnectionDetails().getEndpoint()).toString(), LogType.INFO);
-                updateMessage(resourceBundle.getString("transferring") + "..");
+                updateMessage(resourceBundle.getString("transferringElipse"));
 
                 final ImmutableList<Path> directories = getDirectoriesOrFiles(false);
                 final ImmutableList<Path> files = getDirectoriesOrFiles(true);
@@ -166,7 +167,6 @@ public class Ds3PutJob extends Ds3JobTask {
 
                 addWaitingForChunkListener(totalJobSize, bucket + StringConstants.DOUBLE_SLASH + targetDir);
                 job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
-
                 waitForPermanentStorageTransfer(totalJobSize);
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
             } else {

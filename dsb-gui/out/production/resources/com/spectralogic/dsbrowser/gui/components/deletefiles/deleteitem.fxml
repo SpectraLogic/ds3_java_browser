@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.spectralogic.dsbrowser.gui.util.Ds3Button?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<!--
+  ~ *******************************************************************************
+  ~    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+  ~    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+  ~    this file except in compliance with the License. A copy of the License is located at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    or in the "license" file accompanying this file.
+  ~    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+  ~    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+  ~    specific language governing permissions and limitations under the License.
+  ~ *******************************************************************************
+  -->
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" stylesheets="@../../common.css" spacing="15.0"
+      xmlns="http://javafx.com/javafx/8"
+      fx:controller="com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteItemPresenter">
+    <children>
+        <Label text="" fx:id="deleteLabel">
+            <font>
+                <Font name="System Bold" size="18.0"/>
+            </font>
+        </Label>
+        <Label fx:id="deleteConfirmationInfoLabel"/>
+        <TextField fx:id="deleteField" prefWidth="120.0">
+            <VBox.margin>
+                <Insets left="30.0" right="30.0"/>
+            </VBox.margin>
+        </TextField>
+        <HBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+              minWidth="-Infinity" prefHeight="29.0" prefWidth="339.0" spacing="10.0">
+            <children>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="deleteButton" mnemonicParsing="false"
+                                                               text="Delete"
+                                                               onAction="#deleteItems"/>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button cancelButton="true" mnemonicParsing="false"
+                                                               onAction="#cancelDelete" text="Cancel"/>
+            </children>
+            <VBox.margin>
+                <Insets bottom="10.0" right="10.0"/>
+            </VBox.margin>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</VBox>

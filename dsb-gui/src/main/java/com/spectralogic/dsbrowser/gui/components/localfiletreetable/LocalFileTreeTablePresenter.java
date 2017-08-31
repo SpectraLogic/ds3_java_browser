@@ -49,6 +49,7 @@ import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -357,13 +358,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         .map(i -> new File(i.toString()))
                         .collect(GuavaCollectors.immutableList());
 
+                final ImmutableList<Pair<String, Path>> filess = currentSelection
+                        .stream()
+                        .map(f -> new Pair<String,Path>(f.getValue().getName(), f.getValue().getPath()))
+                        .collect(GuavaCollectors.immutableList());
                 if (files.isEmpty()) {
                     ds3Common.getDs3TreeTableView().refresh();
                     return;
                 }
 
                 final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                startPutJob(session, files, bucket, targetDir, priority,
+                startPutJob(session, filess, bucket, targetDir, priority,
                         jobInterruptionStore, treeItem);
             } else {
                 LOG.info("No item selected from server side");
@@ -507,15 +512,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startPutJob(final Session session,
-                             final List<File> files,
+                             final List<Pair<String,Path>> files,
                              final String bucket,
                              final String targetDir,
                              final String priority,
                              final JobInterruptionStore jobInterruptionStore,
                              final TreeItem<Ds3TreeTableValue> treeItem) {
-        final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
-                settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, deepStorageBrowserPresenter,
-                session, settingsStore, loggingService, resourceBundle);
+        final Ds3PutJobClean putJob = new Ds3PutJobClean(session.getClient(), files, bucket, targetDir, jobInterruptionStore, priority,
+                settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
+                resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("Succeed");
