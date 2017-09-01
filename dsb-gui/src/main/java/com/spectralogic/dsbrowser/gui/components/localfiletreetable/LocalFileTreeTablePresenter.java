@@ -234,7 +234,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             .stream()
                             .filter(item -> item.getValue() != null)
                             .map(i -> i.getValue().getPath().toString())
-                            .collect(Collectors.toList()));
+                            .collect(GuavaCollectors.immutableList()));
                     db.setContent(content);
                 }
                 event.consume();
@@ -514,11 +514,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 session, settingsStore, loggingService, resourceBundle);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
-            LOG.info("BULK_PUT job " + putJob.getJobId() + " Succeed.");
+            LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
             refreshBlackPearlSideItem(remoteDestination);
         });
         putJob.setOnFailed(failEvent -> {
-            LOG.info("BULK_PUT job " + putJob.getJobId() + " Failed.");
+            LOG.info("BULK_PUT job {} Failed.", putJob.getJobId());
             refreshBlackPearlSideItem(remoteDestination);
         });
         putJob.setOnCancelled(cancelEvent -> {
@@ -526,7 +526,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 if (putJob.getJobId() != null) {
                     session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
 
-                    LOG.info("BULK_PUT job " + putJob.getJobId() + " Cancelled.");
+                    LOG.info("BULK_PUT job {} Cancelled.", putJob.getJobId());
                     loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
 
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(),

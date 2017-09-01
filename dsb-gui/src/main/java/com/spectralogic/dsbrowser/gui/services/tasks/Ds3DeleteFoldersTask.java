@@ -65,7 +65,7 @@ public class Ds3DeleteFoldersTask extends Ds3Task {
 
             try {
                 ds3Client.deleteFolderRecursivelySpectraS3(new DeleteFolderRecursivelySpectraS3Request(bucketName, folderPath));
-                LOG.info("Deleted folder " + bucketName + ":" + folderPath);
+                LOG.info("Deleted folder {}:{}", bucketName, folderPath);
             } catch (final IOException e) {
                 success = false;
                 LOG.error("Failed to delete folder " + bucketName + ":" + folderPath, e);

@@ -505,15 +505,15 @@ public class Ds3PanelPresenter implements Initializable {
                 jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, loggingService);
         jobWorkers.execute(getJob);
         getJob.setOnSucceeded(event -> {
-            LOG.info("Get Job "  + getJob.getJobId() + " succeeded.");
+            LOG.info("Get Job {} succeeded.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         });
         getJob.setOnFailed(e -> {
-            LOG.info("Get Job "  + getJob.getJobId() + " failed.");
+            LOG.info("Get Job {} failed.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         });
         getJob.setOnCancelled(e -> {
-            LOG.info("Get Job "  + getJob.getJobId() + " cancelled.");
+            LOG.info("Get Job {} cancelled.", getJob.getJobId());
             if (getJob.getJobId() != null) {
                 try {
                     session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
@@ -566,7 +566,7 @@ public class Ds3PanelPresenter implements Initializable {
                 alert.showAlert(resourceBundle.getString("noFiles"));
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
-            values.stream().map(TreeItem::toString).forEach(itemString -> LOG.info("Delete folder " + itemString));
+            values.stream().map(TreeItem::toString).forEach(itemString -> LOG.info("Delete folder {}", itemString));
             DeleteService.deleteFolders(ds3Common, values);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going to delete the bucket");
@@ -589,15 +589,6 @@ public class Ds3PanelPresenter implements Initializable {
                 }
             }
         });
-
-        /*
-        ds3SessionTabPane.getTabs().addListener((ListChangeListener<? super Tab>) c -> {
-            if (c.next() && c.wasRemoved()) {
-                // TODO prompt the user to save each session that was closed,
-                // if it is not already in the saved session ds3SessionStore
-            }
-        });
-        */
     }
 
 
@@ -607,7 +598,10 @@ public class Ds3PanelPresenter implements Initializable {
 
         final Optional<Node> first = vbox.getChildren().stream().filter(i ->
                 i instanceof TreeTableView).findFirst();
-        return (TreeTableView<Ds3TreeTableValue>) first.orElse(null);
+        if (first.isPresent()) {
+            return (TreeTableView<Ds3TreeTableValue>) first.get();
+        }
+        return null;
     }
 
     public void newSessionDialog() {
