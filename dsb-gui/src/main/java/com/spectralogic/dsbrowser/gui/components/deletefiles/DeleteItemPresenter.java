@@ -103,8 +103,8 @@ public class DeleteItemPresenter implements Initializable {
                 }
             });
 
-        } catch (final Exception e) {
-            LOG.error("Encountered an error making the delete file presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the DeleteItemPresenter", t);
         }
     }
 

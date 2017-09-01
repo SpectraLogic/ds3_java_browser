@@ -30,7 +30,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.PathUtil;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -99,14 +98,11 @@ public class CreateFolderTaskTest {
         final String folderName = "testFolder_" + LocalDateTime.now().getSecond();
         Platform.runLater(() -> {
             final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
-            final String location = PathUtil.getFolderLocation(createFolderModel.getLocation(),
-                    createFolderModel.getBucketName());
 
             //Instantiating create folder task
             final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(),
                     createFolderModel.getBucketName(),
                     folderName,
-                    PathUtil.getDs3ObjectList(location, folderName),
                     null,
                     null);
             workers.execute(createFolderTask);

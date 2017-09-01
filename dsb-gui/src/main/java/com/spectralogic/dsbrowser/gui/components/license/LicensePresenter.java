@@ -22,18 +22,25 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 @Presenter
 public class LicensePresenter implements Initializable {
+    private final static Logger LOG = LoggerFactory.getLogger(LicensePresenter.class);
     @FXML
     private TableView<LicenseModel> licenseTable;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        licenseTable.setItems(FXCollections.observableList(getModels()));
+        try {
+            licenseTable.setItems(FXCollections.observableList(getModels()));
+        } catch (final Throwable t) {
+            LOG.error("Encountered error when initializing LicensePresenter", t);
+        }
     }
 
     private static ImmutableList<LicenseModel> getModels() {

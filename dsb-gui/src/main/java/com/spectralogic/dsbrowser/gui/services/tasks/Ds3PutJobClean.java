@@ -90,16 +90,17 @@ public class Ds3PutJobClean extends Ds3JobTask {
     public void executeJob() throws Exception {
         final boolean metadata = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
         final Instant jobStartInstant = Instant.now();
+        //TODO Use Time API
         final String startJobDate = DateFormat.formatDate(new Date());
         final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, client);
         final String transfeerringMessage = buildTransferringMessage(resourceBundle);
-
 
         LOG.info(resourceBundle.getString("putJobStarted"));
         updateTitle(resourceBundle.getString("blackPearlHealth"));
 
         if (!CheckNetwork.isReachable(client)) {
             hostNotAvaialble();
+            return;
         }
         updateTitle(jobInitiateTitleMessage);
         updateMessage(transfeerringMessage);
