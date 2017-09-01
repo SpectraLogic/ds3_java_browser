@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Ds3PutJobClean extends Ds3JobTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
-    private final Ds3Client client;
     private final ResourceBundle resourceBundle;
     private final List<Pair<String, Path>> files;
     private final SettingsStore settings;
@@ -57,9 +56,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
     private final String jobPriority;
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
-    private final LoggingService loggingService;
     private final String targetDirectory;
-    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     public Ds3PutJobClean(final Ds3Client client,
                           final List<Pair<String, Path>> files,
@@ -72,7 +69,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
                           final SettingsStore settings,
                           final LoggingService loggingService,
                           final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
-        this.client = client;
+        this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files;
         this.settings = settings;
@@ -92,13 +89,13 @@ public class Ds3PutJobClean extends Ds3JobTask {
         final Instant jobStartInstant = Instant.now();
         //TODO Use Time API
         final String startJobDate = DateFormat.formatDate(new Date());
-        final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, client);
+        final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, ds3Client);
         final String transfeerringMessage = buildTransferringMessage(resourceBundle);
 
         LOG.info(resourceBundle.getString("putJobStarted"));
         updateTitle(resourceBundle.getString("blackPearlHealth"));
 
-        if (!CheckNetwork.isReachable(client)) {
+        if (!CheckNetwork.isReachable(ds3Client)) {
             hostNotAvaialble();
             return;
         }
@@ -131,18 +128,18 @@ public class Ds3PutJobClean extends Ds3JobTask {
         final ImmutableList<Ds3Object> objects = fileMapper.entrySet().stream().map(Ds3PutJobClean::buildDs3Object).collect(GuavaCollectors.immutableList());
 
 
-        this.job = Ds3ClientHelpers.wrap(client).startWriteJob(bucket, objects);
+        this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
         final long totalJobSize = getTotalJobSize();
 
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
 
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, JobRequestType.PUT.toString(), bucket);
+                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, JobRequestType.PUT.toString(), bucket);
 
         updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDirectory).toString());
 
         if (!Guard.isStringNullOrEmpty(jobPriority)) {
-            client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
+            ds3Client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
         }
 
         final AtomicLong totalSent = addDataTransferListener(totalJobSize);
@@ -157,11 +154,11 @@ public class Ds3PutJobClean extends Ds3JobTask {
 
         job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
         waitForPermanentStorageTransfer(totalJobSize);
-        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
     }
 
     private long getTotalJobSize() throws IOException {
-        return client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getOriginalSizeInBytes();
+        return ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getOriginalSizeInBytes();
     }
 
     private void updateGuiOnComplete(final String newDate, final Instant jobStartInstant, final long totalJobSize, final AtomicLong totalSent, final String obj) {
@@ -205,7 +202,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
         loggingService.logMessage(finishedMessage, LogType.SUCCESS);
 
         if (isCacheJobEnable) {
-            while (!client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
+            while (!ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
                 Thread.sleep(60000);
             }
 
