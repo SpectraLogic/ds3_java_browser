@@ -436,7 +436,6 @@ public class Ds3PanelPresenter implements Initializable {
 
         // Verify valid remote TreeTableView
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
-        //if ((ds3TreeTableView == null) || (ds3TreeTableView.getRoot() == null)) {
         if (ds3TreeTableView == null) {
             LOG.info("Files not selected");
             alert.showAlert(resourceBundle.getString("fileSelect"));
