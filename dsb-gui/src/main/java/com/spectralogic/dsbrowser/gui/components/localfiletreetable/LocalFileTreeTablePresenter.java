@@ -54,16 +54,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -520,7 +517,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final String priority,
                              final JobInterruptionStore jobInterruptionStore,
                              final TreeItem<Ds3TreeTableValue> treeItem) {
-        final Ds3PutJobClean putJob = new Ds3PutJobClean(session.getClient(), files, bucket, targetDir, jobInterruptionStore, priority,
+        final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, jobInterruptionStore, priority,
                 settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                 resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
         jobWorkers.execute(putJob);

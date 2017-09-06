@@ -16,9 +16,6 @@
 package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
@@ -44,12 +41,12 @@ import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
+import javafx.util.Pair;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -103,14 +100,18 @@ public class Ds3PutJobTest {
             session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
 
             final Path path;
+            ImmutableList<Pair<String,Path>> pair;
             try {
                 path = ResourceUtils.loadFileResource("files/SampleFiles.txt");
                 file = path.toFile();
+                pair = ImmutableList.of(new Pair<String,Path>("files/SampleFiles.txt", path));
             } catch (final URISyntaxException | FileNotFoundException e) {
+                pair = null;
                 e.printStackTrace();
                 fail();
             }
             final ImmutableList<File> filesList = ImmutableList.of(file);
+
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsCircle()).thenReturn(Mockito.mock(Circle.class));
@@ -125,9 +126,8 @@ public class Ds3PutJobTest {
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
-                ds3PutJob = new Ds3PutJob(ds3Client, filesList, BUCKET_NAME, "", Priority.URGENT.toString(),
-                        5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter,
-                        session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                ds3PutJob = new Ds3PutJob(ds3Client, pair, BUCKET_NAME, "", JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(),
+                        5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter);
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
                 HELPERS.ensureBucketExists(BUCKET_NAME, envDataPolicyId);
@@ -160,60 +160,6 @@ public class Ds3PutJobTest {
             });
             ds3PutJob.setOnFailed(event -> latch.countDown());
             ds3PutJob.setOnCancelled(event -> latch.countDown());
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-
-    @Test
-    public void createFileMap() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
-            final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
-            final ImmutableList<File> filesList = ImmutableList.of(file);
-            final ImmutableList<Path> paths = filesList.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
-            final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-            final ImmutableList<Path> files = paths.stream().filter(path -> !Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-            final ImmutableMap.Builder<String, Path> fileMap = ds3PutJob.createFileMap(files, directories, partOfDirBuilder, expandedPaths);
-            if (fileMap.build().size() == 1) {
-                successFlag = true;
-            }
-            latch.countDown();
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void createFolderMap() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            final ImmutableSet.Builder<Path> partOfDirBuilder = ImmutableSet.builder();
-            final ImmutableMultimap.Builder<Path, Path> expandedPaths = ImmutableMultimap.builder();
-            final ImmutableList<File> filesList = ImmutableList.of(file);
-            final ImmutableList<Path> paths = filesList.stream().map(File::toPath).collect(GuavaCollectors.immutableList());
-            final ImmutableList<Path> directories = paths.stream().filter(path -> Files.isDirectory(path)).collect(GuavaCollectors.immutableList());
-            final ImmutableMap.Builder<String, Path> folderMap = ds3PutJob.createFolderMap(directories, expandedPaths, partOfDirBuilder);
-            if (folderMap.build().size() == 1) {
-                successFlag = true;
-            }
-            latch.countDown();
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
-
-    @Test
-    public void getDs3ObjectPath() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            final String fileName = Ds3PutJob.getDs3ObjectPath(new File(file.getParent()).toPath(), file.toPath(), false, 8, 0);
-            if (fileName.equals(file.getName())) {
-                successFlag = true;
-            }
-            latch.countDown();
         });
         latch.await();
         assertTrue(successFlag);

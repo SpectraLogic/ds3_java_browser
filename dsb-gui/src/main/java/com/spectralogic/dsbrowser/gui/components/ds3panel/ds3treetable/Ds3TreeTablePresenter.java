@@ -25,7 +25,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
@@ -38,7 +37,6 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJobClean;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -441,7 +439,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 Ds3PanelService.refresh(selectedItem);
                 return;
             }
-            final Ds3PutJobClean putJob = new Ds3PutJobClean(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
             jobWorkers.execute(putJob);
             putJob.setOnSucceeded(e -> {
                 LOG.info("Succeed");
