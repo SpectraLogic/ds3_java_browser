@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
-import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
@@ -32,7 +31,10 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
-import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
+import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
