@@ -25,7 +25,6 @@ import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -35,6 +34,8 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -48,6 +49,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Ds3PutJobClean extends Ds3JobTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
+    private static final int ONE_MINUTE = 60000;
+    private static final String PUT = JobRequestType.PUT.toString();
     private final ResourceBundle resourceBundle;
     private final List<Pair<String, Path>> files;
     private final SettingsStore settings;
@@ -86,6 +89,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
     @Override
     public void executeJob() throws Exception {
         final boolean metadata = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
+        final boolean hasPriority = !Guard.isStringNullOrEmpty(jobPriority);
         final Instant jobStartInstant = Instant.now();
         //TODO Use Time API
         final String startJobDate = DateFormat.formatDate(new Date());
@@ -105,21 +109,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> folderMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> fileMapperBuilder = ImmutableMap.builder();
-        files.forEach(pair -> {
-            final String name = pair.getKey();
-            final Path path = pair.getValue();
-            if (Files.isDirectory(pair.getValue())) {
-                try {
-                    Files.walk(path).filter(child -> !Files.isDirectory(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString(), p))
-                            .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                fileMapBuilder.put(name, path);
-            }
-        });
-
+        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair));
         final ImmutableMap<String, Path> fileMap = fileMapBuilder.build();
         final ImmutableMap<String, Path> folderMap = folderMapBuilder.build();
         fileMapperBuilder.putAll(fileMap);
@@ -134,27 +124,41 @@ public class Ds3PutJobClean extends Ds3JobTask {
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
 
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, JobRequestType.PUT.toString(), bucket);
+                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
 
         updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDirectory).toString());
 
-        if (!Guard.isStringNullOrEmpty(jobPriority)) {
+        if (hasPriority) {
             ds3Client.modifyJobSpectraS3(new ModifyJobSpectraS3Request(job.getJobId()).withPriority(Priority.valueOf(jobPriority)));
         }
-
-        final AtomicLong totalSent = addDataTransferListener(totalJobSize);
 
         if (metadata) {
             LOG.info("Registering metadata access Implementation");
             job.withMetadata(new MetadataAccessImpl(fileMapper));
         }
-        addWaitingForChunkListener(totalJobSize, bucket + StringConstants.DOUBLE_SLASH + targetDir);
 
+        addWaitingForChunkListener(totalJobSize, bucket + StringConstants.DOUBLE_SLASH + targetDir);
+        final AtomicLong totalSent = addDataTransferListener(totalJobSize);
         job.attachObjectCompletedListener(obj -> updateGuiOnComplete(startJobDate, jobStartInstant, totalJobSize, totalSent, obj));
 
         job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
         waitForPermanentStorageTransfer(totalJobSize);
         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+    }
+
+    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair) {
+        final String name = pair.getKey();
+        final Path path = pair.getValue();
+        if (Files.isDirectory(pair.getValue())) {
+            try {
+                Files.walk(path).filter(child -> !Files.isDirectory(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString(), p))
+                        .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            fileMapBuilder.put(name, path);
+        }
     }
 
     private long getTotalJobSize() throws IOException {
@@ -174,7 +178,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
                 StringBuilderUtil.objectSuccessfullyTransferredString(
                         objectName,
                         locationName, newDate,
-                        resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS);
+                        resourceBundle.getString("blackPearlCache")).toString(), SUCCESS);
     }
 
     private static Ds3Object buildDs3Object(final Map.Entry<String, Path> p) {
@@ -190,7 +194,7 @@ public class Ds3PutJobClean extends Ds3JobTask {
     }
 
     private static String buildJobInitiatedTitleMessage(final String startJobDate, final Ds3Client client) {
-        return StringBuilderUtil.jobInitiatedString(JobRequestType.PUT.toString(), startJobDate, client.getConnectionDetails().getEndpoint()).toString();
+        return StringBuilderUtil.jobInitiatedString(PUT, startJobDate, client.getConnectionDetails().getEndpoint()).toString();
     }
 
     private void waitForPermanentStorageTransfer(final long totalJobSize) throws IOException, InterruptedException {
@@ -199,24 +203,24 @@ public class Ds3PutJobClean extends Ds3JobTask {
         final String finishedMessage = buildFinishedMessage(totalJobSize, isCacheJobEnable, dateOfTransfer, targetDirectory, resourceBundle);
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(finishedMessage);
-        loggingService.logMessage(finishedMessage, LogType.SUCCESS);
+        loggingService.logMessage(finishedMessage, SUCCESS);
 
         if (isCacheJobEnable) {
             while (!ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
-                Thread.sleep(60000);
+                Thread.sleep(ONE_MINUTE);
             }
 
             LOG.info("Job transferred to permanent storage location");
             final String newDate = DateFormat.formatDate(new Date());
 
-            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
                     FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,
-                    resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
+                    resourceBundle.getString("permanentStorageLocation"), false).toString(), SUCCESS);
         }
     }
 
     private static String buildFinishedMessage(final long totalJobSize, final boolean isCacheJobEnable, final String dateOfTransfer, final String targetDir, final ResourceBundle resourceBundle) {
-        return StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+        return StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
                 FileSizeFormat.getFileSizeType(totalJobSize),
                 targetDir,
                 dateOfTransfer,

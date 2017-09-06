@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
@@ -37,6 +38,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJobClean;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -56,14 +58,17 @@ import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 @Presenter
@@ -366,7 +371,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void setDragOverBehaviour(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
         if (selectedItem != null) {
-            if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasFiles()) {
+            if (event.getGestureSource() != ds3TreeTable && event.getDragboard().hasContent(DataFormat.lookupMimeType("local"))) {
                 if (!selectedItem.getValue().isSearchOn())
                     event.acceptTransferModes(TransferMode.COPY);
                 else
@@ -405,72 +410,71 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
         if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
             final Dragboard db = event.getDragboard();
-            if (db.hasFiles()) {
+            final List<Pair<String,String>> selectedItems = (List<Pair<String,String>>) db.getContent(DataFormat.lookupMimeType("local"));
+            final List<Pair<String, Path>> listofStringPath =  selectedItems.stream().map(i -> new Pair<String,Path>(i.getKey(), Paths.get(i.getValue()))).collect(Collectors.toList());
+            LOG.info("Drop event contains files");
+            final Ds3TreeTableValue value = selectedItem.getValue();
+            final String bucket = value.getBucketName();
+            final String targetDir = value.getDirectoryName();
+            LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
+            final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
+            final ImmutableList.Builder<Pair<String, Path>> builder = new ImmutableList.Builder<>();
+            for (final Pair<String, Path> file : listofStringPath) {
+                if (file.getValue().toFile().isDirectory() && file.getValue().toFile().listFiles().length == 0) {
 
-                LOG.info("Drop event contains files");
-                // get bucket info and current path
-                final Ds3TreeTableValue value = selectedItem.getValue();
-                final String bucket = value.getBucketName();
-                final String targetDir = value.getDirectoryName();
-                LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-                final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-                //TODO There are two places we put jobs. This needs a refactor
-                final List<File> files = new ArrayList<>();
-                for (final File file : db.getFiles()) {
-                    if (file.isDirectory() && (file.listFiles().length == 0)) {
-                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), loggingService, resourceBundle);
-                        workers.execute(task);
-                        task.setOnSucceeded(e -> {
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                            loggingService.logMessage("Created folder " + file.getName(), LogType.INFO);
-                        });
-                        task.setOnFailed(e -> {
-                            loggingService.logMessage("Could not create folder " + file.getName(), LogType.ERROR);
-                        });
-                    } else {
-                        files.add(file);
-                    }
-                    if (files.isEmpty()) {
-                        Ds3PanelService.refresh(selectedItem);
-                        return;
-                    }
-                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
-                            settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
-                    jobWorkers.execute(putJob);
-                    putJob.setOnSucceeded(e -> {
-                        LOG.info("Succeed");
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
-                    });
-                    putJob.setOnFailed(e -> {
-                        LOG.info("setOnFailed");
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
+                    final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getKey(), loggingService, resourceBundle);
+                    workers.execute(task);
+                    task.setOnSucceeded(e -> {
                         RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        loggingService.logMessage("Created folder " + file.getKey(), LogType.INFO);
                     });
-                    putJob.setOnCancelled(e -> {
-                        LOG.info("setOnCancelled");
-                        if (putJob.getJobId() != null) {
-                            try {
-                                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                            } catch (final IOException e1) {
-                                LOG.error("Failed to cancel job", e1);
-                            }
-                        }
-                        Ds3PanelService.refresh(selectedItem);
-                        ds3TreeTable.getSelectionModel().clearSelection();
-                        ds3TreeTable.getSelectionModel().select(selectedItem);
+                    task.setOnFailed(e -> {
+                        loggingService.logMessage("Could not create folder " + file.getKey(), LogType.ERROR);
                     });
+                } else {
+                    builder.add(file);
                 }
-            } else {
-                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
             }
-            event.consume();
+
+            final ImmutableList<Pair<String, Path>> pairs = builder.build();
+            if (pairs.isEmpty()) {
+                Ds3PanelService.refresh(selectedItem);
+                return;
+            }
+            final Ds3PutJobClean putJob = new Ds3PutJobClean(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
+            jobWorkers.execute(putJob);
+            putJob.setOnSucceeded(e -> {
+                LOG.info("Succeed");
+                Ds3PanelService.refresh(selectedItem);
+                ds3TreeTable.getSelectionModel().clearSelection();
+                ds3TreeTable.getSelectionModel().select(selectedItem);
+
+            });
+            putJob.setOnFailed(e -> {
+                LOG.info("setOnFailed");
+                Ds3PanelService.refresh(selectedItem);
+                ds3TreeTable.getSelectionModel().clearSelection();
+                ds3TreeTable.getSelectionModel().select(selectedItem);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+            });
+            putJob.setOnCancelled(e -> {
+                LOG.info("setOnCancelled");
+                if (putJob.getJobId() != null) {
+                    try {
+                        session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                    } catch (final IOException e1) {
+                        LOG.error("Failed to cancel job", e1);
+                    }
+                }
+                Ds3PanelService.refresh(selectedItem);
+                ds3TreeTable.getSelectionModel().clearSelection();
+                ds3TreeTable.getSelectionModel().select(selectedItem);
+            });
+        } else {
+            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
         }
+        event.consume();
     }
 
     /**
@@ -727,6 +731,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3PanelPresenter.getPaneItems().setVisible(true);
             ds3PanelPresenter.getPaneItems().setText(info);
         }
+
     }
 
     private void handleDragDetectedEvent(final Event event) {

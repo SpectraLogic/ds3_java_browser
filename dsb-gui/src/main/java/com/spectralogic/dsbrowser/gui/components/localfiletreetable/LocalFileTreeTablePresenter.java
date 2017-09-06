@@ -54,8 +54,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,6 +101,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final DataFormat local = new DataFormat("local");
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -204,7 +207,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
                             event.acceptTransferModes(TransferMode.COPY);
                             if (treeItem == null && fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                                    event.acceptTransferModes(TransferMode.NONE);
+                                event.acceptTransferModes(TransferMode.NONE);
                             }
                             event.consume();
                         }
@@ -231,11 +234,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             LOG.info("Starting drag and drop event");
                             final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
                             final ClipboardContent content = new ClipboardContent();
-                            content.putFilesByPath(selectedItems
-                                    .stream()
-                                    .filter(item -> item.getValue() != null)
-                                    .map(i -> i.getValue().getPath().toString())
-                                    .collect(Collectors.toList()));
+                            final ImmutableList.Builder<Pair<String,String>> selectedModelsBuilder = ImmutableList.builder();
+                            selectedItems.forEach(si -> selectedModelsBuilder.add(new Pair<String, String>(si.getValue().getName(), si.getValue().getPath().toAbsolutePath().toString())));
+                            content.put(local, selectedModelsBuilder.build());
                             db.setContent(content);
                         }
                         event.consume();
@@ -361,7 +362,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
                 final ImmutableList<Pair<String, Path>> filess = currentSelection
                         .stream()
-                        .map(f -> new Pair<String,Path>(f.getValue().getName(), f.getValue().getPath()))
+                        .map(f -> new Pair<String, Path>(f.getValue().getName(), f.getValue().getPath()))
                         .collect(GuavaCollectors.immutableList());
                 if (files.isEmpty()) {
                     ds3Common.getDs3TreeTableView().refresh();
@@ -513,7 +514,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startPutJob(final Session session,
-                             final List<Pair<String,Path>> files,
+                             final List<Pair<String, Path>> files,
                              final String bucket,
                              final String targetDir,
                              final String priority,
