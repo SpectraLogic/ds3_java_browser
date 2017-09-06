@@ -96,7 +96,7 @@ public class Ds3GetJob extends Ds3JobTask {
     @Override
     public void executeJob() throws Exception {
         if (!CheckNetwork.isReachable(client)) {
-            hostNotAvaialble();
+            hostNotAvailable();
             return;
         }
         final String startJobDate = DateFormat.formatDate(new Date());

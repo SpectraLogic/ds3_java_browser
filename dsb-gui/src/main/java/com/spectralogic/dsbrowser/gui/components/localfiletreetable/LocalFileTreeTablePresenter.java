@@ -445,6 +445,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             if (newValue) {
                 lastExpandedNode = bean;
             }
+            treeTable.requestFocus(); // Update panel and scroll bar if focus shifted
         }));
     }
 
@@ -511,7 +512,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                              final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
                 settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore, deepStorageBrowserPresenter,
-                session, settingsStore, loggingService, resourceBundle);
+                session, settingsStore, loggingService, resourceBundle, remoteDestination);
         jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
