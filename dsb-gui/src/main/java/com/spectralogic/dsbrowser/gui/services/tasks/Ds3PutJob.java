@@ -25,6 +25,7 @@ import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -109,7 +110,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> folderMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> fileMapperBuilder = ImmutableMap.builder();
-        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair));
+        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService));
         final ImmutableMap<String, Path> fileMap = fileMapBuilder.build();
         final ImmutableMap<String, Path> folderMap = folderMapBuilder.build();
         fileMapperBuilder.putAll(fileMap);
@@ -146,7 +147,7 @@ public class Ds3PutJob extends Ds3JobTask {
         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
     }
 
-    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair) {
+    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService) {
         final String name = pair.getKey();
         final Path path = pair.getValue();
         if (Files.isDirectory(pair.getValue())) {
@@ -154,7 +155,8 @@ public class Ds3PutJob extends Ds3JobTask {
                 Files.walk(path).filter(child -> !Files.isDirectory(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString(), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final IOException e) {
-                e.printStackTrace();
+                LOG.error("Unable to traverse provided path", e);
+                loggingService.logMessage("Tried to walk " +  path.toString() + " but could not", LogType.ERROR);
             }
         } else {
             fileMapBuilder.put(name, path);
@@ -185,6 +187,7 @@ public class Ds3PutJob extends Ds3JobTask {
         try {
             return new Ds3Object(p.getKey(), Files.size(p.getValue()));
         } catch (final IOException e) {
+            LOG.error("Unable to build Ds3Object", e);
             return null;
         }
     }
