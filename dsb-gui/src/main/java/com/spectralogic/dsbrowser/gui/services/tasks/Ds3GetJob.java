@@ -123,7 +123,9 @@ public class Ds3GetJob extends Ds3JobTask {
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
-
+        if (ds3Objects.isEmpty()) {
+            return;
+        }
         ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
@@ -213,8 +215,7 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private static String getJobStart(final String startJobDate, final Ds3Client client) {
-        return StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, client.getConnectionDetails().getEndpoint())
-                .toString();
+        return StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, client.getConnectionDetails().getEndpoint()).toString();
     }
 
     private void setMetadataReceivedListener(final String string, final Metadata metadata) {

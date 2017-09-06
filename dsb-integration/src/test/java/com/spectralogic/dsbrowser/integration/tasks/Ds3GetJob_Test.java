@@ -19,10 +19,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
+import com.spectralogic.ds3client.commands.PutObjectRequest;
+import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
+import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.ResourceUtils;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -37,6 +41,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
@@ -113,7 +118,7 @@ public class Ds3GetJob_Test {
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
 
             try {
-                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, resourceBundle, null);
+                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, Mockito.mock(JobInterruptionStore.class), deepStorageBrowserPresenter, resourceBundle, Mockito.mock(LoggingService.class));
                 taskProgressView.getTasks().add(ds3GetJob);
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
@@ -127,27 +132,32 @@ public class Ds3GetJob_Test {
 
     @AfterClass
     public static void teardown() throws IOException {
+        client.deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(DS3GETJOB_TEST_BUCKET_NAME).withForce(true));
         IntegrationHelpers.teardown(TEST_ENV_NAME, envStorageIds, client);
         client.close();
     }
 
     @Test
     public void executeJob() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            jobWorkers.execute(ds3GetJob);
-            ds3GetJob.setOnSucceeded(event -> {
-                if (!ds3GetJob.isJobFailed()) {
-                    successFlag = true;
-                }
-                latch.countDown();
+        try {
+            final CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(() -> {
+                jobWorkers.execute(ds3GetJob);
+                ds3GetJob.setOnSucceeded(event -> {
+                    if (!ds3GetJob.isJobFailed()) {
+                        successFlag = true;
+                    }
+                    latch.countDown();
 
+                });
+                ds3GetJob.setOnFailed(event -> latch.countDown());
+                ds3GetJob.setOnCancelled(event -> latch.countDown());
             });
-            ds3GetJob.setOnFailed(event -> latch.countDown());
-            ds3GetJob.setOnCancelled(event -> latch.countDown());
-        });
-        latch.await(20, TimeUnit.SECONDS);
-        assertTrue(successFlag);
+            latch.await(20, TimeUnit.SECONDS);
+            assertTrue(successFlag);
+        } catch (final Exception e) {
+            fail();
+        }
     }
 
     @Test
