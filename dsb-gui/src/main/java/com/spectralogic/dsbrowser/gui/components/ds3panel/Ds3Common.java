@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
@@ -36,7 +37,7 @@ public class Ds3Common {
 
     private Session sessionOfClosedTab;
 
-    private TreeTableView localTreeTableView;
+    private TreeTableView<FileTreeModel> localTreeTableView;
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
 
@@ -94,11 +95,11 @@ public class Ds3Common {
         this.sessionOfClosedTab = sessionOfClosedTab;
     }
 
-    public TreeTableView getLocalTreeTableView() {
+    public TreeTableView<FileTreeModel> getLocalTreeTableView() {
         return localTreeTableView;
     }
 
-    public void setLocalTreeTableView(final TreeTableView localTreeTableView) {
+    public void setLocalTreeTableView(final TreeTableView<FileTreeModel> localTreeTableView) {
         this.localTreeTableView = localTreeTableView;
     }
 

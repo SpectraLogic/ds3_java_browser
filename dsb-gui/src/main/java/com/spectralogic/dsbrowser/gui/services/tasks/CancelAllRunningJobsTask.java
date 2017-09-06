@@ -26,6 +26,8 @@ import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 
 public class CancelAllRunningJobsTask extends Task {
     private final static Logger LOG = LoggerFactory.getLogger(CancelAllRunningJobsTask.class);
@@ -43,7 +45,7 @@ public class CancelAllRunningJobsTask extends Task {
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Object call() {
         LOG.info("Starting cancel all the running jobs");
         if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
             jobWorkers.getTasks().forEach(job -> {
@@ -55,7 +57,7 @@ public class CancelAllRunningJobsTask extends Task {
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId,
                             ds3Client.getConnectionDetails().getEndpoint(), null, loggingService);
                     ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
-                } catch (final Exception e1) {
+                } catch (final IOException e1) {
                     LOG.error("Failed to cancel job", e1);
                 }
             });

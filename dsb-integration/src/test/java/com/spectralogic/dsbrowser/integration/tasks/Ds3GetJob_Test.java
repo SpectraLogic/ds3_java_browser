@@ -161,7 +161,7 @@ public class Ds3GetJob_Test {
                     "2/07/2017 10:28:17",
                     "spectra",
                     false);
-            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+            final ImmutableList listItems = ImmutableList.of(ds3TreeTableValueCustom);
             final ImmutableMap fileMap = ds3GetJob.getFileMap(listItems);
             if (fileMap.size() == 1) {
                 successFlag = true;
@@ -179,7 +179,7 @@ public class Ds3GetJob_Test {
             final Ds3TreeTableValueCustom ds3TreeTableValueCustom = new Ds3TreeTableValueCustom(DS3GETJOB_TEST_BUCKET_NAME,
                     "testFolder/", Ds3TreeTableValue.Type.Directory,
                     3718, "2/07/2017 10:28:17", "spectra", false);
-            final ImmutableList listItems = ImmutableList.builder().add(ds3TreeTableValueCustom).build();
+            final ImmutableList listItems = ImmutableList.of(ds3TreeTableValueCustom);
             final ImmutableMap fileMap = ds3GetJob.getFolderMap(listItems);
             if (fileMap.size() == 1) {
                 successFlag = true;
