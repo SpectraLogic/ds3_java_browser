@@ -197,6 +197,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 }
                 setDragDropEvent(row, event);
                 event.consume();
+
             });
             row.setOnDragOver(event -> {
                 final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
@@ -441,7 +442,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             if (newValue) {
                 lastExpandedNode = bean;
             }
-            treeTable.requestFocus(); //Update panel and scroll bar if focus shifted
+            treeTable.requestFocus(); // Update panel and scroll bar if focus shifted
         }));
     }
 

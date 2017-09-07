@@ -13,7 +13,7 @@
  * ******************************************************************************
  */
 
-package com.spectralogic.dsbrowser.integration;
+package com.spectralogic.dsbrowser.integration.services.newSessionService;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;

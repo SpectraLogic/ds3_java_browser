@@ -29,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -115,9 +116,9 @@ public class Ds3PutJobTest {
             Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
             final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
+            final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
 
             try {
-                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
                 ds3PutJob = new Ds3PutJob(ds3Client, pair, BUCKET_NAME, "", JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(),
