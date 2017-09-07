@@ -189,8 +189,6 @@ public class CancelJobsWorkerTest {
         Platform.runLater(() -> {
             try {
                 final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
-                final List<File> filesList = new ArrayList<>();
-                filesList.add(file);
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final Ds3Common ds3Common = new Ds3Common();
