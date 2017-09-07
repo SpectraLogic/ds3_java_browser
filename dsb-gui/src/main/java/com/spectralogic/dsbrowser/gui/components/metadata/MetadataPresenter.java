@@ -41,9 +41,6 @@ import java.util.regex.Pattern;
 public class MetadataPresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
-    private static final Pattern REPLACE = Pattern.compile(StringConstants.STR_T, Pattern.LITERAL);
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(StringConstants.DATE_FORMAT);
-    private static final Calendar calendar = Calendar.getInstance();
 
     @FXML
     private Label objectName;
