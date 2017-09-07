@@ -105,16 +105,6 @@ public class MetadataPresenter implements Initializable {
         nameTooltip.setText(ds3Metadata.getName());
     }
 
-    private static MetadataEntry getTime(final String time, final String key) {
-        if (time.contains(StringConstants.STR_T)) {
-            return new MetadataEntry(key, REPLACE.matcher(time).replaceAll(Matcher.quoteReplacement(StringConstants.SPACE)));
-        } else {
-            final long creationTimeLong = Long.parseLong(time);
-            calendar.setTimeInMillis(creationTimeLong);
-            return new MetadataEntry(key, formatter.format(calendar.getTime()));
-        }
-    }
-
     //create metadata keys for showing on server
     static ImmutableList<MetadataEntry> createMetadataEntries(final Metadata metadata) {
         return metadata.keys()
