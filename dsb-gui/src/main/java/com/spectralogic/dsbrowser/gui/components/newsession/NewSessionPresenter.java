@@ -166,7 +166,8 @@ public class NewSessionPresenter implements Initializable {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
-                        final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, rowData.isDefaultSession()), resourceBundle, buildInfoService);
+                        final Boolean isDefaultSession = rowData.isDefaultSession() == null ? false : rowData.isDefaultSession(); // DefaultSession property is not present in 2.047; default to false
+                        final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), resourceBundle, buildInfoService);
                         sessionValidates(connection);
                     } else {
                         alert.showAlert(resourceBundle.getString("alreadyExistSession"));
