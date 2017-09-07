@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import org.apache.http.Header;
@@ -36,7 +37,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class MetadataPresenterTest {
-    final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Test
     public void testMetadataFromDsb() {
@@ -50,22 +50,20 @@ public class MetadataPresenterTest {
                 new BasicHeader("ds3-flags", "FLAG"),
                 new BasicHeader("ds3-dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("ds3-mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
-        final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
-        metadataPresenter.createMetadataBuilder(metadata, builder);
-        assertThat(builder, is(notNullValue()));
-        assertFalse(builder.build().isEmpty());
-        assertThat(builder.build().size(), is(10));
-        assertThat(builder.build().get(0).getValue(), is("2017-01-01 14:44:2 "));
-        assertThat(builder.build().get(1).getValue(), is("2017-01-05 14:44:2 "));
-        assertThat(builder.build().get(2).getValue(), is("2017-01-03 14:44:2 "));
-        assertThat(builder.build().get(3).getValue(), is("OWNER"));
-        assertThat(builder.build().get(4).getValue(), is("GROUP"));
-        assertThat(builder.build().get(5).getValue(), is("UID"));
-        assertThat(builder.build().get(6).getValue(), is("GID"));
-        assertThat(builder.build().get(7).getValue(), is("FLAG"));
-        assertThat(builder.build().get(8).getValue(), is("11bwuyhdsubsjxxsakdnewufhe"));
-        assertThat(builder.build().get(9).getValue(), is("MODE"));
+        final ImmutableList<MetadataEntry> metadataEntries = MetadataPresenter.createMetadataEntries(metadata);
+        assertThat(metadataEntries, is(notNullValue()));
+        assertFalse(metadataEntries.isEmpty());
+        assertThat(metadataEntries.size(), is(10));
+        assertThat(metadataEntries.get(0).getValue(), is("2017-01-01 14:44:2 "));
+        assertThat(metadataEntries.get(1).getValue(), is("2017-01-05 14:44:2 "));
+        assertThat(metadataEntries.get(2).getValue(), is("2017-01-03 14:44:2 "));
+        assertThat(metadataEntries.get(3).getValue(), is("OWNER"));
+        assertThat(metadataEntries.get(4).getValue(), is("GROUP"));
+        assertThat(metadataEntries.get(5).getValue(), is("UID"));
+        assertThat(metadataEntries.get(6).getValue(), is("GID"));
+        assertThat(metadataEntries.get(7).getValue(), is("FLAG"));
+        assertThat(metadataEntries.get(8).getValue(), is("11bwuyhdsubsjxxsakdnewufhe"));
+        assertThat(metadataEntries.get(9).getValue(), is("MODE"));
     }
 
     @Test
@@ -80,12 +78,10 @@ public class MetadataPresenterTest {
                 new BasicHeader("flags", "FLAG"),
                 new BasicHeader("dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
-        final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
-        metadataPresenter.createMetadataBuilder(metadata, builder);
-        assertThat(builder, is(notNullValue()));
-        assertFalse(builder.build().isEmpty());
-        assertThat(builder.build().size(), is(10));
+        final ImmutableList<MetadataEntry> metadataList = MetadataPresenter.createMetadataEntries(metadata);
+        assertThat(metadataList, is(notNullValue()));
+        assertFalse(metadataList.isEmpty());
+        assertThat(metadataList.size(), is(10));
     }
 
     private Metadata genMetadata(final Header... headers) {
