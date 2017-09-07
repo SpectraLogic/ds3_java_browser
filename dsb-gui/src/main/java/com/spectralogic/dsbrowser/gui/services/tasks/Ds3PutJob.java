@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -63,16 +64,16 @@ public class Ds3PutJob extends Ds3JobTask {
     private final String targetDirectory;
 
     public Ds3PutJob(final Ds3Client client,
-                     final List<Pair<String, Path>> files,
-                     final String bucket,
-                     final String targetDir,
-                     final JobInterruptionStore jobInterruptionStore,
-                     final String jobPriority,
-                     final int maximumNumberOfParallelThreads,
-                     final ResourceBundle resourceBundle,
-                     final SettingsStore settings,
-                     final LoggingService loggingService,
-                     final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final List<Pair<String, Path>> files,
+            final String bucket,
+            final String targetDir,
+            final JobInterruptionStore jobInterruptionStore,
+            final String jobPriority,
+            final int maximumNumberOfParallelThreads,
+            final ResourceBundle resourceBundle,
+            final SettingsStore settings,
+            final LoggingService loggingService,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files;
@@ -92,8 +93,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final boolean metadata = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
         final boolean hasPriority = !Guard.isStringNullOrEmpty(jobPriority);
         final Instant jobStartInstant = Instant.now();
-        //TODO Use Time API
-        final String startJobDate = DateFormat.formatDate(new Date());
+        final String startJobDate = DateFormat.formatDate(LocalDate.now().toEpochDay());
         final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, ds3Client);
         final String transfeerringMessage = buildTransferringMessage(resourceBundle);
 
@@ -116,16 +116,19 @@ public class Ds3PutJob extends Ds3JobTask {
         fileMapperBuilder.putAll(fileMap);
         fileMapperBuilder.putAll(folderMap);
         final ImmutableMap<String, Path> fileMapper = fileMapperBuilder.build();
-        final ImmutableList<Ds3Object> objects = fileMapper.entrySet().stream().map(Ds3PutJob::buildDs3Object).collect(GuavaCollectors.immutableList());
-
-
+        final ImmutableList<Ds3Object> objects = fileMapper.entrySet()
+                .stream()
+                .map(Ds3PutJob::buildDs3Object)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(GuavaCollectors.immutableList());
         this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
         final long totalJobSize = getTotalJobSize();
 
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
 
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
+            ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
 
         updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDirectory).toString());
 
@@ -156,7 +159,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final IOException e) {
                 LOG.error("Unable to traverse provided path", e);
-                loggingService.logMessage("Tried to walk " +  path.toString() + " but could not", LogType.ERROR);
+                loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
             }
         } else {
             fileMapBuilder.put(name, path);
@@ -183,12 +186,12 @@ public class Ds3PutJob extends Ds3JobTask {
                         resourceBundle.getString("blackPearlCache")).toString(), SUCCESS);
     }
 
-    private static Ds3Object buildDs3Object(final Map.Entry<String, Path> p) {
+    private static Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
         try {
-            return new Ds3Object(p.getKey(), Files.size(p.getValue()));
+            return Optional.of(new Ds3Object(p.getKey(), Files.size(p.getValue())));
         } catch (final IOException e) {
             LOG.error("Unable to build Ds3Object", e);
-            return null;
+            return Optional.empty();
         }
     }
 

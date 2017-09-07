@@ -174,73 +174,72 @@ public class LocalFileTreeTablePresenter implements Initializable {
             event.consume();
         });
         treeTable.setRowFactory(view -> {
-                    final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
-                    final List<String> rowNameList = new ArrayList<>();
-                    row.setOnMouseClicked(event -> {
-                        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-                            selectMultipleItems(rowNameList, row);
-                        } else if (event.getClickCount() == 2) {
-                            if (row.getTreeItem() != null
-                                    && row.getTreeItem().getValue() != null
-                                    && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
-                                changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
-                            }
-                        } else {
-                            treeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                        }
-                    });
-                    row.setOnDragDropped(event -> {
-                        LOG.info("Drop detected..");
-                        if (row.getTreeItem() != null && !row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
-                            LOG.info("Expanding closed row");
-                            row.getTreeItem().setExpanded(true);
-                        }
-                        setDragDropEvent(row, event);
-                        event.consume();
-
-                    });
-                    row.setOnDragOver(event -> {
-                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                        if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
-                            event.acceptTransferModes(TransferMode.COPY);
-                            if (treeItem == null && fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                                event.acceptTransferModes(TransferMode.NONE);
-                            }
-                            event.consume();
-                        }
-                    });
-                    row.setOnDragEntered(event -> {
-                        final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
-                        if (treeItem != null) {
-                            final InnerShadow is = new InnerShadow();
-                            is.setOffsetY(1.0f);
-                            row.setEffect(is);
-                        } else {
-                            event.acceptTransferModes(TransferMode.NONE);
-                        }
-                        event.consume();
-                    });
-                    row.setOnDragExited(event -> {
-                        row.setEffect(null);
-                        event.consume();
-                    });
-                    row.setOnDragDetected(event -> {
-                        LOG.info("Drag detected...");
-                        final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
-                        if (!Guard.isNullOrEmpty(selectedItems)) {
-                            LOG.info("Starting drag and drop event");
-                            final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
-                            final ClipboardContent content = new ClipboardContent();
-                            final ImmutableList.Builder<Pair<String, String>> selectedModelsBuilder = ImmutableList.builder();
-                            selectedItems.forEach(si -> selectedModelsBuilder.add(new Pair<String, String>(si.getValue().getName(), si.getValue().getPath().toAbsolutePath().toString())));
-                            content.put(local, selectedModelsBuilder.build());
-                            db.setContent(content);
-                        }
-                        event.consume();
-                    });
-                    return row;
+            final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
+            final List<String> rowNameList = new ArrayList<>();
+            row.setOnMouseClicked(event -> {
+                if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
+                    selectMultipleItems(rowNameList, row);
+                } else if (event.getClickCount() == 2) {
+                    if (row.getTreeItem() != null
+                        && row.getTreeItem().getValue() != null
+                        && !row.getTreeItem().getValue().getType().equals(FileTreeModel.Type.File)) {
+                        changeRootDir(treeTable.getSelectionModel().getSelectedItem().getValue().getPath().toString());
+                    }
+                } else {
+                    treeTable.getSelectionModel().clearAndSelect(row.getIndex());
                 }
-        );
+            });
+            row.setOnDragDropped(event -> {
+                LOG.info("Drop detected..");
+                if (row.getTreeItem() != null && !row.getTreeItem().isLeaf() && !row.getTreeItem().isExpanded()) {
+                    LOG.info("Expanding closed row");
+                    row.getTreeItem().setExpanded(true);
+                }
+                setDragDropEvent(row, event);
+                event.consume();
+            });
+            row.setOnDragOver(event -> {
+                final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                if (event.getGestureSource() != treeTable && event.getDragboard().hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                    if (treeItem == null && fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                        event.acceptTransferModes(TransferMode.NONE);
+                    }
+                    event.consume();
+                }
+            });
+            row.setOnDragEntered(event -> {
+                final TreeItem<FileTreeModel> treeItem = row.getTreeItem();
+                if (treeItem != null) {
+                    final InnerShadow is = new InnerShadow();
+                    is.setOffsetY(1.0f);
+                    row.setEffect(is);
+                } else {
+                    event.acceptTransferModes(TransferMode.NONE);
+                }
+                event.consume();
+            });
+            row.setOnDragExited(event -> {
+                row.setEffect(null);
+                event.consume();
+            });
+            row.setOnDragDetected(event -> {
+                LOG.info("Drag detected...");
+                final ObservableList<TreeItem<FileTreeModel>> selectedItems = treeTable.getSelectionModel().getSelectedItems();
+                if (!Guard.isNullOrEmpty(selectedItems)) {
+                    LOG.info("Starting drag and drop event");
+                    final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
+                    final ClipboardContent content = new ClipboardContent();
+                    final ImmutableList.Builder<Pair<String, String>> selectedModelsBuilder = ImmutableList.builder();
+                    selectedItems.forEach(si -> selectedModelsBuilder.add(new Pair<String, String>(si.getValue().getName(), si.getValue().getPath().toAbsolutePath().toString())));
+                    content.put(local, selectedModelsBuilder.build());
+                    db.setContent(content);
+                }
+            event.consume();
+            });
+        return row;
+        }
+    );
 
         treeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
             this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue);
@@ -283,7 +282,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private ImmutableList<Pair<String,Path>> getLocalFilesToPut(final Session session, final String bucket) {
+    private ImmutableList<Pair<String, Path>> getLocalFilesToPut(final Session session, final String bucket) {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
 
         currentLocalSelection.stream()
@@ -306,7 +305,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     });
                 });
 
-        final ImmutableList<Pair<String,Path>> files = currentLocalSelection
+        final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
                 .map(i -> new Pair<>(i.getValue().getName(), i.getValue().getPath()))
                 .filter(pair -> !isEmptyDirectory(pair.getValue(), loggingService))
@@ -367,7 +366,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String,Path>> filesToPut = getLocalFilesToPut(session, bucket);
+        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
         if (Guard.isNullOrEmpty(filesToPut)) {
             alert.showAlert(resourceBundle.getString("fileSelect"));
             return;
@@ -489,8 +488,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             //Cancellation of a job started
             final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(getJob.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
             workers.execute(ds3CancelSingleJobTask);
-            ds3CancelSingleJobTask.setOnFailed(event ->
-                    LOG.error("Failed to cancel job"));
+            ds3CancelSingleJobTask.setOnFailed(event -> LOG.error("Failed to cancel job"));
             ds3CancelSingleJobTask.setOnSucceeded(event -> {
                 LOG.info("Get Job cancelled");
                 loggingService.logMessage("GET Job Cancelled", LogType.INFO);

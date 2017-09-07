@@ -82,8 +82,9 @@ public class Ds3PutJobTest {
     private boolean successFlag = false;
 
     @BeforeClass
-    public static void setConnection() {
+    public static void setConnection() throws FileNotFoundException, URISyntaxException {
         new JFXPanel();
+        final Path path = ResourceUtils.loadFileResource("files/SampleFiles.txt");
         Platform.runLater(() -> {
             client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
             HELPERS = Ds3ClientHelpers.wrap(client);
@@ -99,20 +100,9 @@ public class Ds3PutJobTest {
                     false,
                     false);
             session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
-
-            final Path path;
-            ImmutableList<Pair<String,Path>> pair;
-            try {
-                path = ResourceUtils.loadFileResource("files/SampleFiles.txt");
-                file = path.toFile();
-                pair = ImmutableList.of(new Pair<String,Path>("files/SampleFiles.txt", path));
-            } catch (final URISyntaxException | FileNotFoundException e) {
-                pair = null;
-                e.printStackTrace();
-                fail();
-            }
-            final ImmutableList<File> filesList = ImmutableList.of(file);
-
+            final ImmutableList<Pair<String, Path>> pair;
+            file = path.toFile();
+            pair = ImmutableList.of(new Pair<>("files/SampleFiles.txt", path));
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
             Mockito.when(deepStorageBrowserPresenter.getNumInterruptedJobsCircle()).thenReturn(Mockito.mock(Circle.class));
@@ -149,7 +139,7 @@ public class Ds3PutJobTest {
     }
 
     @Test
-    public void executeJob() throws InterruptedException{
+    public void executeJob() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             jobWorkers.execute(ds3PutJob);

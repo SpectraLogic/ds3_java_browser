@@ -408,8 +408,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
         if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
             final Dragboard db = event.getDragboard();
-            final List<Pair<String,String>> selectedItems = (List<Pair<String,String>>) db.getContent(DataFormat.lookupMimeType("local"));
-            final List<Pair<String, Path>> listofStringPath =  selectedItems.stream().map(i -> new Pair<String,Path>(i.getKey(), Paths.get(i.getValue()))).collect(Collectors.toList());
             LOG.info("Drop event contains files");
             final Ds3TreeTableValue value = selectedItem.getValue();
             final String bucket = value.getBucketName();
@@ -417,23 +415,24 @@ public class Ds3TreeTablePresenter implements Initializable {
             LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
             final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
             final ImmutableList.Builder<Pair<String, Path>> builder = new ImmutableList.Builder<>();
-            for (final Pair<String, Path> file : listofStringPath) {
-                if (file.getValue().toFile().isDirectory() && file.getValue().toFile().listFiles().length == 0) {
+            ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
+                    .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
+                    .forEach(file -> {
+                        if (file.getValue().toFile().isDirectory() && file.getValue().toFile().listFiles().length == 0) {
 
-                    final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getKey(), loggingService, resourceBundle);
-                    workers.execute(task);
-                    task.setOnSucceeded(e -> {
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                        loggingService.logMessage("Created folder " + file.getKey(), LogType.INFO);
+                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getKey(), loggingService, resourceBundle);
+                            workers.execute(task);
+                            task.setOnSucceeded(e -> {
+                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                                loggingService.logMessage("Created folder " + file.getKey(), LogType.INFO);
+                            });
+                            task.setOnFailed(e -> {
+                                loggingService.logMessage("Could not create folder " + file.getKey(), LogType.ERROR);
+                            });
+                        } else {
+                            builder.add(file);
+                        }
                     });
-                    task.setOnFailed(e -> {
-                        loggingService.logMessage("Could not create folder " + file.getKey(), LogType.ERROR);
-                    });
-                } else {
-                    builder.add(file);
-                }
-            }
-
             final ImmutableList<Pair<String, Path>> pairs = builder.build();
             if (pairs.isEmpty()) {
                 Ds3PanelService.refresh(selectedItem);
@@ -512,7 +511,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
             }
         } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-            if ((row.getTreeItem() != null ) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+            if ((row.getTreeItem() != null) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                 LOG.info("Loading more entries...");
                 loadMore(row.getTreeItem());
             }
