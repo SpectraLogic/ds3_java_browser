@@ -17,9 +17,7 @@ hs_err_pid*
 .idea/
 .gradle/
 build/
-classes/
-dsb-integration/out/
-dsb-gui/out/*
+out/*
 ### .Net
 .vs/
 bin/
