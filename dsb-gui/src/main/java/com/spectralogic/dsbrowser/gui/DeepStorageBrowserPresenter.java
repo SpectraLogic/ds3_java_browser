@@ -208,6 +208,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
 
         jobProgressView.setPrefHeight(1000);
+        jobProgressView.setMaxWidth(anchorPane.getMaxWidth());
         jobProgressVBox.getChildren().add(anchorPane);
         jobProgressVBox.getChildren().add(jobProgressView);
 
