@@ -144,7 +144,6 @@ public class Ds3PutJob extends Ds3JobTask {
 
                 job.attachObjectCompletedListener(obj -> {
                     LOG.info("Object Transfer Completed");
-                    //RefreshCompleteViewWorker.refreshCompleteTreeTableView();
                     final String newDate = DateFormat.formatDate(new Date());
 
                     int index = 0;
@@ -152,15 +151,15 @@ public class Ds3PutJob extends Ds3JobTask {
                         index = obj.lastIndexOf(StringConstants.FORWARD_SLASH);
                     }
 
-                    getTransferRates(jobStartInstant, totalSent, totalJobSize, obj.substring(index, obj.length()), bucket
-                            + StringConstants.FORWARD_SLASH + targetDir);
+                    getTransferRates(jobStartInstant, totalSent, totalJobSize, obj.substring(index, obj.length()),
+                            bucket + StringConstants.FORWARD_SLASH + targetDir);
 
-                    final int finalIndex = index;
                     loggingService.logMessage(
                             StringBuilderUtil.objectSuccessfullyTransferredString(
-                                    obj.substring(finalIndex, obj.length()),
+                                    obj.substring(index, obj.length()),
                                     bucket + StringConstants.FORWARD_SLASH + targetDir, newDate,
                                     resourceBundle.getString("blackPearlCache")).toString(), LogType.SUCCESS);
+                    Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
                 });
                 //store meta data to server
                 final boolean isFilePropertiesEnable = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
@@ -170,7 +169,6 @@ public class Ds3PutJob extends Ds3JobTask {
                 }
 
                 addWaitingForChunkListener(totalJobSize, bucket + StringConstants.DOUBLE_SLASH + targetDir);
-                job.attachObjectCompletedListener(object -> Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination)));
                 job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
 
                 waitForPermanentStorageTransfer(totalJobSize);
