@@ -438,7 +438,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 Ds3PanelService.refresh(selectedItem);
                 return;
             }
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter);
+            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, selectedItem);
             jobWorkers.execute(putJob);
             putJob.setOnSucceeded(e -> {
                 LOG.info("Succeed");

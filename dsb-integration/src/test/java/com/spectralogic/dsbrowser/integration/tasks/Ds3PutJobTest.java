@@ -26,6 +26,7 @@ import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -45,6 +46,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import javafx.scene.shape.Circle;
 import javafx.util.Pair;
 import org.junit.AfterClass;
@@ -115,10 +117,11 @@ public class Ds3PutJobTest {
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
 
             try {
+                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
                 ds3PutJob = new Ds3PutJob(ds3Client, pair, BUCKET_NAME, "", JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(),
-                        5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter);
+                        5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
                 HELPERS.ensureBucketExists(BUCKET_NAME, envDataPolicyId);

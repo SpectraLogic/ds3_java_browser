@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -49,6 +50,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -245,6 +247,7 @@ public class CloseConfirmationHandlerTest {
     public void cancelAllRunningTasks() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
+            final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
             final ImmutableList<Pair<String,Path>> pair = ImmutableList.of(new Pair<>("files/", path));
             try {
                 final Ds3Client ds3Client = session.getClient();
@@ -254,7 +257,7 @@ public class CloseConfirmationHandlerTest {
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
                         JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
-                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter);
+                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

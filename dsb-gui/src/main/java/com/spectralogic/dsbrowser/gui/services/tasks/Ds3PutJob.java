@@ -28,10 +28,14 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.application.Platform;
+import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +66,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final JobInterruptionStore jobInterruptionStore;
     private final String targetDirectory;
+    private final TreeItem<Ds3TreeTableValue> remoteDestination;
 
     public Ds3PutJob(final Ds3Client client,
             final List<Pair<String, Path>> files,
@@ -73,7 +78,8 @@ public class Ds3PutJob extends Ds3JobTask {
             final ResourceBundle resourceBundle,
             final SettingsStore settings,
             final LoggingService loggingService,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final TreeItem<Ds3TreeTableValue> remoteDestination) {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files;
@@ -86,6 +92,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.loggingService = loggingService;
         this.targetDirectory = bucket + "\\" + targetDir;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.remoteDestination = remoteDestination;
     }
 
     @Override
@@ -101,7 +108,7 @@ public class Ds3PutJob extends Ds3JobTask {
         updateTitle(resourceBundle.getString("blackPearlHealth"));
 
         if (!CheckNetwork.isReachable(ds3Client)) {
-            hostNotAvaialble();
+            hostNotAvailable();
             return;
         }
         updateTitle(jobInitiateTitleMessage);
@@ -184,6 +191,7 @@ public class Ds3PutJob extends Ds3JobTask {
                         objectName,
                         locationName, newDate,
                         resourceBundle.getString("blackPearlCache")).toString(), SUCCESS);
+        Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
     }
 
     private static Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
