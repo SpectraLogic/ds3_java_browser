@@ -25,6 +25,7 @@ import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -45,6 +46,7 @@ import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.TreeItem;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -142,9 +144,11 @@ public class CancelJobsWorkerTest {
 
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
+                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, StringConstants.EMPTY_STRING,
                          Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore,
+                        Mockito.mock(LoggingService.class), resourceBundle, destination);
 
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
@@ -189,12 +193,14 @@ public class CancelJobsWorkerTest {
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
+                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
 
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, bucketName, "",
                         Priority.URGENT.toString(), 5,
-                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                        JobInterruptionStore.loadJobIds(), deepStorageBrowserPresenter, session, settingsStore,
+                        Mockito.mock(LoggingService.class), resourceBundle, destination);
 
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);

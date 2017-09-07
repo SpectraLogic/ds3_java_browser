@@ -436,7 +436,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     }
                     final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
                             settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
+                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle, selectedItem);
                     jobWorkers.execute(putJob);
                     putJob.setOnSucceeded(e -> {
                         LOG.info("Succeed");
