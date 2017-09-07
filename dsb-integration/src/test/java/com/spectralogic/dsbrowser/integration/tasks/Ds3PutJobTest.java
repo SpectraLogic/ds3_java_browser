@@ -29,7 +29,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
