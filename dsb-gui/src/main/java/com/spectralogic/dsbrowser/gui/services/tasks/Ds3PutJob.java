@@ -65,7 +65,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Ds3PutJob extends Ds3JobTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
-    private static final int ONE_MINUTE = 60000;
     private static final String PUT = JobRequestType.PUT.toString();
     private final ResourceBundle resourceBundle;
     private final List<Pair<String, Path>> files;
@@ -128,7 +127,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> folderMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> fileMapperBuilder = ImmutableMap.builder();
-        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService));
+        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService, targetDir));
         final ImmutableMap<String, Path> fileMap = fileMapBuilder.build();
         final ImmutableMap<String, Path> folderMap = folderMapBuilder.build();
         fileMapperBuilder.putAll(fileMap);
@@ -136,7 +135,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap<String, Path> fileMapper = fileMapperBuilder.build();
         final ImmutableList<Ds3Object> objects = fileMapper.entrySet()
                 .stream()
-                .map(Ds3PutJob::buildDs3Object)
+                .map(this::buildDs3Object)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(GuavaCollectors.immutableList());
@@ -168,19 +167,19 @@ public class Ds3PutJob extends Ds3JobTask {
         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
     }
 
-    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService) {
+    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService, final String targetDir) {
         final String name = pair.getKey();
         final Path path = pair.getValue();
         if (hasNestedItems(path)) {
             try {
-                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
+                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetDir + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final IOException e) {
                 LOG.error("Unable to traverse provided path", e);
                 loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
             }
         } else {
-            fileMapBuilder.put(name + appendSlashWhenDirectory(path), path);
+            fileMapBuilder.put(targetDir + name + appendSlashWhenDirectory(path), path);
         }
     }
 
@@ -216,7 +215,7 @@ public class Ds3PutJob extends Ds3JobTask {
         Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
     }
 
-    private static Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
+    private Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
         try {
             return Optional.of(new Ds3Object(p.getKey(), Files.isDirectory(p.getValue()) ? 0 : Files.size(p.getValue())));
         } catch (final IOException e) {
