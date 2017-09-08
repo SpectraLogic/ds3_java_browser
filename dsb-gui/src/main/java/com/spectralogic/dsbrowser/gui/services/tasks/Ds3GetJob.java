@@ -19,6 +19,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -41,6 +42,8 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,15 +69,16 @@ public class Ds3GetJob extends Ds3JobTask {
     private UUID jobId;
 
 
-    public Ds3GetJob(final List<Ds3TreeTableValueCustom> selectedItems,
-                     final Path fileTreePath,
-                     final Ds3Client client,
-                     final String jobPriority,
-                     final int maximumNumberOfParallelThreads,
-                     final JobInterruptionStore jobInterruptionStore,
-                     final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                     final ResourceBundle resourceBundle,
-                     final LoggingService loggingService) {
+    @Inject
+    public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
+            @Assisted final Path fileTreePath,
+            final Ds3Client client,
+            @Named("jobPriority") final String jobPriority,
+            @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
+            final JobInterruptionStore jobInterruptionStore,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final ResourceBundle resourceBundle,
+            final LoggingService loggingService) {
         this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
         this.client = client;
@@ -114,9 +118,9 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private void transferFromSelectedItem(final String bucketName,
-                                          final Ds3TreeTableValueCustom selectedItem,
-                                          final ImmutableMap<String, Path> fileMap,
-                                          final ImmutableMap<String, Path> folderMap) {
+            final Ds3TreeTableValueCustom selectedItem,
+            final ImmutableMap<String, Path> fileMap,
+            final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName());
@@ -124,6 +128,7 @@ public class Ds3GetJob extends Ds3JobTask {
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
         if (ds3Objects.isEmpty()) {
+            LOG.info("Did not create job because items were empty");
             return;
         }
         ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
@@ -245,7 +250,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return FluentIterable.from(c).transform(contents -> {
             if (contents != null) {
                 return new Ds3Object(contents.getKey(), contents.getSize());
-            } else  {
+            } else {
                 return null;
             }
         });
@@ -299,7 +304,7 @@ public class Ds3GetJob extends Ds3JobTask {
         }
     }
 
-    public static ImmutableMap<String,Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+    public static ImmutableMap<String, Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
         final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
                 value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
         final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
@@ -309,7 +314,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return fileMap.build();
     }
 
-    public static ImmutableMap<String,Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+    public static ImmutableMap<String, Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
         final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
                 !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
         final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
@@ -317,6 +322,10 @@ public class Ds3GetJob extends Ds3JobTask {
             fileMap.put(folder.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
         });
         return fileMap.build();
+    }
+
+    public interface Ds3GetJobFactory {
+        Ds3GetJob createDs3GetJob(final List<Ds3TreeTableValueCustom> selectedItems, final Path fileTreePath);
     }
 
 }

@@ -16,6 +16,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
@@ -37,13 +38,18 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -68,18 +74,19 @@ public class Ds3PutJob extends Ds3JobTask {
     private final String targetDirectory;
     private final TreeItem<Ds3TreeTableValue> remoteDestination;
 
+    @Inject
     public Ds3PutJob(final Ds3Client client,
-            final List<Pair<String, Path>> files,
-            final String bucket,
-            final String targetDir,
+            @Assisted final List<Pair<String, Path>> files,
+            @Assisted("bucket") final String bucket,
+            @Assisted("targetDir") final String targetDir,
             final JobInterruptionStore jobInterruptionStore,
-            final String jobPriority,
-            final int maximumNumberOfParallelThreads,
+            @Named("jobPriority")final String jobPriority,
+            @Named("jobWorkerThreadCount")final int maximumNumberOfParallelThreads,
             final ResourceBundle resourceBundle,
             final SettingsStore settings,
             final LoggingService loggingService,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-            final TreeItem<Ds3TreeTableValue> remoteDestination) {
+            @Assisted final TreeItem<Ds3TreeTableValue> remoteDestination) {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files;
@@ -135,7 +142,7 @@ public class Ds3PutJob extends Ds3JobTask {
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
 
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-            ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
+                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
 
         updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDirectory).toString());
 
@@ -160,17 +167,28 @@ public class Ds3PutJob extends Ds3JobTask {
     private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService) {
         final String name = pair.getKey();
         final Path path = pair.getValue();
-        if (Files.isDirectory(pair.getValue())) {
+        if (hasNestedItems(path)) {
             try {
-                Files.walk(path).filter(child -> !Files.isDirectory(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString(), p))
+                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final IOException e) {
                 LOG.error("Unable to traverse provided path", e);
                 loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
             }
         } else {
-            fileMapBuilder.put(name, path);
+            fileMapBuilder.put(name + appendSlashWhenDirectory(path), path);
         }
+    }
+
+    @NotNull
+    private static String appendSlashWhenDirectory(final Path path) {
+        return Files.isDirectory(path) ? "/" : "";
+    }
+
+    private static boolean hasNestedItems(final Path path) {
+        final boolean isDirectory = Files.isDirectory(path);
+        final boolean isDirEmpty = isDirEmpty(path);
+        return isDirectory && !isDirEmpty;
     }
 
     private long getTotalJobSize() throws IOException {
@@ -196,7 +214,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
     private static Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
         try {
-            return Optional.of(new Ds3Object(p.getKey(), Files.size(p.getValue())));
+            return Optional.of(new Ds3Object(p.getKey(), Files.isDirectory(p.getValue()) ? 0 : Files.size(p.getValue())));
         } catch (final IOException e) {
             LOG.error("Unable to build Ds3Object", e);
             return Optional.empty();
@@ -245,5 +263,17 @@ public class Ds3PutJob extends Ds3JobTask {
     @Override
     public UUID getJobId() {
         return job.getJobId();
+    }
+
+    private static boolean isDirEmpty(final Path directory) {
+        try (DirectoryStream<Path> dStream = Files.newDirectoryStream(directory)) {
+            return !dStream.iterator().hasNext();
+        } catch (final IOException e) {
+            return false;
+        }
+    }
+
+    public interface Ds3PutJobFactory {
+        Ds3PutJob createDs3PutJob(final List<Pair<String,Path>> pairs, @Assisted("bucket") final String bucket, @Assisted("targetDir") final String targetDir, final TreeItem<Ds3TreeTableValue> treeItem);
     }
 }

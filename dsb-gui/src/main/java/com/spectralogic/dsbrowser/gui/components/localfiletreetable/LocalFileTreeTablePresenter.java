@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
@@ -28,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
+import com.spectralogic.dsbrowser.gui.injector.GuicePresenterInjector;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
@@ -91,13 +93,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DataFormat dataFormat;
     private final Workers workers;
     private final JobWorkers jobWorkers;
-    private final Ds3SessionStore ds3SessionStore;
     private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory;
     private final DataFormat local = new DataFormat("local");
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
@@ -111,11 +113,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                        final DataFormat dataFormat,
                                        final Workers workers,
                                        final JobWorkers jobWorkers,
-                                       final Ds3SessionStore ds3SessionStore,
                                        final SavedJobPrioritiesStore savedJobPrioritiesStore,
                                        final JobInterruptionStore jobInterruptionStore,
                                        final SettingsStore settingsStore,
                                        final EndpointInfo endpointInfo,
+                                       final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory,
                                        final LoggingService loggingService,
                                        final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
@@ -124,12 +126,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
-        this.ds3SessionStore = ds3SessionStore;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
+        this.ds3GetJobFactory = ds3GetJobFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
 
@@ -467,17 +469,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * Start transfer from bp to Local
      *
      * @param listFiles list of files selected for drag and drop
-     * @param session   session
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-                             final Session session,
-                             final Path localPath,
-                             final String priority) {
-        final Ds3GetJob getJob = new Ds3GetJob(listFiles, localPath, session.getClient(),
-                priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                deepStorageBrowserPresenter, resourceBundle, loggingService);
-        jobWorkers.execute(getJob);
+                             final Path localPath) {
+        final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");
             refreshFileTreeView();
@@ -497,6 +493,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 refreshFileTreeView();
             });
         });
+        jobWorkers.execute(getJob);
     }
 
     private void startPutJob(final Session session,
@@ -553,13 +550,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     }
 
-    private Session getSession(final String sessionName) {
-
-        final Optional<Session> first = ds3SessionStore.getSessions().filter(sessions -> (sessions.getSessionName()
-                + StringConstants.SESSION_SEPARATOR + sessions.getEndpoint()).equals(sessionName)).findFirst();
-        return first.orElse(null);
-    }
-
     /**
      * Drop Event action
      *
@@ -579,9 +569,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Drop event contains files");
 
             @SuppressWarnings("unchecked") final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
-            final Session session = getSession(db.getString());
-            final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-            startGetJob(list, session, localPath, priority);
+            startGetJob(list,localPath);
         }
     }
 

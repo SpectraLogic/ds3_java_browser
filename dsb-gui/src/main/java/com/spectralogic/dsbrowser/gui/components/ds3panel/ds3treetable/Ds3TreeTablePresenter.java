@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
+import com.spectralogic.dsbrowser.gui.injector.GuicePresenterInjector;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
@@ -32,10 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -66,9 +64,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
 @Presenter
 public class Ds3TreeTablePresenter implements Initializable {
 
@@ -104,9 +100,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final DataFormat dataFormat;
     private final Ds3Common ds3Common;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
 
@@ -118,6 +112,8 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private boolean isFirstTime = true;
 
+    final private Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
+
     @Inject
     public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
                                  final DataFormat dataFormat,
@@ -125,20 +121,18 @@ public class Ds3TreeTablePresenter implements Initializable {
                                  final JobWorkers jobWorkers,
                                  final Ds3Common ds3Common,
                                  final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                                 final SavedJobPrioritiesStore savedJobPrioritiesStore,
                                  final JobInterruptionStore jobInterruptionStore,
-                                 final SettingsStore settingsStore,
-                                 final LoggingService loggingService) {
+                                 final LoggingService loggingService,
+                                 final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
         this.ds3Common = ds3Common;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.loggingService = loggingService;
+        this.ds3PutJobFactory = ds3PutJobFactory;
     }
 
     @Override
@@ -413,32 +407,15 @@ public class Ds3TreeTablePresenter implements Initializable {
             final String bucket = value.getBucketName();
             final String targetDir = value.getDirectoryName();
             LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-            final String priority = (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
-            final ImmutableList.Builder<Pair<String, Path>> builder = new ImmutableList.Builder<>();
-            ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
+            final ImmutableList<Pair<String, Path>> pairs = ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
                     .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
-                    .forEach(file -> {
-                        if (file.getValue().toFile().isDirectory() && file.getValue().toFile().listFiles().length == 0) {
-
-                            final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getKey(), loggingService, resourceBundle);
-                            workers.execute(task);
-                            task.setOnSucceeded(e -> {
-                                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                                loggingService.logMessage("Created folder " + file.getKey(), LogType.INFO);
-                            });
-                            task.setOnFailed(e -> {
-                                loggingService.logMessage("Could not create folder " + file.getKey(), LogType.ERROR);
-                            });
-                        } else {
-                            builder.add(file);
-                        }
-                    });
-            final ImmutableList<Pair<String, Path>> pairs = builder.build();
+                    .collect(GuavaCollectors.immutableList());
             if (pairs.isEmpty()) {
+                LOG.info("Drag contained no files");
                 Ds3PanelService.refresh(selectedItem);
                 return;
             }
-            final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore, priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, selectedItem);
+            final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
             jobWorkers.execute(putJob);
             putJob.setOnSucceeded(e -> {
                 LOG.info("Succeed");
