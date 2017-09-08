@@ -68,6 +68,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
 
             messageText = new Label();
             messageText.getStyleClass().add("task-message");
+            messageText.setMaxWidth(this.getMaxWidth());
 
             progressBar = new ProgressBar();
             progressBar.setMaxWidth(Double.MAX_VALUE);
