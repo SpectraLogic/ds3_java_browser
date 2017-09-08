@@ -138,8 +138,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            LOG.debug("Loading new session tab for Session [{}]", session.getSessionName());
-            loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
+            LOG.debug("Loading session tab for Session [{}]", session.getSessionName());
             initContextMenu();
             initTreeTableView();
             setTreeTableViewBehaviour();
@@ -237,7 +236,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
                 LOG.info("Loading Session {}", session.getSessionName());
-                loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
 
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
