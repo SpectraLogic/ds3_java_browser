@@ -23,6 +23,7 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.JobRequestType;
+import com.spectralogic.ds3client.models.JobStatus;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
@@ -35,6 +36,8 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import io.reactivex.Observable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
@@ -56,6 +59,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Ds3PutJob extends Ds3JobTask {
@@ -80,8 +84,8 @@ public class Ds3PutJob extends Ds3JobTask {
             @Assisted("bucket") final String bucket,
             @Assisted("targetDir") final String targetDir,
             final JobInterruptionStore jobInterruptionStore,
-            @Named("jobPriority")final String jobPriority,
-            @Named("jobWorkerThreadCount")final int maximumNumberOfParallelThreads,
+            @Named("jobPriority") final String jobPriority,
+            @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
             final ResourceBundle resourceBundle,
             final SettingsStore settings,
             final LoggingService loggingService,
@@ -238,17 +242,28 @@ public class Ds3PutJob extends Ds3JobTask {
         loggingService.logMessage(finishedMessage, SUCCESS);
 
         if (isCacheJobEnable) {
-            while (!ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.getJobId())).getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED)) {
-                Thread.sleep(ONE_MINUTE);
-            }
+            Observable.interval(60, TimeUnit.SECONDS)
+                    .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                    .observeOn(JavaFxScheduler.platform())
+                    .doOnComplete(() -> {
+                        LOG.info("Job transferred to permanent storage location");
 
-            LOG.info("Job transferred to permanent storage location");
-            final String newDate = DateFormat.formatDate(new Date());
+                        final String newDate = DateFormat.formatDate(new Date());
+                        loggingService.logMessage(
+                                StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
+                                        FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
+                                        resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
 
-            loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
-                    FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,
-                    resourceBundle.getString("permanentStorageLocation"), false).toString(), SUCCESS);
+                        Ds3PanelService.refresh(remoteDestination);
+                    }).subscribe();
         }
+
+        LOG.info("Job transferred to permanent storage location");
+        final String newDate = DateFormat.formatDate(new Date());
+
+        loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
+                FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,
+                resourceBundle.getString("permanentStorageLocation"), false).toString(), SUCCESS);
     }
 
     private static String buildFinishedMessage(final long totalJobSize, final boolean isCacheJobEnable, final String dateOfTransfer, final String targetDir, final ResourceBundle resourceBundle) {
@@ -274,6 +289,6 @@ public class Ds3PutJob extends Ds3JobTask {
     }
 
     public interface Ds3PutJobFactory {
-        Ds3PutJob createDs3PutJob(final List<Pair<String,Path>> pairs, @Assisted("bucket") final String bucket, @Assisted("targetDir") final String targetDir, final TreeItem<Ds3TreeTableValue> treeItem);
+        Ds3PutJob createDs3PutJob(final List<Pair<String, Path>> pairs, @Assisted("bucket") final String bucket, @Assisted("targetDir") final String targetDir, final TreeItem<Ds3TreeTableValue> treeItem);
     }
 }
