@@ -317,8 +317,8 @@ public class Ds3PutJob extends Ds3JobTask {
 
         if (isCacheJobEnable) {
             Observable.interval(60, TimeUnit.SECONDS)
-                    .observeOn(JavaFxScheduler.platform())
                     .takeUntil( event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId)).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                    .observeOn(JavaFxScheduler.platform())
                     .doOnComplete(() -> {
                         LOG.info("Job transferred to permanent storage location");
 
@@ -328,7 +328,7 @@ public class Ds3PutJob extends Ds3JobTask {
                             FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
                             resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
 
-                        Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
+                        Ds3PanelService.refresh(remoteDestination);
                     }).subscribe();
         }
     }
