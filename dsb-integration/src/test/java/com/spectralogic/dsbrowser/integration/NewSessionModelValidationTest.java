@@ -19,8 +19,7 @@ import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import org.junit.Test;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class NewSessionModelValidationTest {
 
