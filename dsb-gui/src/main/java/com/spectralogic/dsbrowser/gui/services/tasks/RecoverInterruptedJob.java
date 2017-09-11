@@ -14,6 +14,7 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Response;
@@ -40,6 +41,8 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+
 import static com.spectralogic.ds3client.models.JobRequestType.*;
 import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
 
@@ -64,7 +67,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
 
-    public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
+    @Inject
+    public RecoverInterruptedJob(@Assisted final UUID uuid, @Assisted final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -354,5 +358,9 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     @Override
     public UUID getJobId() {
         return uuid;
+    }
+
+    public interface RecoverInterruptedJobFactory {
+        RecoverInterruptedJob createRecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo);
     }
 }

@@ -46,22 +46,23 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     private final HBox hbox = createHBox();
     private final LazyAlert alert = new LazyAlert("Error");
+    private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
 
     public ButtonCell(final JobWorkers jobWorkers,
                       final Workers workers,
                       final EndpointInfo endpointInfo,
                       final JobInterruptionStore jobInterruptionStore,
                       final JobInfoPresenter jobInfoPresenter,
-                      final SettingsStore settingsStore,
                       final LoggingService loggingService,
-                      final Ds3Common ds3Common) {
+                      final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory) {
+        this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
         recoverButton.setOnAction(recoverEvent -> {
             LOG.info("Recover Job button clicked");
             if (CheckNetwork.isReachable(endpointInfo.getClient())) {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
                 final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
-                final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid), endpointInfo, jobInterruptionStore, ds3Common.getCurrentSession().getClient(), loggingService, settingsStore, resourceBundle);
+                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(uuid), endpointInfo);
                 jobWorkers.execute(recoverInterruptedJob);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
