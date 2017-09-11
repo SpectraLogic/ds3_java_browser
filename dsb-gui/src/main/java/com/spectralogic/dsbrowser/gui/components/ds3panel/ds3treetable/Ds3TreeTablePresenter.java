@@ -414,7 +414,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                 return;
             }
             final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
-            jobWorkers.execute(putJob);
             putJob.setOnSucceeded(e -> {
                 LOG.info("Succeed");
                 Ds3PanelService.refresh(selectedItem);
@@ -443,6 +442,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3TreeTable.getSelectionModel().clearSelection();
                 ds3TreeTable.getSelectionModel().select(selectedItem);
             });
+            jobWorkers.execute(putJob);
         } else {
             alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
         }

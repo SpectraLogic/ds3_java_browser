@@ -174,6 +174,9 @@ public class Ds3PutJob extends Ds3JobTask {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetDir + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+            } catch (final SecurityException e) {
+                LOG.error("Permission denied while accessing path", e);
+                loggingService.logMessage("Tried to walk " + path.toString() + " but did not have permission", LogType.ERROR);
             } catch (final IOException e) {
                 LOG.error("Unable to traverse provided path", e);
                 loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
