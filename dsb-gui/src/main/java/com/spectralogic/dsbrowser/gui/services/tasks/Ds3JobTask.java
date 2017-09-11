@@ -59,7 +59,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         try {
             executeJob();
         } catch (final Exception e) {
-            LOG.error("Job failed with an exception: ", e);
+            LOG.error("Job failed with an exception: " + e.getMessage(), e);
+            return false;
         }
         LOG.info("Job finished successfully");
         return true;
