@@ -24,7 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJobClean;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -61,7 +61,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
                 final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
-                final RecoverInterruptedJobClean recoverInterruptedJob = new RecoverInterruptedJobClean(UUID.fromString(uuid), endpointInfo, jobInterruptionStore, ds3Common.getCurrentSession().getClient(), loggingService, settingsStore, resourceBundle);
+                final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(uuid), endpointInfo, jobInterruptionStore, ds3Common.getCurrentSession().getClient(), loggingService, settingsStore, resourceBundle);
                 jobWorkers.execute(recoverInterruptedJob);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());

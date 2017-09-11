@@ -53,9 +53,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class RecoverInterruptedJobClean extends Ds3JobTask {
+public class RecoverInterruptedJob extends Ds3JobTask {
 
-    private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJobClean.class);
+    private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJob.class);
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
@@ -63,7 +63,7 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
 
-    public RecoverInterruptedJobClean(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
+    public RecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -120,10 +120,11 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         });
 
         folderMapBuilder.putAll(filesMap);
+        final ImmutableMap<String, Path> allMap = folderMapBuilder.build();
 
         if (isFilePropertiesEnabled && !filesMap.isEmpty()) {
             LOG.info("Registering metadata access Implementation");
-            job.withMetadata(new MetadataAccessImpl(folderMapBuilder.build()));
+            job.withMetadata(new MetadataAccessImpl(allMap));
         }
 
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize, totalSent));
