@@ -25,6 +25,7 @@ import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectCha
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -114,8 +115,12 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+            } catch (final SecurityException e) {
+                loggingService.logMessage("Unable to access path, please check permssions on " + path.toString(), LogType.ERROR);
+                LOG.error("Unable to access path", e);
             } catch (final IOException ex) {
-                //ERROR
+                loggingService.logMessage("Unable to read path " + path.toString(), LogType.ERROR);
+                LOG.error("Unable to read path", e);
             }
         });
 
