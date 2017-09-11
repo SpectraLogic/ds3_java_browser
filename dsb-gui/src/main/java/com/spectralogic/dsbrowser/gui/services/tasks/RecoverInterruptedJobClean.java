@@ -35,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,8 @@ import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -106,9 +109,21 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         job.attachObjectCompletedListener(s -> onCompleteListener(jobStartInstant, targetLocation, totalJobSize, totalSent, s));
         addWaitingForChunkListener(totalJobSize, targetLocation);
 
+        final ImmutableMap.Builder<String,Path> folderMapBuilder = new ImmutableMap.Builder<>();
+        foldersMap.forEach((name, path) -> {
+            try {
+                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
+                        .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+            } catch (final IOException ex) {
+                //ERROR
+            }
+        });
+
+        folderMapBuilder.putAll(filesMap);
+
         if (isFilePropertiesEnabled && !filesMap.isEmpty()) {
             LOG.info("Registering metadata access Implementation");
-            job.withMetadata(new MetadataAccessImpl(ImmutableMap.copyOf(filesMap)));
+            job.withMetadata(new MetadataAccessImpl(folderMapBuilder.build()));
         }
 
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize, totalSent));
@@ -310,6 +325,25 @@ public class RecoverInterruptedJobClean extends Ds3JobTask {
         }
         return null;
     }
+
+    private static boolean hasNestedItems(final Path path) {
+        final boolean isDirectory = Files.isDirectory(path);
+        final boolean isDirEmpty = isDirEmpty(path);
+        return isDirectory && !isDirEmpty;
+    }
+
+    private static boolean isDirEmpty(final Path directory) {
+        try (DirectoryStream<Path> dStream = Files.newDirectoryStream(directory)) {
+            return !dStream.iterator().hasNext();
+        } catch (final IOException e) {
+            return false;
+        }
+    }
+
+    private static String appendSlashWhenDirectory(final Path path) {
+        return Files.isDirectory(path) ? "/" : "";
+    }
+
 
     @Override
     public UUID getJobId() {
