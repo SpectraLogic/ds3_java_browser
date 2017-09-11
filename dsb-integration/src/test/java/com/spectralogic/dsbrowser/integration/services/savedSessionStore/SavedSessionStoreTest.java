@@ -32,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.reactfx.collection.LiveArrayList;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -117,20 +118,20 @@ public class SavedSessionStoreTest {
     }
 
     @Test
-    public void isSessionUpdatedTest() throws Exception {
+    public void isSessionUpdatedTest() throws IOException {
         final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).getSessions();
         session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
         assertFalse(SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).containsSessionName(savedSessions, session.getSessionName()));
     }
 
     @Test
-    public void containsSessionNameTest() throws Exception {
+    public void containsSessionNameTest() throws IOException {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
         assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
     }
 
     @Test
-    public void containsNewSessionNameTest() throws Exception {
+    public void containsNewSessionNameTest() throws IOException {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
         final ObservableList<Session> list = new LiveArrayList<>();
         list.add(session);
@@ -146,7 +147,7 @@ public class SavedSessionStoreTest {
                 savedSessionStore.removeSession(savedSession);
                 successFlag = !savedSessionStore.getSessions().contains(savedSession.getName());
                 latch.countDown();
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 latch.countDown();
             }

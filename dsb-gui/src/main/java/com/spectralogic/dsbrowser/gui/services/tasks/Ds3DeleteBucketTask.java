@@ -24,6 +24,8 @@ import javafx.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class Ds3DeleteBucketTask extends Ds3Task {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3DeleteBucketTask.class);
 
@@ -36,11 +38,11 @@ public class Ds3DeleteBucketTask extends Ds3Task {
     }
 
     @Override
-    protected String call() throws Exception {
+    protected String call() {
         try {
             ds3Client.deleteBucketSpectraS3(new DeleteBucketSpectraS3Request(bucketName).withForce(true));
             return StringConstants.SUCCESS;
-        } catch (final Exception e) {
+        } catch (final IOException e) {
             LOG.error("Failed to delete Bucket: ", e);
             setErrorMsg(e.getMessage());
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));

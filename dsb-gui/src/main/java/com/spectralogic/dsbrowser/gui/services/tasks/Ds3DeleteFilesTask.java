@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.Event;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public class Ds3DeleteFilesTask extends Ds3Task {
     }
 
     @Override
-    protected Optional<String> call() throws Exception {
+    protected Optional<String> call() {
         try {
             int deleteSize = 0;
             final Set<String> bucketSet = bucketObjectsMap.keySet();
@@ -59,7 +60,7 @@ public class Ds3DeleteFilesTask extends Ds3Task {
                     return Optional.of(StringConstants.SUCCESS);
                 }
             }
-        } catch (final Exception e) {
+        } catch (final IOException e) {
             errorMsg = e.getMessage();
             this.fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
             return Optional.empty();

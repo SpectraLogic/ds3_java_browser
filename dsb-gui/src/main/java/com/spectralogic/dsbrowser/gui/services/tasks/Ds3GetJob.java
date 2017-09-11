@@ -96,7 +96,7 @@ public class Ds3GetJob extends Ds3JobTask {
     @Override
     public void executeJob() throws Exception {
         if (!CheckNetwork.isReachable(client)) {
-            hostNotAvaialble();
+            hostNotAvailable();
             return;
         }
         final String startJobDate = DateFormat.formatDate(new Date());
@@ -113,7 +113,10 @@ public class Ds3GetJob extends Ds3JobTask {
                         .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem, fileMap, folderMap)));
     }
 
-    private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem, final ImmutableMap<String, Path> fileMap, final ImmutableMap<String, Path> folderMap) {
+    private void transferFromSelectedItem(final String bucketName,
+                                          final Ds3TreeTableValueCustom selectedItem,
+                                          final ImmutableMap<String, Path> fileMap,
+                                          final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName());

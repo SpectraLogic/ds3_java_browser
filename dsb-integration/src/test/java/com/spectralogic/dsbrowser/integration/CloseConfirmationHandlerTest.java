@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.integration;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
@@ -26,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -50,6 +50,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.TreeItem;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -253,9 +254,11 @@ public class CloseConfirmationHandlerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
+                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "cancelAllTasksBucket", "",
                         Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(),
-                        deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class), resourceBundle);
+                        deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class),
+                        resourceBundle, destination);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

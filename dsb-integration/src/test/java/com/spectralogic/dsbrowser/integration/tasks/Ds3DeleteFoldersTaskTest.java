@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -26,7 +27,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
@@ -46,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
-public class Ds3DeleteFolderTaskTest {
+public class Ds3DeleteFoldersTaskTest {
 
     private final Workers workers = new Workers();
     private Session session;
@@ -55,7 +56,7 @@ public class Ds3DeleteFolderTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
-    private static final String TEST_ENV_NAME = "Ds3DeleteFolderTaskTest";
+    private static final String TEST_ENV_NAME = "Ds3DeleteFoldersTaskTest";
     private static final String bucketName = "DeleteFolderTaskTestBucket";
     private static final String folderName = "testFolder/";
     private static TempStorageIds envStorageIds;
@@ -102,7 +103,7 @@ public class Ds3DeleteFolderTaskTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-                final Ds3DeleteFolderTask deleteFolderTask = new Ds3DeleteFolderTask(session.getClient(), bucketName, folderName);
+                final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(session.getClient(), ImmutableMultimap.of(bucketName, folderName));
                 workers.execute(deleteFolderTask);
                 deleteFolderTask.setOnSucceeded(event -> {
                     successFlag = true;

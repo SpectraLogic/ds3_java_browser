@@ -141,13 +141,12 @@ public class Ds3TreeTablePresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            LOG.debug("Loading new session tab for Session [{}]", session.getSessionName());
-            loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
+            LOG.debug("Loading session tab for Session [{}]", session.getSessionName());
             initContextMenu();
             initTreeTableView();
             setTreeTableViewBehaviour();
-        } catch (final Exception e) {
-            LOG.error("Encountered error when creating Ds3TreeTablePresenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered error when initializing Ds3TreeTablePresenter", t);
         }
     }
 
@@ -169,13 +168,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject(false));
+        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
         physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle));
@@ -215,7 +214,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
             if (!Guard.isNullOrEmpty(selectedItems)) {
                 if (event.getCode().equals(KeyCode.DELETE)) {
-                    ds3Common.getDs3PanelPresenter().ds3DeleteObject(false);
+                    ds3Common.getDs3PanelPresenter().ds3DeleteObject();
                     event.consume();
                 }
             }
@@ -240,7 +239,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
                 LOG.info("Loading Session {}", session.getSessionName());
-                loggingService.logMessage("Loading Session " + session.getSessionName(), LogType.INFO);
 
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
@@ -418,7 +416,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final List<File> files = new ArrayList<>();
                 for (final File file : db.getFiles()) {
                     if (file.isDirectory() && (file.listFiles().length == 0)) {
-                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), null, loggingService, resourceBundle);
+                        final CreateFolderTask task = new CreateFolderTask(session.getClient(), bucket, file.getName(), loggingService, resourceBundle);
                         workers.execute(task);
                         task.setOnSucceeded(e -> {
                             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
@@ -430,52 +428,47 @@ public class Ds3TreeTablePresenter implements Initializable {
                     } else {
                         files.add(file);
                     }
-                }
-                if (files.isEmpty()) {
-                    Ds3PanelService.refresh(selectedItem);
-                    return;
-                }
-                final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
-                        settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
-                        deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle);
-                jobWorkers.execute(putJob);
-                putJob.setOnSucceeded(e -> {
-                    LOG.info("Succeed");
-                    try {
+                    if (files.isEmpty()) {
+                        Ds3PanelService.refresh(selectedItem);
+                        return;
+                    }
+                    final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, priority,
+                            settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(), jobInterruptionStore,
+                            deepStorageBrowserPresenter, session, settingsStore, loggingService, resourceBundle, selectedItem);
+                    jobWorkers.execute(putJob);
+                    putJob.setOnSucceeded(e -> {
+                        LOG.info("Succeed");
                         Ds3PanelService.refresh(selectedItem);
                         ds3TreeTable.getSelectionModel().clearSelection();
                         ds3TreeTable.getSelectionModel().select(selectedItem);
-                    } catch (final Exception ex) {
-                        LOG.error("Failed to save job ID", ex);
-                    }
-
-                });
-                putJob.setOnFailed(e -> {
-                    LOG.info("setOnFailed");
-                    Ds3PanelService.refresh(selectedItem);
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3TreeTable.getSelectionModel().select(selectedItem);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
-                });
-                putJob.setOnCancelled(e -> {
-                    LOG.info("setOnCancelled");
-                    if (putJob.getJobId() != null) {
-                        try {
-                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                        } catch (final IOException e1) {
-                            LOG.error("Failed to cancel job", e1);
+                    });
+                    putJob.setOnFailed(e -> {
+                        LOG.info("setOnFailed");
+                        Ds3PanelService.refresh(selectedItem);
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3TreeTable.getSelectionModel().select(selectedItem);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                    });
+                    putJob.setOnCancelled(e -> {
+                        LOG.info("setOnCancelled");
+                        if (putJob.getJobId() != null) {
+                            try {
+                                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                            } catch (final IOException e1) {
+                                LOG.error("Failed to cancel job", e1);
+                            }
                         }
-                    }
-                    Ds3PanelService.refresh(selectedItem);
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3TreeTable.getSelectionModel().select(selectedItem);
-                });
+                        Ds3PanelService.refresh(selectedItem);
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3TreeTable.getSelectionModel().select(selectedItem);
+                    });
+                }
+            } else {
+                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
             }
-        } else {
-            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            event.consume();
         }
-        event.consume();
     }
 
     /**
@@ -497,7 +490,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 manageItemsCount(row.getTreeItem());
             }
         } else if (event.getClickCount() == 2) {
-            if (!row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+            if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
                 final ProgressIndicator progress = new ProgressIndicator();
                 progress.setMaxSize(90, 90);
                 ds3TreeTable.setPlaceholder(new StackPane(progress));
@@ -514,36 +507,29 @@ public class Ds3TreeTablePresenter implements Initializable {
                     ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                 }
             }
-        } else if (event.getButton().name().equals(StringConstants.CLICK_TYPE)) {
-            try {
-                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                    loadMore(row.getTreeItem());
-                }
-            } catch (final Exception e) {
-                LOG.error("Not able to get tree item", e);
+        } else if (event.getButton().equals(MouseButton.SECONDARY)) {
+            if ((row.getTreeItem() != null ) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                LOG.info("Loading more entries...");
+                loadMore(row.getTreeItem());
             }
         } else {
-            try {
-                rowNameList.clear();
-                if (null == row.getTreeItem()) {
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                } else {
-                    rowNameList.add(row.getTreeItem().getValue().getName());
-                    ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                    if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                        if (event.getClickCount() < 2) {
-                            loadMore(row.getTreeItem());
-                        }
+            rowNameList.clear();
+            if (null == row.getTreeItem()) {
+                ds3TreeTable.getSelectionModel().clearSelection();
+            } else {
+                rowNameList.add(row.getTreeItem().getValue().getName());
+                ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
+                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                    if (event.getClickCount() < 2) {
+                        loadMore(row.getTreeItem());
                     }
                 }
-                if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
-                    ds3PanelPresenter.getDs3PathIndicator().setText("");
-                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
-                } else {
-                    ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
-                }
-            } catch (final Exception e) {
-                LOG.error("Unable to get value of selected item", e);
+            }
+            if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
+                ds3PanelPresenter.getDs3PathIndicator().setText("");
+                ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
+            } else {
+                ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
             }
         }
     }
@@ -594,6 +580,9 @@ public class Ds3TreeTablePresenter implements Initializable {
                     if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
                             (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
+                    } else if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
+                            (value.getType() == Ds3TreeTableValue.Type.File) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
+                        deleteFolder.setDisable(false);
                     }
                 }
             }

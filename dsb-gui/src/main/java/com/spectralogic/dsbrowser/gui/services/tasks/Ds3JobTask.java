@@ -148,7 +148,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return isJobFailed;
     }
 
-    void hostNotAvaialble() {
+    void hostNotAvailable() {
         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
         ErrorUtils.dumpTheStack(msg);
         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);

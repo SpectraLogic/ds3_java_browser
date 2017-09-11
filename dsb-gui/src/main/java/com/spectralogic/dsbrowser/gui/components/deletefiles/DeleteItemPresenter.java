@@ -26,7 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -103,8 +103,8 @@ public class DeleteItemPresenter implements Initializable {
                 }
             });
 
-        } catch (final Exception e) {
-            LOG.error("Encountered an error making the delete file presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the DeleteItemPresenter", t);
         }
     }
 
@@ -162,7 +162,7 @@ public class DeleteItemPresenter implements Initializable {
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {
             alertMessage = resourceBundle.getString("deleteBucketErr");
-        } else if (deleteTask instanceof Ds3DeleteFolderTask) {
+        } else if (deleteTask instanceof Ds3DeleteFoldersTask) {
             alertMessage = resourceBundle.getString("folderDeleteFailed");
         } else if (deleteTask instanceof Ds3DeleteFilesTask) {
             alertMessage = resourceBundle.getString("deleteFailedError");
