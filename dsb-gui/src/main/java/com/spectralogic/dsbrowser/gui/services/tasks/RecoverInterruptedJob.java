@@ -115,12 +115,12 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
-            } catch (final SecurityException e) {
+            } catch (final SecurityException ex) {
                 loggingService.logMessage("Unable to access path, please check permssions on " + path.toString(), LogType.ERROR);
-                LOG.error("Unable to access path", e);
+                LOG.error("Unable to access path", ex);
             } catch (final IOException ex) {
                 loggingService.logMessage("Unable to read path " + path.toString(), LogType.ERROR);
-                LOG.error("Unable to read path", e);
+                LOG.error("Unable to read path", ex);
             }
         });
 
