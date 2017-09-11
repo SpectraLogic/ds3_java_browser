@@ -159,9 +159,5 @@ public class RecoverInterruptedJobTest {
         assertTrue(successFlag);
     }
 
-/*    @Test
-    public void getSkipPath() throws Exception {
-        final String skipPath = RecoverInterruptedJob.getSkipPath(fileName, new HashMap<>());
-        assertTrue(skipPath.equals(StringConstants.EMPTY_STRING));
-    }*/
+
 }
