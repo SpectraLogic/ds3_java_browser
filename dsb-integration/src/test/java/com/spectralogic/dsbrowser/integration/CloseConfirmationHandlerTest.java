@@ -51,6 +51,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
+import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -63,9 +64,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 public class CloseConfirmationHandlerTest {
@@ -79,6 +78,7 @@ public class CloseConfirmationHandlerTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static Path path;
 
     @BeforeClass
     public static void setConnection() {
@@ -95,7 +95,7 @@ public class CloseConfirmationHandlerTest {
             session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
             try {
-                final Path path = ResourceUtils.loadFileResource("files/");
+                path = ResourceUtils.loadFileResource("files/");
                 if (path != null) {
                     file = path.toFile();
                 }
@@ -247,18 +247,17 @@ public class CloseConfirmationHandlerTest {
     public void cancelAllRunningTasks() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            final ImmutableList<File> filesList = ImmutableList.of(file);
+            final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
+            final ImmutableList<Pair<String,Path>> pair = ImmutableList.of(new Pair<>("files/", path));
             try {
                 final Ds3Client ds3Client = session.getClient();
                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, filesList, "cancelAllTasksBucket", "",
-                        Priority.URGENT.toString(), 5, JobInterruptionStore.loadJobIds(),
-                        deepStorageBrowserPresenter, session, settingsStore, Mockito.mock(LoggingService.class),
-                        resourceBundle, destination);
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
+                        JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
+                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

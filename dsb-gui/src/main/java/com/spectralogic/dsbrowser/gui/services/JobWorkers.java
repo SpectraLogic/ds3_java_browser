@@ -45,7 +45,7 @@ public class JobWorkers {
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
             if (c.next() && c.wasAdded()) {
-                c.getAddedSubList().stream().forEach(workers::execute);
+                c.getAddedSubList().forEach(workers::execute);
             }
         });
     }
