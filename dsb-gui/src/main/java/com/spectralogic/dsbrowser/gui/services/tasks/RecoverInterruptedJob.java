@@ -66,9 +66,18 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
+    private static final int ONE_MINUTE = 60 * 1000;
 
     @Inject
-    public RecoverInterruptedJob(@Assisted final UUID uuid, @Assisted final EndpointInfo endpointInfo, final JobInterruptionStore jobInterruptionStore, final Ds3Client client, final LoggingService loggingService, final SettingsStore settingsStore, final ResourceBundle resourceBundle) {
+    public RecoverInterruptedJob(
+            @Assisted final UUID uuid,
+            @Assisted final EndpointInfo endpointInfo,
+            final JobInterruptionStore jobInterruptionStore,
+            final Ds3Client client,
+            final LoggingService loggingService,
+            final SettingsStore settingsStore,
+            final ResourceBundle resourceBundle
+    ) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -114,7 +123,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         job.attachObjectCompletedListener(s -> onCompleteListener(jobStartInstant, targetLocation, totalJobSize, totalSent, s));
         addWaitingForChunkListener(totalJobSize, targetLocation);
 
-        final ImmutableMap.Builder<String,Path> folderMapBuilder = new ImmutableMap.Builder<>();
+        final ImmutableMap.Builder<String, Path> folderMapBuilder = new ImmutableMap.Builder<>();
         foldersMap.forEach((name, path) -> {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
@@ -192,7 +201,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private static void retryJob(final GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
         GetJobSpectraS3Response r = response;
         while (jobIsNotComplete(r)) {
-            Thread.sleep(60000);
+            Thread.sleep(ONE_MINUTE);
             r = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
         }
     }
