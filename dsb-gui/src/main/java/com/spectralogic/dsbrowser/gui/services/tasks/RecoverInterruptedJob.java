@@ -93,6 +93,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         final JobRequestType jobRequestType = JobRequestType.valueOf(filesAndFolderMap.getType());
         this.job = getJob(ds3Client, uuid, jobRequestType, loggingService);
         if (job == null) {
+            loggingService.logMessage("Could not get job " + uuid, LogType.ERROR);
+            LOG.error("Could not get job " + uuid);
             return;
         }
         final UUID jobId = job.getJobId();
