@@ -78,10 +78,6 @@ public class FilesAndFolderMap {
         this.totalJobSize = totalJobSize;
     }
 
-    /*public boolean isNonAdjacent() {
-        return nonAdjacent;
-    }*/
-
     public void setNonAdjacent(final boolean nonAdjacent) {
         this.nonAdjacent = nonAdjacent;
     }
