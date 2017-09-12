@@ -25,6 +25,7 @@ import com.spectralogic.ds3client.helpers.JobRecoveryException;
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder;
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl;
 import com.spectralogic.ds3client.models.JobRequestType;
+import com.spectralogic.ds3client.models.JobStatus;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -36,8 +37,11 @@ import com.spectralogic.dsbrowser.gui.util.DateFormat;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import io.reactivex.Completable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
 import javafx.util.Pair;
+import io.reactivex.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +59,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RecoverInterruptedJob extends Ds3JobTask {
@@ -66,7 +71,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
-    private static final int ONE_MINUTE = 60 * 1000;
 
     @Inject
     public RecoverInterruptedJob(
@@ -129,7 +133,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         foldersMap.forEach((name, path) -> {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
-                        .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+                     .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final SecurityException ex) {
                 loggingService.logMessage("Unable to access path, please check permssions on " + path.toString(), LogType.ERROR);
                 LOG.error("Unable to access path", ex);
@@ -155,18 +159,17 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             updateProgressAndLog(jobRequestType, totalJobSize, totalSent, buildGetRecoveringMessage, buildPutRecoveringMessage);
         });
 
-        try {
-            waitForTransfer(filesAndFolderMap, jobId, isCacheJobEnable, ds3Client);
-        } catch (final IOException e) {
-            LOG.error("IO", e);
 
-        } catch (final InterruptedException e) {
-            LOG.error("Interuption", e);
-
-        }
-        loggingService.logMessage(buildFinalMessage, SUCCESS);
-        removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
-
+        waitForTransfer(filesAndFolderMap, jobId, isCacheJobEnable, ds3Client)
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                    LOG.error("Encountered a failure while waiting for transfer", throwable);
+                })
+                .doOnComplete(() -> {
+                    loggingService.logMessage(buildFinalMessage, SUCCESS);
+                    removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
+                })
+                .subscribe();
     }
 
     private void setDataTransferredListener(final long l, final Long totalJobSize, final AtomicLong totalSent) {
@@ -174,11 +177,12 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         totalSent.addAndGet(l);
     }
 
-    private static void waitForTransfer(final FilesAndFolderMap filesAndFolderMap, final UUID jobId, final boolean isCacheJobEnable, final Ds3Client ds3Client) throws IOException, InterruptedException {
+    private static Completable waitForTransfer(final FilesAndFolderMap filesAndFolderMap, final UUID jobId, final boolean isCacheJobEnable, final Ds3Client ds3Client) throws IOException, InterruptedException {
         final GetJobSpectraS3Response response = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
         if (cacheIsEnabledAndIsPut(filesAndFolderMap, isCacheJobEnable)) {
-            retryJob(response, ds3Client, jobId);
+            return retryJob(response, ds3Client, jobId);
         }
+        return Completable.complete();
     }
 
     private void updateProgressAndLog(final JobRequestType jobRequestType, final long totalJobSize, final AtomicLong totalSent, final String buildGetRecoveringMessage, final String buildPutRecoveringMessage) {
@@ -200,20 +204,17 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 + resourceBundle.getString("storageLocation");
     }
 
-    private static void retryJob(final GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
-        GetJobSpectraS3Response r = response;
-        while (jobIsNotComplete(r)) {
-            Thread.sleep(ONE_MINUTE);
-            r = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId));
+    private static Completable retryJob(final GetJobSpectraS3Response response, final Ds3Client ds3Client, final UUID jobId) throws InterruptedException, IOException {
+        if (response.getMasterObjectListResult().getStatus() == JobStatus.COMPLETED) {
+            return Completable.complete();
         }
+        return Observable.interval(60, TimeUnit.SECONDS)
+                .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(jobId)).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                .ignoreElements();
     }
 
     private static boolean cacheIsEnabledAndIsPut(final FilesAndFolderMap filesAndFolderMap, final boolean isCacheJobEnable) {
         return isCacheJobEnable && filesAndFolderMap.getType().equals(PUT.toString());
-    }
-
-    private static boolean jobIsNotComplete(final GetJobSpectraS3Response response) {
-        return !response.getMasterObjectListResult().getStatus().toString().equals(StringConstants.JOB_COMPLETED);
     }
 
     private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle) {
