@@ -78,6 +78,7 @@ public class JobInfoPresenter implements Initializable {
     private final SettingsStore settingsStore;
     private final LoggingService loggingService;
     private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
+    private final ButtonCell.ButtonCellFactory buttonCellFactory;
 
     private Stage stage;
 
@@ -88,6 +89,7 @@ public class JobInfoPresenter implements Initializable {
                             final JobWorkers jobWorkers,
                             final JobInterruptionStore jobInterruptionStore,
                             final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory,
+                            final ButtonCell.ButtonCellFactory buttonCellFactory,
                             final SettingsStore settingsStore,
                             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
@@ -98,6 +100,7 @@ public class JobInfoPresenter implements Initializable {
         this.settingsStore = settingsStore;
         this.loggingService = loggingService;
         this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
+        this.buttonCellFactory = buttonCellFactory;
     }
 
     @Override
@@ -180,7 +183,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, loggingService, recoverInterruptedJobFactory));
+                p -> buttonCellFactory.createButtonCell(endpointInfo));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);

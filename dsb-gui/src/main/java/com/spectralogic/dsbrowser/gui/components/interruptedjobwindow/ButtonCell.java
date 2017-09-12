@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -48,9 +50,10 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final LazyAlert alert = new LazyAlert("Error");
     private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
 
+    @Inject
     public ButtonCell(final JobWorkers jobWorkers,
                       final Workers workers,
-                      final EndpointInfo endpointInfo,
+                      @Assisted final EndpointInfo endpointInfo,
                       final JobInterruptionStore jobInterruptionStore,
                       final JobInfoPresenter jobInfoPresenter,
                       final LoggingService loggingService,
@@ -62,11 +65,14 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
                 final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
+
                 final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(uuid), endpointInfo);
                 jobWorkers.execute(recoverInterruptedJob);
+
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                 jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+
                 recoverInterruptedJob.setOnSucceeded(event -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
@@ -153,5 +159,9 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         hbox.setAlignment(Pos.CENTER);
         hbox.getChildren().addAll(recoverButton, cancelButton);
         return hbox;
+    }
+
+    public interface ButtonCellFactory {
+        ButtonCell createButtonCell(final EndpointInfo endpointInfo);
     }
 }

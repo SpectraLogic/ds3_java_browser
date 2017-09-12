@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.ButtonCell;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -75,6 +76,7 @@ public class GuiModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(Ds3GetJob.Ds3GetJobFactory.class));
         install(new FactoryModuleBuilder().build(Ds3PutJob.Ds3PutJobFactory.class));
         install(new FactoryModuleBuilder().build(RecoverInterruptedJob.RecoverInterruptedJobFactory.class));
+        install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
     }
 
     @Provides
