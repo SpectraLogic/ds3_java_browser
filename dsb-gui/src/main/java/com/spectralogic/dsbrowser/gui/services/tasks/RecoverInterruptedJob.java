@@ -343,7 +343,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     }
 
     private static boolean isDirEmpty(final Path directory) {
-        try (DirectoryStream<Path> dStream = Files.newDirectoryStream(directory)) {
+        try (final DirectoryStream<Path> dStream = Files.newDirectoryStream(directory)) {
             return !dStream.iterator().hasNext();
         } catch (final IOException e) {
             return false;
