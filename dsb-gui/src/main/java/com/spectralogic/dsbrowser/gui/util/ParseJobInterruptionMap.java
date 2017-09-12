@@ -160,10 +160,7 @@ public final class ParseJobInterruptionMap {
                                          final String bucket) {
         if (jobInterruptionStore != null && jobInterruptionStore.getJobIdsModel() != null) {
                 final ObservableList<Map<String, Map<String, FilesAndFolderMap>>> completeArrayList = FXCollections.observableArrayList(jobInterruptionStore.getJobIdsModel().getEndpoints());
-                boolean isNonAdjacent = false;
-                if (!Guard.isMapNullOrEmpty(filesMap) && !Guard.isMapNullOrEmpty(foldersMap)) {
-                    isNonAdjacent = true;
-                }
+                final boolean isNonAdjacent = !(Guard.isMapNullOrEmpty(filesMap) || Guard.isMapNullOrEmpty(foldersMap));
 
                 final FilesAndFolderMap filesAndFolderMap = new FilesAndFolderMap(filesMap, foldersMap, jobType, DateFormat.formatDate(new Date()), isNonAdjacent, targetLocation, totalJobSize, bucket);
                 if (!Guard.isNullOrEmpty(completeArrayList) && completeArrayList.stream().anyMatch(i -> i.containsKey(endpoint))) {

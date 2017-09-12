@@ -38,6 +38,7 @@ import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
 
@@ -73,6 +74,7 @@ public class GuiModule extends AbstractModule {
 
         install(new FactoryModuleBuilder().build(Ds3GetJob.Ds3GetJobFactory.class));
         install(new FactoryModuleBuilder().build(Ds3PutJob.Ds3PutJobFactory.class));
+        install(new FactoryModuleBuilder().build(RecoverInterruptedJob.RecoverInterruptedJobFactory.class));
     }
 
     @Provides

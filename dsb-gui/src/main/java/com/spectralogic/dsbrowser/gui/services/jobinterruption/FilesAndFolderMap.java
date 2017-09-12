@@ -16,10 +16,13 @@
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 
 public class FilesAndFolderMap {
 
@@ -31,7 +34,7 @@ public class FilesAndFolderMap {
     private String type;
     @JsonProperty("date")
     private String date;
-    @JsonProperty("nonAdjacent")
+    @JsonIgnoreProperties("nonAdjacent")
     private boolean nonAdjacent;
     @JsonProperty("targetLocation")
     private String targetLocation;
@@ -73,10 +76,6 @@ public class FilesAndFolderMap {
 
     public void setTotalJobSize(final long totalJobSize) {
         this.totalJobSize = totalJobSize;
-    }
-
-    public boolean isNonAdjacent() {
-        return nonAdjacent;
     }
 
     public void setNonAdjacent(final boolean nonAdjacent) {
@@ -121,6 +120,10 @@ public class FilesAndFolderMap {
 
     public void setType(final String type) {
         this.type = type;
+    }
+
+    public static FilesAndFolderMap buildFromEndpoint(final EndpointInfo endpointInfo, final UUID uuid) {
+        return endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
     }
 
 }

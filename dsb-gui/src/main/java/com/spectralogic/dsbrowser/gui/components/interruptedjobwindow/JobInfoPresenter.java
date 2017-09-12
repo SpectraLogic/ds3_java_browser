@@ -20,7 +20,6 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.Main;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -78,6 +77,7 @@ public class JobInfoPresenter implements Initializable {
     private final JobInterruptionStore jobInterruptionStore;
     private final SettingsStore settingsStore;
     private final LoggingService loggingService;
+    private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
 
     private Stage stage;
 
@@ -87,6 +87,7 @@ public class JobInfoPresenter implements Initializable {
                             final Workers workers,
                             final JobWorkers jobWorkers,
                             final JobInterruptionStore jobInterruptionStore,
+                            final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory,
                             final SettingsStore settingsStore,
                             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
@@ -96,6 +97,7 @@ public class JobInfoPresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.settingsStore = settingsStore;
         this.loggingService = loggingService;
+        this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
     }
 
     @Override
@@ -178,7 +180,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, settingsStore, loggingService));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, loggingService, recoverInterruptedJobFactory));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -219,7 +221,7 @@ public class JobInfoPresenter implements Initializable {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
             if (jobIDMap != null) {
                 jobIDMap.entrySet().forEach(i -> {
-                    final RecoverInterruptedJob recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo, jobInterruptionStore, settingsStore.getShowCachedJobSettings().getShowCachedJob());
+                    final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(i.getKey()), endpointInfo);
                     jobWorkers.execute(recoverInterruptedJob);
                     final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, endpointInfo.getDeepStorageBrowserPresenter());
