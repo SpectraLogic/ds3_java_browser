@@ -25,7 +25,6 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
@@ -75,7 +74,6 @@ public class JobInfoPresenter implements Initializable {
     private final Workers workers;
     private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final LoggingService loggingService;
     private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
     private final ButtonCell.ButtonCellFactory buttonCellFactory;
@@ -90,14 +88,12 @@ public class JobInfoPresenter implements Initializable {
                             final JobInterruptionStore jobInterruptionStore,
                             final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory,
                             final ButtonCell.ButtonCellFactory buttonCellFactory,
-                            final SettingsStore settingsStore,
                             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.loggingService = loggingService;
         this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
         this.buttonCellFactory = buttonCellFactory;
@@ -115,42 +111,39 @@ public class JobInfoPresenter implements Initializable {
 
     private void initListeners() {
         cancelJobListButtons.setOnAction(event -> {
-            if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                if (jobIDMap != null && jobIDMap.size() != 0) {
-                    final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle
-                            .getString("confirmation"), jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString
-                            ("jobsWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
+            if (jobIDMap != null && jobIDMap.size() != 0) {
+                final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+                        resourceBundle.getString("confirmation"),
+                        jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
+                        Alert.AlertType.CONFIRMATION,
+                        resourceBundle.getString("reallyWantToCancel"),
+                        resourceBundle.getString("exitBtnJobCancelConfirm"),
+                        resourceBundle.getString("cancelBtnJobCancelConfirm"));
+                if (closeResponse.isPresent()) {
                     if (closeResponse.get().equals(ButtonType.OK)) {
                         cancelAllInterruptedJobs(jobIDMap);
-                        event.consume();
                     }
-                    if (closeResponse.get().equals(ButtonType.CANCEL)) {
-                        event.consume();
-                    }
+                    event.consume();
                 }
-            } else {
-                final String errorMsg = resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + resourceBundle.getString(" unreachable");
-                ErrorUtils.dumpTheStack(errorMsg);
-                alert.showAlert(errorMsg);
-                LOG.info("Network is unreachable");
             }
         });
     }
 
     private void cancelAllInterruptedJobs(final Map<String, FilesAndFolderMap> jobIDMap) {
+        // TODO pull into a service which returns an Observable
         final Task cancelJobId = new Task() {
             @Override
             protected String call() {
-                jobIDMap.entrySet().forEach(i -> {
-                    loggingService.logMessage("Initiating job cancel for " + i.getKey(), LogType.INFO);
+                jobIDMap.forEach((key, value) -> {
+                    loggingService.logMessage("Initiating job cancel for " + key, LogType.INFO);
                     try {
-                        endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
+                        endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(key));
                         LOG.info("Cancelled job.");
                     } catch (final IOException e) {
                         LOG.error("Unable to cancel job ", e);
                     } finally {
-                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
+                        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, key, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                     }
                 });

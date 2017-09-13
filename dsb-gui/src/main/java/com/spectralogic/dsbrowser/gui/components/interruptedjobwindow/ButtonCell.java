@@ -19,12 +19,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -45,10 +43,8 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
     private final static Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
-    private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final ResourceBundle resourceBundle;
     private final HBox hbox = createHBox();
-    private final LazyAlert alert = new LazyAlert("Error");
-    private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
 
     @Inject
     public ButtonCell(final JobWorkers jobWorkers,
@@ -56,73 +52,71 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                       @Assisted final EndpointInfo endpointInfo,
                       final JobInterruptionStore jobInterruptionStore,
                       final JobInfoPresenter jobInfoPresenter,
+                      final ResourceBundle resourceBundle,
                       final LoggingService loggingService,
                       final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory) {
-        this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
-        recoverButton.setOnAction(recoverEvent -> {
-            LOG.info("Recover Job button clicked");
-            if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
-                final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
-                final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(uuid);
+        this.resourceBundle = resourceBundle;
 
-                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(uuid), endpointInfo);
-                jobWorkers.execute(recoverInterruptedJob);
+        recoverButton.setOnAction(recoverInterruptedJobButtonEvent -> {
+            LOG.info("Recover Interrupted Jobs button clicked");
+            loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
 
-                final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(), null);
-                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
+            final String jobId = getTreeTableRow().getTreeItem().getValue().getJobId();
+            final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
+
+            final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(jobId), endpointInfo);
+            recoverInterruptedJob.setOnSucceeded(recoverInterruptedJobSucceededEvent -> {
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
                 jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-
-                recoverInterruptedJob.setOnSucceeded(event -> {
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
+            });
+            recoverInterruptedJob.setOnFailed(recoverInterruptedJobFailedEvent -> {
+                loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
+                jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+            });
+            recoverInterruptedJob.setOnCancelled(recoverInterruptedJobCancelledEvent -> {
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
+                    jobId,
+                    endpointInfo,
+                    jobInterruptionStore,
+                    resourceBundle.getString("recover"),
+                    loggingService);
+                ds3CancelSingleJobTask.setOnSucceeded(eventCancel -> {
+                    LOG.info("Cancellation of recovered job success");
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 });
-                recoverInterruptedJob.setOnFailed(event -> {
-                    loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
-                    jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-                });
-                recoverInterruptedJob.setOnCancelled(event -> {
-                    if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"), loggingService);
-                        workers.execute(ds3CancelSingleJobTask);
-                        ds3CancelSingleJobTask.setOnSucceeded(eventCancel -> {
-                                    LOG.info("Cancellation of recovered job success");
-                                    jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-                                }
-                        );
-
-                    } else {
-                        ErrorUtils.dumpTheStack(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
-                        alert.showAlert(resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable"));
-                        loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-                    }
+                ds3CancelSingleJobTask.setOnFailed(cancelJobTaskFailedEvent -> {
+                    LOG.info("Cancellation of interrupted job " + jobId + " failed");
                 });
 
-            } else {
-                final String alertMsg = resourceBundle.getString("host") + StringConstants.SPACE + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable");
-                ErrorUtils.dumpTheStack(alertMsg);
-                alert.showAlert(alertMsg);
-                loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-            }
-        });
-        cancelButton.setOnAction(t -> {
-            if (CheckNetwork.isReachable(endpointInfo.getClient())) {
-                final String uuid = getTreeTableRow().getTreeItem().getValue().getJobId();
-                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(uuid, endpointInfo, jobInterruptionStore, resourceBundle.getString("recover"), loggingService);
                 workers.execute(ds3CancelSingleJobTask);
-                ds3CancelSingleJobTask.setOnSucceeded(event -> {
-                            LOG.info("Cancellation of interrupted job failed");
-                            jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
-                        }
-                );
+            });
 
-            } else {
-                final String errorMsg = resourceBundle.getString("host") + endpointInfo.getClient().getConnectionDetails().getEndpoint() + StringConstants.SPACE + resourceBundle.getString("unreachable");
-                ErrorUtils.dumpTheStack(errorMsg);
-                alert.showAlert(errorMsg);
-                loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-            }
+            jobWorkers.execute(recoverInterruptedJob);
 
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(),
+                    endpointInfo.getEndpoint(),
+                    endpointInfo.getDeepStorageBrowserPresenter().getJobProgressView(),
+                    null);
+            ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
+            jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+        });
+
+        cancelButton.setOnAction(cancelJobEvent -> {
+            final String jobId = getTreeTableRow().getTreeItem().getValue().getJobId();
+            final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
+                    jobId,
+                    endpointInfo,
+                    jobInterruptionStore,
+                    resourceBundle.getString("recover"),
+                    loggingService);
+            ds3CancelSingleJobTask.setOnSucceeded(event -> {
+                LOG.info("Cancellation of interrupted job " + jobId + " succeeded");
+                jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
+            });
+            ds3CancelSingleJobTask.setOnFailed(cancelJobTaskFailedEvent -> {
+                LOG.info("Cancellation of interrupted job " + jobId + " failed");
+            });
+            workers.execute(ds3CancelSingleJobTask);
         });
     }
 
