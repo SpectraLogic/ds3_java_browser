@@ -44,7 +44,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
         listView.setPlaceholder(new Label(resourceBundle.getString("noTaskRunning")));
-        listView.setCellFactory(param -> new TaskCell());
+        listView.setCellFactory(param -> new TaskCell(listView));
         listView.setFocusTraversable(false);
 
         Bindings.bindContent(listView.getItems(), monitor.getTasks());
@@ -62,16 +62,18 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         private T task;
         private final BorderPane borderPane;
 
-        public TaskCell() {
+        public TaskCell(final ListView<T> listView) {
+            final VBox vbox = new VBox();
+
             titleText = new Label();
             titleText.getStyleClass().add("task-title");
 
             messageText = new Label();
             messageText.getStyleClass().add("task-message");
-            messageText.setMaxWidth(this.getMaxWidth());
+            messageText.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
 
             progressBar = new ProgressBar();
-            //progressBar.setMaxWidth(Double.MAX_VALUE);
+            progressBar.setMaxWidth(Double.MAX_VALUE);
             progressBar.setMaxHeight(8);
             progressBar.getStyleClass().add("task-progress-bar");
 
@@ -82,7 +84,6 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
                 popupCancelTask(task, evt);
             });
 
-            final VBox vbox = new VBox();
             vbox.setSpacing(4);
             vbox.getChildren().add(titleText);
             vbox.getChildren().add(progressBar);
@@ -95,6 +96,9 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
             borderPane.setCenter(vbox);
             borderPane.setRight(cancelButton);
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            prefWidthProperty().bind(listView.widthProperty().subtract(4));
+            setMaxWidth(Control.USE_COMPUTED_SIZE);
         }
 
         @Override
