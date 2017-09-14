@@ -18,7 +18,6 @@ package com.spectralogic.dsbrowser.gui.util;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicLong;
@@ -124,7 +123,7 @@ public class StringBuilderUtil {
                     .append(FileSizeFormat.getFileSizeType(transferRate))
                     .append(resourceBundle.getString("perSecond")).append(SPACE)
                     .append(resourceBundle.getString("timeRemaining")).append(SPACE)
-                    .append(DateFormat.timeConversion(timeRemaining))
+                    .append(DateTimeUtils.timeConversion(timeRemaining))
                     .append(FileSizeFormat.getFileSizeType(totalSent.get() / 2))
                     .append(FORWARD_SLASH).append(FileSizeFormat.getFileSizeType(totalJobSize)).append(SPACE)
                     .append(resourceBundle.getString("transferredFile")).append(SPACE)
@@ -208,7 +207,7 @@ public class StringBuilderUtil {
             return new StringBuilder()
                     .append(failureType).append(SPACE)
                     .append(endpoint).append(SPACE)
-                    .append(DateFormat.now())
+                    .append(DateTimeUtils.now())
                     .append(resourceBundle.getString("reason")).append(SPACE)
                     .append(reason).append(SPACE)
                     .append(e).toString();
@@ -216,7 +215,7 @@ public class StringBuilderUtil {
             return new StringBuilder()
                     .append(failureType).append(SPACE)
                     .append(endpoint).append(SPACE)
-                    .append(DateFormat.now())
+                    .append(DateTimeUtils.now())
                     .append(resourceBundle.getString("reason")).append(SPACE)
                     .append(reason).toString();
         }
@@ -296,7 +295,7 @@ public class StringBuilderUtil {
                 .append(FileSizeFormat.getFileSizeType(totalJobSize))
                 .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
                 .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
-                .append(DateFormat.now());
+                .append(DateTimeUtils.now());
 
     }
 
@@ -305,7 +304,7 @@ public class StringBuilderUtil {
                 .append(jobType).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("jobCancelled")).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateFormat.now());
+                .append(DateTimeUtils.now());
     }
 
     public static StringBuilder jobFailed(final String jobType, final String endPoint, final Exception e) {
@@ -316,7 +315,7 @@ public class StringBuilderUtil {
                 .append(resourceBundle.getString("reason"))
                 .append(e).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateFormat.now());
+                .append(DateTimeUtils.now());
 
     }
 

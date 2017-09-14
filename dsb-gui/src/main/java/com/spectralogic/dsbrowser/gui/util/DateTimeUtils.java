@@ -17,20 +17,27 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Locale;
 
-public final class DateFormat {
+public final class DateTimeUtils {
 
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public static String now() {
-        return FORMAT.format(Instant.now());
+        return FORMAT.format(LocalDateTime.now());
+    }
+
+    public static String format(final Temporal t) {
+       return FORMAT.format(t);
     }
 
     public static String format(final Date date) {
-       return FORMAT.format(date.toInstant());
+       return FORMAT.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     /**
@@ -74,7 +81,6 @@ public final class DateFormat {
     }
 
     public static String formatDate(final long timeInMillis) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
-        return sdf.format(new Date(timeInMillis));
+        return FORMAT.format(Instant.ofEpochMilli(timeInMillis).atZone(ZoneId.systemDefault()));
     }
 }

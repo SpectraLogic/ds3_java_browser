@@ -110,7 +110,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final boolean metadata = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
         final boolean hasPriority = !Guard.isStringNullOrEmpty(jobPriority);
         final Instant jobStartInstant = Instant.now();
-        final String startJobDate = DateFormat.formatDate(LocalDate.now().toEpochDay());
+        final String startJobDate = DateTimeUtils.formatDate(LocalDate.now().toEpochDay());
         final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, ds3Client);
         final String transfeerringMessage = buildTransferringMessage(resourceBundle);
 
@@ -237,7 +237,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
     private void waitForPermanentStorageTransfer(final long totalJobSize) throws IOException, InterruptedException {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
-        final String dateOfTransfer = DateFormat.now();
+        final String dateOfTransfer = DateTimeUtils.now();
         final String finishedMessage = buildFinishedMessage(totalJobSize, isCacheJobEnable, dateOfTransfer, targetDirectory, resourceBundle);
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(finishedMessage);
@@ -250,7 +250,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     .doOnComplete(() -> {
                         LOG.info("Job transferred to permanent storage location");
 
-                        final String newDate = DateFormat.now();
+                        final String newDate = DateTimeUtils.now();
                         loggingService.logMessage(
                                 StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
                                         FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
@@ -261,7 +261,7 @@ public class Ds3PutJob extends Ds3JobTask {
         }
 
         LOG.info("Job transferred to permanent storage location");
-        final String newDate = DateFormat.now();
+        final String newDate = DateTimeUtils.now();
 
         loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
                 FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,

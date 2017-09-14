@@ -33,7 +33,7 @@ import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointIn
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.util.DateFormat;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
 import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -103,7 +103,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         }
         final UUID jobId = job.getJobId();
         final String bucketName = job.getBucketName();
-        final String date = DateFormat.now();
+        final String date = DateTimeUtils.now();
         final Instant jobStartInstant = Instant.now();
         final String targetLocation = filesAndFolderMap.getTargetLocation();
         final String jobDate = filesAndFolderMap.getDate();
@@ -220,14 +220,14 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
-                targetLocation, DateFormat.now(), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
+                targetLocation, DateTimeUtils.now(), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
     }
 
     private static String buildGetRecoveringMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), targetLocation,
-                DateFormat.now(), null, false).toString();
+                DateTimeUtils.now(), null, false).toString();
     }
 
     private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final String objectName) throws IOException {

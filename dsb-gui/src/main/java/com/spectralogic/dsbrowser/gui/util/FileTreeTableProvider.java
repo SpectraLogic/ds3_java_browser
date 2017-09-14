@@ -70,7 +70,7 @@ public class FileTreeTableProvider {
             try {
                 final FileTreeModel.Type type = getRootType(filePath.toFile());
                 final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                final String lastModified = DateFormat.formatDate(fileModifiedTime.toMillis());
+                final String lastModified = DateTimeUtils.formatDate(fileModifiedTime.toMillis());
                 long size = 0;
                 if (type != FileTreeModel.Type.Directory) {
                     size = Files.size(filePath);
@@ -96,7 +96,7 @@ public class FileTreeTableProvider {
                     size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);
-                lastModified = DateFormat.formatDate(modifiedTime.toMillis());
+                lastModified = DateTimeUtils.formatDate(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
             }

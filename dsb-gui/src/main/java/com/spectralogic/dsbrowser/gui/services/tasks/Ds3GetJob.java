@@ -103,7 +103,7 @@ public class Ds3GetJob extends Ds3JobTask {
             hostNotAvailable();
             return;
         }
-        final String startJobDate = DateFormat.now();
+        final String startJobDate = DateTimeUtils.now();
         final ImmutableMap<String, Path> fileMap = getFileMap(selectedItems);
         final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
         updateTitle(getJobStart(startJobDate, client));
@@ -216,7 +216,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private String getJobTransferred(final long totalJobSize) {
         return StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), fileTreePath.toString(),
-                DateFormat.now(), null, false).toString();
+                DateTimeUtils.now(), null, false).toString();
     }
 
     private static String getJobStart(final String startJobDate, final Ds3Client client) {
@@ -278,7 +278,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setObjectCompleteListener(final String o, final Instant startTime, final long totalJobSize) {
         getTransferRates(startTime, totalSent, totalJobSize, o, fileTreePath.toString());
-        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.now(), null).toString(), LogType.SUCCESS);
+        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateTimeUtils.now(), null).toString(), LogType.SUCCESS);
     }
 
     private static String getParent(String path) {
