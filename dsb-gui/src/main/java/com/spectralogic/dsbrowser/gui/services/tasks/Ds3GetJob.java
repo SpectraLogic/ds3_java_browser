@@ -49,6 +49,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -263,7 +264,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
-            loggingService.logMessage("Attempting Retry", LogType.INFO);
+            loggingService.logMessage("Waiting for chunks, will try again in " + DateFormat.timeConversion(retryAfterSeconds), LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
             LOG.error("Did not receive chunks before timeout", e);
