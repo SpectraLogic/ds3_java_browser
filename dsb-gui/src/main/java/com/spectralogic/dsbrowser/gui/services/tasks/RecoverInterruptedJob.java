@@ -103,7 +103,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         }
         final UUID jobId = job.getJobId();
         final String bucketName = job.getBucketName();
-        final String date = DateFormat.formatDate(new Date());
+        final String date = DateFormat.now();
         final Instant jobStartInstant = Instant.now();
         final String targetLocation = filesAndFolderMap.getTargetLocation();
         final String jobDate = filesAndFolderMap.getDate();
@@ -220,14 +220,14 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
-                targetLocation, DateFormat.formatDate(new Date()), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
+                targetLocation, DateFormat.now(), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
     }
 
     private static String buildGetRecoveringMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), targetLocation,
-                DateFormat.formatDate(new Date()), null, false).toString();
+                DateFormat.now(), null, false).toString();
     }
 
     private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final String objectName) throws IOException {

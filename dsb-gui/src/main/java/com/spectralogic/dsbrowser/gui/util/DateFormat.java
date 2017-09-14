@@ -16,16 +16,21 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
 public final class DateFormat {
 
-    public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
-        if (date == null)
-            return StringConstants.EMPTY_STRING;
-        return sdf.format(date);
+    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    public static String now() {
+        return FORMAT.format(Instant.now());
+    }
+
+    public static String format(final Date date) {
+       return FORMAT.format(date.toInstant());
     }
 
     /**

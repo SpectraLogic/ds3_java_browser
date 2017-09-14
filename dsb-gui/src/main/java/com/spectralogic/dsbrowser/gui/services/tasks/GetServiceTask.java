@@ -78,7 +78,7 @@ public class GetServiceTask extends Ds3Task {
                         hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
                         hbox.setAlignment(Pos.CENTER);
                         return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
-                                0, DateFormat.formatDate(bucket.getCreationDate()), StringConstants.TWO_DASH,
+                                0, DateFormat.format(bucket.getCreationDate()), StringConstants.TWO_DASH,
                                 false, hbox);
                     }).sorted(Comparator.comparing(b -> b.getName().toLowerCase())).collect(GuavaCollectors.immutableList());
 

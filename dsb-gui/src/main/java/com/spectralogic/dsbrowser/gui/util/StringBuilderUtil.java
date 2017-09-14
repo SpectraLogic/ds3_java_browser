@@ -208,7 +208,7 @@ public class StringBuilderUtil {
             return new StringBuilder()
                     .append(failureType).append(SPACE)
                     .append(endpoint).append(SPACE)
-                    .append(DateFormat.formatDate(new Date()))
+                    .append(DateFormat.now())
                     .append(resourceBundle.getString("reason")).append(SPACE)
                     .append(reason).append(SPACE)
                     .append(e).toString();
@@ -216,7 +216,7 @@ public class StringBuilderUtil {
             return new StringBuilder()
                     .append(failureType).append(SPACE)
                     .append(endpoint).append(SPACE)
-                    .append(DateFormat.formatDate(new Date()))
+                    .append(DateFormat.now())
                     .append(resourceBundle.getString("reason")).append(SPACE)
                     .append(reason).toString();
         }
@@ -296,7 +296,7 @@ public class StringBuilderUtil {
                 .append(FileSizeFormat.getFileSizeType(totalJobSize))
                 .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
                 .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
-                .append(DateFormat.formatDate(new Date()));
+                .append(DateFormat.now());
 
     }
 
@@ -305,7 +305,7 @@ public class StringBuilderUtil {
                 .append(jobType).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("jobCancelled")).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateFormat.formatDate(new Date()));
+                .append(DateFormat.now());
     }
 
     public static StringBuilder jobFailed(final String jobType, final String endPoint, final Exception e) {
@@ -316,7 +316,7 @@ public class StringBuilderUtil {
                 .append(resourceBundle.getString("reason"))
                 .append(e).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateFormat.formatDate(new Date()));
+                .append(DateFormat.now());
 
     }
 

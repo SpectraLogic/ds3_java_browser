@@ -237,7 +237,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
     private void waitForPermanentStorageTransfer(final long totalJobSize) throws IOException, InterruptedException {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
-        final String dateOfTransfer = DateFormat.formatDate(new Date());
+        final String dateOfTransfer = DateFormat.now();
         final String finishedMessage = buildFinishedMessage(totalJobSize, isCacheJobEnable, dateOfTransfer, targetDirectory, resourceBundle);
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(finishedMessage);
@@ -250,7 +250,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     .doOnComplete(() -> {
                         LOG.info("Job transferred to permanent storage location");
 
-                        final String newDate = DateFormat.formatDate(new Date());
+                        final String newDate = DateFormat.now();
                         loggingService.logMessage(
                                 StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
                                         FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
@@ -261,7 +261,7 @@ public class Ds3PutJob extends Ds3JobTask {
         }
 
         LOG.info("Job transferred to permanent storage location");
-        final String newDate = DateFormat.formatDate(new Date());
+        final String newDate = DateFormat.now();
 
         loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
                 FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,

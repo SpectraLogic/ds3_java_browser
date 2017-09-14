@@ -91,7 +91,7 @@ public final class BucketUtil {
                                 .get();
                         final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
                         return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File,
-                                content.getSize(), DateFormat.formatDate(content.getLastModified()),
+                                content.getSize(), DateFormat.format(content.getLastModified()),
                                 content.getOwner().getDisplayName(), false, iconsAndTooltip);
                     }).collect(Collectors.toList());
             filteredFiles.addAll(filteredFilesList);

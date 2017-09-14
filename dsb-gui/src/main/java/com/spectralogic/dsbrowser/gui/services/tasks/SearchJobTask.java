@@ -111,7 +111,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                         }
                         final Ds3TreeTableValue treeTableValue = new Ds3TreeTableValue(bucketName, itemObject.getName(),
                                 Ds3TreeTableValue.Type.File, itemObject.getSize(),
-                                DateFormat.formatDate(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
+                                DateFormat.format(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
                         list.add(new Ds3TreeTableItem(treeTableValue.getFullName(), session,
                                 treeTableValue, workers, ds3Common, loggingService));
                     }
