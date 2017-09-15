@@ -27,13 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class FileTreeTableProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableProvider.class);
 
-    public Stream<FileTreeModel> getRoot(final String rootDir) {
+    public Stream<FileTreeModel> getRoot(final String rootDir, final DateTimeUtils dateTimeUtils) {
         final File[] files;
         if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
             files = File.listRoots();
@@ -44,7 +45,7 @@ public class FileTreeTableProvider {
         if (files == null) {
             return null;
         }
-        return getDirectChildren(files , rootDir);
+        return getDirectChildren(files , rootDir, dateTimeUtils);
     }
 
     private FileTreeModel.Type getRootType(final File file) {
@@ -63,14 +64,14 @@ public class FileTreeTableProvider {
         }
     }
 
-    public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel) throws IOException {
+    public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils) throws IOException {
         LOG.info("Get Childern of a Directory {}", fileTreeModel.getPath());
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
             try {
                 final FileTreeModel.Type type = getRootType(filePath.toFile());
                 final FileTime fileModifiedTime = Files.getLastModifiedTime(filePath);
-                final String lastModified = DateTimeUtils.formatDate(fileModifiedTime.toMillis());
+                final String lastModified = dateTimeUtils.formatDate(fileModifiedTime.toMillis());
                 long size = 0;
                 if (type != FileTreeModel.Type.Directory) {
                     size = Files.size(filePath);
@@ -83,7 +84,7 @@ public class FileTreeTableProvider {
         });
     }
 
-    private Stream<FileTreeModel> getDirectChildren(final File[] files , final String rootDir) {
+    private Stream<FileTreeModel> getDirectChildren(final File[] files , final String rootDir, final DateTimeUtils dateTimeUtils) {
          return Arrays.stream(files).map(file -> {
             final FileTreeModel.Type type = getRootType(file);
             final Path path = file.toPath();
@@ -96,7 +97,7 @@ public class FileTreeTableProvider {
                     size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);
-                lastModified = DateTimeUtils.formatDate(modifiedTime.toMillis());
+                lastModified = dateTimeUtils.formatDate(modifiedTime.toMillis());
             } catch (final IOException e) {
                 LOG.error("Failed to get the size of " + path.toString(), e);
             }
@@ -104,6 +105,6 @@ public class FileTreeTableProvider {
                 return new FileTreeModel(file.toPath(), type, size, -1, lastModified);
             }
             return new FileTreeModel(file.toPath(), type, size, Paths.get(rootDir).getNameCount(), lastModified);
-        }).filter(p -> p != null);
+        }).filter(Objects::nonNull);
     }
 }

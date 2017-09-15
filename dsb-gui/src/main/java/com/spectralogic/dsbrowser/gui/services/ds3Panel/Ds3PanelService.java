@@ -183,7 +183,7 @@ public final class Ds3PanelService {
         }));
     }
 
-    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle) {
+    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
         final String newValue = ds3PanelPresenter.getSearchedText();
         ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
@@ -192,7 +192,7 @@ public final class Ds3PanelService {
         final Session session = ds3Common.getCurrentSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
             setVisibilityOfItemsInfo(true, ds3Common);
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
         } else {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
@@ -209,7 +209,7 @@ public final class Ds3PanelService {
                 ds3TreeTableView.setShowRoot(false);
                 setVisibilityOfItemsInfo(false, ds3Common);
 
-                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, loggingService);
+                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, dateTimeUtils, loggingService);
                 workers.execute(searchJobTask);
                 searchJobTask.setOnSucceeded(event -> {
                     LOG.info("Search completed!");

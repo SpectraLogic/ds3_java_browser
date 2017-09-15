@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -48,6 +49,7 @@ public final class CreateService {
     public static void createBucketPrompt(final Ds3Common ds3Common,
                                           final Workers workers,
                                           final LoggingService loggingService,
+                                          final DateTimeUtils dateTimeUtils,
                                           final ResourceBundle resourceBundle) {
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
@@ -61,7 +63,7 @@ public final class CreateService {
                     LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
                     Platform.runLater(() -> {
                         CreateBucketPopup.show(value.get(), resourceBundle);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                     });
                 } else {
                     LOG.error("No DataPolicies found on [{}]", session.getEndpoint());

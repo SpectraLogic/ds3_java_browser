@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import org.junit.Test;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -24,11 +25,13 @@ import static org.junit.Assert.assertThat;
 
 public class DateFormatTest {
 
+    private final DateTimeUtils dateTimeUtils = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
     @Test
     public void formatDateTest() throws Exception {
         final Date date = new Date(1485757788120l);
-        final String formatedDate = DateTimeUtils.format(date);
-        assertThat(formatedDate, is("1/29/2017 23:29:48"));
+        final String formatedDate = dateTimeUtils.format(date);
+        assertThat(formatedDate, is("2017-01-29T23:29:48.12"));
     }
 
     @Test

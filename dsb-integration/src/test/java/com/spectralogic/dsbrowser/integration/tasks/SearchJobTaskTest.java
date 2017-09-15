@@ -31,12 +31,14 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -53,6 +55,7 @@ public class SearchJobTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "DeleteFilesTaskTest";
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @Before
     public void setUp() {
@@ -82,7 +85,7 @@ public class SearchJobTaskTest {
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
                 final String searchText = "11";
                 final SearchJobTask searchJobTask = new SearchJobTask(buckets, searchText, session,
-                        workers, Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
+                        workers, Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
                 workers.execute(searchJobTask);
                 latch.countDown();
                 successFlag = searchJobTask.get() != null;

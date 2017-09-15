@@ -71,6 +71,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
     public RecoverInterruptedJob(
@@ -80,6 +81,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             final Ds3Client client,
             final LoggingService loggingService,
             final SettingsStore settingsStore,
+            final DateTimeUtils dateTimeUtils,
             final ResourceBundle resourceBundle
     ) {
         this.uuid = uuid;
@@ -87,6 +89,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Client = client;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
         this.resourceBundle = resourceBundle;
         this.settingsStore = settingsStore;
     }
@@ -103,7 +106,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         }
         final UUID jobId = job.getJobId();
         final String bucketName = job.getBucketName();
-        final String date = DateTimeUtils.now();
+        final String date = dateTimeUtils.nowAsString();
         final Instant jobStartInstant = Instant.now();
         final String targetLocation = filesAndFolderMap.getTargetLocation();
         final String jobDate = filesAndFolderMap.getDate();
@@ -117,8 +120,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         final AtomicLong totalSent = addDataTransferListener(totalJobSize);
         final boolean isFilePropertiesEnabled = settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled();
         final boolean isCacheJobEnable = settingsStore.getShowCachedJobSettings().getShowCachedJob();
-        final String buildGetRecoveringMessage = buildGetRecoveringMessage(targetLocation, totalJobSize, resourceBundle);
-        final String buildPutRecoveringMessage = buildPutRecoveringMessage(targetLocation, totalJobSize, isCacheJobEnable, resourceBundle);
+        final String buildGetRecoveringMessage = buildGetRecoveringMessage(targetLocation, totalJobSize, resourceBundle, dateTimeUtils);
+        final String buildPutRecoveringMessage = buildPutRecoveringMessage(targetLocation, totalJobSize, isCacheJobEnable, resourceBundle, dateTimeUtils);
         final String buildFinalMessage = buildFinalMessage(targetLocation, totalJobSize, resourceBundle);
 
         updateTitle(titleMessage);
@@ -217,17 +220,17 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         return isCacheJobEnable && filesAndFolderMap.getType().equals(PUT.toString());
     }
 
-    private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle) {
+    private static String buildPutRecoveringMessage(final String targetLocation, final long totalJobSize, final boolean isCacheJobEnable, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(PUT.toString(), FileSizeFormat.getFileSizeType(totalJobSize),
-                targetLocation, DateTimeUtils.now(), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
+                targetLocation, dateTimeUtils.nowAsString(), resourceBundle.getString("blackPearlCache"), isCacheJobEnable);
     }
 
-    private static String buildGetRecoveringMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle) {
+    private static String buildGetRecoveringMessage(final String targetLocation, final long totalJobSize, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
         return resourceBundle.getString("recovering") + StringConstants.SPACE
                 + StringBuilderUtil.jobSuccessfullyTransferredString(GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), targetLocation,
-                DateTimeUtils.now(), null, false).toString();
+                dateTimeUtils.nowAsString(), null, false).toString();
     }
 
     private static SeekableByteChannel buildTransfer(final String targetLocation, final JobRequestType jobRequestType, final Map<String, Path> filesMap, final Map<String, Path> foldersMap, final String objectName) throws IOException {

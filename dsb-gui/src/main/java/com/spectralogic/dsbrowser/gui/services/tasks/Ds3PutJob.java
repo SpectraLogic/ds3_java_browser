@@ -76,6 +76,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final JobInterruptionStore jobInterruptionStore;
     private final String targetDirectory;
     private final TreeItem<Ds3TreeTableValue> remoteDestination;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
     public Ds3PutJob(final Ds3Client client,
@@ -89,6 +90,7 @@ public class Ds3PutJob extends Ds3JobTask {
             final SettingsStore settings,
             final LoggingService loggingService,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final DateTimeUtils dateTImeUtils,
             @Assisted final TreeItem<Ds3TreeTableValue> remoteDestination) {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
@@ -103,6 +105,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.targetDirectory = bucket + "\\" + targetDir;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.remoteDestination = remoteDestination;
+        this.dateTimeUtils = dateTImeUtils;
     }
 
     @Override
@@ -110,7 +113,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final boolean metadata = settings.getFilePropertiesSettings().isFilePropertiesEnabled();
         final boolean hasPriority = !Guard.isStringNullOrEmpty(jobPriority);
         final Instant jobStartInstant = Instant.now();
-        final String startJobDate = DateTimeUtils.formatDate(LocalDate.now().toEpochDay());
+        final String startJobDate = dateTimeUtils.nowAsString();
         final String jobInitiateTitleMessage = buildJobInitiatedTitleMessage(startJobDate, ds3Client);
         final String transfeerringMessage = buildTransferringMessage(resourceBundle);
 
@@ -145,7 +148,7 @@ public class Ds3PutJob extends Ds3JobTask {
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
 
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, PUT, bucket);
+                ds3Client.getConnectionDetails().getEndpoint(), this.getJobId(), totalJobSize, targetDir, dateTimeUtils, PUT, bucket);
 
         updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDirectory).toString());
 
@@ -237,7 +240,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
     private void waitForPermanentStorageTransfer(final long totalJobSize) throws IOException, InterruptedException {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
-        final String dateOfTransfer = DateTimeUtils.now();
+        final String dateOfTransfer = dateTimeUtils.nowAsString();
         final String finishedMessage = buildFinishedMessage(totalJobSize, isCacheJobEnable, dateOfTransfer, targetDirectory, resourceBundle);
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(finishedMessage);
@@ -250,7 +253,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     .doOnComplete(() -> {
                         LOG.info("Job transferred to permanent storage location");
 
-                        final String newDate = DateTimeUtils.now();
+                        final String newDate = dateTimeUtils.nowAsString();
                         loggingService.logMessage(
                                 StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.PUT.toString(),
                                         FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
@@ -261,7 +264,7 @@ public class Ds3PutJob extends Ds3JobTask {
         }
 
         LOG.info("Job transferred to permanent storage location");
-        final String newDate = DateTimeUtils.now();
+        final String newDate = dateTimeUtils.nowAsString();
 
         loggingService.logMessage(StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
                 FileSizeFormat.getFileSizeType(totalJobSize), targetDir, newDate,

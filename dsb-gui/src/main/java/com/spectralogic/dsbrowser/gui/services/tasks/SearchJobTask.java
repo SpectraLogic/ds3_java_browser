@@ -44,6 +44,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     private final String searchText;
     private final Session session;
     private final Workers workers;
+    private final DateTimeUtils dateTimeUtils;
     private final Ds3Common ds3Common;
     private final LoggingService loggingService;
 
@@ -52,6 +53,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                          final Session session,
                          final Workers workers,
                          final Ds3Common ds3Common,
+                         final DateTimeUtils dateTimeUtils,
                          final LoggingService loggingService) {
         this.searchableBuckets = searchableBuckets;
         this.searchText = searchText.trim();
@@ -59,6 +61,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
     }
 
     @Override
@@ -70,11 +73,11 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                     loggingService.logMessage(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucket.getName()).toString(), LogType.SUCCESS);
                     final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                             0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
-                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, loggingService));
+                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, dateTimeUtils, loggingService));
                 } else {
                     final List<DetailedS3Object> detailedDs3Objects = getDetailedDs3Objects(bucket.getName());
                     if (Guard.isNotNullAndNotEmpty(detailedDs3Objects)) {
-                        final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucket.getName());
+                        final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucket.getName(), dateTimeUtils);
                         if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
                             list.addAll(treeTableItems);
                             loggingService.logMessage(StringBuilderUtil.searchInBucketMessage(bucket.getName(), list.size()).toString(),
@@ -99,7 +102,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
      * @return list of treeTableItem
      */
     private List<Ds3TreeTableItem> buildTreeItems(final List<DetailedS3Object> detailedS3Objects,
-                                                  final String bucketName) {
+                                                  final String bucketName, final DateTimeUtils dateTimeUtils) {
         final List<Ds3TreeTableItem> list = new ArrayList<>();
         detailedS3Objects.forEach(itemObject -> {
                     if (!itemObject.getType().equals(S3ObjectType.FOLDER)) {
@@ -111,9 +114,9 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                         }
                         final Ds3TreeTableValue treeTableValue = new Ds3TreeTableValue(bucketName, itemObject.getName(),
                                 Ds3TreeTableValue.Type.File, itemObject.getSize(),
-                                DateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
+                                dateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
                         list.add(new Ds3TreeTableItem(treeTableValue.getFullName(), session,
-                                treeTableValue, workers, ds3Common, loggingService));
+                                treeTableValue, workers, ds3Common, dateTimeUtils, loggingService));
                     }
                 }
         );

@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -45,6 +46,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -65,6 +67,7 @@ public class GetServiceTaskTest {
     private static final String bucketName = "GetServiceTaskTest_bucket";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @Before
     public void setUp() throws Exception {
@@ -114,7 +117,7 @@ public class GetServiceTaskTest {
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
             final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                    Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
+                    Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
             workers.execute(getServiceTask);
             getServiceTask.setOnSucceeded(event -> {
                 successFlag=true;

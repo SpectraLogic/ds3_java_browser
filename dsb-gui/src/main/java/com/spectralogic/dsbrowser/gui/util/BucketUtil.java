@@ -71,7 +71,7 @@ public final class BucketUtil {
     //Enables you to get list of filtered files based on equals of key and name
     public static List<Ds3TreeTableValue> getFilterFilesList(final List<Ds3Object> ds3ObjectListFiles,
                                                              final GetBucketResponse bucketResponse, final String bucket,
-                                                             final Session session) {
+                                                             final Session session, final DateTimeUtils dateTimeUtils) {
         final List<Ds3TreeTableValue> filteredFiles = new ArrayList<>();
         try {
             final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement
@@ -91,7 +91,7 @@ public final class BucketUtil {
                                 .get();
                         final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
                         return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File,
-                                content.getSize(), DateTimeUtils.format(content.getLastModified()),
+                                content.getSize(), dateTimeUtils.format(content.getLastModified()),
                                 content.getOwner().getDisplayName(), false, iconsAndTooltip);
                     }).collect(Collectors.toList());
             filteredFiles.addAll(filteredFilesList);

@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -40,6 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
@@ -47,6 +49,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.Assert.assertTrue;
 
 public class GetBucketTaskTest {
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private final Workers workers = new Workers();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
@@ -88,7 +91,7 @@ public class GetBucketTaskTest {
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
                         bucketName,
                         session, ds3TreeTableValue,
-                        false, workers, Mockito.mock(Ds3TreeTableItem.class),
+                        false, workers, DTU, Mockito.mock(Ds3TreeTableItem.class),
                         Mockito.mock(TreeTableView.class), Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
                 workers.execute(getBucketTask);
                 getBucketTask.setOnSucceeded(event -> {

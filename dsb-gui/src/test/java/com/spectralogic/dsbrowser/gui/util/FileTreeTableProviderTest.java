@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,7 +32,7 @@ public class FileTreeTableProviderTest {
 
     @Test
     public void getRoot() throws Exception {
-        final Stream<FileTreeModel> root = new FileTreeTableProvider().getRoot("My Computer");
+        final Stream<FileTreeModel> root = new FileTreeTableProvider().getRoot("My Computer", new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         final List<FileTreeModel> listRoot = root.collect(Collectors.toList());
         assertTrue(com.spectralogic.ds3client.utils.Guard.isNotNullAndNotEmpty(listRoot));
     }
@@ -49,7 +50,7 @@ public class FileTreeTableProviderTest {
         final File filePath ;
         if (url != null) {
             filePath = new File(url.getFile());
-            final Stream<FileTreeModel> listForDir = new FileTreeTableProvider().getListForDir(new FileTreeModel(filePath.toPath(), FileTreeModel.Type.Directory, 0, 0, ""));
+            final Stream<FileTreeModel> listForDir = new FileTreeTableProvider().getListForDir(new FileTreeModel(filePath.toPath(), FileTreeModel.Type.Directory, 0, 0, ""), new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             Assert.assertEquals(filePath.list().length, listForDir.collect(Collectors.toList()).size());
         }
         else {

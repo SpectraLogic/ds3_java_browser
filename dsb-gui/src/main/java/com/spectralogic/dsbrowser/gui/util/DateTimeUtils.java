@@ -15,29 +15,38 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import java.text.SimpleDateFormat;
+import javax.inject.Inject;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.Date;
-import java.util.Locale;
 
 public final class DateTimeUtils {
 
-    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final DateTimeFormatter formatter;
 
-    public static String now() {
-        return FORMAT.format(LocalDateTime.now());
+    @Inject
+    public DateTimeUtils(final DateTimeFormatter formatter) {
+        if(formatter == null) {
+            this.formatter = DEFAULT_FORMAT;
+        } else {
+            this.formatter = formatter;
+        }
     }
 
-    public static String format(final Temporal t) {
-       return FORMAT.format(t);
+    public String nowAsString() {
+        return formatter.format(LocalDateTime.now());
     }
 
-    public static String format(final Date date) {
-       return FORMAT.format(date.toInstant().atZone(ZoneId.systemDefault()));
+    public String format(final Temporal t) {
+       return formatter.format(t);
+    }
+
+    public String format(final Date date) {
+       return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     /**
@@ -80,7 +89,7 @@ public final class DateTimeUtils {
 
     }
 
-    public static String formatDate(final long timeInMillis) {
-        return FORMAT.format(Instant.ofEpochMilli(timeInMillis).atZone(ZoneId.systemDefault()));
+    public String formatDate(final long timeInMillis) {
+        return formatter.format(Instant.ofEpochMilli(timeInMillis).atZone(ZoneId.systemDefault()));
     }
 }

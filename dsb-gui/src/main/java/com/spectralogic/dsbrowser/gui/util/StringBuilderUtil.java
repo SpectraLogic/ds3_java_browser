@@ -115,8 +115,8 @@ public class StringBuilderUtil {
      * @return get string for transfer rate
      */
     public static StringBuilder getTransferRateString(final long transferRate, final long timeRemaining,
-                                                      final AtomicLong totalSent, final long totalJobSize,
-                                                      final String fromPath, final String topath) {
+            final AtomicLong totalSent, final long totalJobSize,
+            final String fromPath, final String topath) {
         if (transferRate != 0) {
             return new StringBuilder().append(SPACE)
                     .append(resourceBundle.getString("transferRate")).append(SPACE)
@@ -150,9 +150,9 @@ public class StringBuilderUtil {
     }
 
     public static StringBuilder objectSuccessfullyTransferredString(final String fromPath,
-                                                                    final String toPath,
-                                                                    final String date,
-                                                                    final String location) {
+            final String toPath,
+            final String date,
+            final String location) {
         final StringBuilder builder = new StringBuilder();
         builder.append(resourceBundle.getString("successfullyTransferred")).append(SPACE)
                 .append(fromPath).append(SPACE).append(resourceBundle.getString("to")).append(SPACE)
@@ -168,11 +168,11 @@ public class StringBuilderUtil {
     }
 
     public static StringBuilder jobSuccessfullyTransferredString(final String type,
-                                                                 final String jobSize,
-                                                                 final String toPath,
-                                                                 final String date,
-                                                                 final String location,
-                                                                 final boolean isCacheEnable) {
+            final String jobSize,
+            final String toPath,
+            final String date,
+            final String location,
+            final boolean isCacheEnable) {
         final StringBuilder builder = new StringBuilder();
         builder.append(type).append(SPACE)
                 .append(resourceBundle.getString("job"))
@@ -201,25 +201,6 @@ public class StringBuilderUtil {
      * @param e           Exception
      * @return String of job failure/cancelled
      */
-    public static String getJobFailedMessage(final String failureType, final String endpoint, final String reason,
-                                             final Throwable e) {
-        if (null != e) {
-            return new StringBuilder()
-                    .append(failureType).append(SPACE)
-                    .append(endpoint).append(SPACE)
-                    .append(DateTimeUtils.now())
-                    .append(resourceBundle.getString("reason")).append(SPACE)
-                    .append(reason).append(SPACE)
-                    .append(e).toString();
-        } else {
-            return new StringBuilder()
-                    .append(failureType).append(SPACE)
-                    .append(endpoint).append(SPACE)
-                    .append(DateTimeUtils.now())
-                    .append(resourceBundle.getString("reason")).append(SPACE)
-                    .append(reason).toString();
-        }
-    }
 
     /****************************************************
      * StringBuilders for Search job                     *
@@ -289,33 +270,13 @@ public class StringBuilderUtil {
                 .append(resourceBundle.getString("itemsSelected"));
     }
 
-    public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client) {
+    public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client, final String formattedString) {
         return new StringBuilder()
                 .append(resourceBundle.getString("getJobSize")).append(StringConstants.SPACE)
                 .append(FileSizeFormat.getFileSizeType(totalJobSize))
                 .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
                 .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
-                .append(DateTimeUtils.now());
-
-    }
-
-    public static StringBuilder jobCancelled(final String jobType) {
-        return new StringBuilder()
-                .append(jobType).append(StringConstants.SPACE)
-                .append(resourceBundle.getString("jobCancelled")).append(StringConstants.SPACE)
-                .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateTimeUtils.now());
-    }
-
-    public static StringBuilder jobFailed(final String jobType, final String endPoint, final Exception e) {
-        return new StringBuilder()
-                .append(jobType).append(StringConstants.SPACE)
-                .append(resourceBundle.getString("jobFailed")).append(StringConstants.SPACE)
-                .append(endPoint).append(StringConstants.SPACE)
-                .append(resourceBundle.getString("reason"))
-                .append(e).append(StringConstants.SPACE)
-                .append(resourceBundle.getString("at")).append(StringConstants.SPACE)
-                .append(DateTimeUtils.now());
+                .append(formattedString);
 
     }
 

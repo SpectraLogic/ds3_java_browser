@@ -51,16 +51,19 @@ public class GetServiceTask extends Ds3Task {
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     public GetServiceTask(final ObservableList<TreeItem<Ds3TreeTableValue>> observableList,
                           final Session session,
                           final Workers workers,
                           final Ds3Common ds3Common,
+                          final DateTimeUtils dateTimeUtils,
                           final LoggingService loggingService) {
         this.partialResults = new ReadOnlyObjectWrapper<>(this, "partialResults", observableList);
         this.session = session;
         this.workers = workers;
         this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
         this.loggingService = loggingService;
     }
@@ -78,7 +81,7 @@ public class GetServiceTask extends Ds3Task {
                         hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
                         hbox.setAlignment(Pos.CENTER);
                         return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
-                                0, DateTimeUtils.format(bucket.getCreationDate()), StringConstants.TWO_DASH,
+                                0, dateTimeUtils.format(bucket.getCreationDate()), StringConstants.TWO_DASH,
                                 false, hbox);
                     }).sorted(Comparator.comparing(b -> b.getName().toLowerCase())).collect(GuavaCollectors.immutableList());
 
@@ -89,7 +92,7 @@ public class GetServiceTask extends Ds3Task {
                         ds3Common.getDs3PanelPresenter().disableSearch(false);
                     }
                     final ImmutableList<Ds3TreeTableItem> treeItems = buckets.stream().map(value ->
-                            new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, loggingService))
+                            new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, dateTimeUtils, loggingService))
                             .collect(GuavaCollectors.immutableList());
                     if (!Guard.isNullOrEmpty(treeItems)) {
                         partialResults.get().addAll(treeItems);

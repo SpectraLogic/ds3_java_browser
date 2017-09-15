@@ -78,6 +78,7 @@ public class JobInfoPresenter implements Initializable {
     private final SettingsStore settingsStore;
     private final LoggingService loggingService;
     private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
+    private final DateTimeUtils dateTimeUtils;
 
     private Stage stage;
 
@@ -89,6 +90,7 @@ public class JobInfoPresenter implements Initializable {
                             final JobInterruptionStore jobInterruptionStore,
                             final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory,
                             final SettingsStore settingsStore,
+                            final DateTimeUtils dateTimeUtils,
                             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
@@ -98,6 +100,7 @@ public class JobInfoPresenter implements Initializable {
         this.settingsStore = settingsStore;
         this.loggingService = loggingService;
         this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
+        this.dateTimeUtils = dateTimeUtils;
     }
 
     @Override
@@ -180,7 +183,7 @@ public class JobInfoPresenter implements Initializable {
         actionColumn.setCellValueFactory(
                 p -> new SimpleBooleanProperty(p.getValue() != null));
         actionColumn.setCellFactory(
-                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, loggingService, recoverInterruptedJobFactory));
+                p -> new ButtonCell(jobWorkers, workers, endpointInfo, jobInterruptionStore, JobInfoPresenter.this, loggingService, dateTimeUtils, recoverInterruptedJobFactory));
         jobListTreeTable.getColumns().add(actionColumn);
         final TreeItem<JobInfoModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
@@ -228,24 +231,24 @@ public class JobInfoPresenter implements Initializable {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     recoverInterruptedJob.setOnSucceeded(event -> {
                         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                     });
                     recoverInterruptedJob.setOnFailed(event -> {
                         loggingService.logMessage("Failed to recover " + i.getValue().getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                         refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                     });
                     recoverInterruptedJob.setOnCancelled(event -> {
                         try {
                             endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(i.getKey()));
                             loggingService.logMessage("Cancel job status : 200", LogType.SUCCESS);
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                         } catch (final IOException e) {
                             loggingService.logMessage("Failed to cancel job: " + e, LogType.ERROR);
                         } finally {
                             final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, i.getKey(), endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
                             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, endpointInfo.getDeepStorageBrowserPresenter());
-                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                         }
                     });
                 });

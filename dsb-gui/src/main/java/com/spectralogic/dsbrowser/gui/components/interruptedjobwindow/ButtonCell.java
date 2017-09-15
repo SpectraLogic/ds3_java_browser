@@ -54,6 +54,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                       final JobInterruptionStore jobInterruptionStore,
                       final JobInfoPresenter jobInfoPresenter,
                       final LoggingService loggingService,
+                      final DateTimeUtils dateTimeUtils,
                       final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory) {
         this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
         recoverButton.setOnAction(recoverEvent -> {
@@ -68,7 +69,7 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
                 jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, loggingService);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
                     jobInfoPresenter.refresh(getTreeTableView(), jobInterruptionStore, endpointInfo);
                 });
                 recoverInterruptedJob.setOnFailed(event -> {
