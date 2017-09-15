@@ -80,7 +80,7 @@ public class GuiModule extends AbstractModule {
 
     @Provides
     protected DateTimeUtils providesDateTimeUtils(final SettingsStore settingsStore) {
-        return new DateTimeUtils(null);
+        return new DateTimeUtils();
     }
 
     @Provides

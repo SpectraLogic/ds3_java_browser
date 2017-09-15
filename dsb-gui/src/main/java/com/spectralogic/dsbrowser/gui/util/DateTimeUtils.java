@@ -15,7 +15,9 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import javax.inject.Inject;
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,13 +30,14 @@ public final class DateTimeUtils {
     private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private final DateTimeFormatter formatter;
 
-    @Inject
-    public DateTimeUtils(final DateTimeFormatter formatter) {
-        if(formatter == null) {
-            this.formatter = DEFAULT_FORMAT;
-        } else {
-            this.formatter = formatter;
-        }
+    public DateTimeUtils() {
+        this.formatter = DEFAULT_FORMAT;
+    }
+
+    public DateTimeUtils(@Nonnull final DateTimeFormatter formatter) {
+        Preconditions.checkNotNull(formatter);
+        this.formatter = formatter;
+
     }
 
     public String nowAsString() {
@@ -42,7 +45,7 @@ public final class DateTimeUtils {
     }
 
     public String format(final Temporal t) {
-       return formatter.format(t);
+        return formatter.format(t);
     }
 
     public String format(final Instant t) {
@@ -50,7 +53,7 @@ public final class DateTimeUtils {
     }
 
     public String format(final Date date) {
-       return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
+        return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     /**
