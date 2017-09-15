@@ -39,6 +39,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -264,7 +265,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
-            loggingService.logMessage("Waiting for chunks, will try again in " + DateFormat.timeConversion(retryAfterSeconds), LogType.INFO);
+            loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(retryAfterSeconds), LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
             LOG.error("Did not receive chunks before timeout", e);
