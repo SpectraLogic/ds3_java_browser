@@ -45,6 +45,10 @@ public final class DateTimeUtils {
        return formatter.format(t);
     }
 
+    public String format(final Instant t) {
+        return formatter.format(t.atZone(ZoneId.systemDefault()));
+    }
+
     public String format(final Date date) {
        return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }

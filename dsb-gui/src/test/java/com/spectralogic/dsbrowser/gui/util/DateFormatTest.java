@@ -17,8 +17,9 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -29,7 +30,7 @@ public class DateFormatTest {
 
     @Test
     public void formatDateTest() throws Exception {
-        final Date date = new Date(1485757788120l);
+        final Instant date = Instant.ofEpochMilli(1485757788120L);
         final String formatedDate = dateTimeUtils.format(date);
         assertThat(formatedDate, is("2017-01-29T23:29:48.12"));
     }
