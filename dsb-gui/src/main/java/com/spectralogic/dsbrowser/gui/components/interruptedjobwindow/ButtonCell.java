@@ -24,8 +24,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
 
@@ -34,7 +32,6 @@ import java.util.ResourceBundle;
  * or a "Cancel" red x
  */
 public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
-    private final static Logger LOG = LoggerFactory.getLogger(ButtonCell.class);
     private final HBox hbox;
     private final Button recoverButton = new Button();
     private final Button cancelButton = new Button();
