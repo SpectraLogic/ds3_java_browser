@@ -16,16 +16,8 @@
 package com.spectralogic.dsbrowser.gui.components.interruptedjobwindow;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -35,9 +27,7 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 /**
  * The far right column in the JobInfoPresenter contains a "ButtonCell" per row, with a "Recover" green check
@@ -54,6 +44,14 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         this.hbox = createHBox(resourceBundle, recoverButton, cancelButton);
     }
 
+    void setRecoverHandler(final EventHandler<javafx.event.ActionEvent> event) {
+        recoverButton.setOnAction(event);
+    }
+
+    void setCancelHandler(final EventHandler<javafx.event.ActionEvent> event) {
+        cancelButton.setOnAction(event);
+    }
+
     //Display button if the row is not empty
     @Override
     protected void updateItem(final Boolean t, final boolean empty) {
@@ -67,14 +65,6 @@ public class ButtonCell extends TreeTableCell<JobInfoModel, Boolean> {
         } else {
             setGraphic(null);
         }
-    }
-
-    Button getRecoverButton() {
-        return this.recoverButton;
-    }
-
-    Button getCancelButton() {
-        return this.cancelButton;
     }
 
     private static Button createRecoverButton(final ResourceBundle resourceBundle,
