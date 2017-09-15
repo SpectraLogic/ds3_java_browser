@@ -224,9 +224,9 @@ public class JobInfoPresenter implements Initializable {
     }
 
     private void setButtonCellBehavior(final ButtonCell buttonCell) {
-        final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
 
         buttonCell.getCancelButton().setOnAction(cancelJobEvent -> {
+            final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
             final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
                     jobId,
                     endpointInfo,
@@ -247,6 +247,7 @@ public class JobInfoPresenter implements Initializable {
             LOG.info("Recover Interrupted Jobs button clicked");
             loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
 
+            final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
             final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
 
             final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(jobId), endpointInfo);
