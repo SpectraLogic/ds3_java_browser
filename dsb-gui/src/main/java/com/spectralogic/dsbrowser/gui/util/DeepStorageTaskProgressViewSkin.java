@@ -25,16 +25,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.controlsfx.control.TaskProgressView;
 
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
-        SkinBase<DeepStorageBrowserTaskProgressView<T>> {
+        SkinBase<TaskProgressView<T>> {
 
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public DeepStorageTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
+    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor) {
         super(monitor);
 
         final BorderPane borderPane = new BorderPane();

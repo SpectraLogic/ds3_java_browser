@@ -32,7 +32,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
@@ -40,6 +39,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
+import org.controlsfx.control.TaskProgressView;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -128,7 +128,7 @@ public class Ds3CancelSingleJobTaskTest {
                         ds3Common
                 );
 
-                final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+                final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                 Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                 if (jobIdKeyElement.isPresent()) {
                     final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobIdKeyElement.get(), endPointInfo, jobInterruptionStore, ResourceBundleProperties.getResourceBundle().getString("recover"), null);
