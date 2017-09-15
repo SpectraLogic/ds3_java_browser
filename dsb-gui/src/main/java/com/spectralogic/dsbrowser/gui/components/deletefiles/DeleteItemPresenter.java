@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
