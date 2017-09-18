@@ -55,7 +55,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -81,7 +80,6 @@ public class Ds3PutJobTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static Session session;
-    private static File file;
     private static Ds3PutJob ds3PutJob;
     private boolean successFlag = false;
 
@@ -105,7 +103,6 @@ public class Ds3PutJobTest {
                     false);
             session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
             final ImmutableList<Pair<String, Path>> pair;
-            file = path.toFile();
             pair = ImmutableList.of(new Pair<>("files/SampleFiles.txt", path));
             final Ds3Client ds3Client = session.getClient();
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
