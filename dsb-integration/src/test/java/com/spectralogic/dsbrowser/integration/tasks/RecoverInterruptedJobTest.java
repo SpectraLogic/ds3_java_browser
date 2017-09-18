@@ -34,13 +34,13 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Circle;
+import org.controlsfx.control.TaskProgressView;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -115,7 +115,7 @@ public class RecoverInterruptedJobTest {
                     );
                     if(jobIdKeyElement.isPresent()) {
                         final String jobIdKey = jobIdKeyElement.get();
-                        final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+                        final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
                         recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, jobInterruptionStore, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle);

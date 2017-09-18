@@ -19,10 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.commands.PutObjectRequest;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
-import com.spectralogic.ds3client.helpers.FileObjectPutter;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.ResourceUtils;
@@ -41,14 +39,13 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import org.controlsfx.control.TaskProgressView;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -117,7 +114,7 @@ public class Ds3GetJob_Test {
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
             Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
-            final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+            final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
 
             try {
