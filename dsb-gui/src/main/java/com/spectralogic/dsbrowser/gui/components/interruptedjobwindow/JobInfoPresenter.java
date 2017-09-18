@@ -306,6 +306,7 @@ public class JobInfoPresenter implements Initializable {
                         RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
                     } catch (final IOException e) {
                         loggingService.logMessage("Failed to cancel job: " + e, LogType.ERROR);
+                        LOG.error("Failed to cancedl job", e);
                     } finally {
                         final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, key, endpointInfo.getEndpoint(), deepStorageBrowserPresenter, loggingService);
                         ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, deepStorageBrowserPresenter);
