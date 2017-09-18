@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.controlsfx.control.TaskProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public final class ParseJobInterruptionMap {
     public static Map<String, FilesAndFolderMap> getJobIDMap(
             final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints,
             final String endpoint,
-            final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobWorkers,
+            final TaskProgressView<Ds3JobTask> jobWorkers,
             final UUID jobId) {
         if (!Guard.isNullOrEmpty(endpoints) && endpoints.stream().anyMatch(i -> i.containsKey(endpoint))
                 && !Guard.isStringNullOrEmpty(endpoint)) {
