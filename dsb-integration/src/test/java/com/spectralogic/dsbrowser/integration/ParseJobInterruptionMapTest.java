@@ -29,11 +29,11 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import org.controlsfx.control.TaskProgressView;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -177,7 +177,7 @@ public class ParseJobInterruptionMapTest {
         Platform.runLater(() -> {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(
                     jobInterruptionStore.getJobIdsModel().getEndpoints(), endpoint,
-                    new DeepStorageBrowserTaskProgressView<>(), null);
+                    new TaskProgressView<>(), null);
             final Map<String, Map<String, FilesAndFolderMap>> filesAndFolderMap1 = jobInterruptionStore
                     .getJobIdsModel()
                     .getEndpoints().get(0);

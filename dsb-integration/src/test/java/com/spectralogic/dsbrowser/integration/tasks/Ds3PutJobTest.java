@@ -39,7 +39,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageBrowserTaskProgressView;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -49,6 +48,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.shape.Circle;
 import javafx.util.Pair;
+import org.controlsfx.control.TaskProgressView;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -113,7 +113,7 @@ public class Ds3PutJobTest {
             final Ds3Common ds3Common = Mockito.mock(Ds3Common.class);
             Mockito.when(ds3Common.getCurrentSession()).thenReturn(session);
             Mockito.when(ds3Common.getDeepStorageBrowserPresenter()).thenReturn(deepStorageBrowserPresenter);
-            final DeepStorageBrowserTaskProgressView<Ds3JobTask> taskProgressView = new DeepStorageBrowserTaskProgressView<>();
+            final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
             final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
 

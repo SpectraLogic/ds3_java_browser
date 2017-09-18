@@ -53,6 +53,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ import java.util.ResourceBundle;
 public class DeepStorageBrowserPresenter implements Initializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeepStorageBrowserPresenter.class);
-    private final DeepStorageBrowserTaskProgressView<Ds3JobTask> jobProgressView = new DeepStorageBrowserTaskProgressView<>();
+    private final TaskProgressView<Ds3JobTask> jobProgressView = new TaskProgressView<>();
     private final ImageView interruptedJobImageView = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
     private final ImageView cancelAllJobsImageView = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
     private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
@@ -458,7 +459,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return blackPearl;
     }
 
-    public DeepStorageBrowserTaskProgressView<Ds3JobTask> getJobProgressView() {
+    public TaskProgressView<Ds3JobTask> getJobProgressView() {
         return jobProgressView;
     }
 }
