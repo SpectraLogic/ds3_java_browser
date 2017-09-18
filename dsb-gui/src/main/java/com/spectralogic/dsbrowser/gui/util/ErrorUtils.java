@@ -23,10 +23,6 @@ public class ErrorUtils {
     private final static Logger LOG = LoggerFactory.getLogger(ErrorUtils.class);
 
     public static void dumpTheStack(final String msg) {
-        final StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-        for (int i = 1; i < elements.length; i++) {
-            final StackTraceElement s = elements[i];
-            LOG.info(msg + "====> \tat " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")");
-        }
+        LOG.error(msg, new Exception());
     }
 }

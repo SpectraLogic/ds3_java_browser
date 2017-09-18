@@ -683,7 +683,7 @@ public class Ds3PanelPresenter implements Initializable {
                 selectedItems.add(root);
             }
             //start a new task for calculating
-            itemsTask = new GetNoOfItemsTask(ds3TreeTableView, ds3Common, selectedItems);
+            itemsTask = new GetNoOfItemsTask(ds3Common, selectedItems);
             workers.execute(itemsTask);
 
             itemsTask.setOnSucceeded(event -> Platform.runLater(() -> {
