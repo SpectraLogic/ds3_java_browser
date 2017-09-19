@@ -59,7 +59,16 @@ public class JobWorkers {
     }
 
     public void execute(final Ds3JobTask run) {
-        run.setOnCancelled(this::handleStop);
+        final EventHandler<WorkerStateEvent> onCancelled = run.getOnCancelled();
+        run.setOnCancelled(event -> {
+            handleStop(event);
+            onCancelled.handle(event);
+        });
+        final EventHandler<WorkerStateEvent> onFailed = run.getOnFailed();
+        run.setOnFailed(event -> {
+            handleStop(event);
+            onFailed.handle(event);
+        });
         run.setOnFailed(this::handleStop);
         final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
         run.setOnSucceeded(event -> {
