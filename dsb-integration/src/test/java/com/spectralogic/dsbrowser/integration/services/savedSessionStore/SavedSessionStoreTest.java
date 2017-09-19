@@ -46,7 +46,7 @@ public class SavedSessionStoreTest {
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
-    private static String testSessionName = "SavedSessionStoreTest";
+    final private static String testSessionName = "SavedSesionsToResest";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
 
     @BeforeClass
@@ -121,7 +121,7 @@ public class SavedSessionStoreTest {
     public void isSessionUpdatedTest() throws IOException {
         final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).getSessions();
         session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
-        assertFalse(SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).containsSessionName(savedSessions, session.getSessionName()));
+        assertFalse(SavedSessionStore.containsSessionName(savedSessions, session.getSessionName()));
     }
 
     @Test

@@ -180,7 +180,7 @@ public class Ds3PutJob extends Ds3JobTask {
 
                         Ds3PanelService.refresh(remoteDestination);
                         ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    }).subscribe();
+                    }).blockingAwait();
     }
 
     private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService, final String targetDir) {
