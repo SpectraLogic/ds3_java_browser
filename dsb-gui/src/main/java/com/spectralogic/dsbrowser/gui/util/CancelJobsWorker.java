@@ -38,11 +38,12 @@ public final class CancelJobsWorker {
                                             final JobInterruptionStore jobInterruptionStore,
                                             final Workers workers,
                                             final Ds3Common ds3Common,
+                                            final DateTimeUtils dateTimeUtils,
                                             final LoggingService loggingService) {
         if (jobWorkers.getTasks().size() != 0) {
             final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers, loggingService);
             cancelAllRunningJobsTask.setOnSucceeded(event -> {
-                refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 if (cancelAllRunningJobsTask.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobsTask.getValue());
                 }

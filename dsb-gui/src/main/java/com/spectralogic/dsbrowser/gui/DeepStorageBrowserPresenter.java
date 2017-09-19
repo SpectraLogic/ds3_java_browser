@@ -122,6 +122,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final ShowCachedJobSettings showCachedJobSettings;
     private final SavedSessionStore savedSessionStore;
     private final Workers workers;
+    private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
     private final ShutdownService shutdownService;
 
@@ -135,6 +136,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                                        final SavedSessionStore savedSessionStore,
                                        final Workers workers,
                                        final LoggingService loggingService,
+                                       final DateTimeUtils dateTimeUtils,
                                        final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
@@ -146,6 +148,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         this.savedSessionStore = savedSessionStore;
         this.workers = workers;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
         this.shutdownService = shutdownService;
     }
 
@@ -271,7 +274,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     resourceBundle.getString("exitBtnJobCancelConfirm"),
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
             if (closeResponse.get().equals(ButtonType.OK)) {
-                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, loggingService);
+                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
                 event.consume();
             }
             if (closeResponse.get().equals(ButtonType.CANCEL)) {

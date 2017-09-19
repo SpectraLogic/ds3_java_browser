@@ -29,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -58,6 +59,7 @@ public final class DeleteService {
                                     final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
                                     final Workers workers,
                                     final LoggingService loggingService,
+                                    final DateTimeUtils dateTimeUtils,
                                     final ResourceBundle resourceBundle) {
         LOG.info("Got delete bucket event");
 
@@ -83,7 +85,7 @@ public final class DeleteService {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
                     DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
                     ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                     ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                     ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
                 }
@@ -146,6 +148,7 @@ public final class DeleteService {
 
     public static void managePathIndicator(final Ds3Common ds3Common,
                                            final Workers workers,
+                                           final DateTimeUtils dateTimeUtils,
                                            final LoggingService loggingService) {
         Platform.runLater(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
@@ -168,7 +171,7 @@ public final class DeleteService {
                 ds3TreeTable.getSelectionModel().select(selectedItem);
 
                 ds3TreeTable.getSelectionModel().clearSelection();
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
             }
         });
     }

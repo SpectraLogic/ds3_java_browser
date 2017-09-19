@@ -49,7 +49,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -68,6 +67,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final String jobPriority;
     private UUID jobId;
+    private final DateTimeUtils dateTimeUtils;
 
 
     @Inject
@@ -79,6 +79,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final JobInterruptionStore jobInterruptionStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final ResourceBundle resourceBundle,
+            final DateTimeUtils dateTimeUtils,
             final LoggingService loggingService) {
         this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
@@ -90,6 +91,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
+        this.dateTimeUtils = dateTimeUtils;
         this.metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreePath.toString());
     }
 
@@ -104,7 +106,7 @@ public class Ds3GetJob extends Ds3JobTask {
             hostNotAvailable();
             return;
         }
-        final String startJobDate = DateFormat.formatDate(new Date());
+        final String startJobDate = dateTimeUtils.nowAsString();
         final ImmutableMap<String, Path> fileMap = getFileMap(selectedItems);
         final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
         updateTitle(getJobStart(startJobDate, client));
@@ -144,7 +146,7 @@ public class Ds3GetJob extends Ds3JobTask {
             jobId = job.getJobId();
         }
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
-                client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(),
+                client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(), dateTimeUtils,
                 "GET", bucketName);
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
@@ -168,7 +170,7 @@ public class Ds3GetJob extends Ds3JobTask {
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(getJobTransferred(totalJobSize));
         updateProgress(totalJobSize, totalJobSize);
-        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client).toString(), LogType.SUCCESS);
+        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client, dateTimeUtils.nowAsString()).toString(), LogType.SUCCESS);
     }
 
     private void attachListenersToJob(final Instant startTime, final long totalJobSize, final Ds3ClientHelpers.Job job) {
@@ -217,7 +219,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private String getJobTransferred(final long totalJobSize) {
         return StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), fileTreePath.toString(),
-                DateFormat.formatDate(new Date()), null, false).toString();
+                dateTimeUtils.nowAsString(), null, false).toString();
     }
 
     private static String getJobStart(final String startJobDate, final Ds3Client client) {
@@ -264,7 +266,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
-            loggingService.logMessage("Waiting for chunks, will try again in " + DateFormat.timeConversion(retryAfterSeconds), LogType.INFO);
+            loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(retryAfterSeconds), LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
             LOG.error("Did not receive chunks before timeout", e);
@@ -279,7 +281,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setObjectCompleteListener(final String o, final Instant startTime, final long totalJobSize) {
         getTransferRates(startTime, totalSent, totalJobSize, o, fileTreePath.toString());
-        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
+        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS);
     }
 
     private static String getParent(String path) {

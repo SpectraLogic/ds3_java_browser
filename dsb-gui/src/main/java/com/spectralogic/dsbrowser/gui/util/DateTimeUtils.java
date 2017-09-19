@@ -15,17 +15,45 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import java.text.SimpleDateFormat;
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nonnull;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.Date;
-import java.util.Locale;
 
-public final class DateFormat {
+public final class DateTimeUtils {
 
-    public static String formatDate(final Date date) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
-        if (date == null)
-            return StringConstants.EMPTY_STRING;
-        return sdf.format(date);
+    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final DateTimeFormatter formatter;
+
+    public DateTimeUtils() {
+        this.formatter = DEFAULT_FORMAT;
+    }
+
+    public DateTimeUtils(@Nonnull final DateTimeFormatter formatter) {
+        Preconditions.checkNotNull(formatter);
+        this.formatter = formatter;
+
+    }
+
+    public String nowAsString() {
+        return formatter.format(LocalDateTime.now());
+    }
+
+    public String format(final Temporal t) {
+        return formatter.format(t);
+    }
+
+    public String format(final Instant t) {
+        return formatter.format(t.atZone(ZoneId.systemDefault()));
+    }
+
+    public String format(final Date date) {
+        return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     /**
@@ -68,8 +96,7 @@ public final class DateFormat {
 
     }
 
-    public static String formatDate(final long timeInMillis) {
-        final SimpleDateFormat sdf = new SimpleDateFormat(StringConstants.SIMPLE_DATE_FORMAT, Locale.US);
-        return sdf.format(new Date(timeInMillis));
+    public String formatDate(final long timeInMillis) {
+        return formatter.format(Instant.ofEpochMilli(timeInMillis).atZone(ZoneId.systemDefault()));
     }
 }

@@ -38,7 +38,7 @@ import java.util.Optional;
 public final class RefreshCompleteViewWorker {
     private final static Logger LOG = LoggerFactory.getLogger(RefreshCompleteViewWorker.class);
 
-    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
+    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final DateTimeUtils dateTimeUtils, final LoggingService loggingService) {
         if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
             final Session session = ds3Common.getCurrentSession();
             loggingService.logMessage("Refreshing session " + session.getSessionName() +
@@ -64,7 +64,7 @@ public final class RefreshCompleteViewWorker {
                     ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 } else {
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-                    final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
+                    final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
                     workers.execute(getServiceTask);
                     getServiceTask.setOnSucceeded(event -> {
                         ds3TreeTableView.setRoot(rootTreeItem);

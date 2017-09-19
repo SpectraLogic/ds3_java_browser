@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -27,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
@@ -34,6 +36,7 @@ import static org.junit.Assert.assertTrue;
 
 public class GetMediaDeviceTaskTest {
 
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private boolean successFlag = false;
 
     @Test
@@ -43,12 +46,12 @@ public class GetMediaDeviceTaskTest {
         Platform.runLater(() -> {
             try {
                 final FileTreeTableProvider provider = new FileTreeTableProvider();
-                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer");
+                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer", DTU);
                 final TreeItem treeItem = Mockito.mock(TreeItem.class);
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();
 
-                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, workers);
+                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, DTU, workers);
                 workers.execute(task);
                 task.setOnSucceeded(event -> {
                     successFlag = true;

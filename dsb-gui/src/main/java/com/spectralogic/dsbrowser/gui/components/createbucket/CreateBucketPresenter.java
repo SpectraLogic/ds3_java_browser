@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
@@ -66,16 +67,19 @@ public class CreateBucketPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
     public CreateBucketPresenter(final Workers workers,
                                  final ResourceBundle resourceBundle,
                                  final Ds3Common ds3Common,
                                  final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                 final DateTimeUtils dateTimeUtils,
                                  final LoggingService loggingService) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.loggingService = loggingService;
     }
@@ -136,7 +140,7 @@ public class CreateBucketPresenter implements Initializable {
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                         closeDialog();
                     });
                 });

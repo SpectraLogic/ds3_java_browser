@@ -46,6 +46,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -61,6 +62,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -79,6 +81,7 @@ public class CloseConfirmationHandlerTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Path path;
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @BeforeClass
     public static void setConnection() {
@@ -257,7 +260,7 @@ public class CloseConfirmationHandlerTest {
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
                         JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
-                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
+                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
                 jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

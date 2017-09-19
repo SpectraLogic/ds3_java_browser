@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.BucketUtil;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -42,6 +43,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -63,6 +65,7 @@ public class BucketUtilTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -129,7 +132,7 @@ public class BucketUtilTest {
                         .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                         .collect(Collectors.toList());
                 final List<Ds3TreeTableValue> filterFilesList = BucketUtil.getFilterFilesList(ds3ObjectListFiles,
-                        bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME, session);
+                        bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME, session, DTU);
                 successFlag = (null != filterFilesList) ? true : false;
                 latch.countDown();
             } catch (final IOException e) {

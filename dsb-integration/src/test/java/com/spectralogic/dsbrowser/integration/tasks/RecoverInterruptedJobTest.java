@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -46,6 +47,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -58,6 +60,7 @@ import static org.junit.Assume.assumeThat;
  */
 public class RecoverInterruptedJobTest {
 
+    private final static DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJobTest.class);
     private static final JobWorkers jobWorkers = new JobWorkers(10);
     private static Session session;
@@ -115,7 +118,7 @@ public class RecoverInterruptedJobTest {
                         final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
-                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, jobInterruptionStore, client, null, SettingsStore.createDefaultSettingStore(), resourceBundle);
+                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, jobInterruptionStore, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle);
                         taskProgressView.getTasks().add(recoverInterruptedJob);
                     }
                     else {

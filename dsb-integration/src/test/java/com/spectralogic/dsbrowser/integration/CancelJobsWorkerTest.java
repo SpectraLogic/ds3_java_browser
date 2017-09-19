@@ -43,6 +43,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -58,6 +59,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -81,6 +83,7 @@ public class CancelJobsWorkerTest {
     private static final String TEST_ENV_NAME = "CancelJobsWorkerTest";
     private final static String bucketName = "CancelJobsWorkerTestBucket";
     private static ImmutableList<Pair<String,Path>> pairs;
+    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -149,7 +152,7 @@ public class CancelJobsWorkerTest {
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pairs, bucketName, StringConstants.EMPTY_STRING,
-                 jobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
+                 jobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
@@ -198,7 +201,7 @@ public class CancelJobsWorkerTest {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pairs, bucketName, "",
                         JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5,
-                        resourceBundle , settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, destination);
+                        resourceBundle , settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);

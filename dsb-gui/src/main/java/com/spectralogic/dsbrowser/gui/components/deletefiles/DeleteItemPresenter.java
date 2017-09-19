@@ -27,6 +27,7 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -68,16 +69,19 @@ public class DeleteItemPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
     public DeleteItemPresenter(final Workers workers,
                                final Ds3Common ds3Common,
                                final ResourceBundle resourceBundle,
+                               final DateTimeUtils dateTimeUtils,
                                final LoggingService loggingService) {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
     }
 
     @Override
@@ -141,7 +145,7 @@ public class DeleteItemPresenter implements Initializable {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
             LOG.info("Successfully deleted selected item(s).");
 
-            DeleteService.managePathIndicator(ds3Common, workers, loggingService);
+            DeleteService.managePathIndicator(ds3Common, workers, dateTimeUtils, loggingService);
         });
         workers.execute(deleteTask);
     }

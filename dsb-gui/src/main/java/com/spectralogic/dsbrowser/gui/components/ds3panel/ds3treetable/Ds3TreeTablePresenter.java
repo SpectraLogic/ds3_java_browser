@@ -103,6 +103,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final JobInterruptionStore jobInterruptionStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     private ContextMenu contextMenu;
 
@@ -116,14 +117,15 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     @Inject
     public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
-                                 final DataFormat dataFormat,
-                                 final Workers workers,
-                                 final JobWorkers jobWorkers,
-                                 final Ds3Common ds3Common,
-                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                                 final JobInterruptionStore jobInterruptionStore,
-                                 final LoggingService loggingService,
-                                 final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory) {
+            final DataFormat dataFormat,
+            final Workers workers,
+            final JobWorkers jobWorkers,
+            final Ds3Common ds3Common,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final JobInterruptionStore jobInterruptionStore,
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils,
+            final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.workers = workers;
@@ -132,6 +134,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
         this.ds3PutJobFactory = ds3PutJobFactory;
     }
 
@@ -180,7 +183,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers, resourceBundle));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, resourceBundle));
+        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
         createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
@@ -254,7 +257,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
         });
 
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
         LOG.info("Getting buckets from {}", session.getEndpoint());
         workers.execute(getServiceTask);
 
@@ -426,7 +429,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 Ds3PanelService.refresh(selectedItem);
                 ds3TreeTable.getSelectionModel().clearSelection();
                 ds3TreeTable.getSelectionModel().select(selectedItem);
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
             });
             putJob.setOnCancelled(e -> {
                 LOG.info("setOnCancelled");
@@ -665,7 +668,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         @Override
         public void changed(final ObservableValue observable, final Object oldValue,
-                            final Object newValue) {
+                final Object newValue) {
 
             if (ds3Common.getCurrentSession() == null) {
                 ds3Common.getDs3PanelPresenter().setBlank(true);

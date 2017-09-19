@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
@@ -55,15 +56,17 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final FileTreeModel fileTreeModel;
     private boolean accessedChildren = false;
     private final Workers workers;
+    private final DateTimeUtils dateTimeUtils;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers) {
+    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils, final Workers workers) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = getLeaf(fileTreeModel.getPath());
         this.provider = provider;
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
+        this.dateTimeUtils = dateTimeUtils;
     }
 
     private boolean getLeaf(final Path path) {
@@ -149,8 +152,8 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         if (path != null && !getLeaf(path)) {
             try {
                 final List<FileTreeTableItem> fileChildren = provider
-                        .getListForDir(fileTreeModel)
-                        .map(ftm -> new FileTreeTableItem(provider, ftm, workers))
+                        .getListForDir(fileTreeModel, dateTimeUtils)
+                        .map(ftm -> new FileTreeTableItem(provider, ftm, dateTimeUtils, workers))
                         .collect(Collectors.toList());
                 fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
                 ));

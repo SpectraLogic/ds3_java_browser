@@ -127,6 +127,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final FileTreeTableProvider fileTreeTableProvider;
     private final DataFormat dataFormat;
     private final Ds3Common ds3Common;
+    private final DateTimeUtils dateTimeUtils;
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
 
@@ -143,6 +144,7 @@ public class Ds3PanelPresenter implements Initializable {
                              final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                              final FileTreeTableProvider fileTreeTableProvider,
                              final DataFormat dataFormat,
+                             final DateTimeUtils dateTimeUtils,
                              final Ds3Common ds3Common,
                              final SavedSessionStore savedSessionStore,
                              final LoggingService loggingService) {
@@ -157,6 +159,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
         this.loggingService = loggingService;
     }
@@ -236,13 +239,13 @@ public class Ds3PanelPresenter implements Initializable {
     @SuppressWarnings("unchecked")
     private void initListeners() {
         ds3DeleteButton.setOnAction(event -> ds3DeleteObject());
-        ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService));
+        ds3Refresh.setOnAction(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService));
         ds3ParentDir.setOnAction(event -> goToParentDirectory());
         ds3NewFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
         ds3TransferLeft.setOnAction(event -> ds3TransferToLocal());
         ds3NewBucket.setOnAction(event -> {
             LOG.debug("Attempting to create bucket...");
-            CreateService.createBucketPrompt(ds3Common, workers, loggingService, resourceBundle);
+            CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle);
         });
 
         ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
@@ -501,7 +504,7 @@ public class Ds3PanelPresenter implements Initializable {
                 savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
         final Ds3GetJob getJob = new Ds3GetJob(selectedItemsAtSourceLocationListCustom, localPath, session.getClient(),
                 priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
-                jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, loggingService);
+                jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, dateTimeUtils, loggingService);
         jobWorkers.execute(getJob);
         getJob.setOnSucceeded(event -> {
             LOG.info("Get Job {} succeeded.", getJob.getJobId());
@@ -543,10 +546,10 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
-            final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
+            final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
             fileRootItemLabel.setText(fileRootItem);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
 
@@ -569,7 +572,7 @@ public class Ds3PanelPresenter implements Initializable {
             DeleteService.deleteFolders(ds3Common, values);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going to delete the bucket");
-            DeleteService.deleteBucket(ds3Common, values, workers, loggingService, resourceBundle);
+            DeleteService.deleteBucket(ds3Common, values, workers, loggingService, dateTimeUtils, resourceBundle);
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
             LOG.info("Going to delete the file(s)");
             DeleteService.deleteFiles(ds3Common, values);
@@ -622,13 +625,13 @@ public class Ds3PanelPresenter implements Initializable {
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENS_ICON);
             if (Guard.isStringNullOrEmpty(newValue)) {
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
             }
         });
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                Ds3PanelService.filterChanged(ds3Common, workers, loggingService, resourceBundle);
+                Ds3PanelService.filterChanged(ds3Common, workers, loggingService, resourceBundle,dateTimeUtils);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {
