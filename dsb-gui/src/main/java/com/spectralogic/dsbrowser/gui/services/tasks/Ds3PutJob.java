@@ -249,7 +249,7 @@ public class Ds3PutJob extends Ds3JobTask {
     }
 
     private static String buildTransferringMessage(final ResourceBundle resourceBundle) {
-        return resourceBundle.getString("transferringEllipse");
+        return resourceBundle.getString("transferringEllipsis");
     }
 
     private static String buildJobInitiatedTitleMessage(final String startJobDate, final Ds3Client client) {
