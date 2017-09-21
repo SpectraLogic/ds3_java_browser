@@ -261,10 +261,10 @@ public class CloseConfirmationHandlerTest {
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
                         JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
                         settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
-                jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
                 });
+                jobWorkers.execute(ds3PutJob);
                 Thread.sleep(5000);
                 final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds(), Mockito.mock(LoggingService.class));
                 task.setOnSucceeded(event -> {

@@ -210,6 +210,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         anchorPane.setMinHeight(35);
 
         Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
+        jobProgressView.setSkin(new DeepStorageTaskProgressViewSkin<>(jobProgressView));
 
         jobProgressView.setPrefHeight(1000);
         jobProgressVBox.getChildren().add(anchorPane);

@@ -41,7 +41,7 @@ public class JsonMappingTest {
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
 
         final SavedSession savedSession = new SavedSession(
-                "SM2U-11",
+                "sm2u-11",
                 client.getConnectionDetails().getEndpoint(),
                 "80",
                 null,
@@ -64,7 +64,7 @@ public class JsonMappingTest {
         final InputStream inputStream = Files.newInputStream(PATH);
         final SavedSessionStore.SerializedSessionStore serializedSessionStore = JsonMapping.fromJson(inputStream, SavedSessionStore.SerializedSessionStore.class);
         final SavedSession savedSession = new SavedSession(
-                "SM2U-11",
+                "sm2u-11",
                 client.getConnectionDetails().getEndpoint(),
                 "80",
                 null,

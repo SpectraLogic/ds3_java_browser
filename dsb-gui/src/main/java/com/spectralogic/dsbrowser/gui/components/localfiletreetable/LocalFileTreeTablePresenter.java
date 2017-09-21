@@ -509,7 +509,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Ds3PutJob putJob = new Ds3PutJob(session.getClient(), files, bucket, targetDir, jobInterruptionStore, priority,
                 settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                 resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
-        jobWorkers.execute(putJob);
         putJob.setOnSucceeded(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
             refreshBlackPearlSideItem(remoteDestination);
@@ -537,7 +536,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 LOG.error("Failed to cancel job " + putJob.getJobId(), e);
             }
         });
-
+        jobWorkers.execute(putJob);
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {

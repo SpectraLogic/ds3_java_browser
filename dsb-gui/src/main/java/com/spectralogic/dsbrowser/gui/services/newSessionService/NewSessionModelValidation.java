@@ -22,27 +22,27 @@ import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 
 import java.util.ResourceBundle;
 
-public class NewSessionModelValidation {
+public final class NewSessionModelValidation {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     private static final LazyAlert alert = new LazyAlert("Error");
 
     public static boolean validationNewSession(final NewSessionModel model) {
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
             alert.showAlert(resourceBundle.getString("enterSession"));
-            return true;
+            return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
             alert.showAlert(resourceBundle.getString("enterDataPathAddress"));
-            return true;
+            return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
             alert.showAlert(resourceBundle.getString("enterValidPort"));
-            return true;
+            return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
             alert.showAlert(resourceBundle.getString("enterAccessKey"));
-            return true;
+            return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
             alert.showAlert(resourceBundle.getString("enterSecretKey"));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }

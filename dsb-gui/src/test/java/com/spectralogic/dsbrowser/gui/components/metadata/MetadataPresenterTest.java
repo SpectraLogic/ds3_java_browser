@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
@@ -50,20 +51,17 @@ public class MetadataPresenterTest {
                 new BasicHeader("ds3-flags", "FLAG"),
                 new BasicHeader("ds3-dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("ds3-mode", "MODE"));
-        final ImmutableList<MetadataEntry> metadataEntries = MetadataPresenter.createMetadataEntries(metadata);
-        assertThat(metadataEntries, is(notNullValue()));
-        assertFalse(metadataEntries.isEmpty());
-        assertThat(metadataEntries.size(), is(10));
-        assertThat(metadataEntries.get(0).getValue(), is("2017-01-01 14:44:2 "));
-        assertThat(metadataEntries.get(1).getValue(), is("2017-01-05 14:44:2 "));
-        assertThat(metadataEntries.get(2).getValue(), is("2017-01-03 14:44:2 "));
-        assertThat(metadataEntries.get(3).getValue(), is("OWNER"));
-        assertThat(metadataEntries.get(4).getValue(), is("GROUP"));
-        assertThat(metadataEntries.get(5).getValue(), is("UID"));
-        assertThat(metadataEntries.get(6).getValue(), is("GID"));
-        assertThat(metadataEntries.get(7).getValue(), is("FLAG"));
-        assertThat(metadataEntries.get(8).getValue(), is("11bwuyhdsubsjxxsakdnewufhe"));
-        assertThat(metadataEntries.get(9).getValue(), is("MODE"));
+        assertThat(metadata, is(notNullValue()));
+        assertThat(metadata.get("ds3-creation-time").get(0), is("2017-01-01 14:44:2T"));
+        assertThat(metadata.get("ds3-last-modified-time").get(0), is("2017-01-03 14:44:2T"));
+        assertThat(metadata.get("ds3-last-access-time").get(0), is("2017-01-05 14:44:2T"));
+        assertThat(metadata.get("ds3-owner").get(0), is("OWNER"));
+        assertThat(metadata.get("ds3-group").get(0), is("GROUP"));
+        assertThat(metadata.get("ds3-uid").get(0), is("UID"));
+        assertThat(metadata.get("ds3-gid").get(0), is("GID"));
+        assertThat(metadata.get("ds3-flags").get(0), is("FLAG"));
+        assertThat(metadata.get("ds3-dacl").get(0), is("11bwuyhdsubsjxxsakdnewufhe"));
+        assertThat(metadata.get("ds3-mode").get(0), is("MODE"));
     }
 
     @Test

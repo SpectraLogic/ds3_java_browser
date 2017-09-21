@@ -228,7 +228,7 @@ public class NewSessionPresenter implements Initializable {
         LOG.info("Performing session validation");
         if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
             || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
-            if (!NewSessionModelValidation.validationNewSession(model)) {
+            if (NewSessionModelValidation.validationNewSession(model)) {
                 final Session session = CreateConnectionTask.createConnection(model, resourceBundle, buildInfoService);
                 sessionValidates(session);
             }
@@ -240,7 +240,7 @@ public class NewSessionPresenter implements Initializable {
     public void saveSession() {
         LOG.info("Creating new session");
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
-        if (!NewSessionModelValidation.validationNewSession(newSessionModel)) {
+        if (NewSessionModelValidation.validationNewSession(newSessionModel)) {
             if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item ->
                         item.isDefaultSession() != null && item.isDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());

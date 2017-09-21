@@ -59,12 +59,20 @@ public class JobWorkers {
     }
 
     public void execute(final Ds3JobTask run) {
-        run.setOnCancelled(this::handleStop);
-        run.setOnFailed(this::handleStop);
+        final EventHandler<WorkerStateEvent> onCancelled = run.getOnCancelled();
+        run.setOnCancelled(event -> {
+            onCancelled.handle(event);
+            handleStop(event);
+        });
+        final EventHandler<WorkerStateEvent> onFailed = run.getOnFailed();
+        run.setOnFailed(event -> {
+            onFailed.handle(event);
+            handleStop(event);
+        });
         final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
         run.setOnSucceeded(event -> {
-            handleStop(event);
             onSucceeded.handle(event);
+            handleStop(event);
         });
         LOG.info("Adding to task list");
         tasks.add(0,run);
