@@ -260,7 +260,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final boolean isCacheJobEnable = settings.getShowCachedJobSettings().getShowCachedJob();
         final String dateOfTransfer = dateTimeUtils.nowAsString();
         final String finishedMessage = buildFinishedMessage(totalJobSize, isCacheJobEnable, dateOfTransfer, targetDirectory, resourceBundle);
-        updateProgress(totalJobSize, totalJobSize);
+        updateProgress(1, 1);
         updateMessage(finishedMessage);
         loggingService.logMessage(finishedMessage, SUCCESS);
 
