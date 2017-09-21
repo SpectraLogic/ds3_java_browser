@@ -155,13 +155,13 @@ public class CancelJobsWorkerTest {
                 JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task
-                jobWorkers.execute(ds3PutJob);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");
                 });
                 ds3PutJob.setOnFailed(event -> {
                     System.out.println("Put job failed");
                 });
+                jobWorkers.execute(ds3PutJob);
                 Thread.sleep(5000);
 
                 //Cancelling put job task

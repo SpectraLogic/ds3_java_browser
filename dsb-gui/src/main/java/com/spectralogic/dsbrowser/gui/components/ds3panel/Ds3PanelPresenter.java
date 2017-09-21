@@ -135,19 +135,19 @@ public class Ds3PanelPresenter implements Initializable {
 
     @Inject
     public Ds3PanelPresenter(final ResourceBundle resourceBundle,
-                             final Ds3SessionStore ds3SessionStore,
-                             final Workers workers,
-                             final JobWorkers jobWorkers,
-                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
-                             final JobInterruptionStore jobInterruptionStore,
-                             final SettingsStore settingsStore,
-                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                             final FileTreeTableProvider fileTreeTableProvider,
-                             final DataFormat dataFormat,
-                             final DateTimeUtils dateTimeUtils,
-                             final Ds3Common ds3Common,
-                             final SavedSessionStore savedSessionStore,
-                             final LoggingService loggingService) {
+            final Ds3SessionStore ds3SessionStore,
+            final Workers workers,
+            final JobWorkers jobWorkers,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final JobInterruptionStore jobInterruptionStore,
+            final SettingsStore settingsStore,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final FileTreeTableProvider fileTreeTableProvider,
+            final DataFormat dataFormat,
+            final DateTimeUtils dateTimeUtils,
+            final Ds3Common ds3Common,
+            final SavedSessionStore savedSessionStore,
+            final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
@@ -221,14 +221,10 @@ public class Ds3PanelPresenter implements Initializable {
             }
             getTreeTableView().setRoot(getTreeTableView().getRoot().getParent());
             getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false));
-            try {
-                final ProgressIndicator progress = new ProgressIndicator();
-                progress.setMaxSize(90, 90);
-                ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
-                ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
-            } catch (final Exception e) {
-                LOG.error("Unable to change root", e);
-            }
+            final ProgressIndicator progress = new ProgressIndicator();
+            progress.setMaxSize(90, 90);
+            //((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
+            ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
         } else {
             getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
             getDs3PathIndicator().setTooltip(null);
@@ -432,7 +428,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void ds3TransferToLocal() {
         final Session session = getSession();
-        if ((session == null ) || (ds3Common == null) ) {
+        if ((session == null) || (ds3Common == null)) {
             alert.showAlert(resourceBundle.getString("invalidSession"));
             return;
         }
@@ -530,9 +526,9 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
-                                      final TreeTableView<FileTreeModel> treeTable,
-                                      final Label fileRootItemLabel,
-                                      final String fileRootItem) {
+            final TreeTableView<FileTreeModel> treeTable,
+            final Label fileRootItemLabel,
+            final String fileRootItem) {
         final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
         if (first.isPresent()) {
             final TreeItem<FileTreeModel> selectedItem = first.get();
@@ -631,7 +627,7 @@ public class Ds3PanelPresenter implements Initializable {
         imageView.setOnMouseClicked(event -> ds3PanelSearch.setText(StringConstants.EMPTY_STRING));
         ds3PanelSearch.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                Ds3PanelService.filterChanged(ds3Common, workers, loggingService, resourceBundle,dateTimeUtils);
+                Ds3PanelService.filterChanged(ds3Common, workers, loggingService, resourceBundle, dateTimeUtils);
             }
         });
         if (ds3SessionTabPane.getTabs().size() == 1) {

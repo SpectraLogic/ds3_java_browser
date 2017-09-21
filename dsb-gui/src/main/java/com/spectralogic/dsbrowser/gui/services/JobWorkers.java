@@ -69,11 +69,10 @@ public class JobWorkers {
             onFailed.handle(event);
             handleStop(event);
         });
-        run.setOnFailed(this::handleStop);
         final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
         run.setOnSucceeded(event -> {
-            handleStop(event);
             onSucceeded.handle(event);
+            handleStop(event);
         });
         LOG.info("Adding to task list");
         tasks.add(0,run);

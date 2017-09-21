@@ -38,11 +38,13 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,20 +169,23 @@ public class Ds3PutJob extends Ds3JobTask {
 
         job.transfer(file -> FileChannel.open(PathUtil.resolveForSymbolic(fileMapper.get(file)), StandardOpenOption.READ));
 
-        waitForPermanentStorageTransfer(totalJobSize)
-                    .observeOn(JavaFxScheduler.platform())
-                    .doOnComplete(() -> {
-                        LOG.info("Job transferred to permanent storage location");
+        final Disposable d = waitForPermanentStorageTransfer(totalJobSize)
+                .observeOn(JavaFxScheduler.platform())
+                .doOnComplete(() -> {
+                    LOG.info("Job transferred to permanent storage location");
 
-                        final String newDate = dateTimeUtils.nowAsString();
-                        loggingService.logMessage(
-                                StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
-                                        FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
-                                        resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
+                    final String newDate = dateTimeUtils.nowAsString();
+                    loggingService.logMessage(
+                            StringBuilderUtil.jobSuccessfullyTransferredString(PUT,
+                                    FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
+                                    resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
 
-                        Ds3PanelService.refresh(remoteDestination);
-                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    }).blockingAwait();
+                    Ds3PanelService.refresh(remoteDestination);
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                }).subscribe();
+        while(!d.isDisposed()) {
+            Thread.sleep(100);
+        }
     }
 
     private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService, final String targetDir) {
@@ -292,8 +297,8 @@ public class Ds3PutJob extends Ds3JobTask {
 
     public interface Ds3PutJobFactory {
         Ds3PutJob createDs3PutJob(final List<Pair<String, Path>> pairs,
-                                  @Assisted("bucket") final String bucket,
-                                  @Assisted("targetDir") final String targetDir,
-                                  final TreeItem<Ds3TreeTableValue> treeItem);
+                @Assisted("bucket") final String bucket,
+                @Assisted("targetDir") final String targetDir,
+                final TreeItem<Ds3TreeTableValue> treeItem);
     }
 }

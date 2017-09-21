@@ -127,15 +127,14 @@ public class SavedSessionStoreTest {
     @Test
     public void containsSessionNameTest() throws IOException {
         final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
-        assertTrue(savedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
+        assertTrue(SavedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
     }
 
     @Test
     public void containsNewSessionNameTest() throws IOException {
-        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
         final ObservableList<Session> list = new LiveArrayList<>();
         list.add(session);
-        assertTrue(savedSessionStore.containsNewSessionName(list, testSessionName));
+        assertTrue(SavedSessionStore.containsNewSessionName(list, testSessionName));
     }
 
     @Test
