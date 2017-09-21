@@ -184,7 +184,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
         while(!d.isDisposed()) {
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 

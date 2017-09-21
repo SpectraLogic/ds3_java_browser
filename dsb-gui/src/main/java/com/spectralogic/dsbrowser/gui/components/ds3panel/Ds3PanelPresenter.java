@@ -223,7 +223,7 @@ public class Ds3PanelPresenter implements Initializable {
             getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false));
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
-            //((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
+            ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
             ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
         } else {
             getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
