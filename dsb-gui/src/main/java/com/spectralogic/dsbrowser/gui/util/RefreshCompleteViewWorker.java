@@ -55,7 +55,7 @@ public final class RefreshCompleteViewWorker {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
                 final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
-                if (selectedRoot != null && selectedRoot.getValue() != null) {
+                if (selectedRoot != null && selectedRoot.getValue() != null && selectedRoot.getParent() != null) {
                     ds3TreeTableView.getSelectionModel().clearSelection();
                     ds3TreeTableView.setRoot(selectedRoot);
                     ds3TreeTableView.getSelectionModel().select(selectedRoot);
@@ -63,6 +63,9 @@ public final class RefreshCompleteViewWorker {
                     setPathIndicator((Ds3TreeTableItem)selectedRoot , ds3Common);
                     ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 } else {
+                    if(selectedRoot != null && selectedRoot.getParent() == null) {
+                        loggingService.logMessage("Parent folder no longer existed, redirecting to the root of the tree", LogType.ERROR);
+                    }
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
                     final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
                     workers.execute(getServiceTask);
