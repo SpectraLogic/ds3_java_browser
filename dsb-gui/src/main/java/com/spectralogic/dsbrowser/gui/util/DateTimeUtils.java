@@ -53,7 +53,11 @@ public final class DateTimeUtils {
     }
 
     public String format(final Date date) {
-        return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
+        if(date == null) {
+            return "";
+        } else {
+            return formatter.format(date.toInstant().atZone(ZoneId.systemDefault()));
+        }
     }
 
     /**
