@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,14 +10,13 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.models.*;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import com.spectralogic.ds3client.utils.Guard;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -25,148 +24,82 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
-import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class GetStorageLocations {
 
-    private static final Image ONLINEDISK = new Image(ImageURLs.ONLINEDISK);
-    private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINEDISK);
-    private static final Image STORAGETAPES = new Image(ImageURLs.STORAGETAPES);
-    private static final Image EJECTEDTAPES = new Image(ImageURLs.EJECTEDTAPES);
-    private static final Image BLACKPEARLCACHE = new Image(ImageURLs.BLACKPEARLCACHE);
+    private static final Image ONLINEDISK = new Image(ImageURLs.ONLINE_DISK);
+    private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINE_DISK);
+    private static final Image STORAGETAPES = new Image(ImageURLs.STORAGE_TAPES);
+    private static final Image EJECTEDTAPES = new Image(ImageURLs.EJECTED_TAPES);
+    private static final Image BLACKPEARLCACHE = new Image(ImageURLs.BLACKPEARL_CACHE);
     private static final Image REPLICATION = new Image(ImageURLs.REPLICATION);
+    private static final Image CLOUD = new Image(ImageURLs.CLOUD);
 
-    public static HBox addPlacementIconsandTooltip(final BulkObject objects) {
+    private static final AtomicInteger ejectedTapesCount = new AtomicInteger(0);
+    private static final AtomicInteger nearLineDiskCount = new AtomicInteger(0);
+    private static final AtomicInteger replicationCount = new AtomicInteger(0);
+    private static int cloudCount, azureCloud, amazoneCloud = 0;
+    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-        final HBox placementIconTooltipHbox = new HBox();
-        placementIconTooltipHbox.setAlignment(Pos.CENTER);
-        placementIconTooltipHbox.setSpacing(3.0);
-
-        if (objects != null && objects.getPhysicalPlacement().getTapes() != null) {
-            final ImmutableList<Tape> ejectedTapes = objects.getPhysicalPlacement().getTapes().stream().filter(i -> i.getEjectDate() != null).collect(GuavaCollectors.immutableList());
-            final int storageTapeCount = objects.getPhysicalPlacement().getTapes().size();
-
-            if (ejectedTapes.size() != 0) {
-                final ImageView ejectedTapeIcon = new ImageView();
-                ejectedTapeIcon.setImage(EJECTEDTAPES);
-                ejectedTapeIcon.setFitHeight(15);
-                ejectedTapeIcon.setFitWidth(15);
-                Tooltip.install(ejectedTapeIcon, new Tooltip(Integer.toString(ejectedTapes.size()) + " copy ejected"));
-                placementIconTooltipHbox.getChildren().add(ejectedTapeIcon);
-            }
-
-            if ((storageTapeCount - ejectedTapes.size()) != 0) {
-                final ImageView storageTapeIcon = new ImageView();
-                storageTapeIcon.setImage(STORAGETAPES);
-                storageTapeIcon.setFitHeight(15);
-                storageTapeIcon.setFitWidth(15);
-                Tooltip.install(storageTapeIcon, new Tooltip(Integer.toString(storageTapeCount - ejectedTapes.size()) + " copy on Storage Tape"));
-                placementIconTooltipHbox.getChildren().add(storageTapeIcon);
-            }
-        }
-
-        if (objects.getPhysicalPlacement().getPools() != null) {
-            final ImmutableList<Pool> nearLineDisk = objects.getPhysicalPlacement().getPools().stream().filter(i -> i.getType().equals(PoolType.NEARLINE)).collect(GuavaCollectors.immutableList());
-            final int onlineDiskCount = objects.getPhysicalPlacement().getPools().size();
-
-            if (nearLineDisk.size() != 0) {
-                final ImageView nearlineDiskIcon = new ImageView();
-                nearlineDiskIcon.setImage(NEARLINEDISK);
-                nearlineDiskIcon.setFitHeight(15);
-                nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDisk.size()) + " copy on ArcticBlue"));
-                placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
-            }
-            if ((onlineDiskCount - nearLineDisk.size()) != 0) {
-                final ImageView onlineDiskIcon = new ImageView();
-                onlineDiskIcon.setImage(ONLINEDISK);
-                onlineDiskIcon.setFitHeight(15);
-                onlineDiskIcon.setFitWidth(15);
-                Tooltip.install(onlineDiskIcon, new Tooltip(Integer.toString(onlineDiskCount - nearLineDisk.size()) + " copy on Online Disk"));
-                placementIconTooltipHbox.getChildren().add(onlineDiskIcon);
-            }
-        }
-
-        if (objects.getInCache()) {
-            final ImageView blackPearlCacheIcon = new ImageView();
-            blackPearlCacheIcon.setImage(BLACKPEARLCACHE);
-            blackPearlCacheIcon.setFitHeight(15);
-            blackPearlCacheIcon.setFitWidth(15);
-            Tooltip.install(blackPearlCacheIcon, new Tooltip("In BlackPearl cache"));
-            placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
-        }
-
-        placementIconTooltipHbox.setAlignment(Pos.CENTER);
-
-        if (placementIconTooltipHbox.getChildren().size() == 0) {
-            final HBox hbox = new HBox();
-            hbox.getChildren().add(new Label("----"));
-            hbox.setAlignment(Pos.CENTER);
-            placementIconTooltipHbox.getChildren().add(hbox);
-        }
-
-        if (objects.getPhysicalPlacement().getDs3Targets() != null) {
-            final List<Ds3Target> ds3Targets = objects.getPhysicalPlacement().getDs3Targets();
-
-            if (ds3Targets.size() != 0) {
-                final ImageView replicationIcon = new ImageView();
-                replicationIcon.setImage(REPLICATION);
-                replicationIcon.setFitHeight(15);
-                replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(ds3Targets.size()) + "BP Replicated copy"));
-                placementIconTooltipHbox.getChildren().add(replicationIcon);
-            }
-        }
-        return placementIconTooltipHbox;
-    }
-
-    public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement , final boolean inCache) {
+    public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement, final boolean inCache) {
 
         final HBox placementIconTooltipHbox = new HBox();
         placementIconTooltipHbox.setAlignment(Pos.CENTER);
         placementIconTooltipHbox.setSpacing(3.0);
 
-        if (placement != null && placement.getTapes() != null) {
-            final ImmutableList<Tape> ejectedTapes = placement.getTapes().stream().filter(i -> i.getEjectDate() != null).collect(GuavaCollectors.immutableList());
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getTapes())) {
             final int storageTapeCount = placement.getTapes().size();
-
-            if (ejectedTapes.size() != 0) {
+            placement.getTapes().forEach(i -> {
+                if (i.getEjectDate() != null) {
+                    ejectedTapesCount.incrementAndGet();
+                }
+            });
+            if (ejectedTapesCount.intValue() != 0) {
                 final ImageView ejectedTapeIcon = new ImageView();
+                final String toolTipMessage = pluralize(ejectedTapesCount.intValue(), resourceBundle, "ejected", "ejecteds");
                 ejectedTapeIcon.setImage(EJECTEDTAPES);
                 ejectedTapeIcon.setFitHeight(15);
                 ejectedTapeIcon.setFitWidth(15);
-                Tooltip.install(ejectedTapeIcon, new Tooltip(Integer.toString(ejectedTapes.size()) + " copy ejected"));
+                Tooltip.install(ejectedTapeIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(ejectedTapeIcon);
             }
-
-            if ((storageTapeCount - ejectedTapes.size()) != 0) {
+            if ((storageTapeCount - ejectedTapesCount.intValue()) != 0) {
                 final ImageView storageTapeIcon = new ImageView();
+                final int tapeCount = storageTapeCount - ejectedTapesCount.intValue();
+                final String toolTipMessage = pluralize(tapeCount, resourceBundle, "storage", "storages");
                 storageTapeIcon.setImage(STORAGETAPES);
                 storageTapeIcon.setFitHeight(15);
                 storageTapeIcon.setFitWidth(15);
-                Tooltip.install(storageTapeIcon, new Tooltip(Integer.toString(storageTapeCount - ejectedTapes.size()) + " copy on Storage Tape"));
+                Tooltip.install(storageTapeIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(storageTapeIcon);
             }
         }
 
-        if (placement.getPools() != null) {
-            final ImmutableList<Pool> nearLineDisk = placement.getPools().stream().filter(i -> i.getType().equals(PoolType.NEARLINE)).collect(GuavaCollectors.immutableList());
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getPools())) {
             final int onlineDiskCount = placement.getPools().size();
-
-            if (nearLineDisk.size() != 0) {
+            placement.getPools().forEach(i -> {
+                if (i.getType().equals(PoolType.NEARLINE)) {
+                    nearLineDiskCount.incrementAndGet();
+                }
+            });
+            if (nearLineDiskCount.intValue() != 0) {
                 final ImageView nearlineDiskIcon = new ImageView();
+                final String toolTipMessage = pluralize(nearLineDiskCount.intValue(), resourceBundle, "nearLine", "nearLines");
                 nearlineDiskIcon.setImage(NEARLINEDISK);
                 nearlineDiskIcon.setFitHeight(15);
                 nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(Integer.toString(nearLineDisk.size()) + " copy on Nearline Disk"));
+                Tooltip.install(nearlineDiskIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
-            if ((onlineDiskCount - nearLineDisk.size()) != 0) {
+            if ((nearLineDiskCount.intValue() - onlineDiskCount) != 0) {
                 final ImageView onlineDiskIcon = new ImageView();
+                final String toolTipMessage = pluralize(nearLineDiskCount.intValue() - onlineDiskCount, resourceBundle, "online", "onlines");
                 onlineDiskIcon.setImage(ONLINEDISK);
                 onlineDiskIcon.setFitHeight(15);
                 onlineDiskIcon.setFitWidth(15);
-                Tooltip.install(onlineDiskIcon, new Tooltip(Integer.toString(onlineDiskCount - nearLineDisk.size()) + " copy on Online Disk"));
+                Tooltip.install(onlineDiskIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(onlineDiskIcon);
             }
         }
@@ -176,33 +109,60 @@ public final class GetStorageLocations {
             blackPearlCacheIcon.setImage(BLACKPEARLCACHE);
             blackPearlCacheIcon.setFitHeight(15);
             blackPearlCacheIcon.setFitWidth(15);
-            Tooltip.install(blackPearlCacheIcon, new Tooltip("In cache"));
+            Tooltip.install(blackPearlCacheIcon, new Tooltip(resourceBundle.getString("cache")));
             placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
         }
 
-        placementIconTooltipHbox.setAlignment(Pos.CENTER);
-
-        if (placementIconTooltipHbox.getChildren().size() == 0) {
-            final HBox hbox = new HBox();
-            hbox.getChildren().add(new Label("----"));
-            hbox.setAlignment(Pos.CENTER);
-            placementIconTooltipHbox.getChildren().add(hbox);
-        }
-
-        if (placement.getDs3Targets() != null) {
-            final List<Ds3Target> ds3Targets = placement.getDs3Targets();
-
-            if (ds3Targets.size() != 0) {
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getDs3Targets())) {
+            placement.getDs3Targets().forEach(i -> {
+                if (!i.getReplicatedUserDefaultDataPolicy().isEmpty()) {
+                    replicationCount.incrementAndGet();
+                }
+            });
+            if (replicationCount.intValue() != 0) {
                 final ImageView replicationIcon = new ImageView();
+                final String toolTipMessage = pluralize(replicationCount.intValue(), resourceBundle, "replication", "replications");
                 replicationIcon.setImage(REPLICATION);
                 replicationIcon.setFitHeight(15);
                 replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(Integer.toString(ds3Targets.size()) + " Replicated copy"));
+                Tooltip.install(replicationIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(replicationIcon);
             }
+        }
+
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getAzureTargets())) {
+            azureCloud = placement.getAzureTargets().size();
+        }
+        if (placement != null && Guard.isNotNullAndNotEmpty(placement.getS3Targets())) {
+            amazoneCloud = placement.getS3Targets().size();
+        }
+        cloudCount = azureCloud + amazoneCloud;
+        if (cloudCount != 0) {
+            final ImageView cloudIcon = new ImageView();
+            final String toolTipMessage = pluralize(cloudCount, resourceBundle, "cloud", "clouds");
+            cloudIcon.setImage(CLOUD);
+            cloudIcon.setFitHeight(15);
+            cloudIcon.setFitWidth(15);
+            Tooltip.install(cloudIcon, new Tooltip(toolTipMessage));
+            placementIconTooltipHbox.getChildren().add(cloudIcon);
+        }
+
+        placementIconTooltipHbox.setAlignment(Pos.CENTER);
+        if (Guard.isNullOrEmpty(placementIconTooltipHbox.getChildren())) {
+            final HBox hbox = new HBox();
+            hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
+            hbox.setAlignment(Pos.CENTER);
+            placementIconTooltipHbox.getChildren().add(hbox);
         }
         return placementIconTooltipHbox;
     }
 
+    private static String pluralize(final int count, final  ResourceBundle resourceBundle, final String one, final String many) {
+        if(count == 1) {
+            return count + " " + resourceBundle.getString(one);
+        } else {
+            return count + " " + resourceBundle.getString(many);
+        }
+    }
 }
 

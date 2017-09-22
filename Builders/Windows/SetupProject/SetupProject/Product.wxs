@@ -9,8 +9,8 @@
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
-    <Package InstallerVersion="200" Compressed="yes" Platform="x64"/>
-    
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64"/>
+
     <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)BlackPearlEonBrowser.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     <UI>
@@ -35,49 +35,16 @@
 
     <WixVariable Id="WixUIDialogBmp" Value="..\..\..\logo\BlackPearlEonBrowserDialog.jpg" />
     <WixVariable Id="WixUIBannerBmp" Value="..\..\..\logo\BlackPearlEonBrowserBanner.jpg" />
-    <WixVariable Id="WixUILicenseRtf" Value="..\..\..\License.rtf" />
-
-    <UIRef Id="WixUI_Advanced" />
-    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
-    <Property Id="ApplicationFolderName" Value="$(var.Manufacturer)\$(var.Name)"/>
-    <SetDirectory
-        Id="APPLICATIONFOLDER"
-        Value="[ProgramFiles64Folder][ApplicationFolderName]">APPLICATIONFOLDER=""
-    </SetDirectory>
-
-
-    <CustomAction
-        Id="OverwriteWixSetDefaultPerMachineFolder"
-        Property="WixPerMachineFolder"
-        Value="[APPLICATIONFOLDER]"
-        Execute="immediate"
-     />
-
-    <CustomAction
-        Id="SetARPINSTALLLOCATION"
-        Property="ARPINSTALLLOCATION"
-        Value="[APPLICATIONFOLDER]"
-     />
-
-    <InstallUISequence>
-      <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
-    </InstallUISequence>
-
-    <InstallExecuteSequence>
-      <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
-      <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"/>
-    </InstallExecuteSequence>
-    
-    
-
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
-    <Property Id="WixShellExecTarget" Value="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe" />
-    <CustomAction Id="LaunchApplication"
-        BinaryKey="WixCA"
-        DllEntry="WixShellExec"
-        Impersonate="yes" />
+    <CustomAction
+      Id="LaunchApplication"
+      Directory="INSTALLFOLDER"
+      ExeCommand="[INSTALLFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
+      Return="asyncNoWait"/>
 
     <UI>
       <Publish Dialog="ExitDialog"
@@ -116,10 +83,10 @@
         <Shortcut Id="ApplicationStartMenuShortcut" 
                   Name="$(var.Name)" 
                   Icon="icon.ico"
-                  Target="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
+                  Target="[INSTALLFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
                   />
         <RemoveFolder Id="ApplicationProgramsFolder" On="both" />
-        <RegistryValue Root="HKMU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationShortcut" Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -128,29 +95,29 @@
         <Shortcut Id="ApplicationDesktopShortcut" 
                   Name="$(var.Name)"
                   Icon="icon.ico"
-                  Target="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
+                  Target="[INSTALLFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
                   />
         <RemoveFolder Id="DesktopFolder" On="both" />
-        <RegistryValue Root="HKMU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationDesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationDesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
-          <Directory Id="ROOTDIRECTORY" Name="$(var.Manufacturer)">
-            <Directory Id="APPLICATIONFOLDER" Name="$(var.Name)">
+        <Directory Id="ROOTDIRECTORY" Name="$(var.Manufacturer)">
+          <Directory Id="INSTALLFOLDER" Name="$(var.Name)">
               <Component Id="InstallRegistryComponent" Guid="DA853441-B495-4D79-9839-EFC2B7704F9A">
-                <RegistryKey Id='InstallDirKey' Root='HKMU' Key='Software\$(var.Manufacturer)\$(var.Name)' Action='createAndRemoveOnUninstall'>
-                  <RegistryValue Type='string' Name='InstallFolder' Value="[APPLICATIONFOLDER]"/>
+                <RegistryKey Id='InstallDirKey' Root='HKCU' Key='Software\$(var.Manufacturer)\$(var.Name)' Action='createAndRemoveOnUninstall'>
+                  <RegistryValue Type='string' Name='InstallFolder' Value="[INSTALLFOLDER]"/>
                 </RegistryKey>
-
-                <RegistryKey Id='InstallVersionKey' Root='HKMU' Key='Software\$(var.Manufacturer)\$(var.Name)' Action='createAndRemoveOnUninstall'>
+              
+                <RegistryKey Id='InstallVersionKey' Root='HKCU' Key='Software\$(var.Manufacturer)\$(var.Name)' Action='createAndRemoveOnUninstall'>
                   <RegistryValue Type='string' Name='Version' Value="$(var.Version)"/>
                 </RegistryKey>
               </Component>
-            </Directory>
           </Directory>
         </Directory>
+      </Directory>
 
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="$(var.Manufacturer)" />

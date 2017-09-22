@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,28 +10,29 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
 
 import java.io.Serializable;
 
-public class Ds3TreeTableValue implements Serializable {
+public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
 
     private final String bucketName;
-    private final String name;
     private final String fullName;
-    private final Type type;
     private final long size;
     private final String lastModified;
-    private final HBox physicalPlacementHBox;
+    private final transient HBox physicalPlacementHBox;
     private final String owner;
     private final boolean searchOn;
     private String marker = "";
     private String fullPath;
+    private long logicalCapacity;
 
     public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
@@ -61,15 +62,6 @@ public class Ds3TreeTableValue implements Serializable {
         this.fullPath = getPathExcludeName(bucketName, fullName);
     }
 
-
-    public boolean isSearchOn() {
-        return searchOn;
-    }
-
-    public HBox getPhysicalPlacementHBox() {
-        return physicalPlacementHBox;
-    }
-
     private static String getLastPart(final String name, final Type type) {
         if (type == Type.Bucket) {
             return name;
@@ -85,12 +77,20 @@ public class Ds3TreeTableValue implements Serializable {
     private static String getPathExcludeName(final String bucketName, final String fullPath) {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(bucketName);
-        stringBuilder.append("/");
+        stringBuilder.append(StringConstants.FORWARD_SLASH);
         final int index = fullPath.lastIndexOf("/");
         if (index != -1) {
             stringBuilder.append(fullPath.substring(0, index));
         }
         return stringBuilder.toString();
+    }
+
+    public boolean isSearchOn() {
+        return searchOn;
+    }
+
+    public HBox getPhysicalPlacementHBox() {
+        return physicalPlacementHBox;
     }
 
     public String getName() {
@@ -130,7 +130,7 @@ public class Ds3TreeTableValue implements Serializable {
             case Directory:
                 return getFullName();
             case Bucket:
-                return "";
+                return StringConstants.EMPTY_STRING;
             default:
                 return getParentDir(this.getFullName());
         }
@@ -139,7 +139,7 @@ public class Ds3TreeTableValue implements Serializable {
     private String getParentDir(final String fullName) {
         final int index = fullName.lastIndexOf('/');
         if (index < 0) {
-            return "";
+            return StringConstants.EMPTY_STRING;
         }
         return fullName.substring(0, index);
     }
@@ -156,7 +156,13 @@ public class Ds3TreeTableValue implements Serializable {
         this.fullPath = fullPath;
     }
 
-    public enum Type {
-        File, Directory, Bucket, Loader
+    public long getLogicalCapacity() {
+        return logicalCapacity;
     }
+
+    public void setLogicalCapacity(final long logicalCapacity) {
+        this.logicalCapacity = logicalCapacity;
+    }
+
+
 }

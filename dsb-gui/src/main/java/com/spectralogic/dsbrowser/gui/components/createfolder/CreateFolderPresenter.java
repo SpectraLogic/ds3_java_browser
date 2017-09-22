@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,30 +10,24 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
-import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.PutBulkJobSpectraS3Response;
-import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import javafx.application.Platform;
-import javafx.event.Event;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -41,15 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 @Presenter
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TextField folderNameField;
@@ -63,41 +56,37 @@ public class CreateFolderPresenter implements Initializable {
     @ModelContext
     private CreateFolderModel createFolderModel;
 
-    @Inject
-    private Workers workers;
+    private final Workers workers;
+    private final ResourceBundle resourceBundle;
+    private final LoggingService loggingService;
 
     @Inject
-    private ResourceBundle resourceBundle;
-
-    @Inject
-    private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    public CreateFolderPresenter(final Workers workers,
+                                 final ResourceBundle resourceBundle,
+                                 final LoggingService loggingService) {
+        this.workers = workers;
+        this.resourceBundle = resourceBundle;
+        this.loggingService = loggingService;
+    }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            ALERT.setTitle("Error while creating folder");
-            ALERT.setHeaderText(null);
-
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
             initGUIElements();
             folderNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue.equals("")) {
+                if (newValue.equals(StringConstants.EMPTY_STRING)) {
                     createFolderButton.setDisable(true);
                 } else {
                     createFolderButton.setDisable(false);
                 }
             });
-
             folderNameField.setOnKeyReleased(event -> {
                 if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     createFolder();
                 }
             });
-
-        } catch (final Throwable e) {
-            LOG.error("Encountered an error making the create folder presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the CreateFolderPresenter", t);
         }
     }
 
@@ -108,51 +97,22 @@ public class CreateFolderPresenter implements Initializable {
     }
 
     public void createFolder() {
-        final Ds3Task createFolderTask = new Ds3Task(createFolderModel.getClient()) {
-
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    String location = "";
-                    if (!createFolderModel.getLocation().equals(createFolderModel.getBucketName())) {
-                        location = createFolderModel.getLocation();
-                        //if creating folder while file is selected
-                        if(location.charAt(location.length()-1) != '/')
-                        {
-                            final int lastIndex = location.lastIndexOf("/");
-                            location = location.substring(0,lastIndex+1);
-                        }
-                    }
-                    final List<Ds3Object> ds3ObjectList = new ArrayList<>();
-                    final Ds3Object object = new Ds3Object(location+folderNameField.textProperty().getValue() + "/", 0);
-                    ds3ObjectList.add(object);
-                    final PutBulkJobSpectraS3Response response = getClient().putBulkJobSpectraS3(new PutBulkJobSpectraS3Request(createFolderModel.getBucketName().trim(), ds3ObjectList));
-                    Platform.runLater(() -> {
-                        //deepStorageBrowserPresenter.logText("Create folder response code: " + response.getStatusCode(), LogType.SUCCESS);
-                        deepStorageBrowserPresenter.logText(folderNameField.textProperty().getValue()+" Folder is created", LogType.SUCCESS);
-                    });
-                    return response;
-                } catch (final Exception e) {
-                    LOG.error("Failed to craete directory", e);
-                    Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Failed to create folder "+folderNameField.textProperty().getValue()+" Reason: " + e.toString(), LogType.ERROR);
-                        ALERT.setContentText("Failed to create folder. Check logs.");
-                        ALERT.showAndWait();
-                    });
-                    return null;
-                }
-            }
-        };
-
-        createFolderTask.setOnCancelled(this::handle);
-        createFolderTask.setOnFailed(this::handle);
-        createFolderTask.setOnSucceeded(this::handle);
-
+        //Instantiating create folder task
+        final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
+                createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
+                loggingService, resourceBundle);
+        //Handling task actions
+        createFolderTask.setOnSucceeded(event -> {
+            this.closeDialog();
+            loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
+                    + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
+        });
+        createFolderTask.setOnCancelled(event -> this.closeDialog());
+        createFolderTask.setOnFailed(event -> {
+            this.closeDialog();
+            alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
+        });
         workers.execute(createFolderTask);
-    }
-
-    private void handle(final Event event) {
-        closeDialog();
     }
 
     public void cancel() {

@@ -17,8 +17,7 @@ hs_err_pid*
 .idea/
 .gradle/
 build/
-classes/
-
+out/*
 ### .Net
 .vs/
 bin/
@@ -26,3 +25,7 @@ obj/
 *.exe
 *.msi
 *.suo
+### Ignoring build.gradle~
+*~
+### MacOS
+.DS_Store

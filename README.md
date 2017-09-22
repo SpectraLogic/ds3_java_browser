@@ -7,7 +7,7 @@
 Spectra Logic’s BlackPearl Eon Browser is a free and open-source Spectra® BlackPearl® client (application) that provides users an easy-to-use tool to archive files to the BlackPearl Deep Storage Gateway. The intuitive graphical interface facilitates the management and transfer of files between local drives or network shares and BlackPearl. The Deep Storage Browser’s simple user interface is similar to an FTP client, allowing users to search, select, group, archive, and restore by simply dragging and dropping files between their file system and BlackPearl.
 
 ## Releases
-The latest release can be found under [Releases](https://github.com/SpectraLogic/ds3_java_browser/releases) and includes pre-built installers for Windows, Mac, Ubuntu, and Redhat.  For other Operating Systems and Platforms, please see the guide on building it [manually](BUILD.md).
+The latest release can be found at [Releases](https://github.com/SpectraLogic/ds3_java_browser/releases) and includes pre-build installers for Windows, Mac, and Ubuntu.  For other Operating Systems and Platforms, please see the guild on building it [manually](BUILD.md).
 
 ## Contact Us
 Join us at our [Google Groups](https://groups.google.com/d/forum/spectralogicds3-sdks) forum to ask questions, or see frequently asked questions.
