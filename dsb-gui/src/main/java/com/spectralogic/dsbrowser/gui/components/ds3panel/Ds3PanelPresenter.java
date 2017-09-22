@@ -223,7 +223,6 @@ public class Ds3PanelPresenter implements Initializable {
             getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false));
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
-            ((Ds3TreeTableItem) ds3Common.getDs3PanelPresenter().getTreeTableView().getRoot()).refresh();
             ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
         } else {
             getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
@@ -596,10 +595,7 @@ public class Ds3PanelPresenter implements Initializable {
 
         final Optional<Node> first = vbox.getChildren().stream().filter(i ->
                 i instanceof TreeTableView).findFirst();
-        if (first.isPresent()) {
-            return (TreeTableView<Ds3TreeTableValue>) first.get();
-        }
-        return null;
+        return (TreeTableView<Ds3TreeTableValue>) first.orElse(null);
     }
 
     public void newSessionDialog() {
