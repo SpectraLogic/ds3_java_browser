@@ -48,6 +48,8 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -58,6 +60,8 @@ public final class Ds3PanelService {
     private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
     private static final LazyAlert alert = new LazyAlert("Error");
+
+    private static Instant lastRefresh = Instant.now();
 
     /**
      * check if bucket contains or folders
@@ -79,8 +83,8 @@ public final class Ds3PanelService {
     }
 
     public static Optional<ImmutableList<Bucket>> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem,
-                                                                      final Session session,
-                                                                      final TreeTableView<Ds3TreeTableValue> treeTableView) {
+            final Session session,
+            final TreeTableView<Ds3TreeTableValue> treeTableView) {
         try {
             if (null != treeTableView) {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItemTemp = selectedItem;
@@ -127,6 +131,13 @@ public final class Ds3PanelService {
             } else {
                 item.setExpanded(true);
             }
+        }
+    }
+
+    public static void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+        if (lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
+            lastRefresh = Instant.now();
+            refresh(modifiedTreeItem);
         }
     }
 

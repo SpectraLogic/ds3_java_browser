@@ -44,7 +44,6 @@ import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +179,7 @@ public class Ds3PutJob extends Ds3JobTask {
                                     FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
                                     resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
 
-                    Ds3PanelService.refresh(remoteDestination);
+                    Ds3PanelService.throttledRefresh(remoteDestination);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
         while(!d.isDisposed()) {
@@ -236,7 +235,8 @@ public class Ds3PutJob extends Ds3JobTask {
                         objectName,
                         locationName, newDate,
                         resourceBundle.getString("blackPearlCache")).toString(), SUCCESS);
-        Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
+        Platform.runLater(() -> Ds3PanelService.throttledRefresh(remoteDestination));
+
     }
 
     private Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
