@@ -48,6 +48,8 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -128,6 +130,14 @@ public final class Ds3PanelService {
                 item.setExpanded(true);
             }
         }
+    }
+
+    public static Instant throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem, final Instant lastrun) {
+        if(Instant.now().isAfter(lastrun.minus(Duration.ofSeconds(15)))) {
+            refresh(modifiedTreeItem);
+            return Instant.now();
+        }
+        return lastrun;
     }
 
     public static void showPhysicalPlacement(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
