@@ -133,7 +133,7 @@ public final class Ds3PanelService {
     }
 
     public static Instant throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem, final Instant lastrun) {
-        if(Instant.now().isAfter(lastrun.minus(Duration.ofSeconds(15)))) {
+        if(lastrun.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
             refresh(modifiedTreeItem);
             return Instant.now();
         }

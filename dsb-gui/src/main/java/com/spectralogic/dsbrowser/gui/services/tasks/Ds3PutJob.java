@@ -79,6 +79,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final String targetDirectory;
     private final TreeItem<Ds3TreeTableValue> remoteDestination;
     private final DateTimeUtils dateTimeUtils;
+    private Instant lastRefresh;
 
     @Inject
     public Ds3PutJob(final Ds3Client client,
@@ -180,7 +181,10 @@ public class Ds3PutJob extends Ds3JobTask {
                                     FileSizeFormat.getFileSizeType(totalJobSize), bucket + "\\" + targetDir, newDate,
                                     resourceBundle.getString("permanentStorageLocation"), false).toString(), LogType.SUCCESS);
 
-                    Ds3PanelService.refresh(remoteDestination);
+                    if(lastRefresh == null) {
+                        lastRefresh = Instant.now();
+                    }
+                    lastRefresh = Ds3PanelService.throttledRefresh(remoteDestination, lastRefresh);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
         while(!d.isDisposed()) {
@@ -231,12 +235,16 @@ public class Ds3PutJob extends Ds3JobTask {
 
         getTransferRates(jobStartInstant, totalSent, totalJobSize, objectName, locationName);
 
+        if(lastRefresh == null) {
+            lastRefresh = Instant.now();
+        }
         loggingService.logMessage(
                 StringBuilderUtil.objectSuccessfullyTransferredString(
                         objectName,
                         locationName, newDate,
                         resourceBundle.getString("blackPearlCache")).toString(), SUCCESS);
-        Platform.runLater(() -> Ds3PanelService.refresh(remoteDestination));
+        Platform.runLater(() -> lastRefresh = Ds3PanelService.throttledRefresh(remoteDestination, lastRefresh));
+
     }
 
     private Optional<Ds3Object> buildDs3Object(final Map.Entry<String, Path> p) {
