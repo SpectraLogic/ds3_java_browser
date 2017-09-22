@@ -520,7 +520,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 if(jobId == null) {
                     LOG.info("BULK_PUT job Failed wihout receving an ID");
                 } else {
-                    LOG.info("BULK_PUT job {} Failed.", putJob.getJobId());
+                    LOG.info("BULK_PUT job {} Failed.", jobId);
                     refreshBlackPearlSideItem(remoteDestination);
                 }
             });
