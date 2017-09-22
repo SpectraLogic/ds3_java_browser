@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,7 +10,7 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui;
@@ -20,15 +20,13 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.RecoverInterruptedJob;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.Ds3GetJob;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -55,7 +53,12 @@ public class ShutdownServiceImpl implements ShutdownService {
     private final Workers workers;
 
     @Inject
-    public ShutdownServiceImpl(final SavedSessionStore savedSessionStore, final SavedJobPrioritiesStore savedJobPrioritiesStore, final JobInterruptionStore jobInterruptionStore, final SettingsStore settings, final JobWorkers jobWorkers, final Workers workers) {
+    public ShutdownServiceImpl(final SavedSessionStore savedSessionStore,
+                               final SavedJobPrioritiesStore savedJobPrioritiesStore,
+                               final JobInterruptionStore jobInterruptionStore,
+                               final SettingsStore settings,
+                               final JobWorkers jobWorkers,
+                               final Workers workers) {
         this.savedSessionStore = savedSessionStore;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -122,6 +125,9 @@ public class ShutdownServiceImpl implements ShutdownService {
         System.exit(0);
     }
 
+    /*
+     * Cancel any jobs that are not fully uploaded to cache
+     */
     private class ShutdownTask extends Task {
 
         private final ImmutableList<Ds3JobTask> outstandingJobs;
@@ -137,28 +143,10 @@ public class ShutdownServiceImpl implements ShutdownService {
                 final CountDownLatch latch = new CountDownLatch(1);
                 try {
 
-                    String jobId = "";
-                    Ds3Client ds3Client = null;
-                    if (job instanceof Ds3PutJob) {
-                        final Ds3PutJob ds3PutJob = (Ds3PutJob) job;
-                        if (ds3PutJob.getJobId() != null) {
-                            jobId = ds3PutJob.getJobId().toString();
-                            ds3Client = ds3PutJob.getClient();
-                        }
-                        LOG.info("Cancelled job:{} ", ds3PutJob.getJobId());
-                    } else if (job instanceof Ds3GetJob) {
-                        final Ds3GetJob ds3GetJob = (Ds3GetJob) job;
-                        if (ds3GetJob.getJobId() != null) {
-                            jobId = ds3GetJob.getJobId().toString();
-                            ds3Client = ds3GetJob.getDs3Client();
-                        }
-                        LOG.info("Cancelled job:{} ", ds3GetJob.getJobId());
-                    } else if (job instanceof RecoverInterruptedJob) {
-                        final RecoverInterruptedJob recoverInterruptedJob = (RecoverInterruptedJob) job;
-                        jobId = recoverInterruptedJob.getUuid().toString();
-                        ds3Client = recoverInterruptedJob.getDs3Client();
-                        LOG.info("Cancelled job:{} ", recoverInterruptedJob.getUuid());
-                    }
+                    final String jobId = job.getJobId().toString();
+                    final Ds3Client ds3Client = job.getDs3Client();
+                    LOG.info("Cancelled job:{} ", jobId);
+
                     final AtomicDouble progress = new AtomicDouble();
                     Platform.runLater(() -> {
                         progress.set(job.getProgress());
@@ -175,9 +163,9 @@ public class ShutdownServiceImpl implements ShutdownService {
                         ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
-                            .getEndpoint(), null);
-                } catch (final Exception e1) {
-                    LOG.error("Failed to cancel job", e1);
+                            .getEndpoint(), null, null);
+                } catch (final InterruptedException  | IOException e) {
+                    LOG.error("Failed to cancel job", e);
                 }
             });
             return null;

@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,7 +10,7 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.util;
@@ -22,12 +22,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class CheckNetwork {
     private static final Logger LOG = LoggerFactory.getLogger(CheckNetwork.class);
+    private static final Pattern REPLACE = Pattern.compile(Constants.HTTPS_PREFIX, Pattern.LITERAL);
 
     /**
      * Tests to see if the non-secure data path port is reachable
+     *
      * @return true if the endpoint is reachable, false otherwise
      */
     public static boolean isReachable(final Ds3Client client) {
@@ -43,21 +47,16 @@ public final class CheckNetwork {
         }
     }
 
-    private final static String HTTPS_PREFIX = "https";
-    private final static String HTTP_PREFIX = "http";
-
     /**
      * Formats an URL string so that it always starts with 'http'
      */
-    static String formatUrl(final String endpoint) {
-        if (endpoint.startsWith(HTTPS_PREFIX)) {
-            return endpoint.replace(HTTPS_PREFIX, HTTP_PREFIX);
-        }
-
-        if (endpoint.startsWith(HTTP_PREFIX)) {
+    public static String formatUrl(final String endpoint) {
+        if (endpoint.startsWith(Constants.HTTPS_PREFIX)) {
+            return REPLACE.matcher(endpoint).replaceAll(Matcher.quoteReplacement(Constants.HTTP_PREFIX));
+        } else if (endpoint.startsWith(Constants.HTTP_PREFIX)) {
             return endpoint;
+        } else {
+            return "http://" + endpoint;
         }
-
-        return "http://" + endpoint;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,16 +10,19 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.services.jobinterruption;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 
 public class FilesAndFolderMap {
 
@@ -31,7 +34,7 @@ public class FilesAndFolderMap {
     private String type;
     @JsonProperty("date")
     private String date;
-    @JsonProperty("nonAdjacent")
+    @JsonIgnoreProperties("nonAdjacent")
     private boolean nonAdjacent;
     @JsonProperty("targetLocation")
     private String targetLocation;
@@ -41,8 +44,14 @@ public class FilesAndFolderMap {
     private String bucket;
 
     @JsonCreator
-    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files, @JsonProperty("folders") final Map<String, Path> folders, @JsonProperty("type") final String type, @JsonProperty("date") final String date, @JsonProperty("nonAdjecent")
-    final boolean nonAdjacent, @JsonProperty("targetLocation") final String targetLocation, @JsonProperty("totalJobSize") final long totalJobSize, @JsonProperty("bucket") final String bucket) {
+    public FilesAndFolderMap(@JsonProperty("files") final Map<String, Path> files,
+                             @JsonProperty("folders") final Map<String, Path> folders,
+                             @JsonProperty("type") final String type,
+                             @JsonProperty("date") final String date,
+                             @JsonProperty("nonAdjacent") final boolean nonAdjacent,
+                             @JsonProperty("targetLocation") final String targetLocation,
+                             @JsonProperty("totalJobSize") final long totalJobSize,
+                             @JsonProperty("bucket") final String bucket) {
         this.files = files;
         this.folders = folders;
         this.type = type;
@@ -67,10 +76,6 @@ public class FilesAndFolderMap {
 
     public void setTotalJobSize(final long totalJobSize) {
         this.totalJobSize = totalJobSize;
-    }
-
-    public boolean isNonAdjacent() {
-        return nonAdjacent;
     }
 
     public void setNonAdjacent(final boolean nonAdjacent) {
@@ -115,6 +120,10 @@ public class FilesAndFolderMap {
 
     public void setType(final String type) {
         this.type = type;
+    }
+
+    public static FilesAndFolderMap buildFromEndpoint(final EndpointInfo endpointInfo, final UUID uuid) {
+        return endpointInfo.getJobIdAndFilesFoldersMap().get(uuid.toString());
     }
 
 }

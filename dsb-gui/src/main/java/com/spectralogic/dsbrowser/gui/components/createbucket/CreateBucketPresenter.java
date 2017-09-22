@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,33 +10,33 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
-import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.PutBucketSpectraS3Response;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
-import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
 
-    private final Alert ALERT = new Alert(Alert.AlertType.INFORMATION);
+    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TextField bucketNameField;
@@ -64,45 +64,52 @@ public class CreateBucketPresenter implements Initializable {
 
     private final Workers workers;
     private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
-    public CreateBucketPresenter(final Workers workers, final ResourceBundle resourceBundle, final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+    public CreateBucketPresenter(final Workers workers,
+                                 final ResourceBundle resourceBundle,
+                                 final Ds3Common ds3Common,
+                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+                                 final DateTimeUtils dateTimeUtils,
+                                 final LoggingService loggingService) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.loggingService = loggingService;
     }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        LOG.info("Initializing Create Bucket form");
+        try {
+            LOG.info("Initializing Create Bucket form");
+            initGUIElements();
 
-        ALERT.setTitle("Error while creating bucket");
-
-        final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-        stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-        ALERT.setHeaderText(null);
-
-        initGUIElements();
-
-        //noinspection unchecked
-        dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream().map(value -> value.getDataPolicy()).collect(Collectors.toList()));
-
-        bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
-                createBucketButton.setDisable(false);
-            } else {
-                createBucketButton.setDisable(true);
-            }
-        });
-
-        dataPolicyCombo.setOnAction(event -> {
-            if (!bucketNameField.textProperty().getValue().isEmpty() && ((String) dataPolicyCombo.getValue()) != null) {
-                createBucketButton.setDisable(false);
-            } else {
-                createBucketButton.setDisable(true);
-            }
-        });
+            //noinspection unchecked
+            dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream()
+                    .map(CreateBucketModel::getDataPolicy).collect(Collectors.toList()));
+            bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
+                    createBucketButton.setDisable(false);
+                } else {
+                    createBucketButton.setDisable(true);
+                }
+            });
+            dataPolicyCombo.setOnAction(event -> {
+                if (!bucketNameField.textProperty().getValue().isEmpty() && dataPolicyCombo.getValue() != null) {
+                    createBucketButton.setDisable(false);
+                } else {
+                    createBucketButton.setDisable(true);
+                }
+            });
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the CreateBucketPresenter", t);
+        }
     }
 
     private void initGUIElements() {
@@ -115,34 +122,43 @@ public class CreateBucketPresenter implements Initializable {
      */
     public void createBucket() {
         LOG.info("Create Bucket called");
+        try {
+            final Optional<CreateBucketModel> first = createBucketWithDataPoliciesModel.getDataPolicies().stream()
+                    .filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst();
 
-        final Ds3Task task = new Ds3Task(createBucketWithDataPoliciesModel.getSession().getClient()) {
-            @Override
-            protected Object call() throws Exception {
-                try {
-                    final CreateBucketModel dataPolicy = createBucketWithDataPoliciesModel.getDataPolicies().stream().filter(i -> i.getDataPolicy().equals(dataPolicyCombo.getValue())).findFirst().get();
-                    final PutBucketSpectraS3Response response = getClient().putBucketSpectraS3(new PutBucketSpectraS3Request(bucketNameField.getText().trim()).withDataPolicyId(dataPolicy.getId()));
+            if (first.isPresent()) {
+                final CreateBucketModel dataPolicy = first.get();
+
+                final CreateBucketTask createBucketTask = new CreateBucketTask(dataPolicy,
+                        createBucketWithDataPoliciesModel.getSession().getClient(),
+                        bucketNameField.getText().trim(),
+                        resourceBundle,
+                        loggingService);
+                workers.execute(createBucketTask);
+                createBucketTask.setOnSucceeded(event -> {
+                    LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
+                    loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
-                      //  ds3PanelPresenter.disableSearch(false);
-                        //deepStorageBrowserPresenter.logText("Create bucket status code: " + response.getResponse().getStatusCode(), LogType.SUCCESS);
-                        deepStorageBrowserPresenter.logText("Bucket is created.", LogType.SUCCESS);
+                        ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
+                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                        closeDialog();
                     });
-                    return response;
-                } catch (final IOException e) {
-                    LOG.error("Failed to create bucket" + e);
-                    Platform.runLater(() -> {
-                        deepStorageBrowserPresenter.logText("Failed to create bucket" + e.toString(), LogType.ERROR);
-                        ALERT.setContentText("Failed to create bucket. Check Logs");
-                        ALERT.showAndWait();
-                    });
-                    return null;
-                }
+                });
+                createBucketTask.setOnFailed(event -> {
+                    alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
+                });
+            } else {
+                LOG.info("Data policy not found");
+                loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
+                alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
             }
-        };
-        workers.execute(task);
-        task.setOnSucceeded(event -> Platform.runLater(() -> {
-            closeDialog();
-        }));
+
+
+        } catch (final Exception e) {
+            LOG.error("Failed to create bucket", e);
+            loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
+            alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
+        }
     }
 
     public void cancelCreateBucket() {

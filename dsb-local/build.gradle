@@ -1,4 +1,0 @@
-dependencies {
-    compile project(':dsb-api')
-    compile project(':dsb-util')
-}

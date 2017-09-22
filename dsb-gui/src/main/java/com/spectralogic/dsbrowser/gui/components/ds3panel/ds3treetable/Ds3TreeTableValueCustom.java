@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,10 +10,13 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
+
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 import java.io.Serializable;
 
@@ -38,6 +41,8 @@ public class Ds3TreeTableValueCustom implements Serializable {
         this.owner = owner;
         this.searchOn = searchOn;
     }
+
+    public boolean isContainer() { return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File); }
 
     public boolean isSearchOn() {
         return searchOn;
@@ -84,16 +89,17 @@ public class Ds3TreeTableValueCustom implements Serializable {
             case Directory:
                 return getFullName();
             case Bucket:
-                return "";
+                return StringConstants.EMPTY_STRING;
             default:
                 return getParentDir(this.getFullName());
         }
     }
 
+
     private String getParentDir(final String fullName) {
         final int index = fullName.lastIndexOf('/');
         if (index < 0) {
-            return "";
+            return StringConstants.EMPTY_STRING;
         }
         return fullName.substring(0, index);
     }

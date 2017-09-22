@@ -1,5 +1,5 @@
 /*
- * ****************************************************************************
+ * ******************************************************************************
  *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -10,39 +10,44 @@
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
  *    specific language governing permissions and limitations under the License.
- *  ****************************************************************************
+ * ******************************************************************************
  */
 
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
-import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.ds3client.commands.GetServiceRequest;
-import com.spectralogic.ds3client.commands.GetServiceResponse;
-import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetSystemInformationSpectraS3Response;
-import com.spectralogic.ds3client.models.common.Credentials;
-import com.spectralogic.ds3client.networking.FailedRequestException;
-import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.Alert;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
 
 public class NewSessionModel {
-    private final Alert ALERT = new Alert(Alert.AlertType.ERROR);
+
     private final StringProperty sessionName = new SimpleStringProperty();
     private final StringProperty endpoint = new SimpleStringProperty();
     private final StringProperty accessKey = new SimpleStringProperty();
     private final StringProperty secretKey = new SimpleStringProperty();
     private final StringProperty portNo = new SimpleStringProperty();
     private final StringProperty proxyServer = new SimpleStringProperty();
+    private final BooleanProperty defaultSession = new SimpleBooleanProperty();
+    private final BooleanProperty useSSL = new SimpleBooleanProperty();
+
+    public Boolean getDefaultSession() {
+        return defaultSession.get();
+    }
+
+    public Boolean isUseSSL() { return useSSL.get(); }
+
+    public void setDefaultSession(final Boolean defaultSession) {
+        this.defaultSession.set(defaultSession);
+    }
+
+    public void setUseSSL(final Boolean useSSL) { this.useSSL.setValue(useSSL);}
+
+    public BooleanProperty defaultSessionProperty() {
+        return defaultSession;
+    }
+
+    public BooleanProperty useSSLProperty() { return useSSL; }
 
     public String getEndpoint() {
         return endpoint.get();
@@ -96,12 +101,12 @@ public class NewSessionModel {
         this.portNo.set(portNo);
     }
 
-    public StringProperty portNoProperty() {
-        return portNo;
-    }
-
     public String getPortNo() {
         return portNo.get();
+    }
+
+    public StringProperty portNoProperty() {
+        return portNo;
     }
 
     public String getProxyServer() {
@@ -116,66 +121,18 @@ public class NewSessionModel {
         return proxyServer;
     }
 
-    public Session toSession() {
+    public String debug() {
+        String s = "";
+        s += "Session Name: " + sessionName.get() + "\n";
+        s += "Endpoint: " + endpoint.get() + "\n";
+        s += "Access Key: " + accessKey.get() + "\n";
+        s += "Secret Key: " + secretKey.get() + "\n";
+        s += "Port: " + portNo.get() + "\n";
+        s += "Proxy: " + proxyServer.get() + "\n";
+        s += "Default: " + defaultSession.get() + "\n";
+        s += "SSL: " + useSSL.get() + "\n";
 
-        ALERT.setHeaderText(null);
-        Ds3Client client = null;
-        try {
-
-            final Stage stage = (Stage) ALERT.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEPSTORAGEBROWSER));
-
-            if (this.getProxyServer() != null && this.getProxyServer().equals("")) {
-                this.setProxyServer(null);
-            }
-            client = Ds3ClientBuilder
-                    .create(this.getEndpoint() + ":" + this.getPortNo(),
-                            new Credentials(this.getAccessKey(),
-                                    this.getSecretKey()))
-                    .withHttps(false).withProxy(this.getProxyServer())
-                    .build();
-
-            final GetSystemInformationSpectraS3Response sysreponse = client.getSystemInformationSpectraS3(new GetSystemInformationSpectraS3Request());
-            final GetServiceResponse response = client.getService(new GetServiceRequest());
-            return new Session(this.getSessionName(), this.getEndpoint(), this.getPortNo(), this.getProxyServer(), client);
-
-
-        } catch (final UnknownHostException e) {
-            ALERT.setTitle("Invalid Endpoint");
-            ALERT.setContentText("Invalid Endpoint Server Name or IP Address");
-            ALERT.showAndWait();
-
-        } catch (final FailedRequestUsingMgmtPortException e) {
-            ALERT.setContentText("Attempted data access on management port -- check endpoint");
-            ALERT.showAndWait();
-        } catch (final FailedRequestException e) {
-            if (e.getStatusCode() == 403) {
-                if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
-                    ALERT.setTitle("Failed To authenticate session");
-                    ALERT.setContentText("Failed To authenticate session : Client's clock is not synchronized with server's clock");
-                    ALERT.showAndWait();
-                }
-                ALERT.setTitle("Invalid ID and KEY");
-                ALERT.setContentText("Invalid Access ID or Secret Key");
-                ALERT.showAndWait();
-            } else {
-                ALERT.setTitle("Unexpected Status");
-                ALERT.setContentText("BlackPearl return an unexpected status code we did not expect");
-                ALERT.showAndWait();
-
-            }
-        } catch (final Exception e) {
-
-            if (e instanceof IOException) {
-                ALERT.setTitle("Networking Error");
-                ALERT.setContentText("Encountered a networking error");
-                ALERT.showAndWait();
-            } else if (e instanceof RuntimeException) {
-                ALERT.setTitle("Error");
-                ALERT.setContentText("Authentication error. Please check your credentials");
-                ALERT.showAndWait();
-            }
-        }
-        return null;
+        return s;
     }
+
 }
