@@ -518,7 +518,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             putJob.setOnFailed(failEvent -> {
                 final UUID jobId = putJob.getJobId();
                 if(jobId == null) {
-                    LOG.info("BULK_PUT job Failed wihout receving an ID");
+                    LOG.info("BULK_PUT job Failed without receiving an ID");
                 } else {
                     LOG.info("BULK_PUT job {} Failed.", jobId);
                     refreshBlackPearlSideItem(remoteDestination);
