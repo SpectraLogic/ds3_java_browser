@@ -44,7 +44,6 @@ import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.reactfx.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
