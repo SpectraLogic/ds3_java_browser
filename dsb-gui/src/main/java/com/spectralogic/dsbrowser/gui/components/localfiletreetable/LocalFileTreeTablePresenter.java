@@ -516,8 +516,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 refreshBlackPearlSideItem(remoteDestination);
             });
             putJob.setOnFailed(failEvent -> {
-                LOG.info("BULK_PUT job {} Failed.", putJob.getJobId());
-                refreshBlackPearlSideItem(remoteDestination);
+                final UUID jobId = putJob.getJobId();
+                if(jobId == null) {
+                    LOG.info("BULK_PUT job Failed wihout receving an ID");
+                } else {
+                    LOG.info("BULK_PUT job {} Failed.", putJob.getJobId());
+                    refreshBlackPearlSideItem(remoteDestination);
+                }
             });
             putJob.setOnCancelled(cancelEvent -> {
                 final UUID jobId = putJob.getJobId();
@@ -527,7 +532,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     } catch (final IOException e) {
                         LOG.error("Failed to cancel job", e);
                     }
-                    LOG.info("BULK_PUT job {} Cancelled.", putJob.getJobId());
+                    LOG.info("BULK_PUT job {} Cancelled.", jobId);
                     loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
 
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
