@@ -507,48 +507,43 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final String priority,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
-        try {
-            final Ds3Client client = session.getClient();
-            final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, jobInterruptionStore, priority,
-                    settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
-                    resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
-            putJob.setOnSucceeded(event -> {
-                LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
+        final Ds3Client client = session.getClient();
+        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, jobInterruptionStore, priority,
+                settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
+                resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
+        putJob.setOnSucceeded(event -> {
+            LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
+            refreshBlackPearlSideItem(remoteDestination);
+        });
+        putJob.setOnFailed(failEvent -> {
+            final UUID jobId = putJob.getJobId();
+            if (jobId == null) {
+                LOG.info("BULK_PUT job Failed without receiving an ID");
+            } else {
+                LOG.info("BULK_PUT job {} Failed.", jobId);
                 refreshBlackPearlSideItem(remoteDestination);
-            });
-            putJob.setOnFailed(failEvent -> {
-                final UUID jobId = putJob.getJobId();
-                if (jobId == null) {
-                    LOG.info("BULK_PUT job Failed without receiving an ID");
-                } else {
-                    LOG.info("BULK_PUT job {} Failed.", jobId);
-                    refreshBlackPearlSideItem(remoteDestination);
+            }
+        });
+        putJob.setOnCancelled(cancelEvent -> {
+            final UUID jobId = putJob.getJobId();
+            if (jobId != null) {
+                try {
+                    client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                } catch (final IOException e) {
+                    LOG.error("Failed to cancel job", e);
                 }
-            });
-            putJob.setOnCancelled(cancelEvent -> {
-                final UUID jobId = putJob.getJobId();
-                if (jobId != null) {
-                    try {
-                        client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                    } catch (final IOException e) {
-                        LOG.error("Failed to cancel job", e);
-                    }
-                    LOG.info("BULK_PUT job {} Cancelled.", jobId);
-                    loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
+                LOG.info("BULK_PUT job {} Cancelled.", jobId);
+                loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
 
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                            client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
+                        client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
 
-                    refreshBlackPearlSideItem(remoteDestination);
-                } else {
-                    LOG.error("Failed to cancel job with invalid ID");
-                }
-            });
-            jobWorkers.execute(putJob);
-        } catch (final IOException e) {
-            loggingService.logMessage("Unable to get Ds3Client", LogType.ERROR);
-            LOG.error("Unable to get Ds3Client", e);
-        }
+                refreshBlackPearlSideItem(remoteDestination);
+            } else {
+                LOG.error("Failed to cancel job with invalid ID");
+            }
+        });
+        jobWorkers.execute(putJob);
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
