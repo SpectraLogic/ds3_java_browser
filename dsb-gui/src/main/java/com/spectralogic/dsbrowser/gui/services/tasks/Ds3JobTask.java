@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
 public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
-    private static final LazyAlert alert = new LazyAlert("Error");
+    private static final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
 
     protected ResourceBundle resourceBundle;
     protected Ds3Client ds3Client;
@@ -153,7 +154,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
         ErrorUtils.dumpTheStack(msg);
         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-        alert.showAlert(msg);
+        errorAlert.showAlert(msg, "Error");
     }
 }
 

@@ -45,7 +45,7 @@ public class SettingPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(SettingPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert alert = new LazyAlert(Alert.AlertType.INFORMATION);
 
     @FXML
     private ComboBox<String> getJobPriority, putJobPriority;
@@ -168,7 +168,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.showAlert(resourceBundle.getString("filePropertiesSettingsUpdated"));
+            alert.showAlert(resourceBundle.getString("filePropertiesSettingsUpdated"), "Information");
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -178,14 +178,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.showAlert(resourceBundle.getString("performanceSettingsUpdated"));
+        alert.showAlert(resourceBundle.getString("performanceSettingsUpdated"), "Information");
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.showAlert(resourceBundle.getString("loggingSettingsUpdated"));
+        alert.showAlert(resourceBundle.getString("loggingSettingsUpdated"), "Information");
     }
 
     public void saveJobSettings() {
@@ -194,7 +194,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.showAlert(resourceBundle.getString("jobsSettingsUpdated"));
+            alert.showAlert(resourceBundle.getString("jobsSettingsUpdated"), "Information");
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }

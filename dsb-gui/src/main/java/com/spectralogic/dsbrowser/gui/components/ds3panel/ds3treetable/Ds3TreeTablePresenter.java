@@ -70,7 +70,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert warnAlert = new LazyAlert(Alert.AlertType.WARNING);
 
     private final List<String> rowNameList = new ArrayList<>();
 
@@ -447,7 +447,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             });
             jobWorkers.execute(putJob);
         } else {
-            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            warnAlert.showAlert(resourceBundle.getString("operationNotAllowedHere"), "Warning");
         }
         event.consume();
     }

@@ -71,7 +71,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
+    private final LazyAlert infoAlert = new LazyAlert(Alert.AlertType.INFORMATION);
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
@@ -341,7 +342,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.showAlert(resourceBundle.getString("multipleDestError"));
+            errorAlert.showAlert(resourceBundle.getString("tipleDestError"), "Error");
             return null;
         }
 
@@ -351,17 +352,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void transferToBlackPearl() {
         if (ds3Common.getCurrentSession() == null) {
             LOG.error("No valid session to initiate BULK_PUT");
-            alert.showAlert(resourceBundle.getString("noSession"));
+            errorAlert.showAlert(resourceBundle.getString("noSession"), "Error");
             return;
         }
         final Session session = ds3Common.getCurrentSession();
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.showAlert(resourceBundle.getString("selectDestination"));
+            infoAlert.showAlert(resourceBundle.getString("selectDestination"), "Information");
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.showAlert(resourceBundle.getString("operationNotAllowed"));
+            infoAlert.showAlert(resourceBundle.getString("operationNotAllowed"), "Information");
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -375,7 +376,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.showAlert(resourceBundle.getString("fileSelect"));
+            infoAlert.showAlert(resourceBundle.getString("fileSelect"), "Information");
             return;
         }
 

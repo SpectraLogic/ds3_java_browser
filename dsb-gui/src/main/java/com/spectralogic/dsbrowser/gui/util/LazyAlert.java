@@ -27,20 +27,18 @@ import javafx.stage.Stage;
  */
 public class LazyAlert {
 
-    private final String title;
     private final Alert.AlertType alertType;
     private Alert alert = null;
 
-    public LazyAlert(final String title, final Alert.AlertType alertType) {
-        this.title = title;
+    public LazyAlert(final Alert.AlertType alertType) {
         this.alertType = alertType;
     }
 
-    public LazyAlert(final String title) {
-        this(title, Alert.AlertType.INFORMATION);
+    public LazyAlert() {
+        this(Alert.AlertType.INFORMATION);
     }
 
-    private void showAlertInternal(final String message) {
+    private void showAlertInternal(final String message, final String title) {
         if (alert == null) {
             alert = new Alert(alertType);
             alert.setTitle(title);
@@ -54,11 +52,12 @@ public class LazyAlert {
         alert.showAndWait();
     }
 
-    public void showAlert(final String message) {
+    public void showAlert(final String message, final String title) {
         if (Platform.isFxApplicationThread()) {
-            showAlertInternal(message);
+            showAlertInternal(message, title);
         } else {
-            Platform.runLater(() -> showAlertInternal(message));
+            Platform.runLater(() -> showAlertInternal(message, title));
         }
     }
+
 }

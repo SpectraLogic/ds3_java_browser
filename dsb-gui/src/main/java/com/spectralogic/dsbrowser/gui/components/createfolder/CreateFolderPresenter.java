@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -42,7 +43,7 @@ public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert alert = new LazyAlert(Alert.AlertType.ERROR);
 
     @FXML
     private TextField folderNameField;
@@ -110,7 +111,7 @@ public class CreateFolderPresenter implements Initializable {
         createFolderTask.setOnCancelled(event -> this.closeDialog());
         createFolderTask.setOnFailed(event -> {
             this.closeDialog();
-            alert.showAlert(resourceBundle.getString("createFolderErrLogs"));
+            alert.showAlert(resourceBundle.getString("createFolderErrLogs"), "Error");
         });
         workers.execute(createFolderTask);
     }

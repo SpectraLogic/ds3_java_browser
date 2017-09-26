@@ -47,7 +47,8 @@ public class NewSessionPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(NewSessionPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert infoAlert = new LazyAlert(Alert.AlertType.INFORMATION);
+    private final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
 
     private final NewSessionModel model = new NewSessionModel();
 
@@ -170,7 +171,7 @@ public class NewSessionPresenter implements Initializable {
                         final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), resourceBundle, buildInfoService);
                         sessionValidates(connection);
                     } else {
-                        alert.showAlert(resourceBundle.getString("alreadyExistSession"));
+                        infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
                     }
                 }
             });
@@ -188,20 +189,20 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            alert.showAlert(resourceBundle.getString("selectToDeleteSession"));
+            infoAlert.showAlert(resourceBundle.getString("selectToDeleteSession"), "Information");
         } else {
             if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
                 ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
-                        alert.showAlert(resourceBundle.getString("cannotdeletesession"));
+                        infoAlert.showAlert(resourceBundle.getString("cannotdeletesession"), "Information");
                     } else {
                         savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                        alert.showAlert(resourceBundle.getString("sessionDeletedSuccess"));
+                        infoAlert.showAlert(resourceBundle.getString("sessionDeletedSuccess"), "Information");
                     }
                 });
             } else {
                 savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                alert.showAlert(resourceBundle.getString("sessionDeletedSuccess"));
+                infoAlert.showAlert(resourceBundle.getString("sessionDeletedSuccess"), "Information");
             }
         }
     }
@@ -233,7 +234,7 @@ public class NewSessionPresenter implements Initializable {
                 sessionValidates(session);
             }
         } else {
-            alert.showAlert(resourceBundle.getString("alreadyExistSession"));
+            infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
         }
     }
 
@@ -273,23 +274,19 @@ public class NewSessionPresenter implements Initializable {
             }
             final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
             if (session != null) {
-                final int previousSize = savedSessionStore.getSessions().size();
                 final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
-                    alert.showAlert(resourceBundle.getString("noNewChanges"));
+                    infoAlert.showAlert(resourceBundle.getString("noNewChanges"), "Information");
                 } else if (i == -2) {
-                    alert.showAlert(resourceBundle.getString("alreadyExistSession"));
+                    infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
                 } else {
                     savedSessions.getSelectionModel().select(i);
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                        infoAlert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"), "Information");
                     } catch (final IOException e) {
                         LOG.error("Failed to save session: ", e);
-                    }
-                    if (i <= previousSize) {
-                        alert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"));
-                    } else {
-                        alert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"));
+                        errorAlert.showAlert(resourceBundle.getString("sessionNotUpdatedSuccessfully"), "Error");
                     }
                 }
             }

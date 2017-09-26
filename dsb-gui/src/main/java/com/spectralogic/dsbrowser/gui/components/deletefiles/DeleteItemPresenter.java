@@ -51,7 +51,7 @@ public class DeleteItemPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteItemPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
+    private final LazyAlert alert = new LazyAlert(Alert.AlertType.ERROR);
 
     @FXML
     private TextField deleteField;
@@ -177,6 +177,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.showAlert(alertMessage);
+        alert.showAlert(alertMessage, "Error");
     }
 }
