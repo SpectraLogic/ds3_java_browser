@@ -74,11 +74,9 @@ public class AboutPresenter implements Initializable {
             title.setText(resourceBundle.getString("title"));
             buildVersion.setText(buildInfoService.getBuildVersion());
             buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
-
-            dsbReleasesLink.setOnAction(tryToOpenInBrowser(Constants.DSB_RELEASES_URI));
-
+            dsbReleasesLink.setOnAction(e -> tryToOpenInBrowser(Constants.DSB_RELEASES_URI));
             copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
-            apacheLicenseLink.setOnAction(tryToOpenInBrowser(Constants.APACHE_URI));
+            apacheLicenseLink.setOnAction(e -> tryToOpenInBrowser(Constants.APACHE_URI));
             copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
         } catch (final Throwable t) {
             LOG.error("Encountered an error initializing the AboutPresenter", t);
@@ -86,26 +84,21 @@ public class AboutPresenter implements Initializable {
     }
 
     @NotNull
-    private static EventHandler<ActionEvent> tryToOpenInBrowser(final URI uri) {
-        final Optional<Desktop> desktop;
+    private static void tryToOpenInBrowser(final URI uri) {
         if (Desktop.isDesktopSupported()) {
-            desktop = Optional.of(Desktop.getDesktop());
-        } else {
-            desktop = Optional.empty();
-        }
-        return event -> {
-            desktop.ifPresent(d -> {
-                if (d.isSupported(Desktop.Action.BROWSE)) {
-                    try {
-                        d.browse(uri);
-                    } catch (final IOException e) {
-                        LOG.error("Unable to open link", e);
-                    }
-                } else {
-                    LOG.info("OS does not support sending links to browser");
+            final Desktop desktop = Desktop.getDesktop();
+            if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(uri);
+                } catch (final IOException e) {
+                    LOG.error("Unable to open link", e);
                 }
-            });
-        };
+            } else {
+                LOG.info("OS does not support sending links to browser");
+            }
+        } else {
+            LOG.info("OS does not support Desktop");
+        }
     }
 
     public void closeDialog() {
