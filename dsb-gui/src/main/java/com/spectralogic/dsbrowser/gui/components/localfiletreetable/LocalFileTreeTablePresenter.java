@@ -507,7 +507,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final String priority,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
-        try (final Ds3Client client = session.getClient()) {
+        try {
+            final Ds3Client client = session.getClient();
             final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, jobInterruptionStore, priority,
                     settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                     resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
@@ -517,7 +518,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             });
             putJob.setOnFailed(failEvent -> {
                 final UUID jobId = putJob.getJobId();
-                if(jobId == null) {
+                if (jobId == null) {
                     LOG.info("BULK_PUT job Failed without receiving an ID");
                 } else {
                     LOG.info("BULK_PUT job {} Failed.", jobId);
