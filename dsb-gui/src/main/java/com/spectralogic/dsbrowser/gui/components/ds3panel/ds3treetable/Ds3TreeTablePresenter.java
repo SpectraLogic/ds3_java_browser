@@ -393,63 +393,68 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void handleDropEvent(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        LOG.info("Got drop event");
-        final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
-        if (null != selectedItem) {
-            if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
-                LOG.info("Expanding closed row");
-                selectedItem.setExpanded(true);
-            }
-        }
-        if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
-            final Dragboard db = event.getDragboard();
-            LOG.info("Drop event contains files");
-            final Ds3TreeTableValue value = selectedItem.getValue();
-            final String bucket = value.getBucketName();
-            final String targetDir = value.getDirectoryName();
-            LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-            final ImmutableList<Pair<String, Path>> pairs = ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
-                    .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
-                    .collect(GuavaCollectors.immutableList());
-            if (pairs.isEmpty()) {
-                LOG.info("Drag contained no files");
-                Ds3PanelService.refresh(selectedItem);
-                return;
-            }
-            final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
-            putJob.setOnSucceeded(e -> {
-                LOG.info("Succeed");
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-
-            });
-            putJob.setOnFailed(e -> {
-                LOG.info("setOnFailed");
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-            });
-            putJob.setOnCancelled(e -> {
-                LOG.info("setOnCancelled");
-                if (putJob.getJobId() != null) {
-                    try {
-                        session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    } catch (final IOException e1) {
-                        LOG.error("Failed to cancel job", e1);
-                    }
+        try {
+            LOG.info("Got drop event");
+            final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
+            if (null != selectedItem) {
+                if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
+                    LOG.info("Expanding closed row");
+                    selectedItem.setExpanded(true);
                 }
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-            });
-            jobWorkers.execute(putJob);
-        } else {
-            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            }
+            if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
+                final Dragboard db = event.getDragboard();
+                LOG.info("Drop event contains files");
+                final Ds3TreeTableValue value = selectedItem.getValue();
+                final String bucket = value.getBucketName();
+                final String targetDir = value.getDirectoryName();
+                LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
+                final ImmutableList<Pair<String, Path>> pairs = ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
+                        .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
+                        .collect(GuavaCollectors.immutableList());
+                if (pairs.isEmpty()) {
+                    LOG.info("Drag contained no files");
+                    Ds3PanelService.refresh(selectedItem);
+                    return;
+                }
+                final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
+                putJob.setOnSucceeded(e -> {
+                    LOG.info("Succeed");
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+
+                });
+                putJob.setOnFailed(e -> {
+                    LOG.info("setOnFailed");
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                });
+                putJob.setOnCancelled(e -> {
+                    LOG.info("setOnCancelled");
+                    if (putJob.getJobId() != null) {
+                        try {
+                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                        } catch (final IOException e1) {
+                            LOG.error("Failed to cancel job", e1);
+                        }
+                    }
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                });
+                jobWorkers.execute(putJob);
+            } else {
+                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            }
+            event.consume();
+        } catch (final Throwable t) {
+            loggingService.logMessage("Could not handle drag event", LogType.ERROR);
+            LOG.error("Drag Event callback failed", t);
         }
-        event.consume();
     }
 
     /**
