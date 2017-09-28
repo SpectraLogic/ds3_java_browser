@@ -55,7 +55,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -81,16 +80,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
-    private Label ds3PathIndicator;
-
-    @FXML
-    private Label infoLabel;
-
-    @FXML
-    private Label capacityLabel;
-
-    @FXML
-    private Label paneItems;
+    private Label ds3PathIndicator, infoLabel, capacityLabel, paneItemsLabel, createNewSessionLabel;
 
     @FXML
     private Tooltip ds3PathIndicatorTooltip;
@@ -125,7 +115,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final SettingsStore settingsStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final FileTreeTableProvider fileTreeTableProvider;
-    private final DataFormat dataFormat;
     private final Ds3Common ds3Common;
     private final DateTimeUtils dateTimeUtils;
     private final SavedSessionStore savedSessionStore;
@@ -143,7 +132,6 @@ public class Ds3PanelPresenter implements Initializable {
             final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final FileTreeTableProvider fileTreeTableProvider,
-            final DataFormat dataFormat,
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
@@ -157,7 +145,6 @@ public class Ds3PanelPresenter implements Initializable {
         this.settingsStore = settingsStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.fileTreeTableProvider = fileTreeTableProvider;
-        this.dataFormat = dataFormat;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
@@ -256,53 +243,52 @@ public class Ds3PanelPresenter implements Initializable {
         });
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
-                    try {
-                        if (newTab.getContent() instanceof VBox) {
-                            final VBox vbox = (VBox) newTab.getContent();
+            try {
+                if (newTab.getContent() instanceof VBox) {
+                    final VBox vbox = (VBox) newTab.getContent();
 
-                            final Optional<Node> first = vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst();
+                    final Optional<Node> first = vbox.getChildren().stream().filter(i -> i instanceof TreeTableView).findFirst();
 
-                            if (first.isPresent()) {
-                                final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) first.get();
-                                final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                                        .stream().collect(GuavaCollectors.immutableList());
-                                ds3Common.setDs3TreeTableView(ds3TreeTableView);
-                                ds3Common.setCurrentTabPane(ds3SessionTabPane);
+                    if (first.isPresent()) {
+                        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = (TreeTableView<Ds3TreeTableValue>) first.get();
+                        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
+                                .stream().collect(GuavaCollectors.immutableList());
+                        ds3Common.setDs3TreeTableView(ds3TreeTableView);
+                        ds3Common.setCurrentTabPane(ds3SessionTabPane);
 
-                                final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
-                                if (Guard.isNullOrEmpty(values)) {
-                                    setBlank(true);
-                                } else {
-                                    setBlank(false);
-                                    final Optional<TreeItem<Ds3TreeTableValue>> ds3TreeTableValueTreeItemElement = values.stream().findFirst();
-                                    if (ds3TreeTableValueTreeItemElement.isPresent()) {
-                                        final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = ds3TreeTableValueTreeItemElement.get();
-                                        final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
-                                        if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                                            ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                            ds3PathIndicatorTooltip.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                        } else {
-                                            ds3PathIndicator.setText(value.getBucketName());
-                                            ds3PathIndicatorTooltip.setText(value.getBucketName());
-                                        }
-                                        calculateFiles(ds3TreeTableView);
-                                    }
-                                }
-                                getPaneItems().setVisible(true);
-                                getPaneItems().setText(info);
-                            } else {
-                                LOG.info("TreeTableView is null");
-                            }
-                        } else {
-                            ds3Common.setCurrentSession(null);
+                        final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
+                        if (Guard.isNullOrEmpty(values)) {
                             setBlank(true);
-                            disableSearch(true);
+                        } else {
+                            setBlank(false);
+                            final Optional<TreeItem<Ds3TreeTableValue>> ds3TreeTableValueTreeItemElement = values.stream().findFirst();
+                            if (ds3TreeTableValueTreeItemElement.isPresent()) {
+                                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = ds3TreeTableValueTreeItemElement.get();
+                                final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
+                                if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
+                                    ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
+                                    ds3PathIndicatorTooltip.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
+                                } else {
+                                    ds3PathIndicator.setText(value.getBucketName());
+                                    ds3PathIndicatorTooltip.setText(value.getBucketName());
+                                }
+                                calculateFiles(ds3TreeTableView);
+                            }
                         }
-                    } catch (final Exception e) {
-                        LOG.error("Not able to parse:", e);
+                        getPaneItemsLabel().setVisible(true);
+                        getPaneItemsLabel().setText(info);
+                    } else {
+                        LOG.info("TreeTableView is null");
                     }
+                } else {
+                    ds3Common.setCurrentSession(null);
+                    setBlank(true);
+                    disableSearch(true);
                 }
-        );
+            } catch (final Throwable t) {
+                LOG.error("Not able to parse:", t);
+            }
+        });
 
         ds3SessionTabPane.getTabs().addListener((ListChangeListener<Tab>) c -> {
             if (c.next() && c.wasRemoved()) {
@@ -408,12 +394,12 @@ public class Ds3PanelPresenter implements Initializable {
         if (isSetBlank) {
             ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
             ds3PathIndicator.setTooltip(null);
-            paneItems.setVisible(false);
+            paneItemsLabel.setVisible(false);
             capacityLabel.setVisible(false);
             infoLabel.setVisible(false);
         } else {
             ds3PathIndicator.setTooltip(ds3PathIndicatorTooltip);
-            paneItems.setVisible(true);
+            paneItemsLabel.setVisible(true);
             capacityLabel.setVisible(true);
             infoLabel.setVisible(true);
             capacityLabel.setText(resourceBundle.getString("infoLabel"));
@@ -612,6 +598,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3NewFolderToolTip.setText(resourceBundle.getString("ds3NewFolderToolTip"));
         ds3NewBucketToolTip.setText(resourceBundle.getString("ds3NewBucketToolTip"));
         ds3DeleteButtonToolTip.setText(resourceBundle.getString("ds3DeleteButtonToolTip"));
+        ds3PanelSearch.setPromptText(resourceBundle.getString("ds3PanelSearchPrompt"));
         ds3PanelSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             final Image icon = (Guard.isStringNullOrEmpty(newValue)) ? LENS_ICON : CROSS_ICON;
             imageView.setImage(icon);
@@ -638,6 +625,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void initButtons() {
         newSessionButton.setText(resourceBundle.getString("newSessionButton"));
+        createNewSessionLabel.setText(resourceBundle.getString("createNewSession"));
         ds3TransferLeft.setText(resourceBundle.getString("ds3TransferLeft"));
         ds3TransferLeftToolTip.setText(resourceBundle.getString("ds3TransferLeftToolTip"));
         final Tooltip imageToolTip = new Tooltip(resourceBundle.getString("imageViewForTooltip"));
@@ -745,11 +733,13 @@ public class Ds3PanelPresenter implements Initializable {
         return infoLabel;
     }
 
-    public Label getPaneItems() {
-        return paneItems;
+    public Label getPaneItemsLabel() {
+        return paneItemsLabel;
     }
 
-
+    public Label getCreateNewSessionLabel() {
+        return createNewSessionLabel;
+    }
 }
 
 

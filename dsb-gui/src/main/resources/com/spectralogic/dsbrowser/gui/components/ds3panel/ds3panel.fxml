@@ -106,7 +106,7 @@
                             AnchorPane.topAnchor="0.0">
                     <children>
                         <TextField fx:id="ds3PanelSearch" disable="true" layoutX="4.0" layoutY="4.0" prefHeight="30.0"
-                                   prefWidth="200.0" promptText="Type object name to search.."
+                                   prefWidth="200.0"
                                    AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
                             <padding>
@@ -158,8 +158,7 @@
                                       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                       AnchorPane.topAnchor="0.0">
                                     <children>
-                                        <Label fx:id="createNewSessionLabel"
-                                               text="Create a New Session to Access a Black Pearl"/>
+                                        <Label fx:id="createNewSessionLabel"/>
                                         <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="newSessionButton" mnemonicParsing="false"
                                                 onAction="#newSessionDialog"/>
                                     </children>
@@ -172,7 +171,7 @@
         </TabPane>
         <HBox fx:id="lowerPanel" prefWidth="200" spacing="10">
             <children>
-                <Label fx:id="paneItems" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="199.0" visible="false"/>
+                <Label fx:id="paneItemsLabel" alignment="BOTTOM_LEFT" prefHeight="17.0" prefWidth="199.0" visible="false"/>
                 <Label fx:id="capacityLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="140.0"
                        visible="false"/>
                 <Label fx:id="infoLabel" alignment="BOTTOM_RIGHT" prefHeight="17.0" prefWidth="280.0" visible="false"/>
