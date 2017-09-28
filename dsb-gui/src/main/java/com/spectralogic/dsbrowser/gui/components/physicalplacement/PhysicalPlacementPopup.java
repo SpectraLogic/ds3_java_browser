@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 import com.spectralogic.ds3client.models.PhysicalPlacement;
+import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
@@ -31,7 +32,7 @@ public final class PhysicalPlacementPopup {
         final Stage popup = new Stage();
         popup.initModality(Modality.APPLICATION_MODAL);
         final Scene popupScene = new Scene(view.getView());
-        popup.getIcons().add(new Image(resourceBundle.getString("dsbIconPath")));
+        popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
         popup.setScene(popupScene);
         popup.setTitle(resourceBundle.getString("physicalPlacementLocation"));
         popup.setAlwaysOnTop(false);
