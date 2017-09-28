@@ -135,7 +135,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, leaf, workers,
                 dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
-        workers.execute(getBucketTask);
         getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
             if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
@@ -143,6 +142,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }));
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
         getBucketTask.setOnFailed(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
+        workers.execute(getBucketTask);
     }
 
     @Override

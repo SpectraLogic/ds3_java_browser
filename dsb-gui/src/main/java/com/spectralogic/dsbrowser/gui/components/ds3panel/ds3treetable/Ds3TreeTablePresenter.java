@@ -259,11 +259,11 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
         LOG.info("Getting buckets from {}", session.getEndpoint());
-        workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
         Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+        workers.execute(getServiceTask);
     }
 
     private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {

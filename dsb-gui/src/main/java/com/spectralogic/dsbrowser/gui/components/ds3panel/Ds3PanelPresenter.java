@@ -358,11 +358,11 @@ public class Ds3PanelPresenter implements Initializable {
 
                     final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
 
-                    workers.execute(jobPriorityTask);
                     jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
                         ModifyJobPriorityPopUp.show((ModifyJobPriorityModel) jobPriorityTask.getValue(), resourceBundle);
                     })));
+                    workers.execute(jobPriorityTask);
                 } else {
                     LOG.info("Job is not started yet");
                 }
@@ -501,7 +501,6 @@ public class Ds3PanelPresenter implements Initializable {
         final Ds3GetJob getJob = new Ds3GetJob(selectedItemsAtSourceLocationListCustom, localPath, session.getClient(),
                 priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                 jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, dateTimeUtils, loggingService);
-        jobWorkers.execute(getJob);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job {} succeeded.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
@@ -523,6 +522,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         }));
+        jobWorkers.execute(getJob);
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
@@ -680,7 +680,6 @@ public class Ds3PanelPresenter implements Initializable {
             }
             //start a new task for calculating
             itemsTask = new GetNoOfItemsTask(ds3Common, selectedItems);
-            workers.execute(itemsTask);
 
             itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
@@ -702,6 +701,7 @@ public class Ds3PanelPresenter implements Initializable {
                 }
 
             })));
+            workers.execute(itemsTask);
 
         } catch (final Exception e) {
             LOG.error("Unable to calculate no. of items and capacity", e);

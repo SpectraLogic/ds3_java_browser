@@ -57,7 +57,6 @@ public final class CreateService {
         if (session != null) {
             loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
             final Ds3GetDataPoliciesTask getDataPoliciesTask = new Ds3GetDataPoliciesTask(session, workers, resourceBundle, loggingService);
-            workers.execute(getDataPoliciesTask);
             getDataPoliciesTask.setOnSucceeded(SafeHandler.logHandle(taskEvent -> {
                 final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
                 if (value.isPresent()) {
@@ -75,7 +74,7 @@ public final class CreateService {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
                 alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
             }));
-
+            workers.execute(getDataPoliciesTask);
         } else {
             LOG.error("invalid session");
             alert.showAlert(resourceBundle.getString("invalidSession"));

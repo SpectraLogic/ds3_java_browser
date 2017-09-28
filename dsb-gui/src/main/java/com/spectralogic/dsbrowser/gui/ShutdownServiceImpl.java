@@ -110,8 +110,8 @@ public class ShutdownServiceImpl implements ShutdownService {
 
             final ShutdownTask task = new ShutdownTask(outstandingJobs);
 
-            workers.execute(task);
             task.setOnSucceeded(SafeHandler.logHandle(event -> finalShutdown()));
+            workers.execute(task);
         } else {
             finalShutdown();
         }

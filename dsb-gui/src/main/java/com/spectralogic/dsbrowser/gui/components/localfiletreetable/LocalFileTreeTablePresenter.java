@@ -304,7 +304,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             loggingService,
                             resourceBundle);
 
-                    workers.execute(task);
                     task.setOnSucceeded(SafeHandler.logHandle(event -> {
                         RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                         loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
@@ -312,6 +311,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     task.setOnFailed(SafeHandler.logHandle(event -> {
                         loggingService.logMessage("Failed to create folder " + path.getFileName().toString(), LogType.ERROR);
                     }));
+                    workers.execute(task);
                 });
 
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
@@ -375,7 +375,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
+        final ImmutableList<Pair<String, Path>> filesToPut =getLocalFilesToPut (session, bucket);
         if (Guard.isNullOrEmpty(filesToPut)) {
             alert.showAlert(resourceBundle.getString("fileSelect"));
             return;
@@ -491,13 +491,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
         getJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
             //Cancellation of a job started
             final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(getJob.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
-            workers.execute(ds3CancelSingleJobTask);
             ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
             ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                 LOG.info("Get Job cancelled");
                 loggingService.logMessage("GET Job Cancelled", LogType.INFO);
                 refreshFileTreeView();
             }));
+            workers.execute(ds3CancelSingleJobTask);
         }));
         jobWorkers.execute(getJob);
     }
@@ -550,7 +550,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
         final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers);
-        workers.execute(getMediaDeviceTask);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
@@ -558,6 +557,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             sizeColumn.setCellFactory(c -> new ValueTreeTableCell<FileTreeModel>());
             treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         }));
+        workers.execute(getMediaDeviceTask);
 
     }
 

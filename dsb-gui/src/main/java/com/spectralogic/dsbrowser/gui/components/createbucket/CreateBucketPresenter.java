@@ -135,7 +135,6 @@ public class CreateBucketPresenter implements Initializable {
                         bucketNameField.getText().trim(),
                         resourceBundle,
                         loggingService);
-                workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
@@ -148,6 +147,7 @@ public class CreateBucketPresenter implements Initializable {
                 createBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
                     alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
                 }));
+                workers.execute(createBucketTask);
             } else {
                 LOG.info("Data policy not found");
                 loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);

@@ -71,12 +71,12 @@ public final class CancelJobsWorker {
         if (tasks.size() != 0) {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks, session,
                     jobInterruptionStore, loggingService);
-            workers.execute(cancelAllRunningJobs);
             cancelAllRunningJobs.setOnSucceeded(SafeHandler.logHandle(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
                 }
             }));
+            workers.execute(cancelAllRunningJobs);
             return cancelAllRunningJobs;
         } else {
             return null;

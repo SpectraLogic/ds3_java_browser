@@ -361,7 +361,6 @@ public class JobInfoPresenter implements Initializable {
                 return Optional.empty();
             }
         };
-        workers.execute(getJobIDs);
         progress.progressProperty().bind(getJobIDs.progressProperty());
         getJobIDs.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTableView.setRoot(rootTreeItem);
@@ -375,5 +374,6 @@ public class JobInfoPresenter implements Initializable {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
+        workers.execute(getJobIDs);
     }
 }
