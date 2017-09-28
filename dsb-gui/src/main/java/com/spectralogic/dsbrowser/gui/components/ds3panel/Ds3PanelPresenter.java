@@ -125,7 +125,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final SettingsStore settingsStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final FileTreeTableProvider fileTreeTableProvider;
-    private final DataFormat dataFormat;
     private final Ds3Common ds3Common;
     private final DateTimeUtils dateTimeUtils;
     private final SavedSessionStore savedSessionStore;
@@ -143,7 +142,6 @@ public class Ds3PanelPresenter implements Initializable {
             final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final FileTreeTableProvider fileTreeTableProvider,
-            final DataFormat dataFormat,
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
@@ -157,7 +155,6 @@ public class Ds3PanelPresenter implements Initializable {
         this.settingsStore = settingsStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.fileTreeTableProvider = fileTreeTableProvider;
-        this.dataFormat = dataFormat;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
