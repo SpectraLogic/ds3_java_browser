@@ -476,7 +476,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath) {
+                             final Path localPath) {
         final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
         getJob.setOnSucceeded(e -> {
             LOG.info("Get Job completed successfully");
@@ -507,7 +507,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final String priority,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
-        try (final Ds3Client client = session.getClient()) {
+        try {
+            final Ds3Client client = session.getClient();
             final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, jobInterruptionStore, priority,
                     settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
                     resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
@@ -544,9 +545,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 }
             });
             jobWorkers.execute(putJob);
-        } catch (final IOException e) {
+        } catch (final Throwable t) {
             loggingService.logMessage("Unable to get Ds3Client", LogType.ERROR);
-            LOG.error("Unable to get Ds3Client", e);
+            LOG.error("Unable to get Ds3Client", t);
         }
     }
 
