@@ -80,4 +80,5 @@ public interface StringConstants {
     String CLICK_TYPE = "SECONDARY";
     String SESSIONS_STORE = "sessions.json";
     String JOB_INTERRUPTION_STORE = "jobids.json";
+    String DSB_ICON_PATH = "/images/deep_storage_browser.png";
 }
