@@ -11,6 +11,7 @@ Here is an example of using git to download the code and then build it using a b
 
 $ git clone https://github.com/SpectraLogic/ds3_java_browser.git
 $ cd ds3_java_browser
+$ git checkout v2.0.47
 $ ./gradlew run
 ```
 
