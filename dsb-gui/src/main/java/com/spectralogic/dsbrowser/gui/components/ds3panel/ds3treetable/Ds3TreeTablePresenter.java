@@ -20,7 +20,6 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -242,8 +241,8 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
-                ds3PanelPresenter.getPaneItems().setVisible(true);
-                ds3PanelPresenter.getPaneItems().setText(info);
+                ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
+                ds3PanelPresenter.getPaneItemsLabel().setText(info);
                 //Make Select All menu item disable if current visible item is Bucket or empty else enable it
                 if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
                     deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
@@ -704,8 +703,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
             final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                     ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
-            ds3PanelPresenter.getPaneItems().setVisible(true);
-            ds3PanelPresenter.getPaneItems().setText(info);
+            ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
+            ds3PanelPresenter.getPaneItemsLabel().setText(info);
         }
 
     }

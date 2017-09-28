@@ -478,7 +478,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath) {
+                             final Path localPath) {
         final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job completed successfully");
