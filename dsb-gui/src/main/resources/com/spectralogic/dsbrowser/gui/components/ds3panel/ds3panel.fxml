@@ -159,7 +159,7 @@
                                       AnchorPane.topAnchor="0.0">
                                     <children>
                                         <Label fx:id="createNewSessionLabel"
-                                               text="Create a New Session to Access a Black Pearl"/>
+                                               text="Create a New Session to Access a BlackPearl"/>
                                         <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="newSessionButton" mnemonicParsing="false"
                                                 onAction="#newSessionDialog"/>
                                     </children>
