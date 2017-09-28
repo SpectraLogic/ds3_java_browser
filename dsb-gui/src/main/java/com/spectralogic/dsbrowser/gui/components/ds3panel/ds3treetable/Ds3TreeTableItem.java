@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
@@ -135,13 +136,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, leaf, workers,
                 dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
         workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> {
+        getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
             if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
-        });
-        getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
-        getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
+        }));
+        getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
+        getBucketTask.setOnFailed(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
     }
 
     @Override

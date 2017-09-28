@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,11 +72,11 @@ public final class CancelJobsWorker {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks, session,
                     jobInterruptionStore, loggingService);
             workers.execute(cancelAllRunningJobs);
-            cancelAllRunningJobs.setOnSucceeded(event -> {
+            cancelAllRunningJobs.setOnSucceeded(SafeHandler.logHandle(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
                 }
-            });
+            }));
             return cancelAllRunningJobs;
         } else {
             return null;

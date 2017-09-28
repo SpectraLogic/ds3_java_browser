@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -110,7 +111,7 @@ public class ShutdownServiceImpl implements ShutdownService {
             final ShutdownTask task = new ShutdownTask(outstandingJobs);
 
             workers.execute(task);
-            task.setOnSucceeded(event -> finalShutdown());
+            task.setOnSucceeded(SafeHandler.logHandle(event -> finalShutdown()));
         } else {
             finalShutdown();
         }
