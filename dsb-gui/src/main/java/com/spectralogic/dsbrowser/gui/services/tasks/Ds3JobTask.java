@@ -43,7 +43,6 @@ import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
 public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
-    private static final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
 
     protected ResourceBundle resourceBundle;
     protected Ds3Client ds3Client;
@@ -154,7 +153,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
         ErrorUtils.dumpTheStack(msg);
         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-        errorAlert.showAlert(msg, "Error");
+        new LazyAlert(resourceBundle).error(msg);
     }
 }
 

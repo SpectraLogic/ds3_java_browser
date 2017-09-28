@@ -37,11 +37,10 @@ public final class CreateConnectionTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    private static final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
-
     public static Session createConnection(final NewSessionModel newSessionModel,
                                            final ResourceBundle resourceBundle,
                                            final BuildInfoService buildInfoService) {
+        final LazyAlert alert = new LazyAlert(resourceBundle);
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().isEmpty()) {
                 newSessionModel.setProxyServer(null);
@@ -59,32 +58,32 @@ public final class CreateConnectionTask {
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
-            errorAlert.showAlert(resourceBundle.getString("invalidEndpointMessage"), "Error");
+            alert.error(resourceBundle.getString("invalidEndpointMessage"));
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
-            errorAlert.showAlert(resourceBundle.getString("checkEndpoint"), "Error");
+            alert.error(resourceBundle.getString("checkEndpoint"));
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    errorAlert.showAlert(resourceBundle.getString("failToAuthenticateMessage"), "Error");
+                    alert.error(resourceBundle.getString("failToAuthenticateMessage"));
                 } else {
                     LOG.error("Invalid Access ID or Secret Key", e);
-                    errorAlert.showAlert(resourceBundle.getString("invalidIDKEYMessage"), "Error");
+                    alert.error(resourceBundle.getString("invalidIDKEYMessage"));
                 }
             } else if (e.getStatusCode() == 301) {
                 LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
-                errorAlert.showAlert(resourceBundle.getString("invalidEndpointMessage"), "Error");
+                alert.error(resourceBundle.getString("invalidEndpointMessage"));
             } else {
                 LOG.error("BlackPearl returned an unexpected status code", e);
-                errorAlert.showAlert(resourceBundle.getString("unexpectedStatusMessage"), "Error");
+                alert.error(resourceBundle.getString("unexpectedStatusMessage"));
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
-            errorAlert.showAlert(resourceBundle.getString("networkErrorMessage"), "Error");
+            alert.error(resourceBundle.getString("networkErrorMessage"));
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong", rte);
-            errorAlert.showAlert(resourceBundle.getString("authenticationAlert"), "Error");
+            alert.error(resourceBundle.getString("authenticationAlert"));
         }
         return null;
     }

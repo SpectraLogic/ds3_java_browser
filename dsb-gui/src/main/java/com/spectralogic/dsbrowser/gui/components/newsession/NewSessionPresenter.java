@@ -47,9 +47,6 @@ public class NewSessionPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(NewSessionPresenter.class);
 
-    private final LazyAlert infoAlert = new LazyAlert(Alert.AlertType.INFORMATION);
-    private final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
-
     private final NewSessionModel model = new NewSessionModel();
 
     @FXML
@@ -81,6 +78,7 @@ public class NewSessionPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final CreateConnectionTask createConnectionTask;
     private final BuildInfoService buildInfoService;
+    private final LazyAlert alert;
 
     @Inject
     public NewSessionPresenter(final ResourceBundle resourceBundle,
@@ -93,6 +91,7 @@ public class NewSessionPresenter implements Initializable {
         this.savedSessionStore = savedSessionStore;
         this.createConnectionTask = createConnectionTask;
         this.buildInfoService = buildInfoService;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -171,7 +170,7 @@ public class NewSessionPresenter implements Initializable {
                         final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), resourceBundle, buildInfoService);
                         sessionValidates(connection);
                     } else {
-                        infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
+                        alert.info(resourceBundle.getString("alreadyExistSession"));
                     }
                 }
             });
@@ -189,20 +188,20 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            infoAlert.showAlert(resourceBundle.getString("selectToDeleteSession"), "Information");
+            alert.info(resourceBundle.getString("selectToDeleteSession"));
         } else {
             if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
                 ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
-                        infoAlert.showAlert(resourceBundle.getString("cannotdeletesession"), "Information");
+                        alert.info(resourceBundle.getString("cannotdeletesession"));
                     } else {
                         savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                        infoAlert.showAlert(resourceBundle.getString("sessionDeletedSuccess"), "Information");
+                        alert.info(resourceBundle.getString("sessionDeletedSuccess"));
                     }
                 });
             } else {
                 savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                infoAlert.showAlert(resourceBundle.getString("sessionDeletedSuccess"), "Information");
+                alert.info(resourceBundle.getString("sessionDeletedSuccess"));
             }
         }
     }
@@ -234,7 +233,7 @@ public class NewSessionPresenter implements Initializable {
                 sessionValidates(session);
             }
         } else {
-            infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
+            alert.info(resourceBundle.getString("alreadyExistSession"));
         }
     }
 
@@ -276,17 +275,17 @@ public class NewSessionPresenter implements Initializable {
             if (session != null) {
                 final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
-                    infoAlert.showAlert(resourceBundle.getString("noNewChanges"), "Information");
+                    alert.info(resourceBundle.getString("noNewChanges"));
                 } else if (i == -2) {
-                    infoAlert.showAlert(resourceBundle.getString("alreadyExistSession"), "Information");
+                    alert.info(resourceBundle.getString("alreadyExistSession"));
                 } else {
                     savedSessions.getSelectionModel().select(i);
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-                        infoAlert.showAlert(resourceBundle.getString("sessionUpdatedSuccessfully"), "Information");
+                        alert.info(resourceBundle.getString("sessionUpdatedSuccessfully"));
                     } catch (final IOException e) {
                         LOG.error("Failed to save session: ", e);
-                        errorAlert.showAlert(resourceBundle.getString("sessionNotUpdatedSuccessfully"), "Error");
+                        alert.error(resourceBundle.getString("sessionNotUpdatedSuccessfully"));
                     }
                 }
             }

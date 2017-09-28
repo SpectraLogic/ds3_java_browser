@@ -68,8 +68,6 @@ public class Ds3TreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTablePresenter.class);
 
-    private final LazyAlert warnAlert = new LazyAlert(Alert.AlertType.WARNING);
-
     private final List<String> rowNameList = new ArrayList<>();
 
     @FXML
@@ -102,6 +100,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
+    private final LazyAlert alert;
 
     private ContextMenu contextMenu;
 
@@ -134,6 +133,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3PutJobFactory = ds3PutJobFactory;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -445,7 +445,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             });
             jobWorkers.execute(putJob);
         } else {
-            warnAlert.showAlert(resourceBundle.getString("operationNotAllowedHere"), "Warning");
+            alert.warning(resourceBundle.getString("operationNotAllowedHere"));
         }
         event.consume();
     }

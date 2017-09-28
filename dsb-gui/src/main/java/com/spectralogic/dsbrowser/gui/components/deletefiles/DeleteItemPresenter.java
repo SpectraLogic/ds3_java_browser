@@ -51,8 +51,6 @@ public class DeleteItemPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteItemPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert(Alert.AlertType.ERROR);
-
     @FXML
     private TextField deleteField;
 
@@ -70,6 +68,7 @@ public class DeleteItemPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
+    private final LazyAlert alert;
 
     @Inject
     public DeleteItemPresenter(final Workers workers,
@@ -82,6 +81,7 @@ public class DeleteItemPresenter implements Initializable {
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -177,6 +177,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.showAlert(alertMessage, "Error");
+        alert.error(alertMessage);
     }
 }

@@ -43,8 +43,6 @@ public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert(Alert.AlertType.ERROR);
-
     @FXML
     private TextField folderNameField;
 
@@ -60,6 +58,7 @@ public class CreateFolderPresenter implements Initializable {
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
+    private final LazyAlert alert;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,
@@ -68,6 +67,7 @@ public class CreateFolderPresenter implements Initializable {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class CreateFolderPresenter implements Initializable {
         createFolderTask.setOnCancelled(event -> this.closeDialog());
         createFolderTask.setOnFailed(event -> {
             this.closeDialog();
-            alert.showAlert(resourceBundle.getString("createFolderErrLogs"), "Error");
+            alert.error(resourceBundle.getString("createFolderErrLogs"));
         });
         workers.execute(createFolderTask);
     }

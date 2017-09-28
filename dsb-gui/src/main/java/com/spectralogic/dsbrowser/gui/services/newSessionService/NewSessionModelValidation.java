@@ -25,24 +25,24 @@ import java.util.ResourceBundle;
 
 public final class NewSessionModelValidation {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
-    private static final LazyAlert alert = new LazyAlert(Alert.AlertType.ERROR);
     public static final String ERROR = "Error";
 
     public static boolean validationNewSession(final NewSessionModel model) {
+        final LazyAlert alert = new LazyAlert(resourceBundle);
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.showAlert(resourceBundle.getString("enterSession"), ERROR);
+            alert.error(resourceBundle.getString("enterSession"));
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.showAlert(resourceBundle.getString("enterDataPathAddress"), ERROR);
+            alert.error(resourceBundle.getString("enterDataPathAddress"));
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.showAlert(resourceBundle.getString("enterValidPort"), ERROR);
+            alert.error(resourceBundle.getString("enterValidPort"));
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.showAlert(resourceBundle.getString("enterAccessKey"), ERROR);
+            alert.error(resourceBundle.getString("enterAccessKey"));
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.showAlert(resourceBundle.getString("enterSecretKey"), ERROR);
+            alert.error(resourceBundle.getString("enterSecretKey"));
             return false;
         }
         return true;

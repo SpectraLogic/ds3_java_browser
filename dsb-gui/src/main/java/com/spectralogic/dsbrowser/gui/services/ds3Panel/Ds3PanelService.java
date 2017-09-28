@@ -59,8 +59,6 @@ public final class Ds3PanelService {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
-    private static final LazyAlert infoAlert = new LazyAlert(Alert.AlertType.INFORMATION);
-
     private static Instant lastRefresh = Instant.now();
 
     /**
@@ -147,7 +145,7 @@ public final class Ds3PanelService {
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
             LOG.info(resourceBundle.getString("nothingSelected"));
-            infoAlert.showAlert(resourceBundle.getString("nothingSelected"), "Information");
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("nothingSelected"));
             return;
         } else if (tempValues.isEmpty()) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -157,7 +155,7 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
-            infoAlert.showAlert(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"), "Information");
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
             return;
         }
 
@@ -176,12 +174,12 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3TreeTableView.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.info(resourceBundle.getString("noFiles"));
-            infoAlert.showAlert(resourceBundle.getString("noFiles"), "Information");
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("noFiles"));
             return;
         }
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
-            infoAlert.showAlert(resourceBundle.getString("onlySingleObjectSelectForMetadata"), "Information");
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
             return;
         }
 

@@ -16,48 +16,66 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
  * if this Alert is never encountered.
  */
 public class LazyAlert {
+    private static final String ERROR_TITLE = "errorTitle";
+    private static final String ALERT_TITLE = "alertTitle";
+    private static final String WARNING_TITLE = "warningTitle";
 
-    private final Alert.AlertType alertType;
+    private final ResourceBundle resourceBundle;
     private Alert alert = null;
 
-    public LazyAlert(final Alert.AlertType alertType) {
-        this.alertType = alertType;
+    public LazyAlert(final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
     }
 
-    public LazyAlert() {
-        this(Alert.AlertType.INFORMATION);
-    }
 
-    private void showAlertInternal(final String message, final String title) {
-        if (alert == null) {
+    private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType) {
+        if(alert == null) {
             alert = new Alert(alertType);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-
-            final Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-            stage.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
-
         }
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+
+        final DialogPane dp = alert.getDialogPane();
+        if(dp != null) {
+            final Scene scene = dp.getScene();
+            if(scene !=null) {
+               final Stage w = (Stage) scene.getWindow();
+               if(w != null) {
+                   w.getIcons().add(new Image( ImageURLs.DEEP_STORAGE_BROWSER));
+               }
+            }
+        }
+
         alert.setContentText(message);
         alert.showAndWait();
+        alert.setAlertType(alertType);
     }
 
-    public void showAlert(final String message, final String title) {
-        if (Platform.isFxApplicationThread()) {
-            showAlertInternal(message, title);
-        } else {
-            Platform.runLater(() -> showAlertInternal(message, title));
-        }
+    public void error(final String message) {
+        showAlertInternal(message, resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
+    }
+
+    public void info(final String message) {
+        showAlertInternal(message, resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
+    }
+
+    public void warning(final String message) {
+        showAlertInternal(message, resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
     }
 
 }

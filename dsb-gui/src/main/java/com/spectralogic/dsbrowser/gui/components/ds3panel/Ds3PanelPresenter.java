@@ -78,8 +78,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final Image LENS_ICON = new Image(ImageURLs.LENS_ICON);
     private final Image CROSS_ICON = new Image(ImageURLs.CROSS_ICON);
 
-    private final LazyAlert errorAlert = new LazyAlert(Alert.AlertType.ERROR);
-    private final LazyAlert infoAlert = new LazyAlert(Alert.AlertType.INFORMATION);
 
     @FXML
     private Label ds3PathIndicator;
@@ -131,6 +129,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
+    private final LazyAlert alert;
 
     private GetNoOfItemsTask itemsTask;
 
@@ -163,6 +162,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
         this.loggingService = loggingService;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -429,7 +429,7 @@ public class Ds3PanelPresenter implements Initializable {
     private void ds3TransferToLocal() {
         final Session session = getSession();
         if ((session == null) || (ds3Common == null)) {
-            errorAlert.showAlert(resourceBundle.getString("invalidSession"), "Error");
+            alert.error(resourceBundle.getString("invalidSession"));
             return;
         }
 
@@ -437,14 +437,14 @@ public class Ds3PanelPresenter implements Initializable {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         if (ds3TreeTableView == null) {
             LOG.info("Files not selected");
-            infoAlert.showAlert(resourceBundle.getString("fileSelect"), "Info" );
+            alert.info(resourceBundle.getString("fileSelect"));
             return;
         }
 
         // Verify remote files to GET selected
         if ((ds3TreeTableView.getSelectionModel() == null) || (ds3TreeTableView.getSelectionModel().getSelectedItems() == null)) {
             LOG.info("Files not selected");
-            infoAlert.showAlert(resourceBundle.getString("fileSelect"), "Info");
+            alert.info(resourceBundle.getString("fileSelect"));
             return;
         }
         final ImmutableList<Ds3TreeTableValue> selectedItemsAtSourceLocationList = ds3TreeTableView.getSelectionModel()
@@ -463,12 +463,12 @@ public class Ds3PanelPresenter implements Initializable {
         if (fileRootItem.equals(resourceBundle.getString("myComputer"))) {
             if (Guard.isNullOrEmpty(selectedItemsAtDestination)) {
                 LOG.info("Location not selected");
-                errorAlert.showAlert(resourceBundle.getString("sourceFileSelectError"), "Error");
+                alert.error(resourceBundle.getString("sourceFileSelectError"));
                 return;
             }
         }
         if (selectedItemsAtDestination.size() > 1) {
-            errorAlert.showAlert(resourceBundle.getString("multipleDestError"), "Error");
+            alert.error(resourceBundle.getString("multipleDestError"));
             return;
         }
         final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
@@ -561,7 +561,7 @@ public class Ds3PanelPresenter implements Initializable {
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {
                 LOG.info("No files selected");
-                infoAlert.showAlert(resourceBundle.getString("noFiles"), "Alert");
+                alert.info(resourceBundle.getString("noFiles"));
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             values.stream().map(TreeItem::toString).forEach(itemString -> LOG.info("Delete folder {}", itemString));
