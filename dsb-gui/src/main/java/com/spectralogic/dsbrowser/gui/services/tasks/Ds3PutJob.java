@@ -47,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -85,7 +86,7 @@ public class Ds3PutJob extends Ds3JobTask {
             @Assisted("bucket") final String bucket,
             @Assisted("targetDir") final String targetDir,
             final JobInterruptionStore jobInterruptionStore,
-            @Named("jobPriority") final String jobPriority,
+            @Nullable @Named("jobPriority") final String jobPriority,
             @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
             final ResourceBundle resourceBundle,
             final SettingsStore settings,

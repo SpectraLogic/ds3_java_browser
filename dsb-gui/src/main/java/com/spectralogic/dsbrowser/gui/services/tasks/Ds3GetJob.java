@@ -42,6 +42,7 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
@@ -74,7 +75,7 @@ public class Ds3GetJob extends Ds3JobTask {
     public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
             @Assisted final Path fileTreePath,
             final Ds3Client client,
-            @Named("jobPriority") final String jobPriority,
+            @Nullable @Named("jobPriority") final String jobPriority,
             @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
             final JobInterruptionStore jobInterruptionStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
