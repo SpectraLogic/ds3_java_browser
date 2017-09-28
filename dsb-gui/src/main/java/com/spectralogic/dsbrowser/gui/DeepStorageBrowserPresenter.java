@@ -163,7 +163,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             initMenus(); //Setting up labels from resource file
 
             final SetToolTipBehavior setToolTipBehavior = new SetToolTipBehavior();
-            setToolTipBehavior.setToolTilBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
+            setToolTipBehavior.setToolTipBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
 
             initLocalTreeTableView();
             initDs3TreeTableView();

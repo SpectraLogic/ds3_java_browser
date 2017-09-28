@@ -33,7 +33,7 @@ public class SetToolTipBehavior {
      * @param duration   tooltip display time
      * @param closeDelay tooltip closing time
      */
-    public void setToolTilBehaviors(final int openDelay, final int duration, final int closeDelay) {
+    public void setToolTipBehaviors(final int openDelay, final int duration, final int closeDelay) {
         try {
             final Field field = Tooltip.class.getDeclaredField("BEHAVIOR");
             field.setAccessible(true);
