@@ -598,6 +598,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3NewFolderToolTip.setText(resourceBundle.getString("ds3NewFolderToolTip"));
         ds3NewBucketToolTip.setText(resourceBundle.getString("ds3NewBucketToolTip"));
         ds3DeleteButtonToolTip.setText(resourceBundle.getString("ds3DeleteButtonToolTip"));
+        ds3PanelSearch.setPromptText(resourceBundle.getString("ds3PanelSearchPrompt"));
         ds3PanelSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             final Image icon = (Guard.isStringNullOrEmpty(newValue)) ? LENS_ICON : CROSS_ICON;
             imageView.setImage(icon);

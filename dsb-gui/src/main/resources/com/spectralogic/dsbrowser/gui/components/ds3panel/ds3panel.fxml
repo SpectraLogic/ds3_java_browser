@@ -106,7 +106,7 @@
                             AnchorPane.topAnchor="0.0">
                     <children>
                         <TextField fx:id="ds3PanelSearch" disable="true" layoutX="4.0" layoutY="4.0" prefHeight="30.0"
-                                   prefWidth="200.0" promptText="Type object name to search.."
+                                   prefWidth="200.0"
                                    AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="4.0">
                             <padding>
