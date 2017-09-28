@@ -23,7 +23,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER"
       maxHeight="Infinity" maxWidth="Infinity"
       minHeight="-Infinity" minWidth="-Infinity"
-      prefHeight="500.0" prefWidth="500.0" spacing="20.0"
+      prefHeight="600.0" prefWidth="600.0" spacing="20.0"
       xmlns="http://javafx.com/javafx/8"
       fx:controller="com.spectralogic.dsbrowser.gui.components.about.AboutPresenter">
     <children>

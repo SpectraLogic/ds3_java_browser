@@ -240,8 +240,8 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
-                ds3PanelPresenter.getPaneItems().setVisible(true);
-                ds3PanelPresenter.getPaneItems().setText(info);
+                ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
+                ds3PanelPresenter.getPaneItemsLabel().setText(info);
                 //Make Select All menu item disable if current visible item is Bucket or empty else enable it
                 if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
                     deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
@@ -697,8 +697,8 @@ public class Ds3TreeTablePresenter implements Initializable {
             }
             final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                     ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
-            ds3PanelPresenter.getPaneItems().setVisible(true);
-            ds3PanelPresenter.getPaneItems().setText(info);
+            ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
+            ds3PanelPresenter.getPaneItemsLabel().setText(info);
         }
 
     }
