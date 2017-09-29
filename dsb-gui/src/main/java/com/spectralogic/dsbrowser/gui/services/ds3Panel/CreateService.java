@@ -34,6 +34,7 @@ import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +46,12 @@ public final class CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
-    private static final LazyAlert alert = new LazyAlert("Error");
-
     public static void createBucketPrompt(final Ds3Common ds3Common,
-                                          final Workers workers,
-                                          final LoggingService loggingService,
-                                          final DateTimeUtils dateTimeUtils,
-                                          final ResourceBundle resourceBundle) {
+            final Workers workers,
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils,
+            final ResourceBundle resourceBundle) {
+        final LazyAlert alert = new LazyAlert(resourceBundle);
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
         if (session != null) {
@@ -67,42 +67,43 @@ public final class CreateService {
                     });
                 } else {
                     LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                    alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
+                    alert.error("dataPolicyNotFoundErr");
                 }
             }));
             getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
+                alert.error("dataPolicyNotFoundErr");
             }));
             workers.execute(getDataPoliciesTask);
         } else {
             LOG.error("invalid session");
-            alert.showAlert(resourceBundle.getString("invalidSession"));
+            alert.error("invalidSession");
         }
 
     }
 
     public static void createFolderPrompt(final Ds3Common ds3Common,
-                                          final LoggingService loggingService,
-                                          final ResourceBundle resourceBundle) {
+            final LoggingService loggingService,
+            final ResourceBundle resourceBundle) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
+        final LazyAlert alert = new LazyAlert(resourceBundle);
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not create folder here. Please refresh your view");
-            alert.showAlert(resourceBundle.getString("cantCreateFolderHere"));
+            alert.info("cantCreateFolderHere");
             return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            alert.showAlert(resourceBundle.getString("selectSingleLocation"));
+            alert.info("selectSingleLocation");
             return;
         } else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (Guard.isNullOrEmpty(values)) {
             loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.showAlert(resourceBundle.getString("locationNotSelected"));
+            alert.info("locationNotSelected");
             return;
         }
         final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();

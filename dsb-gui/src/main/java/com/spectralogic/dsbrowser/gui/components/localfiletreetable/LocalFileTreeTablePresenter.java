@@ -73,8 +73,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
-
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
 
@@ -105,6 +103,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory;
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
+    private final LazyAlert alert;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -139,6 +138,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.ds3GetJobFactory = ds3GetJobFactory;
         this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     private static boolean isEmptyDirectory(final Path path, final LoggingService loggingService) {
@@ -343,7 +343,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.showAlert(resourceBundle.getString("multipleDestError"));
+            alert.error("tipleDestError");
             return null;
         }
 
@@ -353,17 +353,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void transferToBlackPearl() {
         if (ds3Common.getCurrentSession() == null) {
             LOG.error("No valid session to initiate BULK_PUT");
-            alert.showAlert(resourceBundle.getString("noSession"));
+            alert.error("noSession");
             return;
         }
         final Session session = ds3Common.getCurrentSession();
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.showAlert(resourceBundle.getString("selectDestination"));
+            alert.info("selectDestination");
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.showAlert(resourceBundle.getString("operationNotAllowed"));
+            alert.info("operationNotAllowed");
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -375,9 +375,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String, Path>> filesToPut =getLocalFilesToPut (session, bucket);
+        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.showAlert(resourceBundle.getString("fileSelect"));
+            alert.info("fileSelect");
             return;
         }
 
@@ -478,7 +478,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-                             final Path localPath) {
+            final Path localPath) {
         final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job completed successfully");

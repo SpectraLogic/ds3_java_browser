@@ -19,28 +19,30 @@ import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import javafx.scene.control.Alert;
 
 import java.util.ResourceBundle;
 
 public final class NewSessionModelValidation {
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
-    private static final LazyAlert alert = new LazyAlert("Error");
+    public static final String ERROR = "Error";
 
     public static boolean validationNewSession(final NewSessionModel model) {
+        final LazyAlert alert = new LazyAlert(resourceBundle);
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.showAlert(resourceBundle.getString("enterSession"));
+            alert.error("enterSession");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.showAlert(resourceBundle.getString("enterDataPathAddress"));
+            alert.error("enterDataPathAddress");
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.showAlert(resourceBundle.getString("enterValidPort"));
+            alert.error("enterValidPort");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.showAlert(resourceBundle.getString("enterAccessKey"));
+            alert.error("enterAccessKey");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.showAlert(resourceBundle.getString("enterSecretKey"));
+            alert.error("enterSecretKey");
             return false;
         }
         return true;

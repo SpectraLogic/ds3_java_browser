@@ -36,6 +36,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
@@ -46,9 +47,6 @@ import java.util.stream.Collectors;
 
 public final class DeleteService {
     private static final Logger LOG = LoggerFactory.getLogger(DeleteService.class);
-
-    private static final LazyAlert alert = new LazyAlert("Error");
-
     /**
      * Delete a Single Selected Spectra S3 bucket
      *
@@ -62,6 +60,7 @@ public final class DeleteService {
                                     final DateTimeUtils dateTimeUtils,
                                     final ResourceBundle resourceBundle) {
         LOG.info("Got delete bucket event");
+        final LazyAlert alert = new LazyAlert(resourceBundle);
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
 
@@ -71,7 +70,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                alert.showAlert(resourceBundle.getString("multiBucketNotAllowed"));
+                alert.error("multiBucketNotAllowed");
                 return;
             }
             final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
@@ -80,7 +79,7 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                    alert.showAlert(resourceBundle.getString("failedToDeleteBucket"));
+                    alert.error("failedToDeleteBucket");
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
                     DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);

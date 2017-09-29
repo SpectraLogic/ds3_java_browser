@@ -54,7 +54,6 @@ public class JobInfoPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(JobInfoPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
 
     @FXML
     private TreeTableView<JobInfoModel> jobListTreeTable;

@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
 public class CreateBucketPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateBucketPresenter.class);
-
-    private final LazyAlert alert = new LazyAlert("Error");
+    private static final String CREATE_BUCKET_ERROR_ALERT = "createBucketErrorAlert";
+    private static final String DATA_POLICY_NOT_FOUND_ERR = "dataPolicyNotFoundErr";
 
     @FXML
     private TextField bucketNameField;
@@ -66,23 +66,22 @@ public class CreateBucketPresenter implements Initializable {
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
-    private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
+    private final LazyAlert alert;
 
     @Inject
     public CreateBucketPresenter(final Workers workers,
                                  final ResourceBundle resourceBundle,
                                  final Ds3Common ds3Common,
-                                 final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                                  final DateTimeUtils dateTimeUtils,
                                  final LoggingService loggingService) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
-        this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.loggingService = loggingService;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -145,20 +144,20 @@ public class CreateBucketPresenter implements Initializable {
                     });
                 }));
                 createBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
-                    alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
+                    alert.error(CREATE_BUCKET_ERROR_ALERT);
                 }));
                 workers.execute(createBucketTask);
             } else {
                 LOG.info("Data policy not found");
-                loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);
-                alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
+                loggingService.logMessage(resourceBundle.getString(DATA_POLICY_NOT_FOUND_ERR), LogType.INFO);
+                alert.error(DATA_POLICY_NOT_FOUND_ERR);
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
             loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
-            alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
+            alert.error(CREATE_BUCKET_ERROR_ALERT);
         }
     }
 
