@@ -70,14 +70,18 @@ public class GuiModule extends AbstractModule {
 
         bind(Ds3Common.class).in(Singleton.class);
 
-        bind(DataFormat.class).toInstance(new DataFormat("Ds3TreeTableView"));
-
         loadPresenters(this::bind);
 
         install(new FactoryModuleBuilder().build(Ds3GetJob.Ds3GetJobFactory.class));
         install(new FactoryModuleBuilder().build(Ds3PutJob.Ds3PutJobFactory.class));
         install(new FactoryModuleBuilder().build(RecoverInterruptedJob.RecoverInterruptedJobFactory.class));
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
+    }
+
+    @Singleton
+    @Provides
+    protected DataFormat getDataFormat() {
+        return new DataFormat("Ds3TreeTableView");
     }
 
     @Provides
