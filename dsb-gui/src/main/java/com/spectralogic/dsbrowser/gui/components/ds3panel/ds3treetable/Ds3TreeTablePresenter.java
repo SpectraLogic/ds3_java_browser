@@ -20,6 +20,7 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -35,6 +36,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -149,12 +151,12 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void setTreeTableViewBehaviour() {
-        ds3TreeTable.setOnDragEntered(event -> event.acceptTransferModes(TransferMode.COPY));
-        ds3TreeTable.setOnDragOver(event -> event.acceptTransferModes(TransferMode.COPY));
-        ds3TreeTable.setOnDragDropped(event -> {
+        ds3TreeTable.setOnDragEntered(SafeHandler.logHandle(event -> event.acceptTransferModes(TransferMode.COPY)));
+        ds3TreeTable.setOnDragOver(SafeHandler.logHandle(event -> event.acceptTransferModes(TransferMode.COPY)));
+        ds3TreeTable.setOnDragDropped(SafeHandler.logHandle(event -> {
             handleDropEvent(event, null);
             event.consume();
-        });
+        }));
         ds3TreeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
             this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue);
         });
@@ -166,25 +168,25 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initContextMenu() {
         contextMenu = new ContextMenu();
         deleteFile = new MenuItem(resourceBundle.getString("deleteFileContextMenu"));
-        deleteFile.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
+        deleteFile.setOnAction(SafeHandler.logHandle(event -> ds3PanelPresenter.ds3DeleteObject()));
 
         deleteFolder = new MenuItem(resourceBundle.getString("deleteFolderContextMenu"));
-        deleteFolder.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
+        deleteFolder.setOnAction(SafeHandler.logHandle(event -> ds3PanelPresenter.ds3DeleteObject()));
 
         deleteBucket = new MenuItem(resourceBundle.getString("deleteBucketContextMenu"));
-        deleteBucket.setOnAction(event -> ds3PanelPresenter.ds3DeleteObject());
+        deleteBucket.setOnAction(SafeHandler.logHandle(event -> ds3PanelPresenter.ds3DeleteObject()));
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
-        physicalPlacement.setOnAction(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle));
+        physicalPlacement.setOnAction(SafeHandler.logHandle(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle)));
 
         metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
-        metaData.setOnAction(event -> Ds3PanelService.showMetadata(ds3Common, workers, resourceBundle));
+        metaData.setOnAction(SafeHandler.logHandle(event -> Ds3PanelService.showMetadata(ds3Common, workers, resourceBundle)));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle));
+        createBucket.setOnAction(SafeHandler.logHandle(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle)));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle));
+        createFolder.setOnAction(SafeHandler.logHandle(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle)));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
@@ -201,14 +203,14 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListenerInnerClass());
 
         //To show create bucket option on right click when there is no bucket present
-        ds3TreeTable.setOnContextMenuRequested(event -> {
+        ds3TreeTable.setOnContextMenuRequested(SafeHandler.logHandle(event -> {
             disableContextMenu(true);
             createBucket.setDisable(false);
-        });
+        }));
 
         ds3TreeTable.setContextMenu(contextMenu);
 
-        ds3TreeTable.setOnKeyPressed(event -> {
+        ds3TreeTable.setOnKeyPressed(SafeHandler.logHandle(event -> {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
             if (!Guard.isNullOrEmpty(selectedItems)) {
                 if (event.getCode().equals(KeyCode.DELETE)) {
@@ -216,7 +218,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     event.consume();
                 }
             }
-        });
+        }));
 
         ds3TreeTable.setRowFactory(view -> setTreeTableViewRowBehaviour());
         ds3TreeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common.getDs3TreeTableView()));
@@ -257,15 +259,15 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
         LOG.info("Getting buckets from {}", session.getEndpoint());
-        workers.execute(getServiceTask);
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
         Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+        workers.execute(getServiceTask);
     }
 
     private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
-        return (event) -> {
+        return SafeHandler.logHandle((event) -> {
             ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
@@ -296,7 +298,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
             fileType.setCellFactory(c -> new TreeTableValueTreeTableCell());
             checkInterruptedJob(session.getEndpoint() + ":" + session.getPortNo());
-        };
+        });
     }
 
     /**
@@ -308,21 +310,21 @@ public class Ds3TreeTablePresenter implements Initializable {
         {
             final TreeTableRow<Ds3TreeTableValue> row = new TreeTableRow<>();
 
-            row.setOnContextMenuRequested(event -> setContextMenuBehaviour());
+            row.setOnContextMenuRequested(SafeHandler.logHandle(event -> setContextMenuBehaviour()));
 
             row.setOnDragDetected(this::handleDragDetectedEvent);
 
-            row.setOnDragOver(event -> setDragOverBehaviour(event, row));
+            row.setOnDragOver(SafeHandler.logHandle(event -> setDragOverBehaviour(event, row)));
 
-            row.setOnDragEntered(event -> setDragEnteredBehaviour(event, row));
+            row.setOnDragEntered(SafeHandler.logHandle(event -> setDragEnteredBehaviour(event, row)));
 
-            row.setOnDragExited(event -> {
+            row.setOnDragExited(SafeHandler.logHandle(event -> {
                 row.setEffect(null);
                 event.consume();
-            });
+            }));
 
-            row.setOnDragDropped(event -> handleDropEvent(event, row));
-            row.setOnMouseClicked(event -> setBehaviorOnMouseClick(event, row));
+            row.setOnDragDropped(SafeHandler.logHandle(event -> handleDropEvent(event, row)));
+            row.setOnMouseClicked(SafeHandler.logHandle(event -> setBehaviorOnMouseClick(event, row)));
             row.setContextMenu(contextMenu);
 
             //Set item property listener on row for maintaining expand property
@@ -391,63 +393,68 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void handleDropEvent(final DragEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        LOG.info("Got drop event");
-        final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
-        if (null != selectedItem) {
-            if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
-                LOG.info("Expanding closed row");
-                selectedItem.setExpanded(true);
-            }
-        }
-        if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
-            final Dragboard db = event.getDragboard();
-            LOG.info("Drop event contains files");
-            final Ds3TreeTableValue value = selectedItem.getValue();
-            final String bucket = value.getBucketName();
-            final String targetDir = value.getDirectoryName();
-            LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
-            final ImmutableList<Pair<String, Path>> pairs = ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
-                    .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
-                    .collect(GuavaCollectors.immutableList());
-            if (pairs.isEmpty()) {
-                LOG.info("Drag contained no files");
-                Ds3PanelService.refresh(selectedItem);
-                return;
-            }
-            final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
-            putJob.setOnSucceeded(e -> {
-                LOG.info("Succeed");
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-
-            });
-            putJob.setOnFailed(e -> {
-                LOG.info("setOnFailed");
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-            });
-            putJob.setOnCancelled(e -> {
-                LOG.info("setOnCancelled");
-                if (putJob.getJobId() != null) {
-                    try {
-                        session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    } catch (final IOException e1) {
-                        LOG.error("Failed to cancel job", e1);
-                    }
+        try {
+            LOG.info("Got drop event");
+            final TreeItem<Ds3TreeTableValue> selectedItem = getSelectedItem(row);
+            if (null != selectedItem) {
+                if (!selectedItem.isLeaf() && !selectedItem.isExpanded()) {
+                    LOG.info("Expanding closed row");
+                    selectedItem.setExpanded(true);
                 }
-                Ds3PanelService.refresh(selectedItem);
-                ds3TreeTable.getSelectionModel().clearSelection();
-                ds3TreeTable.getSelectionModel().select(selectedItem);
-            });
-            jobWorkers.execute(putJob);
-        } else {
-            alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            }
+            if (null != selectedItem && null != selectedItem.getValue() && !selectedItem.getValue().isSearchOn()) {
+                final Dragboard db = event.getDragboard();
+                LOG.info("Drop event contains files");
+                final Ds3TreeTableValue value = selectedItem.getValue();
+                final String bucket = value.getBucketName();
+                final String targetDir = value.getDirectoryName();
+                LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
+                final ImmutableList<Pair<String, Path>> pairs = ((List<Pair<String, String>>) db.getContent(DataFormat.lookupMimeType("local"))).stream()
+                        .map(pairStrings -> new Pair<>(pairStrings.getKey(), Paths.get(pairStrings.getValue())))
+                        .collect(GuavaCollectors.immutableList());
+                if (pairs.isEmpty()) {
+                    LOG.info("Drag contained no files");
+                    Ds3PanelService.refresh(selectedItem);
+                    return;
+                }
+                final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
+                putJob.setOnSucceeded(SafeHandler.logHandle(e -> {
+                    LOG.info("Succeed");
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+
+                }));
+                putJob.setOnFailed(SafeHandler.logHandle(e -> {
+                    LOG.info("setOnFailed");
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                }));
+                putJob.setOnCancelled(SafeHandler.logHandle(e -> {
+                    LOG.info("setOnCancelled");
+                    if (putJob.getJobId() != null) {
+                        try {
+                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                        } catch (final IOException e1) {
+                            LOG.error("Failed to cancel job", e1);
+                        }
+                    }
+                    Ds3PanelService.refresh(selectedItem);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
+                }));
+                jobWorkers.execute(putJob);
+            } else {
+                alert.showAlert(resourceBundle.getString("operationNotAllowedHere"));
+            }
+            event.consume();
+        } catch (final Throwable t) {
+            loggingService.logMessage("Could not handle drag event", LogType.ERROR);
+            LOG.error("Drag Event callback failed", t);
         }
-        event.consume();
     }
 
     /**

@@ -40,6 +40,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.MetadataTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -164,10 +165,10 @@ public final class Ds3PanelService {
         final PhysicalPlacementTask getPhysicalPlacement = new PhysicalPlacementTask(ds3Common, values, workers);
 
         workers.execute(getPhysicalPlacement);
-        getPhysicalPlacement.setOnSucceeded(event -> Platform.runLater(() -> {
+        getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
             PhysicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue(), resourceBundle);
-        }));
+        }))));
     }
 
     @SuppressWarnings("unchecked")
@@ -187,11 +188,11 @@ public final class Ds3PanelService {
 
         final MetadataTask getMetadata = new MetadataTask(ds3Common, values);
         workers.execute(getMetadata);
-        getMetadata.setOnSucceeded(event -> Platform.runLater(() -> {
+        getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching metadata popup");
             final MetadataView metadataView = new MetadataView((Ds3Metadata) getMetadata.getValue());
             Popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
-        }));
+        })));
     }
 
     public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
@@ -222,7 +223,7 @@ public final class Ds3PanelService {
 
                 final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, dateTimeUtils, loggingService);
                 workers.execute(searchJobTask);
-                searchJobTask.setOnSucceeded(event -> {
+                searchJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Search completed!");
                     Platform.runLater(() -> {
                         try {
@@ -247,8 +248,8 @@ public final class Ds3PanelService {
                             loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
                         }
                     });
-                });
-                searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
+                }));
+                searchJobTask.setOnCancelled(SafeHandler.logHandle(event -> LOG.info("Search cancelled")));
             } catch (final Exception e) {
                 LOG.error("Could not complete search: ", e);
             }

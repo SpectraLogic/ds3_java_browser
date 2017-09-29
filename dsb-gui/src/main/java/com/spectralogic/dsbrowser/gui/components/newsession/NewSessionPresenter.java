@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -162,7 +163,7 @@ public class NewSessionPresenter implements Initializable {
         });
         savedSessions.setRowFactory(tableView -> {
             final TableRow<SavedSession> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
+            row.setOnMouseClicked(SafeHandler.logHandle(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
@@ -173,7 +174,7 @@ public class NewSessionPresenter implements Initializable {
                         alert.showAlert(resourceBundle.getString("alreadyExistSession"));
                     }
                 }
-            });
+            }));
             return row;
         });
         savedSessions.setEditable(false);

@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -100,13 +101,13 @@ public class CreateBucketPresenter implements Initializable {
                     createBucketButton.setDisable(true);
                 }
             });
-            dataPolicyCombo.setOnAction(event -> {
+            dataPolicyCombo.setOnAction(SafeHandler.logHandle(event -> {
                 if (!bucketNameField.textProperty().getValue().isEmpty() && dataPolicyCombo.getValue() != null) {
                     createBucketButton.setDisable(false);
                 } else {
                     createBucketButton.setDisable(true);
                 }
-            });
+            }));
         } catch (final Throwable t) {
             LOG.error("Encountered an error initializing the CreateBucketPresenter", t);
         }
@@ -134,8 +135,7 @@ public class CreateBucketPresenter implements Initializable {
                         bucketNameField.getText().trim(),
                         resourceBundle,
                         loggingService);
-                workers.execute(createBucketTask);
-                createBucketTask.setOnSucceeded(event -> {
+                createBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
@@ -143,10 +143,11 @@ public class CreateBucketPresenter implements Initializable {
                         RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                         closeDialog();
                     });
-                });
-                createBucketTask.setOnFailed(event -> {
+                }));
+                createBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
                     alert.showAlert(resourceBundle.getString("createBucketErrorAlert"));
-                });
+                }));
+                workers.execute(createBucketTask);
             } else {
                 LOG.info("Data policy not found");
                 loggingService.logMessage(resourceBundle.getString("dataPolicyNotFoundErr"), LogType.INFO);

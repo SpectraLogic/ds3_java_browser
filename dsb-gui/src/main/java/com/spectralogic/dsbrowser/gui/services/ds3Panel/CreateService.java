@@ -31,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
@@ -56,8 +57,7 @@ public final class CreateService {
         if (session != null) {
             loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
             final Ds3GetDataPoliciesTask getDataPoliciesTask = new Ds3GetDataPoliciesTask(session, workers, resourceBundle, loggingService);
-            workers.execute(getDataPoliciesTask);
-            getDataPoliciesTask.setOnSucceeded(taskEvent -> {
+            getDataPoliciesTask.setOnSucceeded(SafeHandler.logHandle(taskEvent -> {
                 final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
                 if (value.isPresent()) {
                     LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
@@ -69,12 +69,12 @@ public final class CreateService {
                     LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
                     alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
                 }
-            });
-            getDataPoliciesTask.setOnFailed(taskEvent -> {
+            }));
+            getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
                 alert.showAlert(resourceBundle.getString("dataPolicyNotFoundErr"));
-            });
-
+            }));
+            workers.execute(getDataPoliciesTask);
         } else {
             LOG.error("invalid session");
             alert.showAlert(resourceBundle.getString("invalidSession"));

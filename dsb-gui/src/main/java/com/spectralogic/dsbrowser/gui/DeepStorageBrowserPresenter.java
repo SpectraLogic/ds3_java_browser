@@ -39,6 +39,7 @@ import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.settings.ShowCachedJobSettings;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.beans.binding.Bindings;
@@ -234,7 +235,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         recoverInterruptedJobsButton.setTooltip(jobToolTip);
         recoverInterruptedJobsButton.setGraphic(interruptedJobImageView);
         recoverInterruptedJobsButton.setDisable(true);
-        recoverInterruptedJobsButton.setOnAction(event -> {
+        recoverInterruptedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
             if (ds3Common.getCurrentSession() != null) {
                 final Session session = ds3Common.getCurrentSession();
                 final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
@@ -253,7 +254,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 recoverInterruptedJobsButton.setDisable(true);
                 loggingService.logMessage(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
             }
-        });
+        }));
     }
 
     //Implementation and design of "Cancel All Interrupted Jobs" button in bottom pane
@@ -267,7 +268,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         cancelInterruptedJobsButton.setTooltip(cancelAllToolTip);
         cancelInterruptedJobsButton.setGraphic(cancelAllJobsImageView);
         cancelInterruptedJobsButton.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
-        cancelInterruptedJobsButton.setOnAction(event -> {
+        cancelInterruptedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
             final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
                     resourceBundle.getString("confirmation"), jobWorkers.getTasks().size()
                             + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
@@ -281,7 +282,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             if (closeResponse.get().equals(ButtonType.CANCEL)) {
                 event.consume();
             }
-        });
+        }));
     }
 
     private void initToggleShowCachedJobsButton() {
@@ -299,13 +300,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
         toggleShowCachedJobsButton.setTooltip(toggleShowCachedJobsTooltip);
         updateToggleShowCachedJobsButtonGraphic();
 
-        toggleShowCachedJobsButton.setOnAction(event -> {
+        toggleShowCachedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
             loggingService.logMessage("Click ToggleShowCachedJobsButton", LogType.INFO);
             LOG.info("Click ToggleShowCachedJobsButton");
 
             showCachedJobSettings.setShowCachedJob(!showCachedJobSettings.getShowCachedJob());
             updateToggleShowCachedJobsButtonGraphic();
-        });
+        }));
     }
 
     private void updateToggleShowCachedJobsButtonGraphic() {
@@ -321,10 +322,10 @@ public class DeepStorageBrowserPresenter implements Initializable {
         sessionsMenuItem.setText(resourceBundle.getString("sessionsMenuItem"));
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
-        closeMenuItem.setOnAction(event -> {
+        closeMenuItem.setOnAction(SafeHandler.logHandle(event -> {
             final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
             closeConfirmationHandler.closeConfirmationAlert(event);
-        });
+        }));
 
         editMenu.setText(resourceBundle.getString("editMenu"));
         selectAllItem.setText(resourceBundle.getString("selectAllItem"));
@@ -332,15 +333,15 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
         viewMenu.setText(resourceBundle.getString("viewMenu"));
         logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
-        logsMenuItem.setOnAction(event -> {
+        logsMenuItem.setOnAction(SafeHandler.logHandle(event -> {
             logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
-        });
+        }));
         jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         jobsMenuItem.selectedProperty().setValue(true);
         logsMenuItem.selectedProperty().setValue(true);
-        jobsMenuItem.setOnAction(event -> {
+        jobsMenuItem.setOnAction(SafeHandler.logHandle(event -> {
             logsORJobsMenuItemAction(jobsMenuItem, jobProgressVBox, null, jobsTab);
-        });
+        }));
 
         helpMenu.setText(resourceBundle.getString("helpMenu"));
         aboutMenuItem.setText(resourceBundle.getString("aboutMenuItem"));
