@@ -58,32 +58,32 @@ public final class CreateConnectionTask {
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
-            alert.error(resourceBundle.getString("invalidEndpointMessage"));
+            alert.error("invalidEndpointMessage");
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
-            alert.error(resourceBundle.getString("checkEndpoint"));
+            alert.error("checkEndpoint");
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    alert.error(resourceBundle.getString("failToAuthenticateMessage"));
+                    alert.error("failToAuthenticateMessage");
                 } else {
                     LOG.error("Invalid Access ID or Secret Key", e);
-                    alert.error(resourceBundle.getString("invalidIDKEYMessage"));
+                    alert.error("invalidIDKEYMessage");
                 }
             } else if (e.getStatusCode() == 301) {
                 LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
-                alert.error(resourceBundle.getString("invalidEndpointMessage"));
+                alert.error("invalidEndpointMessage");
             } else {
                 LOG.error("BlackPearl returned an unexpected status code", e);
-                alert.error(resourceBundle.getString("unexpectedStatusMessage"));
+                alert.error("unexpectedStatusMessage");
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
-            alert.error(resourceBundle.getString("networkErrorMessage"));
+            alert.error("networkErrorMessage");
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong", rte);
-            alert.error(resourceBundle.getString("authenticationAlert"));
+            alert.error("authenticationAlert");
         }
         return null;
     }

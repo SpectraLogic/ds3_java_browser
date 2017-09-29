@@ -168,7 +168,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.info(resourceBundle.getString("filePropertiesSettingsUpdated"));
+            alert.info("filePropertiesSettingsUpdated");
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -178,14 +178,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.info(resourceBundle.getString("performanceSettingsUpdated"));
+        alert.info("performanceSettingsUpdated");
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.info(resourceBundle.getString("loggingSettingsUpdated"));
+        alert.info("loggingSettingsUpdated");
     }
 
     public void saveJobSettings() {
@@ -194,7 +194,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.info(resourceBundle.getString("jobsSettingsUpdated"));
+            alert.info("jobsSettingsUpdated");
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }

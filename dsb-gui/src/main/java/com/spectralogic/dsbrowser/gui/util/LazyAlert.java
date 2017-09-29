@@ -44,38 +44,51 @@ public class LazyAlert {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType) {
-        if(alert == null) {
+        if (alert == null) {
             alert = new Alert(alertType);
         }
         alert.setTitle(title);
         alert.setHeaderText(null);
 
+        //This prevents a null pointer when a dialog  is called right after startup
         final DialogPane dp = alert.getDialogPane();
-        if(dp != null) {
+        if (dp != null) {
             final Scene scene = dp.getScene();
-            if(scene !=null) {
-               final Stage w = (Stage) scene.getWindow();
-               if(w != null) {
-                   w.getIcons().add(new Image( ImageURLs.DEEP_STORAGE_BROWSER));
-               }
+            if (scene != null) {
+                final Stage w = (Stage) scene.getWindow();
+                if (w != null) {
+                    w.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
+                }
             }
         }
 
         alert.setContentText(message);
-        alert.showAndWait();
         alert.setAlertType(alertType);
+        alert.showAndWait();
     }
 
-    public void error(final String message) {
+    public void errorRaw(final String message) {
         showAlertInternal(message, resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
     }
 
-    public void info(final String message) {
+    public void infoRaw(final String message) {
         showAlertInternal(message, resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
     }
 
-    public void warning(final String message) {
+    public void warningRaw(final String message) {
         showAlertInternal(message, resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
+    }
+
+    public void error(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
+    }
+
+    public void info(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
+    }
+
+    public void warning(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
     }
 
 }

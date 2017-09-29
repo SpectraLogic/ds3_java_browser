@@ -70,7 +70,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                alert.error(resourceBundle.getString("multiBucketNotAllowed"));
+                alert.error("multiBucketNotAllowed");
                 return;
             }
             final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
@@ -79,7 +79,7 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                    alert.error(resourceBundle.getString("failedToDeleteBucket"));
+                    alert.error("failedToDeleteBucket");
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
                     DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);

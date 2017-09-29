@@ -42,6 +42,7 @@ import java.util.ResourceBundle;
 public class CreateFolderPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(CreateFolderPresenter.class);
+    private static final String CREATE_FOLDER_ERR_LOGS = "createFolderErrLogs";
 
     @FXML
     private TextField folderNameField;
@@ -111,7 +112,7 @@ public class CreateFolderPresenter implements Initializable {
         createFolderTask.setOnCancelled(event -> this.closeDialog());
         createFolderTask.setOnFailed(event -> {
             this.closeDialog();
-            alert.error(resourceBundle.getString("createFolderErrLogs"));
+            alert.error(CREATE_FOLDER_ERR_LOGS);
         });
         workers.execute(createFolderTask);
     }

@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -113,10 +114,10 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             processImage.setFitWidth(20);
             super.setGraphic(processImage);
             final Task buildChildren = BuildChildrenTask(children);
-            buildChildren.setOnSucceeded(event -> {
+            buildChildren.setOnSucceeded(SafeHandler.logHandle(event -> {
                 LOG.info("Success");
                 super.setGraphic(previousGraphics);
-            });
+            }));
         }
         return super.getChildren();
     }

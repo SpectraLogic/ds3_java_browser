@@ -31,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -101,11 +102,11 @@ public class DeleteItemPresenter implements Initializable {
                     deleteButton.setDisable(true);
                 }
             });
-            deleteField.setOnKeyReleased(event -> {
+            deleteField.setOnKeyReleased(SafeHandler.logHandle(event -> {
                 if (!deleteButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     deleteItems();
                 }
-            });
+            }));
 
         } catch (final Throwable t) {
             LOG.error("Encountered an error initializing the DeleteItemPresenter", t);
@@ -139,14 +140,14 @@ public class DeleteItemPresenter implements Initializable {
 
     public void deleteItems() {
         closeDialog();
-        deleteTask.setOnCancelled(event -> constructMessageForLog());
-        deleteTask.setOnFailed(event -> constructMessageForLog());
-        deleteTask.setOnSucceeded(event -> {
+        deleteTask.setOnCancelled(SafeHandler.logHandle(event -> constructMessageForLog()));
+        deleteTask.setOnFailed(SafeHandler.logHandle(event -> constructMessageForLog()));
+        deleteTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
             LOG.info("Successfully deleted selected item(s).");
 
             DeleteService.managePathIndicator(ds3Common, workers, dateTimeUtils, loggingService);
-        });
+        }));
         workers.execute(deleteTask);
     }
 
@@ -177,6 +178,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.error(alertMessage);
+        alert.errorRaw(alertMessage);
     }
 }

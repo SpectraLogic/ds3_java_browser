@@ -30,19 +30,19 @@ public final class NewSessionModelValidation {
     public static boolean validationNewSession(final NewSessionModel model) {
         final LazyAlert alert = new LazyAlert(resourceBundle);
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.error(resourceBundle.getString("enterSession"));
+            alert.error("enterSession");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.error(resourceBundle.getString("enterDataPathAddress"));
+            alert.error("enterDataPathAddress");
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.error(resourceBundle.getString("enterValidPort"));
+            alert.error("enterValidPort");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.error(resourceBundle.getString("enterAccessKey"));
+            alert.error("enterAccessKey");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.error(resourceBundle.getString("enterSecretKey"));
+            alert.error("enterSecretKey");
             return false;
         }
         return true;

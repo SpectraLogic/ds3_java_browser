@@ -31,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -56,8 +57,7 @@ public final class CreateService {
         if (session != null) {
             loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
             final Ds3GetDataPoliciesTask getDataPoliciesTask = new Ds3GetDataPoliciesTask(session, workers, resourceBundle, loggingService);
-            workers.execute(getDataPoliciesTask);
-            getDataPoliciesTask.setOnSucceeded(taskEvent -> {
+            getDataPoliciesTask.setOnSucceeded(SafeHandler.logHandle(taskEvent -> {
                 final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
                 if (value.isPresent()) {
                     LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
@@ -67,17 +67,17 @@ public final class CreateService {
                     });
                 } else {
                     LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                    alert.error(resourceBundle.getString("dataPolicyNotFoundErr"));
+                    alert.error("dataPolicyNotFoundErr");
                 }
-            });
-            getDataPoliciesTask.setOnFailed(taskEvent -> {
+            }));
+            getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                alert.error(resourceBundle.getString("dataPolicyNotFoundErr"));
-            });
-
+                alert.error("dataPolicyNotFoundErr");
+            }));
+            workers.execute(getDataPoliciesTask);
         } else {
             LOG.error("invalid session");
-            alert.error(resourceBundle.getString("invalidSession"));
+            alert.error("invalidSession");
         }
 
     }
@@ -92,18 +92,18 @@ public final class CreateService {
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not create folder here. Please refresh your view");
-            alert.info(resourceBundle.getString("cantCreateFolderHere"));
+            alert.info("cantCreateFolderHere");
             return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            alert.info(resourceBundle.getString("selectSingleLocation"));
+            alert.info("selectSingleLocation");
             return;
         } else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (Guard.isNullOrEmpty(values)) {
             loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.info(resourceBundle.getString("locationNotSelected"));
+            alert.info("locationNotSelected");
             return;
         }
         final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();

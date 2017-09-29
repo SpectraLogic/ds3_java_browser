@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TabPane;
@@ -68,8 +69,7 @@ public final class RefreshCompleteViewWorker {
                     }
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
                     final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
-                    workers.execute(getServiceTask);
-                    getServiceTask.setOnSucceeded(event -> {
+                    getServiceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         ds3TreeTableView.setRoot(rootTreeItem);
                         if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + StringConstants.SESSION_SEPARATOR +
                                 session.getEndpoint())) {
@@ -93,11 +93,12 @@ public final class RefreshCompleteViewWorker {
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
                         }
-                    });
-                    getServiceTask.setOnFailed(event -> {
+                    }));
+                    getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
                         LOG.info("GetServiceTask failed");
                         ds3TreeTableView.setRoot(null);
-                    });
+                    }));
+                    workers.execute(getServiceTask);
                 }
             } else {
                 LOG.info("TreeView is null");

@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.util.Constants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -74,9 +75,9 @@ public class AboutPresenter implements Initializable {
             title.setText(resourceBundle.getString("title"));
             buildVersion.setText(buildInfoService.getBuildVersion());
             buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
-            dsbReleasesLink.setOnAction(e -> tryToOpenInBrowser(Constants.DSB_RELEASES_URI));
+            dsbReleasesLink.setOnAction(SafeHandler.logHandle(event -> tryToOpenInBrowser(Constants.DSB_RELEASES_URI)));
             copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
-            apacheLicenseLink.setOnAction(e -> tryToOpenInBrowser(Constants.APACHE_URI));
+            apacheLicenseLink.setOnAction(SafeHandler.logHandle(event -> tryToOpenInBrowser(Constants.APACHE_URI)));
             copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
         } catch (final Throwable t) {
             LOG.error("Encountered an error initializing the AboutPresenter", t);
