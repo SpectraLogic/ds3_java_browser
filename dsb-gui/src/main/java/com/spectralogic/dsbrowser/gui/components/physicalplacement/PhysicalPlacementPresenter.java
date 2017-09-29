@@ -115,13 +115,14 @@ public class PhysicalPlacementPresenter implements Initializable {
                 final String state = tape.getState().toString();
                 final Date lastTapeError = tape.getLastVerified();
                 final boolean writeProtected = tape.getWriteProtected();
-                final boolean available = tape.getAssignedToStorageDomain();
-                final long used = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
+                final boolean assignedToStorageDomain = tape.getAssignedToStorageDomain();
+                final long availableCapacity = tape.getAvailableRawCapacity();
+                final long usedCapacity = (tape.getTotalRawCapacity() - tape.getAvailableRawCapacity());
                 final String tapePartition = tape.getPartitionId().toString();
                 final String lastModified = tape.getLastModified().toString();
                 final String ejectLabel = tape.getEjectLabel();
                 final String ejectLocation = tape.getEjectLocation();
-                physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntryModel(barcode, serialNo, type, state, lastTapeError, writeProtected, available, used, tapePartition, lastModified, ejectLabel, ejectLocation));
+                physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntryModel(barcode, serialNo, type, state, lastTapeError, writeProtected, assignedToStorageDomain, availableCapacity, usedCapacity, tapePartition, lastModified, ejectLabel, ejectLocation));
             }
             tapeSortedList = new SortedList(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
             tapeSortedList.comparatorProperty().bind(physicalPlacementDataTableTape.comparatorProperty());

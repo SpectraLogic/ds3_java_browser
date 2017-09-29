@@ -26,8 +26,9 @@ public class PhysicalPlacementTapeEntryModel {
     private final String state;
     private final Date lastTapeError;
     private final boolean writeProtected;
-    private final boolean available;
-    private final String used;
+    private final boolean assignedToStorageDomain;
+    private final String availableCapacity;
+    private final String usedCapacity;
     private final String tapePartition;
     private final String lastModified;
     private final String ejectLabel;
@@ -39,8 +40,9 @@ public class PhysicalPlacementTapeEntryModel {
                                     final String state,
                                     final Date lastTapeError,
                                     final boolean writeProtected,
-                                    final boolean available,
-                                    final long used,
+                                    final boolean assignedToStorageDomain,
+                                    final long availableCapacity,
+                                    final long usedCapacity,
                                     final String tapePartition,
                                     final String lastModified,
                                     final String ejectLabel,
@@ -51,8 +53,9 @@ public class PhysicalPlacementTapeEntryModel {
         this.state = state;
         this.lastTapeError = lastTapeError;
         this.writeProtected = writeProtected;
-        this.available = available;
-        this.used = FileUtils.byteCountToDisplaySize(used);
+        this.assignedToStorageDomain = assignedToStorageDomain;
+        this.availableCapacity = FileUtils.byteCountToDisplaySize(availableCapacity);
+        this.usedCapacity = FileUtils.byteCountToDisplaySize(usedCapacity);
         this.tapePartition = tapePartition;
         this.lastModified = lastModified;
         this.ejectLabel = ejectLabel;
@@ -60,8 +63,8 @@ public class PhysicalPlacementTapeEntryModel {
 
     }
 
-    public boolean isAvailable() {
-        return available;
+    public boolean isAssignedToStorageDomain() {
+        return assignedToStorageDomain;
     }
 
     public boolean isWriteProtected() {
@@ -84,8 +87,12 @@ public class PhysicalPlacementTapeEntryModel {
         return state;
     }
 
-    public String getUsed() {
-        return used;
+    public String getAvailableCapacity() {
+        return availableCapacity;
+    }
+
+    public String getUsedCapacity() {
+        return usedCapacity;
     }
 
     public String getType() {

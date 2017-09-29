@@ -112,14 +112,19 @@
                         <PropertyValueFactory property="writeProtected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn minWidth="0.0" prefWidth="60.0" text="Available">
+                <TableColumn minWidth="75.0" prefWidth="75.0" text="Assigned To StorageDomain">
                     <cellValueFactory>
-                        <PropertyValueFactory property="available"/>
+                        <PropertyValueFactory property="assignedToStorageDomain"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="45.0" text="Used">
+                <TableColumn prefWidth="60.0" text="Available Capacity">
                     <cellValueFactory>
-                        <PropertyValueFactory property="used"/>
+                        <PropertyValueFactory property="availableCapacity"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="60.0" text="Used Capacity">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="usedCapacity"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn minWidth="0.0" prefWidth="138.0" text="Tape Library Partition">
