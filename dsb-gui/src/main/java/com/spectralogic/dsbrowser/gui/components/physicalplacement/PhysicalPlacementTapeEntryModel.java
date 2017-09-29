@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
+import org.apache.commons.io.FileUtils;
+
 import java.util.Date;
 
 public class PhysicalPlacementTapeEntryModel {
@@ -25,14 +27,24 @@ public class PhysicalPlacementTapeEntryModel {
     private final Date lastTapeError;
     private final boolean writeProtected;
     private final boolean available;
-    private final long used;
+    private final String used;
     private final String tapePartition;
     private final String lastModified;
     private final String ejectLabel;
     private final String ejectLocation;
 
-    public PhysicalPlacementTapeEntryModel(final String barcode, final String serialNO, final String type, final String state, final Date lastTapeError, final boolean writeProtected,
-                                       final boolean available, final long used, final String tapePartition, final String lastModified, final String ejectLabel, final String ejectLocation) {
+    PhysicalPlacementTapeEntryModel(final String barcode,
+                                    final String serialNO,
+                                    final String type,
+                                    final String state,
+                                    final Date lastTapeError,
+                                    final boolean writeProtected,
+                                    final boolean available,
+                                    final long used,
+                                    final String tapePartition,
+                                    final String lastModified,
+                                    final String ejectLabel,
+                                    final String ejectLocation) {
         this.barcode = barcode;
         this.serialNO = serialNO;
         this.type = type;
@@ -40,7 +52,7 @@ public class PhysicalPlacementTapeEntryModel {
         this.lastTapeError = lastTapeError;
         this.writeProtected = writeProtected;
         this.available = available;
-        this.used = used;
+        this.used = FileUtils.byteCountToDisplaySize(used);
         this.tapePartition = tapePartition;
         this.lastModified = lastModified;
         this.ejectLabel = ejectLabel;
@@ -72,7 +84,7 @@ public class PhysicalPlacementTapeEntryModel {
         return state;
     }
 
-    public long getUsed() {
+    public String getUsed() {
         return used;
     }
 
