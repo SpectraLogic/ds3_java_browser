@@ -55,14 +55,12 @@ import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class Ds3PutJob extends Ds3JobTask {
 
@@ -79,6 +77,8 @@ public class Ds3PutJob extends Ds3JobTask {
     private final String targetDirectory;
     private final TreeItem<Ds3TreeTableValue> remoteDestination;
     private final DateTimeUtils dateTimeUtils;
+    private final String delimiter;
+    private final static String BP_DELIMITER = "/";
 
     @Inject
     public Ds3PutJob(final Ds3Client client,
@@ -94,9 +94,12 @@ public class Ds3PutJob extends Ds3JobTask {
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final DateTimeUtils dateTImeUtils,
             @Assisted final TreeItem<Ds3TreeTableValue> remoteDestination) {
+        this.delimiter = FileSystems.getDefault().getSeparator();
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
-        this.files = files;
+        this.files = files.stream()
+        .map(p -> new Pair<>(p.getKey().replaceAll(delimiter, BP_DELIMITER), p.getValue()))
+        .collect(GuavaCollectors.immutableList());
         this.settings = settings;
         this.bucket = bucket;
         this.targetDir = targetDir;
@@ -132,7 +135,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> folderMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> fileMapperBuilder = ImmutableMap.builder();
-        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService, targetDir));
+        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService, targetDir, delimiter));
         final ImmutableMap<String, Path> fileMap = fileMapBuilder.build();
         final ImmutableMap<String, Path> folderMap = folderMapBuilder.build();
         fileMapperBuilder.putAll(fileMap);
@@ -188,12 +191,12 @@ public class Ds3PutJob extends Ds3JobTask {
         }
     }
 
-    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService, final String targetDir) {
+    private static void buildMaps(final ImmutableMap.Builder<String, Path> fileMapBuilder, final ImmutableMap.Builder<String, Path> folderMapBuilder, final Pair<String, Path> pair, final LoggingService loggingService, final String targetDir, final String delimiter) {
         final String name = pair.getKey();
         final Path path = pair.getValue();
         if (hasNestedItems(path)) {
             try {
-                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetDir + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
+                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetDir + name + delimiter + path.relativize(p).toString() + appendSlashWhenDirectory(p, delimiter), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final SecurityException e) {
                 LOG.error("Permission denied while accessing path", e);
@@ -203,13 +206,13 @@ public class Ds3PutJob extends Ds3JobTask {
                 loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
             }
         } else {
-            fileMapBuilder.put(targetDir + name + appendSlashWhenDirectory(path), path);
+            fileMapBuilder.put(targetDir + name + appendSlashWhenDirectory(path, delimiter), path);
         }
     }
 
     @NotNull
-    private static String appendSlashWhenDirectory(final Path path) {
-        return Files.isDirectory(path) ? "/" : "";
+    private static String appendSlashWhenDirectory(final Path path, final String delimiter) {
+        return Files.isDirectory(path) ? delimiter : "";
     }
 
     private static boolean hasNestedItems(final Path path) {
