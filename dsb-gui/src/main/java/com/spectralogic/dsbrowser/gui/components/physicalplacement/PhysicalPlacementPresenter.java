@@ -99,7 +99,7 @@ public class PhysicalPlacementPresenter implements Initializable {
             final String partition = pool.getPartitionId().toString();
             physicalPlacementPoolEntryBuilder.add(new PhysicalPlacementPoolEntryModel(name, health, S3poolType, partition));
         }
-        SortedList<PhysicalPlacementPoolEntryModel> poolSortedList = new SortedList<>(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
+        final SortedList<PhysicalPlacementPoolEntryModel> poolSortedList = new SortedList<>(FXCollections.observableList(physicalPlacementPoolEntryBuilder.build()));
         poolSortedList.comparatorProperty().bind(physicalPlacementDataTablePool.comparatorProperty());
         return poolSortedList;
     }
