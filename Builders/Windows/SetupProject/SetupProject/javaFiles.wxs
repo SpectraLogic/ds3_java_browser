@@ -1,624 +1,624 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
-        <DirectoryRef Id="INSTALLFOLDER">
-            <Directory Id="dir1C9BD86B928DD540A9850CE7982A7D84" Name="Java">
-                <Directory Id="dir290197CC1AEFFEF71E9CA8515F0664CA" Name="jre1.8.0_121">
-                    <Component Win64="yes" Id="cmp4B802379E302547E2BF3322D162B5C89" Guid="*">
-                        <File Id="fil2F0C8C1FFA43885B26BA67265582C54C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\COPYRIGHT" />
+        <DirectoryRef Id="APPLICATIONFOLDER">
+            <Directory Id="dirC1512B38B1C33B24D7FFB41C2EF6DCC3" Name="Java">
+                <Directory Id="dir0AFA976B6D8EE2B8A96D4BAAC8233AFE" Name="jre1.8.0_144">
+                    <Component Win64="yes" Id="cmp9150AAB3EAFFF4D362A1DB22A1D6617A" Guid="*">
+                        <File Id="fil5C0F0EB34E0ABD39B4D372D6B8BF63FB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\COPYRIGHT" />
                     </Component>
-                    <Component Win64="yes" Id="cmp9C78F7551374F3BBE20AF504BB7CA154" Guid="*">
-                        <File Id="fil79864944FE3AFF048726FE8B626985FD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\LICENSE" />
+                    <Component Win64="yes" Id="cmp1EF2B19DEF1928E6243BCD1DE46A93D2" Guid="*">
+                        <File Id="filAF6F1889B1095B16F15751E418021993" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\LICENSE" />
                     </Component>
-                    <Component Win64="yes" Id="cmpDEF4696F6B4222A1B65B68C2F4666297" Guid="*">
-                        <File Id="fil43C78BBDD5D27689C26D3A54D814D2E1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\README.txt" />
+                    <Component Win64="yes" Id="cmp4E900697C76718FE44F42586C55A0B7A" Guid="*">
+                        <File Id="fil3E1297288D35A0DE755576ECBBD03C8F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\README.txt" />
                     </Component>
-                    <Component Win64="yes" Id="cmp5EB1A61FEA752810649FFD7FC28784C4" Guid="*">
-                        <File Id="filD116E2F81F54A39ED6183280EF857A40" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\release" />
+                    <Component Win64="yes" Id="cmp326545607ED6469417F92DE3D3CD22D7" Guid="*">
+                        <File Id="filE93181BF77E010688C530E14DB6FA0F4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\release" />
                     </Component>
-                    <Component Win64="yes" Id="cmp17DB74D5BEA322A8169099A7B05C89E0" Guid="*">
-                        <File Id="fil7711D8C22D6B38E301A8F2081BA1BB5F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\THIRDPARTYLICENSEREADME-JAVAFX.txt" />
+                    <Component Win64="yes" Id="cmp237E7223D546C76123E9EB54C1D72A6A" Guid="*">
+                        <File Id="filA99633B3873468D25CA403081194A727" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\THIRDPARTYLICENSEREADME-JAVAFX.txt" />
                     </Component>
-                    <Component Win64="yes" Id="cmp92EE90D28F3BBCBE31B60C9037EF279F" Guid="*">
-                        <File Id="fil3F43FB3A152EF5A30218B861227773E5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\THIRDPARTYLICENSEREADME.txt" />
+                    <Component Win64="yes" Id="cmp68243A91E6E9ED91FD1F57BABC8D296A" Guid="*">
+                        <File Id="filEF519D52F7742D6D708EB8C2A3D4AB98" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\THIRDPARTYLICENSEREADME.txt" />
                     </Component>
-                    <Component Win64="yes" Id="cmpA6EACB386C151CF58F5A988707E0C123" Guid="*">
-                        <File Id="fil665D702DCE961A9B35CEB0657BAC2394" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\Welcome.html" />
+                    <Component Win64="yes" Id="cmp8AF8DEF560CA0624A438E16FDE79A9F0" Guid="*">
+                        <File Id="fil4AD9E3CFB5B865080A75DE0CDFA2D9DC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\Welcome.html" />
                     </Component>
-                    <Directory Id="dir286967A74B1CC9161F8692D5CCCE7037" Name="bin">
-                        <Component Win64="yes" Id="cmp74BA1F4FE78CC4E0AD0FB7C18C431D4E" Guid="*">
-                            <File Id="filAA7383036510A9BF4E8C4FDE0B2FEF24" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\awt.dll" />
+                    <Directory Id="dir5A996712A93E154EDC25C7B47FC7E5BF" Name="bin">
+                        <Component Win64="yes" Id="cmp3F4AC584057C77D94254CF7E29AB9FFD" Guid="*">
+                            <File Id="filACE8D77C53B18AAC80DD92FB9DBFF6DB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\awt.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp00EA6341E76357651E7227C19BFE11CB" Guid="*">
-                            <File Id="filBE1A923743D3FEEF13A637913F7E5860" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\bci.dll" />
+                        <Component Win64="yes" Id="cmp5BAAF1BB8C38E15566520303ACC4C1AB" Guid="*">
+                            <File Id="filBD1BA0E6BE08DE1C1DBDE2B9170188DB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\bci.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp0423D397A40EC7ACABE77DD580E6D88A" Guid="*">
-                            <File Id="fil7676DC472E50CBAB215AB9ECDEE814E9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\dcpr.dll" />
+                        <Component Win64="yes" Id="cmp6D23B728D580C124F382426E586BA5AA" Guid="*">
+                            <File Id="fil3A6F173338626A00DCED3A92D29F2DF9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\dcpr.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp3C43EC3C7D53F2C9849FA90C2036B631" Guid="*">
-                            <File Id="fil269B5F85F935E4B5413E6ED028C9ADCC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\decora_sse.dll" />
+                        <Component Win64="yes" Id="cmp6D9925A107FAC2C384F8A31EBB1B8CDB" Guid="*">
+                            <File Id="filF27D2BB95EF0C88EAF8996F3C9EFABBA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\decora_sse.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp0BE794CAD82C05C2CFE1C08B798623E7" Guid="*">
-                            <File Id="fil54684E1FD3363BF6A9A5269067E81C2C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\deploy.dll" />
+                        <Component Win64="yes" Id="cmp0B2D18DEAEFDA6DC26E157FE58C9F653" Guid="*">
+                            <File Id="fil3BC8294681C2C2A8E3A234DD0E2835D9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\deploy.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpE5ABEB73AA9B087753B991C371D0F807" Guid="*">
-                            <File Id="fil3B4824E810636F7BB7CC8222A8C9751E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\dt_shmem.dll" />
+                        <Component Win64="yes" Id="cmp18BB75ED7B54FF15C80177323E42B6E3" Guid="*">
+                            <File Id="filAAAECA202D362B5A6F69E20F4914EF5A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\dt_shmem.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6CD346DC3588861F8A76624431E4E092" Guid="*">
-                            <File Id="fil418AADDCEA35ADF0E699C57940B53CCC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\dt_socket.dll" />
+                        <Component Win64="yes" Id="cmp85DD09E33CE00B4360A2C2A53885B7BC" Guid="*">
+                            <File Id="fil1FBA7D016CFA37CC4F72A44DBC034CF8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\dt_socket.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp57B68D1FC896A5060428E8724DDFED8C" Guid="*">
-                            <File Id="fil4C9BAD21B45CA7DDB5A3364BCFB09E3D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\eula.dll" />
+                        <Component Win64="yes" Id="cmp51486AE483DB48464BE0B5E5B5722A9D" Guid="*">
+                            <File Id="filDFD33AA51A5905445FAEBD20EDF9FAA0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\eula.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp02C32AD27D4F018C095D296FFB26E6E0" Guid="*">
-                            <File Id="filC5C44EC4FD744FB397F65A92F438D6DE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\fontmanager.dll" />
+                        <Component Win64="yes" Id="cmpA25A309F2C98E82772CF4CF0D2C612DF" Guid="*">
+                            <File Id="filF6E3EDEFE47A1ED9247555A8D836811C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\fontmanager.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp3271548A2D657A19F1E1F4C36C067440" Guid="*">
-                            <File Id="fil5B378CBA590A378C59ED02F0CE9E5234" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\fxplugins.dll" />
+                        <Component Win64="yes" Id="cmp0614E5F2806D8FA985C358488CD77AD3" Guid="*">
+                            <File Id="fil7DD69A0AF47ED3D3076F183A748840E8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\fxplugins.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD8B193E96AFBFDC8926F581031C817AC" Guid="*">
-                            <File Id="fil1A2F3BA75A98E1DB183E86EA4F0B1A09" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\glass.dll" />
+                        <Component Win64="yes" Id="cmpBFC98984BD3AF61BDEC250E36432140C" Guid="*">
+                            <File Id="fil7F46F889F60E920130BDD31C4957E6F8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\glass.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpECE76F29CA12B9B4B93BE8E5B7714885" Guid="*">
-                            <File Id="fil141DC4A143E21D882A965678FF8AD0CB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\glib-lite.dll" />
+                        <Component Win64="yes" Id="cmpF285DBFEF8BB4F86F20BA9CAC2DA4CB0" Guid="*">
+                            <File Id="filA32781FB7787F01BC74AB9037B995CE8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\glib-lite.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpAC8FA23A184901D7C09FBC0BB392FA75" Guid="*">
-                            <File Id="fil52B35E5B81942A38F377B375FC9081C8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\gstreamer-lite.dll" />
+                        <Component Win64="yes" Id="cmp2F6EDE9BCF8C3A159F207934C25768B8" Guid="*">
+                            <File Id="filE7681EC0FAAEF0CD4498BCE1A3EA3EE0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\gstreamer-lite.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp443A08549B1567C39C8DA974986FD4CE" Guid="*">
-                            <File Id="filC27228D0FCEFFF9319318696BF86AFB1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\hprof.dll" />
+                        <Component Win64="yes" Id="cmp881E5E9511C2096E01536103CE990B74" Guid="*">
+                            <File Id="filE6BAC925ECFBFA81155DCDF0F1A3C321" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\hprof.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp50394400D1EA8B5FCDDDA8780D90C246" Guid="*">
-                            <File Id="fil6F8FBB22C3443AF0EC324FC1F02D8D3E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\instrument.dll" />
+                        <Component Win64="yes" Id="cmpB60C3CFB879C883B1110CF7F2F3F7DC8" Guid="*">
+                            <File Id="filA39631BA9A6BDFE71CAA66730ABCE4AA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\instrument.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp42490B4CB7E86FD9C6BECE4E34671DF3" Guid="*">
-                            <File Id="fil4483B3681695F5C158B533A97F36E786" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\j2pcsc.dll" />
+                        <Component Win64="yes" Id="cmp6464DC9611861AB3B8E1E45F6E7BAD9D" Guid="*">
+                            <File Id="fil0B78EEA4E428027E3D918C0D3EFC7FEF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\j2pcsc.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp9961D6095834E4A6D9EC2F545C404D93" Guid="*">
-                            <File Id="fil89FC55C04CCFE806C10BEFE977325C27" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\j2pkcs11.dll" />
+                        <Component Win64="yes" Id="cmp9BB6CC4C4C6DC8191A69DEED4330F778" Guid="*">
+                            <File Id="fil9D58E7CA9CC5CFB159A558BE3CA4FA39" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\j2pkcs11.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp276E257099CF10DC31F994A007F9CBB9" Guid="*">
-                            <File Id="fil0EA3372014EE541B4968EBD92F6C06B8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jaas_nt.dll" />
+                        <Component Win64="yes" Id="cmp98186E513216CB2243EC9A162D2D16F0" Guid="*">
+                            <File Id="fil39BA1ACF378A7AE1B000E676E0904386" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jaas_nt.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpF6803E2E67626C6AE113C88E2C32D7AF" Guid="*">
-                            <File Id="fil4977459352799379961A1FD93104BBC6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jabswitch.exe" />
+                        <Component Win64="yes" Id="cmpA0544C146510E461BA39A8A063704762" Guid="*">
+                            <File Id="fil40B0D866B5886CF6FE0650C67B473AA6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jabswitch.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp17EF216932F7AF390690A4A658049B8F" Guid="*">
-                            <File Id="filBE3880749EDA9D94B9971102286771D7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\java-rmi.exe" />
+                        <Component Win64="yes" Id="cmpF3F8E1403C980F4134672DA2253BC0B9" Guid="*">
+                            <File Id="fil61348E27342E821D6CDAD85138A79807" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\java-rmi.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp3DB023EAAB21CC9D37C9533578900422" Guid="*">
-                            <File Id="filF7A59A622B1B19EE7BD0A4874FCC50FD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\java.dll" />
+                        <Component Win64="yes" Id="cmp74B576E2FFABAE679A0F4FF85ABAEBB7" Guid="*">
+                            <File Id="fil4B3BAEF841AEFFE4FD48FB930FB142C9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\java.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD24686211FC44E5F384AC3333453DB34" Guid="*">
-                            <File Id="filC116FDC1EDF91BE5197014EA3BDFAFE9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\java.exe" />
+                        <Component Win64="yes" Id="cmp3818B5DC9BCDE400F30EED1D68A2280C" Guid="*">
+                            <File Id="filC4C8DD4F719ED5B5FDAB16CBF2492749" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\java.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpED771E8D4856B680963A88DF10BF2C9D" Guid="*">
-                            <File Id="fil2F2B76923E8A561BF66A708FB6437E66" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\JavaAccessBridge-64.dll" />
+                        <Component Win64="yes" Id="cmpE2FAE141A298452CE82BB4C12F668AFC" Guid="*">
+                            <File Id="filB899417302E5D602E388102BA5B404BA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\JavaAccessBridge-64.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD95F2ABE6E51DA4C0786799A8AB9B213" Guid="*">
-                            <File Id="fil429ABE98B7B96965D56267FC6D238F56" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javacpl.cpl" />
+                        <Component Win64="yes" Id="cmp8B085694C4F2EBD0E800847EDEBF9EEC" Guid="*">
+                            <File Id="fil065504E2AD902922AFE35FD217D65187" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javacpl.cpl" />
                         </Component>
-                        <Component Win64="yes" Id="cmp33FEEB9D4A74BE8A56911541F4B91D47" Guid="*">
-                            <File Id="fil74FEC225B375C51B0C8D3100359844EE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javacpl.exe" />
+                        <Component Win64="yes" Id="cmpC18E9E9C556FBD609F62FA7B9B67F396" Guid="*">
+                            <File Id="fil3B4A2FF51CD0645E699772909712DB97" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javacpl.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp7F310729A35C0007CD522F3BCDAB019D" Guid="*">
-                            <File Id="fil057563C19F7133A13E2637A60FB351D9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javafx_font.dll" />
+                        <Component Win64="yes" Id="cmpAF9213813DBC14461B8A46FC0BAFF52C" Guid="*">
+                            <File Id="filDC06F7548E3E44151240396C692E729E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javafx_font.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp11E8355DEF371CABFFA7C70BD8D193EF" Guid="*">
-                            <File Id="fil0DD750A164A68790CC1E68A2D73CF768" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javafx_font_t2k.dll" />
+                        <Component Win64="yes" Id="cmp4854FB3DC26704DDB8BC2C86F605495C" Guid="*">
+                            <File Id="fil5BDFA1FC36214EAA72CA1DE6BBB1417F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javafx_font_t2k.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC4FB2A99126781FBA1AC7E25399DFFC3" Guid="*">
-                            <File Id="fil6915A544C6D6943B6E575FDED836BE79" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javafx_iio.dll" />
+                        <Component Win64="yes" Id="cmpA15F4509F3DC6C42EE0F0A0B8573576C" Guid="*">
+                            <File Id="filF5938C75381B72C8634D426752937D68" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javafx_iio.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpDCE1F4A6165E9B547471F285E8E9906B" Guid="*">
-                            <File Id="fil79481CF9BE266FB34CFF425DFCAA4BED" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javaw.exe" />
+                        <Component Win64="yes" Id="cmp9C24968D54CA9925E1CDE32D4C7109E1" Guid="*">
+                            <File Id="fil63C509E9E30CADD25D8B07BF342E378A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javaw.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpF81ED3D8CA181CA6566DB17CB1445590" Guid="*">
-                            <File Id="fil4080BB4FC85EC81007F02843026F90C4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\javaws.exe" />
+                        <Component Win64="yes" Id="cmpA078110895E7352A85D08C01D2C8336F" Guid="*">
+                            <File Id="fil227622B999EA29CCE18648F9BC14338E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\javaws.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpFF79204E5938984A83C200A01229D3F3" Guid="*">
-                            <File Id="filB732A944CC3C068467F37D32C907BB99" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\java_crw_demo.dll" />
+                        <Component Win64="yes" Id="cmp7DC4426ABD97BDB3E0FBBD03201226A7" Guid="*">
+                            <File Id="fil537DDF98ABE35C5FB17CA57AED6DD342" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\java_crw_demo.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD1BB1E55CEC3D955CF221389A160F7AE" Guid="*">
-                            <File Id="filDD9D64081A99A09BA3220B7107ACCDAB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jawt.dll" />
+                        <Component Win64="yes" Id="cmp87855A2327816CFA79D16D879B9A7287" Guid="*">
+                            <File Id="filD65E820B713CDB0FC0D70ED8B597B9DD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jawt.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC92D45D40BE61A4008FF3FF75736231F" Guid="*">
-                            <File Id="filFB989150BA843C2DA482EA03615DFC64" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\JAWTAccessBridge-64.dll" />
+                        <Component Win64="yes" Id="cmpC44652E8B3FC2526C661CA550D343D8F" Guid="*">
+                            <File Id="filF34AC05DC2EDD31FE7AD0CCB5BDB0F91" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\JAWTAccessBridge-64.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp1287321552341086870B3A119678EC82" Guid="*">
-                            <File Id="filD815D856DF939432B7EF23815CFB465C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jdwp.dll" />
+                        <Component Win64="yes" Id="cmpBB578805B2A1F975CE1CE7FADB34E775" Guid="*">
+                            <File Id="filE095E3AF766A3BA44538970C152810D2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jdwp.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA265929AEC333DA95F925A4170C2E821" Guid="*">
-                            <File Id="filEFBF9D73B625592CD8D8647460AEA923" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jfr.dll" />
+                        <Component Win64="yes" Id="cmpEF1329846701E4F069ECB6F7BFCE24FC" Guid="*">
+                            <File Id="fil12B6E02D0C3411E9F71BCDDBE0C26191" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jfr.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpEDC74A841BF1F2F43735E495EDBA3087" Guid="*">
-                            <File Id="fil59B88AD6B0DD5D45292A6B6E9672869A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jfxmedia.dll" />
+                        <Component Win64="yes" Id="cmp07BE401BE333101C1C18354D7400310B" Guid="*">
+                            <File Id="filAC545E0B5E5E773776B2774738146496" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jfxmedia.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp682B9EFC564327E06613071C65E6BDD7" Guid="*">
-                            <File Id="filC02DCC4A818C1B844B9C7062BC6A9AB5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jfxwebkit.dll" />
+                        <Component Win64="yes" Id="cmp197FB03FE84D218C83966DB50CA0B7BE" Guid="*">
+                            <File Id="fil621228101BC871ABD182F4F52A84E8C4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jfxwebkit.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp10B74A4F813C136CE0B5B5BD9C937BB4" Guid="*">
-                            <File Id="fil7E4F28DC4BF23AC20F2A216A367B9383" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jjs.exe" />
+                        <Component Win64="yes" Id="cmpE75CD236DC5F68A3C2FF858ACEA3F562" Guid="*">
+                            <File Id="fil0AC22594C953F25E911F48AAAB03DA9E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jjs.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp220485371976323F7B1BDED8AD9B9E2D" Guid="*">
-                            <File Id="filDC980B616C4D892C074FF4D6E719CF25" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jli.dll" />
+                        <Component Win64="yes" Id="cmp0EFC1F6F035D81696342446A82C74764" Guid="*">
+                            <File Id="fil86EF231E03B8864AEB856BBDC33139D4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jli.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp632C45C264AFB73F38C0BC2636378378" Guid="*">
-                            <File Id="fil2E96B69A72F30BF74056C73B9F8103A1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jp2iexp.dll" />
+                        <Component Win64="yes" Id="cmpD2C273FD16F40E9D11B95E69EB884125" Guid="*">
+                            <File Id="filEDA47F52AAB1F50EBADD2F6A99FDADFD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jp2iexp.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpF6930C9C530A4DB77098A4D65CCFD79A" Guid="*">
-                            <File Id="fil3D930C5B6E0DE8C1827CAB9AF18F89C3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jp2launcher.exe" />
+                        <Component Win64="yes" Id="cmp43495813F86F7056CD6B5354F560424A" Guid="*">
+                            <File Id="fil753A2527353F9CD84925333147812A84" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jp2launcher.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA550E81ED4796098CA5388FD19E7EE81" Guid="*">
-                            <File Id="fil380BC9FA88E6CB601109990E01184C3A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jp2native.dll" />
+                        <Component Win64="yes" Id="cmpD22CD717A9A3636B3C51FDF5F4A3B55E" Guid="*">
+                            <File Id="fil1145BA9D10EBB963B0C30D874F16F8E7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jp2native.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp52ACE5AF059455A08E5F1D43F8230557" Guid="*">
-                            <File Id="filF456073E74CAC3897D80FCBE511AFEA9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jp2ssv.dll" />
+                        <Component Win64="yes" Id="cmp8231A84322E59C457F28FC4162A39A40" Guid="*">
+                            <File Id="filDAC41044AA1CDEB0E86AA4DAC38E2BC6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jp2ssv.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6F1DFA478393F81CE55A0CA21CC61067" Guid="*">
-                            <File Id="fil11DA2E4AAC84B36C2E123C3FC7EEEF81" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jpeg.dll" />
+                        <Component Win64="yes" Id="cmp23854B4C958340E398EA020E6065674F" Guid="*">
+                            <File Id="filBB4046CC4DD9FD477663EEE39EC74E6B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jpeg.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2F1B6CCE4158DEF82E107FA75D7BCCC8" Guid="*">
-                            <File Id="fil29B65532B33BD347460D77E031A78437" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jsdt.dll" />
+                        <Component Win64="yes" Id="cmp84D26A89DF7E6071B66CF116F6287E2D" Guid="*">
+                            <File Id="fil67955BA98C3567727D8DFD3D9BB4D771" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jsdt.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpDA7A18B67E2D3F9CFF35F19551863236" Guid="*">
-                            <File Id="fil622B97BFC0E4BA6590C85468F8FD267F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jsound.dll" />
+                        <Component Win64="yes" Id="cmp68AEA4B588534CAF9AA94EE540D41794" Guid="*">
+                            <File Id="fil611E4A2FA77586B0BB4A8FA394F291D3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jsound.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp4B3500254D8457541F8CCD9743F02245" Guid="*">
-                            <File Id="fil4AED53C41812426BCD53FF6A01E31B9C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\jsoundds.dll" />
+                        <Component Win64="yes" Id="cmp74380ACDE0AF549401CA651ECC594FBB" Guid="*">
+                            <File Id="fil76185421F6F5F0E1B41C03FFF2F02BDC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\jsoundds.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8469070C9BCD33D67B1FE5D0E6C7073B" Guid="*">
-                            <File Id="fil858809D6EEFFE692DFE0D55701CCCD7F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\kcms.dll" />
+                        <Component Win64="yes" Id="cmpF0DAC1589E911184B1F3A4423BDB4E59" Guid="*">
+                            <File Id="fil4ECEEFE77D89B45A3570EF0F873EA1F6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\kcms.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp37D31E4DDD93F9C7CA98EE88C6B9C6EC" Guid="*">
-                            <File Id="filD854BABA51FCCCAD0D64CC1D1D4199E9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\keytool.exe" />
+                        <Component Win64="yes" Id="cmpF5F2CAAB1D5DBE6EDDB3B5969E453A5D" Guid="*">
+                            <File Id="filAF3429738D1E119490041D6201719699" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\keytool.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpF75FD8DF71037D3A94F8B580BE4228C4" Guid="*">
-                            <File Id="filA149D97DCA3FC41310AB470BA4F2632E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\kinit.exe" />
+                        <Component Win64="yes" Id="cmp642FE98ED340C7CB70B41425350E3037" Guid="*">
+                            <File Id="filB33363FC2E5D366531A0E343400B719D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\kinit.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpAA712D7798631C5A721873DC7150AD4A" Guid="*">
-                            <File Id="fil7309F40B5EA3B6E4A4FEC390D3429E6A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\klist.exe" />
+                        <Component Win64="yes" Id="cmpD2A7F7C1832E305A7E52320CE879CA98" Guid="*">
+                            <File Id="fil98F981AEC0CF25EE5A6D574BF096E3AE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\klist.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpDF469CABB88D3682DE5D0593AD5563C3" Guid="*">
-                            <File Id="fil89A366A25CEF728047DBDA6DC7222519" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\ktab.exe" />
+                        <Component Win64="yes" Id="cmp9ADCD4EDA63B89D9660AC5062C16BA9D" Guid="*">
+                            <File Id="fil5AC5C83818889BF2F3DA87CFD9FE8416" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\ktab.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpDB1790BAF6D47D68AE4B0A360273A2F9" Guid="*">
-                            <File Id="filA07C811B52DD1139F8813816F225A389" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\lcms.dll" />
+                        <Component Win64="yes" Id="cmp33D0E70075636258C0721F5D94CE5D0A" Guid="*">
+                            <File Id="filA7BA18A4B963A6B5293E7D1BF7127BCD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\lcms.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp30D2FABFA420FB09EF895330CB06154A" Guid="*">
-                            <File Id="filFCB2FE85246B5C1DB3B9590D4820A171" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\management.dll" />
+                        <Component Win64="yes" Id="cmp1EE14383100843EA500A0D5660A96532" Guid="*">
+                            <File Id="fil4C25B82A5319AE59E8D3AF8184B0E5C3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\management.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpE0D8C8BDFA2453167747361C2632759D" Guid="*">
-                            <File Id="fil8ECA9A197E38ED88C5D53BE83CCF647B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\mlib_image.dll" />
+                        <Component Win64="yes" Id="cmp4B80527C8ED2902740677BF1FF75EC08" Guid="*">
+                            <File Id="fil93E7151C808083DAB54C8FEB96739D69" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\mlib_image.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp871BD0A2E14A9D1DF609003B6E34CEA4" Guid="*">
-                            <File Id="fil7E2D308A5043497EC9EBFF20EE7E13DF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\msvcp120.dll" />
+                        <Component Win64="yes" Id="cmpF558A408E2D36AF70F73353CDFF8D346" Guid="*">
+                            <File Id="filB7D82C20A8B0CA5F952B1A46A31440BD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\msvcp120.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp5DEE18391958398566D500D232F27018" Guid="*">
-                            <File Id="filE15FC67C734A54B3DA42EF733212D0E1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\msvcr100.dll" />
+                        <Component Win64="yes" Id="cmpAD7392E821E037EBDF3586D3936BDA52" Guid="*">
+                            <File Id="filE4994110E2A5DE5ED895F665E5D1594C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\msvcr100.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2455DB88895F136BAC8163A913785A2E" Guid="*">
-                            <File Id="filC7DACAE69273B2C93E1377789B02A034" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\msvcr120.dll" />
+                        <Component Win64="yes" Id="cmp7DCB3529C1FDF6BB985C95B359750059" Guid="*">
+                            <File Id="fil658CF5DF766576D8D7103906945F9F42" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\msvcr120.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp02E322E78ED0DB1EC006C3551E8362C2" Guid="*">
-                            <File Id="filBB8D04AEEF617F4F9AC47944AB871DD5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\net.dll" />
+                        <Component Win64="yes" Id="cmpCA1A386284F2270D77907D8AD7F2F4EA" Guid="*">
+                            <File Id="fil838E0E0B9CA25D990ABCB11E70FF2B9E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\net.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp3F449AAF9BF30DD5052219D3574470B1" Guid="*">
-                            <File Id="fil0954DC5B1CEA1C699996E8FCBC60EAA5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\nio.dll" />
+                        <Component Win64="yes" Id="cmp71F02D26C680F1317006EA755AF53EBE" Guid="*">
+                            <File Id="fil4CF7A5B191D648B5058772F002C852FD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\nio.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp74E8EBF2465ED29233C58173AC40670C" Guid="*">
-                            <File Id="fil1484FD680EB0A2226147B4CB7D4D582B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\npt.dll" />
+                        <Component Win64="yes" Id="cmpCE1734CE5B20C749DA110263F5331EED" Guid="*">
+                            <File Id="fil6AFA16113E8BA2D249DEB809BE12581D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\npt.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp962E59F5DE7C9AD11D4D153600BD1108" Guid="*">
-                            <File Id="filAFB2B0FA46CFEF08A7235A93F4138A5D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\orbd.exe" />
+                        <Component Win64="yes" Id="cmpE7F8EC57D03815F55AC41562429C6DF1" Guid="*">
+                            <File Id="fil670E3CFC7C3361A094542A51D4F58CEE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\orbd.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpCB7FF0453FFA512DC0D8FCE7483C2CB4" Guid="*">
-                            <File Id="fil175F896A43FFB9AB780FC4BEB4A7AB1C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\pack200.exe" />
+                        <Component Win64="yes" Id="cmp258043CE0546AD693110F3B5C49EAACE" Guid="*">
+                            <File Id="fil6E980E56E7E5A694C8AD949F456B5313" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\pack200.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp5F19120A1DDD29A6477C80C62DC9B1BD" Guid="*">
-                            <File Id="filB7BDB2B67976DDB6571A8062A626213F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\policytool.exe" />
+                        <Component Win64="yes" Id="cmp9872C4D5B59D482F1BDE6DBED490C33D" Guid="*">
+                            <File Id="filA79CB14826E9581E4C80E8E2BFFE16F5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\policytool.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpEF5DE9C7AD26BA99BDB27F6C263970B9" Guid="*">
-                            <File Id="fil6C2902162B95CE79F7B156C3933AD747" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\prism_common.dll" />
+                        <Component Win64="yes" Id="cmp5040BEEED2699442FBEE433237B11FA9" Guid="*">
+                            <File Id="filB83C500854A4D313772913F70AD3CAC2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\prism_common.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD3558B18657DC39980A0B8068D0B9851" Guid="*">
-                            <File Id="filF6B1824BE0F31F8B9F8E0DFCEE7D5B55" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\prism_d3d.dll" />
+                        <Component Win64="yes" Id="cmp98BFF50191AF5AF7664792DAB71FE972" Guid="*">
+                            <File Id="fil497B28BA6B8DD0DA926BD2B6FF03A335" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\prism_d3d.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp117B89664495CD5C60EF78C37E037E88" Guid="*">
-                            <File Id="fil54D7BBEE814E8F3B1B74D073FCA62BB0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\prism_sw.dll" />
+                        <Component Win64="yes" Id="cmp4EDC2EBAD12AA32A87E9078A9F46413F" Guid="*">
+                            <File Id="filCF4EF7457AD81E109442F765C162932E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\prism_sw.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp72D67C842EECB674F9FD4294414DE8E7" Guid="*">
-                            <File Id="filE5404993761132EF274B670E45A57555" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\resource.dll" />
+                        <Component Win64="yes" Id="cmp7FA022A41D40A8DE766FBEB13687F8BF" Guid="*">
+                            <File Id="filE633F534BF258ED611AAB36FA3BA59C0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\resource.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD174DABDE086128DD58536D2573B4E93" Guid="*">
-                            <File Id="fil82AAFF947ECC316D5434D39A38EFC25B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\rmid.exe" />
+                        <Component Win64="yes" Id="cmpA8494295A91A87F9469F2D5B9057319A" Guid="*">
+                            <File Id="filA1672153C53946CFC38CB0C9058CCA78" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\rmid.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA6012FC7B8C2240D600B113090DBC098" Guid="*">
-                            <File Id="fil85BE6EB830B9D40EC417859A4E05DC4A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\rmiregistry.exe" />
+                        <Component Win64="yes" Id="cmpF985C69C726F79D95624190A9A820029" Guid="*">
+                            <File Id="fil40C027AD77F81941DE41E7C777289140" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\rmiregistry.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC1694D7EEEAADA3FBDD2AD27102EDA84" Guid="*">
-                            <File Id="filF4AF0A31F061E2666058D19B8608BB1B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\servertool.exe" />
+                        <Component Win64="yes" Id="cmp60E61D481DFE533BA76D50479234D0F5" Guid="*">
+                            <File Id="fil2A773EA9C9F1954CBF503211AA6BEC21" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\servertool.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpEF60CADEF99F47B174F53FB68D2948EA" Guid="*">
-                            <File Id="fil81A7C809C5EC1F5224435304AE21F611" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\splashscreen.dll" />
+                        <Component Win64="yes" Id="cmp84707B5EE3758DA547703FAF6A2E0C7E" Guid="*">
+                            <File Id="filC69716C593F34FE355D5B7DAD5A9F90B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\splashscreen.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp0549D85E7014A4AE93D9DF354CB2CB77" Guid="*">
-                            <File Id="fil7B4738DDF45E6996767953843603E494" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\ssv.dll" />
+                        <Component Win64="yes" Id="cmp65983F74113F581EA7EAF31EFF1B36C7" Guid="*">
+                            <File Id="fil75BC2142A4112F96F327E2939F654A77" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\ssv.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8633E262814970D68DED63890CC57D46" Guid="*">
-                            <File Id="fil1FE1C0A276EB0FA9BFE3CD3A7D4FE8F1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\ssvagent.exe" />
+                        <Component Win64="yes" Id="cmp361073E8F172FA1246BFE8C7B4D03DCF" Guid="*">
+                            <File Id="filC8DEAB9C0EF856E1656BC2BB41953F6F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\ssvagent.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp536D84A65F0481E70837CD5EDB9CD33F" Guid="*">
-                            <File Id="fil60B79433ABF22911FCF0E67D71A0BD2A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\sunec.dll" />
+                        <Component Win64="yes" Id="cmpAF50D1276B4264675EB7AFD4952E3319" Guid="*">
+                            <File Id="filC2F546A6056654D676639EA2308C98B3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\sunec.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp9ED9F765BB3D05FF6C0E3F7DC221D550" Guid="*">
-                            <File Id="fil08AF1BA08D01EEDB6DF6E867E1289898" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\sunmscapi.dll" />
+                        <Component Win64="yes" Id="cmpEBAC4EF5A3AAE23CA8E48C2E092E556B" Guid="*">
+                            <File Id="filF1D5D8D6BF6849B2C804179E099A3B20" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\sunmscapi.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8EB9596DAC4248AAA376D7265B79833F" Guid="*">
-                            <File Id="fil73A2AAF29EE86E8234028B7987DD5CC8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\t2k.dll" />
+                        <Component Win64="yes" Id="cmp19632A87E6DB6AA343B0E4FF2557484D" Guid="*">
+                            <File Id="fil2ED8CF989BB9E29F2480D69A5D786E62" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\t2k.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC046C9280710705E8C5FEEB89B058BC8" Guid="*">
-                            <File Id="filC58632055E3E7F87F94C4E0C99C0BE45" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\tnameserv.exe" />
+                        <Component Win64="yes" Id="cmp3624DA559C4A049C57A2DD2B1BA945AB" Guid="*">
+                            <File Id="fil837F54EFC623B23AE6CB1BF010718912" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\tnameserv.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmp7606C5B8BB44EB27E43942E65389F5EA" Guid="*">
-                            <File Id="filAA2990D515FB47D333A6B2AB58A6711D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\unpack.dll" />
+                        <Component Win64="yes" Id="cmpB91F8CB9E2D14F25625E16A31ABA061D" Guid="*">
+                            <File Id="filD13D8DF2455BD2015CE1C10C5B3BECB4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\unpack.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB3C3D2B72ED8A01AF1C6A8D4167C1B8D" Guid="*">
-                            <File Id="fil109E33F64B89BD5A8ACF23EDB34776A7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\unpack200.exe" />
+                        <Component Win64="yes" Id="cmp6FBECB6DBEA1328E0194185B575AA486" Guid="*">
+                            <File Id="filE86CC2F3BF78F1B34BE40583C59ABA5A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\unpack200.exe" />
                         </Component>
-                        <Component Win64="yes" Id="cmpDD62A80432D7D8B3A33FC4B6F2DBC42B" Guid="*">
-                            <File Id="filD1752A266E3B23BC344EF5203EE46106" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\verify.dll" />
+                        <Component Win64="yes" Id="cmpF8FFE5ABC8A20788ED1F83F951559C39" Guid="*">
+                            <File Id="fil8C63A4B0A9DCFDF4781B0E7B5062C98D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\verify.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp6E723174B9578133B9A308A4EA6BC7F6" Guid="*">
-                            <File Id="fil1EDF0C937119C4783486D4E58DD80C2F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\w2k_lsa_auth.dll" />
+                        <Component Win64="yes" Id="cmp75498870BE2A5C1F625521F6DE315FB8" Guid="*">
+                            <File Id="filF93BC20AE061C848C2A6591C8FD88254" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\w2k_lsa_auth.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp977DDDD25172731D6615FAC7F45EC478" Guid="*">
-                            <File Id="fil3BB8C333CBE5EFDA636652605320C9F9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\WindowsAccessBridge-64.dll" />
+                        <Component Win64="yes" Id="cmpABAA21B687D51A9152F0791CAF008455" Guid="*">
+                            <File Id="fil096F7AEBA44737DE5284BCE258F7F865" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\WindowsAccessBridge-64.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp627E1BB1BA8E78B0FD5462FECAA8C6D5" Guid="*">
-                            <File Id="fil3971DCFC342B8DCF55C740EF6D6550D9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\wsdetect.dll" />
+                        <Component Win64="yes" Id="cmp8B32CE0EBE44DC159D589B865D71C23E" Guid="*">
+                            <File Id="fil829D84233AE5E6469661D0485F459D31" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\wsdetect.dll" />
                         </Component>
-                        <Component Win64="yes" Id="cmp642C493C396B5EFDE88A2C859902AC17" Guid="*">
-                            <File Id="filDEE14E0FAE402758092305CD822BC946" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\zip.dll" />
+                        <Component Win64="yes" Id="cmp8F98680999E1BBF876268196A908E21A" Guid="*">
+                            <File Id="fil7D720DFFD4A6426818966F54687C7C91" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\zip.dll" />
                         </Component>
-                        <Directory Id="dir8D4D50A664C883EF824D080B40C51C9B" Name="dtplugin">
-                            <Component Win64="yes" Id="cmp6B282D0A8B58E8736ED9D33D06D36F17" Guid="*">
-                                <File Id="fil0A365EA2A5E3289F49342CEC41AF33A7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\dtplugin\deployJava1.dll" />
+                        <Directory Id="dirF222B61663819F4A5D8D103B7174E0D3" Name="dtplugin">
+                            <Component Win64="yes" Id="cmp4ADF61B0D72010157B2A3C7D07F9EBDC" Guid="*">
+                                <File Id="fil88B6E2D47BDCDDE011FAD65F7F96DB1B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\dtplugin\deployJava1.dll" />
                             </Component>
-                            <Component Win64="yes" Id="cmpE08804F203CEAA2FBF93918E4DD6FFE8" Guid="*">
-                                <File Id="fil7B5914FBE3B8747A2694AF2851E6AD37" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\dtplugin\npdeployJava1.dll" />
-                            </Component>
-                        </Directory>
-                        <Directory Id="dir100B62F1AD4A5CCCEBF9BEFF412D52A5" Name="plugin2">
-                            <Component Win64="yes" Id="cmp549099506F86BEE7AAB32B0E645BC5D2" Guid="*">
-                                <File Id="fil9D5B3A7CBDCA9F8B9ED6C494E6352AA7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\plugin2\msvcr100.dll" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpC3B284E2C828A0721BE51E01050E53E1" Guid="*">
-                                <File Id="filD321FBA1296779791B2B5B6B90A9D0AC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\plugin2\npjp2.dll" />
+                            <Component Win64="yes" Id="cmpC6D0EDADB193EE3544DA2B4F680E5A3E" Guid="*">
+                                <File Id="fil4137B7666859CEC1BE82A7DEC810263A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\dtplugin\npdeployJava1.dll" />
                             </Component>
                         </Directory>
-                        <Directory Id="dirD5B8D540CF0B1260CA24887337C216A8" Name="server">
-                            <Component Win64="yes" Id="cmp30519546012DDC0B8379E64951351E3C" Guid="*">
-                                <File Id="filEAD5DEB31ABC425DDEE65C567CDEE6FB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\server\classes.jsa" />
+                        <Directory Id="dirD01C87638E84B414BD903DF65416AE27" Name="plugin2">
+                            <Component Win64="yes" Id="cmpF556CC184FCEED026161403CF53CE2C7" Guid="*">
+                                <File Id="fil175C80D9A61542D547B65570AC940C80" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\plugin2\msvcr100.dll" />
                             </Component>
-                            <Component Win64="yes" Id="cmp35CFB41094E7122AE1B2A5C05D1282AB" Guid="*">
-                                <File Id="fil76366DFBE0CD5DCB981F91CFB870CE86" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\server\jvm.dll" />
+                            <Component Win64="yes" Id="cmp9E5E6EE270C7BC94FF06FB75DB30514F" Guid="*">
+                                <File Id="fil79C236102D5A92D75E43F0AEFD99C039" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\plugin2\npjp2.dll" />
                             </Component>
-                            <Component Win64="yes" Id="cmp57A27CE60199E329996712474E7C2BC5" Guid="*">
-                                <File Id="filEA4B65311F252D1A2E9487D5E9FD3421" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\bin\server\Xusage.txt" />
+                        </Directory>
+                        <Directory Id="dir3147CF2F637B5264CF4568CC94662335" Name="server">
+                            <Component Win64="yes" Id="cmp0C3EC50237FD8165F1C1C50B7A636DA5" Guid="*">
+                                <File Id="fil2E7DED52EDC1AEB6BEA6C91E38E9FD5F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\server\classes.jsa" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp08BD8B00A34AAC7A440A62CB61D18196" Guid="*">
+                                <File Id="filD5F9972E2A09782F9594ECBB0D8184D7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\server\jvm.dll" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpBBBDC8433930BF8559B37F8CA16F4234" Guid="*">
+                                <File Id="fil4FD211317C28409DE8A7B030CC49C15B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\bin\server\Xusage.txt" />
                             </Component>
                         </Directory>
                     </Directory>
-                    <Directory Id="dirAD58EF99EA64308D421D708DA70E6632" Name="lib">
-                        <Component Win64="yes" Id="cmpDBD05AF69869CCE3C837B7562D16068E" Guid="*">
-                            <File Id="filDE10CB0CF437B4BC9EE41F0A76838F46" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\accessibility.properties" />
+                    <Directory Id="dirCC058FC7CE284AF898FAF9C67F2A01D3" Name="lib">
+                        <Component Win64="yes" Id="cmpB6E8CFE5AA9FECD0A1432B3BE3477F65" Guid="*">
+                            <File Id="filE54C14EE69F2AD2EA8695EF975E9B430" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\accessibility.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp85BD94817D3BEE46F632C9056792A23F" Guid="*">
-                            <File Id="fil0E7B84530700E4EA254D9B6EAB42C1D5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\calendars.properties" />
+                        <Component Win64="yes" Id="cmpE7F6B7535957D8B9C585BB994F050C7F" Guid="*">
+                            <File Id="fil267517AF52F2C7FFE7AEB3C0E25EDD39" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\calendars.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp94C7F3DEEB4759365E2359996C620A90" Guid="*">
-                            <File Id="filAC4F75F57337CCAE5029129C6ACD02B1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\charsets.jar" />
+                        <Component Win64="yes" Id="cmp922DE94233063980FE899747A88ADBE8" Guid="*">
+                            <File Id="fil942D6150535D948A2017554ABF5BBAE7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\charsets.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp10969CE7D3F88E5EA268072C50AC80EE" Guid="*">
-                            <File Id="filC895437CE54D999E50A6C48123D5F4F2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\classlist" />
+                        <Component Win64="yes" Id="cmp3D2C74F27764A1CD5EFDF7AD30CF6183" Guid="*">
+                            <File Id="fil5C263778BE3270F486C4DA70DE130592" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\classlist" />
                         </Component>
-                        <Component Win64="yes" Id="cmp322F8DE90DB083662BE11525196928B8" Guid="*">
-                            <File Id="fil6F9CA0C8339F98E24540FB34B1B1FA42" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\content-types.properties" />
+                        <Component Win64="yes" Id="cmp85D72ECB01C326FD595B210A759ECF05" Guid="*">
+                            <File Id="fil9BCDF469B0895C7D3ECA35BDBE3E0591" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\content-types.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp60D06410E8E5B96A9FCC38FF122945A6" Guid="*">
-                            <File Id="filB97D523B746BA8F111B9ABBB4E74D511" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\currency.data" />
+                        <Component Win64="yes" Id="cmp4E5527F743EE8B3F7B0A55097523F11D" Guid="*">
+                            <File Id="fil076BF0ADF9E1AC45CAB1F1E4A601648A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\currency.data" />
                         </Component>
-                        <Component Win64="yes" Id="cmpF4F9E6D1CDD3260AE7A7D92E2233468A" Guid="*">
-                            <File Id="filC078BEE9DAA302A241FC393AB42EFDB0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy.jar" />
+                        <Component Win64="yes" Id="cmp0A25799603986427AA2230F27C1E4BB7" Guid="*">
+                            <File Id="fil86C1601A2D6E7C9EE048F071CF3A433F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8CF578783CD5DD74CF84B3BCBA8BC9AC" Guid="*">
-                            <File Id="fil3C55B7B9E5478A81D0ECC2B771419328" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\flavormap.properties" />
+                        <Component Win64="yes" Id="cmpC708C8C84DDC5B0A5DB467662526F0A3" Guid="*">
+                            <File Id="filE673BD3FA6A6B16BA61F6FB1E7035C70" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\flavormap.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB1DFFA1A90C636C696F25B051FDA8684" Guid="*">
-                            <File Id="filFFA02CCD6E1FD18CE71E310CB6770C88" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fontconfig.bfc" />
+                        <Component Win64="yes" Id="cmp1C3944077A1AE5D9A8413054D5C27713" Guid="*">
+                            <File Id="fil8D67107869BD703E29FC840695129B7D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fontconfig.bfc" />
                         </Component>
-                        <Component Win64="yes" Id="cmp14D73E26BCAC8082A1848423255FC811" Guid="*">
-                            <File Id="fil09AF6F265E6B23F00C2E9C03B8FC65C4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fontconfig.properties.src" />
+                        <Component Win64="yes" Id="cmp30500073E25013391B407704C12D6AB6" Guid="*">
+                            <File Id="fil4B9C8FE1B59EC7E56ED79C9CEB9A1208" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fontconfig.properties.src" />
                         </Component>
-                        <Component Win64="yes" Id="cmp797F5F98267E40A22261982C12D9CFC3" Guid="*">
-                            <File Id="filBDFEF8C912A1DBCDE456C8112734048E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\hijrah-config-umalqura.properties" />
+                        <Component Win64="yes" Id="cmp20F09CA3B1EA85CBF0319088337F5FBA" Guid="*">
+                            <File Id="fil921BE1BB50CDD1F4ADA936CFF47052AC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\hijrah-config-umalqura.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp892468C20DCC027503A65D8E04206AB1" Guid="*">
-                            <File Id="filC3238B01D661A278B0F26624873B903D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\javafx.properties" />
+                        <Component Win64="yes" Id="cmpDFBC4B930D6AE80EAC69BEEF724E183B" Guid="*">
+                            <File Id="fil1B95B1CC238DC7AC1E06D56236F1EA2F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\javafx.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmpA1C2F33D884888E67FDBE4B1B8CF57C3" Guid="*">
-                            <File Id="fil68BAF1737F7F3CB5AE12BFF598202BD1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\javaws.jar" />
+                        <Component Win64="yes" Id="cmpAED177F64DAC5AB436779643E1DE4CBA" Guid="*">
+                            <File Id="filD4FDD15A166C592BB9FA911C69B3E95E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\javaws.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp853DD769CDE7C3C4371D541577A26C4D" Guid="*">
-                            <File Id="fil8611267F0026708F3D76504A7E898548" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jce.jar" />
+                        <Component Win64="yes" Id="cmp63D14ADC2019C2A413AE781DEC22B2C0" Guid="*">
+                            <File Id="fil3C7EE34D4D98B1B1B493AFE59BD68FAB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jce.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp4AE3615F8C9D607F2242D4985722B101" Guid="*">
-                            <File Id="fil7DD39ECF1E01A1842BE9C41D21ABAE00" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jfr.jar" />
+                        <Component Win64="yes" Id="cmpB49A26BF3ADEEE1B1AA09CAE2F21B46D" Guid="*">
+                            <File Id="fil146B198C671BC484E9FD61BBD4D3AB7C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jfr.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpE0E8EBD2AB44D40AF60189E9C07C4222" Guid="*">
-                            <File Id="fil73E6F4A2FA5360F0B20F2D01B5B914AE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jfxswt.jar" />
+                        <Component Win64="yes" Id="cmp3A43CF9FE1E176EBACE134E9B42624B3" Guid="*">
+                            <File Id="filF1D6FD8C9091D829FA0E999711B306CD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jfxswt.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp08570BCEAEABE3C2D901588C6FAE7545" Guid="*">
-                            <File Id="fil8DAE911E879D1708F721A56F3EC83073" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jsse.jar" />
+                        <Component Win64="yes" Id="cmp6C37ABFCC2A2F7FF405848833455F6EC" Guid="*">
+                            <File Id="fil4286679DCBFC0F43BBDA68AB88FCF9B8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jsse.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmpD56FD02B10A0ACE9B04E38DC2C5472E4" Guid="*">
-                            <File Id="filCC3D533E9DEEDE84FB5AF9B3FE86C09B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jvm.hprof.txt" />
+                        <Component Win64="yes" Id="cmpD82E1FC3C19ABCA850CD5BBC5F1EDBFC" Guid="*">
+                            <File Id="filC98627F4E863408B12146BE52FC158BF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jvm.hprof.txt" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB3E2E28C4D8CC227C209793D1AD85021" Guid="*">
-                            <File Id="fil8530E35A69A170302F0B23D705E76DA1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\logging.properties" />
+                        <Component Win64="yes" Id="cmp9A44C687C7A36BFC0955D2111750FD0D" Guid="*">
+                            <File Id="fil0C70816124609DF4ED601CFA34DA47C0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\logging.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2BEAE4F6AF321A28C50633BF5F901613" Guid="*">
-                            <File Id="fil99176FF238ADB65BEDAC6076E88603D2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\management-agent.jar" />
+                        <Component Win64="yes" Id="cmp875B2F31C74905E913D377A9B3492099" Guid="*">
+                            <File Id="filCC175665F2083EF123E9260E77CBA3DC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\management-agent.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp630387AC00CD919B0F77AF24E37E9CF3" Guid="*">
-                            <File Id="fil1E39F1E8EAD7D65A2700D591FF7518E0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\meta-index" />
+                        <Component Win64="yes" Id="cmpB0CD6036FE204D73FB90545516592B32" Guid="*">
+                            <File Id="filE7A1A03E0D33A118E5A9D0C2AB010B2C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\meta-index" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB9D8A699E4C4C85CF2D9B14A666F2707" Guid="*">
-                            <File Id="fil88BBCE96C44E45E035B7343D869C54A3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\net.properties" />
+                        <Component Win64="yes" Id="cmpC26EAA7FAD78CA414B38C9E06485313B" Guid="*">
+                            <File Id="fil672A04E1CAACFD50E96EE00E998C0D60" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\net.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmp58F025D23977CFA3001F85DC4B7469DF" Guid="*">
-                            <File Id="filB2F7B6166989E12C8A46E5D5D202A29E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\plugin.jar" />
+                        <Component Win64="yes" Id="cmpFC92568357406CD676D46143AC330C3D" Guid="*">
+                            <File Id="filF1325418F32DEDFD315A6C470B3D659B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\plugin.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp2D894B0E8B3D7D0028A5006C923DAC5F" Guid="*">
-                            <File Id="fil9B63867FA1BEFB4A189315689B3B2865" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\psfont.properties.ja" />
+                        <Component Win64="yes" Id="cmpA4C0A7C6910C7D8AF6D20B7E49146D4D" Guid="*">
+                            <File Id="fil56D4561A35D64E3A7CA6E375F5A3712C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\psfont.properties.ja" />
                         </Component>
-                        <Component Win64="yes" Id="cmpC8C991D28EB59433F20DBFE6BF789A7C" Guid="*">
-                            <File Id="fil4B7E15F52B75FD04B33E3F27A1D847C9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\psfontj2d.properties" />
+                        <Component Win64="yes" Id="cmp39FD5BDC109FA6701B873552E5FF57F6" Guid="*">
+                            <File Id="fil3AD353FA7C7C03DD135EBD38BEEECD0F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\psfontj2d.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmpBAC0D0ED957577AAB1FE322A11934592" Guid="*">
-                            <File Id="fil892F4000AC04A2DA4A77ADCFD7DDF7B2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\resources.jar" />
+                        <Component Win64="yes" Id="cmpFB24F919C56995D171CDD258D00177F4" Guid="*">
+                            <File Id="fil7E82001A5780438E8179250B06F90FFF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\resources.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp8472150D6469C3E0AC44BD9FAC410384" Guid="*">
-                            <File Id="filF7E0136170BB4F05C2E456F52F9ACDD1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\rt.jar" />
+                        <Component Win64="yes" Id="cmp9523003154F876E6693B201EC392B03B" Guid="*">
+                            <File Id="fil91408A4E8CD04BA2A404C2D1EA2B86BB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\rt.jar" />
                         </Component>
-                        <Component Win64="yes" Id="cmp57DC534DDBF7088E5F4A5A93C175EAEA" Guid="*">
-                            <File Id="fil8BAC60785A3F3763E1524A40F225B3FB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\sound.properties" />
+                        <Component Win64="yes" Id="cmp8D9B950F6F3D7197CE227252BEDE1E0F" Guid="*">
+                            <File Id="fil4A08039A958CF422E041D76428D38715" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\sound.properties" />
                         </Component>
-                        <Component Win64="yes" Id="cmpB2DCE9F21CCB99536E7F0AEA94628FFD" Guid="*">
-                            <File Id="fil499FD30FFD780620374B4004C91D1A6E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\tzdb.dat" />
+                        <Component Win64="yes" Id="cmpB4291F9CDC0EA3E66E60492FB4F874D3" Guid="*">
+                            <File Id="filD9394624944268A3073013B5607290BF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\tzdb.dat" />
                         </Component>
-                        <Component Win64="yes" Id="cmp1BC26A509ABE7933DCA397E7B6293E45" Guid="*">
-                            <File Id="filCB3E155671A17EF9B3D3DD6E694D12CE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\tzmappings" />
+                        <Component Win64="yes" Id="cmp73CF5D349144B4837B31CCB7FEE8F70C" Guid="*">
+                            <File Id="filF34942F04A784CC4B7D5003F49289402" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\tzmappings" />
                         </Component>
-                        <Directory Id="dir8C266CE1614FF475F1CFBFEC755864AD" Name="amd64">
-                            <Component Win64="yes" Id="cmpC2E51097FA5EE8969D5AB8319B0628CE" Guid="*">
-                                <File Id="filBEC092A871038547D5B0F3DFB85A92AE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\amd64\jvm.cfg" />
+                        <Directory Id="dir0C0C740522C131316524924808ED221F" Name="amd64">
+                            <Component Win64="yes" Id="cmpD383BD4FF5C64B46D21A8D453E5684EC" Guid="*">
+                                <File Id="fil197D18CA72C48AE13F6C8E9A5BD278C2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\amd64\jvm.cfg" />
                             </Component>
                         </Directory>
-                        <Directory Id="dirA206BEF93DE42A45DE64AEE9A052779F" Name="cmm">
-                            <Component Win64="yes" Id="cmp0E35AE40F78EEAFAF86419E969C1B1B2" Guid="*">
-                                <File Id="fil837302DD2F008896BD7FDD676B708CE8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\cmm\CIEXYZ.pf" />
+                        <Directory Id="dir654F6D0A0ACE5AC50C6607060E823347" Name="cmm">
+                            <Component Win64="yes" Id="cmp1F6D74457E379515C23E331F3054EF97" Guid="*">
+                                <File Id="filAB187CCBA5C526E5B830D5CE78E54BD0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\cmm\CIEXYZ.pf" />
                             </Component>
-                            <Component Win64="yes" Id="cmpBAA3A4CAEE23E28DEB96B932E134FCDE" Guid="*">
-                                <File Id="filABC6793591D911E2812218A499665882" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\cmm\GRAY.pf" />
+                            <Component Win64="yes" Id="cmp64EE5AE617D8AFE5B49B2930C64C05B6" Guid="*">
+                                <File Id="fil74F02756024BB0351A6E21A046943C12" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\cmm\GRAY.pf" />
                             </Component>
-                            <Component Win64="yes" Id="cmp7E26975B6E3D28BBCA6CA599683F0148" Guid="*">
-                                <File Id="filCD4B22438BD60F17E3C591BF8DA6CDCA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\cmm\LINEAR_RGB.pf" />
+                            <Component Win64="yes" Id="cmp6D62649A9BDE0DEC32ABD1B2F0320B32" Guid="*">
+                                <File Id="filFBC624F66CE1807D4B2B52291E82CE3B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\cmm\LINEAR_RGB.pf" />
                             </Component>
-                            <Component Win64="yes" Id="cmp9822520CC60C82DE03B6C29D2D390C1C" Guid="*">
-                                <File Id="fil018A9D5E8112A0469F7BC19EB80461C7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\cmm\PYCC.pf" />
+                            <Component Win64="yes" Id="cmpE8A3DF0866CFC535D677CF2D9AB78926" Guid="*">
+                                <File Id="fil77AA55B2431123112EFCE8F6A00759D1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\cmm\PYCC.pf" />
                             </Component>
-                            <Component Win64="yes" Id="cmpB922E2D11F35EC238952288C5F7030B3" Guid="*">
-                                <File Id="filBC2070A0B5DCDA2D7AFBCB631F59028D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\cmm\sRGB.pf" />
-                            </Component>
-                        </Directory>
-                        <Directory Id="dir7B3E2CCF0483C9295CAD1CD93EF74E68" Name="deploy">
-                            <Component Win64="yes" Id="cmp1211D436E2145A05CBE92FF618F6ED57" Guid="*">
-                                <File Id="fil04727A92F70FF4D442DD42B15D2201CC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\ffjcext.zip" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp9D63CF739E238F19CEE477B9FC3A0A72" Guid="*">
-                                <File Id="filF76D50EE30C8977E5DDF5A55E1EF355E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpC5AD6E98E913FD6AEF51ACA7256765A9" Guid="*">
-                                <File Id="filB9F959EF6471004B0D855D896BA66A93" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_de.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpE14AA73BED565EC676BC8918BD160030" Guid="*">
-                                <File Id="fil4557B3753BB3FAB7055A7C959070A092" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_es.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp1129DF1EFFBB3035DD9390A337D378B7" Guid="*">
-                                <File Id="fil9081C66EC45322824749DF435766E467" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_fr.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp051BEBDFEC2EA68CBDD0ACD1928473C0" Guid="*">
-                                <File Id="fil8CDA31AB34B819E0A3747F58ED0AB960" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_it.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp58ED204D7790A62311F253242FEA2840" Guid="*">
-                                <File Id="filD491639BE872602D09C062E02599F300" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_ja.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp8C42517D4E3BA510BE27B2B07B06F468" Guid="*">
-                                <File Id="filE4065CDBDC9E80302C23168E47EBBAE7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_ko.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp90B01661C04737643F677FA1B913CF2E" Guid="*">
-                                <File Id="filC34502E433F93895723B8406E5C56F17" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_pt_BR.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpA0C432025440BCD381AAE02F0CEF079A" Guid="*">
-                                <File Id="fil52DB942733E7085137855E1A2BE10CAC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_sv.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp1D4963222A0E961A21F0278E6FA7BF9B" Guid="*">
-                                <File Id="fil23281EBE41235BED5A0163E801532294" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_zh_CN.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp4CA12D6A325014BE48FF4D5A8170362F" Guid="*">
-                                <File Id="fil5625C31FF47C95BC06239E898ABE435C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_zh_HK.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpE10F48B27719A0FB261D42E5E03A75AD" Guid="*">
-                                <File Id="fil85EAEEC2BAAAC3DB0AB1B62A8281B395" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\messages_zh_TW.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpFF2D5B3D2FCFEE80663A50F4CB96D784" Guid="*">
-                                <File Id="filD5EC12FD2008152488FDD604CF47C2D3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\splash.gif" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpE7DC8BCF87C5F17D8DB155EB722BBCFC" Guid="*">
-                                <File Id="filCE3ED981CC3C2ED6181FA65F9A6C97EE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\splash@2x.gif" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp6ADE2F98D63F25DA067501F2AA810075" Guid="*">
-                                <File Id="filCFD376919882E01E03A91BF2956F0268" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\splash_11-lic.gif" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp25AD6C3294BA4DEBB70A50E75C848A90" Guid="*">
-                                <File Id="fil3786C23C218CE64FB401F906D0F5346E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\deploy\splash_11@2x-lic.gif" />
+                            <Component Win64="yes" Id="cmp55D6A83082424E1B53E4CF4CAB44C606" Guid="*">
+                                <File Id="fil8C36BF0D56030DD3DBC4AC4E23FAE2AA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\cmm\sRGB.pf" />
                             </Component>
                         </Directory>
-                        <Directory Id="dirAA082355200AA6FB9061D26AB4F1D631" Name="ext">
-                            <Component Win64="yes" Id="cmp02A105E1D329EDA37734F523543B4DFA" Guid="*">
-                                <File Id="fil1D5ECA32CEBF97449D277825BD0C1AF4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\access-bridge-64.jar" />
+                        <Directory Id="dir64545CB60D19342CB282DA4770971CC1" Name="deploy">
+                            <Component Win64="yes" Id="cmp7935AE46748A45792BCD73F613130835" Guid="*">
+                                <File Id="filEF585777DEBCBD253D0A591AD0403297" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\ffjcext.zip" />
                             </Component>
-                            <Component Win64="yes" Id="cmp29AE11FF25C478227C2D3865E10DDA7E" Guid="*">
-                                <File Id="fil1B1D6B2E598DF16687F1464CA76BA572" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\cldrdata.jar" />
+                            <Component Win64="yes" Id="cmp0BC19F5F4C6F03F04B4B892E90B13B78" Guid="*">
+                                <File Id="filC898CEB863C98BCB96CE8394F3245DB4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmp360B5EE73B6D5B50CC5E734FC4FDF271" Guid="*">
-                                <File Id="filEACA8BF6662209387B4D1AE7FF94FBBF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\dnsns.jar" />
+                            <Component Win64="yes" Id="cmpB505DAF0C10F4B62273A084847CC88E1" Guid="*">
+                                <File Id="fil30EAB7C9022FBA56E88FFB931A38AF61" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_de.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpAFE025619A868A3C3877687C8886D0D5" Guid="*">
-                                <File Id="fil7ACB15FC851CA327206C415CC7BF1688" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\jaccess.jar" />
+                            <Component Win64="yes" Id="cmp2078DFC69ED85C752F954C18BA3B7F02" Guid="*">
+                                <File Id="fil64FBF070616F2A1FAD7FE9B260290210" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_es.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpA286C1325AD99D6506F9719B4F53E439" Guid="*">
-                                <File Id="fil8882F25E406D7B9F3112C87BE5FE451E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\jfxrt.jar" />
+                            <Component Win64="yes" Id="cmp594554317DC1BC278053166DCF30248A" Guid="*">
+                                <File Id="fil5B4D9C9EBD219471216340BA863FF40C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_fr.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmp6DEDFD39A281FA198E5F78DC631279BF" Guid="*">
-                                <File Id="filF2EA662DFA805D7B5113F4146E9641A9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\localedata.jar" />
+                            <Component Win64="yes" Id="cmp2F17B149B11C66C0DDAFF5588AED82C0" Guid="*">
+                                <File Id="filBD801FC5B0301B1A0DB0EC1EADC9651D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_it.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpCAB3E8B0372102F1E014DAC77E6ED7BB" Guid="*">
-                                <File Id="filCC482839935D418A68A3CAAC78EA7F2D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\meta-index" />
+                            <Component Win64="yes" Id="cmp130B141C6B98E894B365FE2B936E88FB" Guid="*">
+                                <File Id="fil57B3D7BB03EC94D8D514ABE4874A1441" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_ja.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpA0EB7A5B74049F39C78797CFA9B001A5" Guid="*">
-                                <File Id="fil9C624D7131CF0FCDFB89E69FEF258C34" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\nashorn.jar" />
+                            <Component Win64="yes" Id="cmpF95FDDE442CB8A9528CADEB4DBCE48C2" Guid="*">
+                                <File Id="filB82C4EA20B6DBBB23C8BCA8FA550D503" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_ko.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpA5278B469D3A56185265BA374CA175C9" Guid="*">
-                                <File Id="filCB273BC31B7089A157AAA55C6F62EE2D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\sunec.jar" />
+                            <Component Win64="yes" Id="cmpFC308E54C07999E4370ACC528E5954F8" Guid="*">
+                                <File Id="fil3A755FC76DD1BECCEDE1BBBE0B037E35" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_pt_BR.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmp4DC1231F5095E19BA9213915A1D28887" Guid="*">
-                                <File Id="fil5B57E7CCEEF9C564DC12A6E9973BCB33" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\sunjce_provider.jar" />
+                            <Component Win64="yes" Id="cmpB884296EF6B7D890B247C5506CAC4820" Guid="*">
+                                <File Id="fil513D9E28D6D66D2430E03C3D6CBEF456" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_sv.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmp7E3C6714363A993F554304E2440A200E" Guid="*">
-                                <File Id="fil235FD4F46329E73A04FBD77D2E12210C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\sunmscapi.jar" />
+                            <Component Win64="yes" Id="cmp44CE1644BD2C9BE3A2900B7DB4B680E3" Guid="*">
+                                <File Id="filCDA841BD1E1ABE9D6D5877B13AC2EEEB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_zh_CN.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpB8C2C115132AFAE584B425E4E62AE7B2" Guid="*">
-                                <File Id="fil1208536218062E12495712DB573533BE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\sunpkcs11.jar" />
+                            <Component Win64="yes" Id="cmp933F892122EEC197980D7AE76EA79FC4" Guid="*">
+                                <File Id="filF9BF42273C5006F57980A513395ACFEB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_zh_HK.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpC79A834E3BCE8904F810892B20BBDE82" Guid="*">
-                                <File Id="fil3831A0E0F05010E76375C082E72D21BE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\ext\zipfs.jar" />
+                            <Component Win64="yes" Id="cmpBE3E2EC5EA502D83E3676B77D38021C7" Guid="*">
+                                <File Id="fil78E2AFEA4CE9BA66D5953287E03072E6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\messages_zh_TW.properties" />
                             </Component>
-                        </Directory>
-                        <Directory Id="dirBF2E152F3B22919855D8CF6C7533B53D" Name="fonts">
-                            <Component Win64="yes" Id="cmp059401F9A2DE84011CEDD67BEEA1C7F1" Guid="*">
-                                <File Id="fil41848ED3BD2B3A45C49F3CA23C52DF5C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaBrightDemiBold.ttf" />
+                            <Component Win64="yes" Id="cmp77888C8B3F6AB958C0A02FC9607BE445" Guid="*">
+                                <File Id="filA0870D4B3DCF9087E6FE92224B9C3FA8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\splash.gif" />
                             </Component>
-                            <Component Win64="yes" Id="cmpE3F20501692A1F7DC5002371BD686885" Guid="*">
-                                <File Id="filEC948F2AE0609B33C657E59EC9275FC2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaBrightDemiItalic.ttf" />
+                            <Component Win64="yes" Id="cmp744E2C5C20B10B5EDA1C60321140C04A" Guid="*">
+                                <File Id="filF3C0B7380F373689EF286183D45577C6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\splash@2x.gif" />
                             </Component>
-                            <Component Win64="yes" Id="cmp99F773307B19E56B0F560101502F8BCC" Guid="*">
-                                <File Id="fil261542E18B05BC9F9AA987E4B8D63CCC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaBrightItalic.ttf" />
+                            <Component Win64="yes" Id="cmp07D9442F482C8EBD4F9D07C58120846C" Guid="*">
+                                <File Id="filC194A6878F190E4BA8276778ED6EBCBA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\splash_11-lic.gif" />
                             </Component>
-                            <Component Win64="yes" Id="cmp66A355DD76E2E099329AC8756C838460" Guid="*">
-                                <File Id="fil0F3D9BE4E4B2FE0A40290D4006F63C24" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaBrightRegular.ttf" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp403CECD67093482B828391572EBCA1F1" Guid="*">
-                                <File Id="fil1DCCCFAFA1A3091113F4CF9F92F0C1F6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaSansDemiBold.ttf" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpDA908AA3BF13FB62BE2D44696CCBE1BD" Guid="*">
-                                <File Id="fil137B343E751C9B5D4F1E4A36D8CC2044" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaSansRegular.ttf" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp0C71296ED704E095E457EA87FAF91FB6" Guid="*">
-                                <File Id="fil0FED36B5F3C6632E17B1EF50C1AE15F1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaTypewriterBold.ttf" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpE9FD4D89AC50B4C9A07B63CFDB719869" Guid="*">
-                                <File Id="filFE70116A8EC991F11F65D10BFE5B7F79" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\fonts\LucidaTypewriterRegular.ttf" />
+                            <Component Win64="yes" Id="cmp297B1EDC04D589902C3208D1B77E85E4" Guid="*">
+                                <File Id="fil6D55DC5F94C051C65BD719E02B8196D9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\deploy\splash_11@2x-lic.gif" />
                             </Component>
                         </Directory>
-                        <Directory Id="dir0D989A5F4F1EF7F9E1D90618016E845E" Name="images">
-                            <Directory Id="dir0F0DE4AC457A29DBBD8F4DE3E87B4344" Name="cursors">
-                                <Component Win64="yes" Id="cmpD233C23F1AC6D3B316E9C2D83F9202A0" Guid="*">
-                                    <File Id="fil20A553223E2F05684FFA58F01AB9A212" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\cursors.properties" />
+                        <Directory Id="dir78B35B8E40E15292BC75508E95A87FE8" Name="ext">
+                            <Component Win64="yes" Id="cmp6DA57044A61C898CD5F57E51A87E6D26" Guid="*">
+                                <File Id="fil2C00C00DC6A5B68AF5DC532E2794ABF5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\access-bridge-64.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp42724EBBF0EA64C510E8399A1B893B09" Guid="*">
+                                <File Id="fil9AE345286AF9115D60896BEC7AD7A9BC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\cldrdata.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp031D1BCDA021B786CADB35AC45473DBB" Guid="*">
+                                <File Id="fil5B5AD63AF3D385FE2733B4BE8B837E9E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\dnsns.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp053788C6F57E7DBE432884D7DF32CE31" Guid="*">
+                                <File Id="fil2AF3DA84D0874C1E707A200BA8AC34E7" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\jaccess.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp3BA17B073321EF6440D11916A9427DA7" Guid="*">
+                                <File Id="filC42FA9882107CFA13569D01E0E590BF8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\jfxrt.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp6D3E218214747C64C74507D77BAA0FBB" Guid="*">
+                                <File Id="fil6B46DEFEF5DC8CB1316A47C6052F9B47" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\localedata.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpA939D50EF51EA305F401720A0FCA69B0" Guid="*">
+                                <File Id="fil5990D14F7B065BF1D6282D43CC78C33B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\meta-index" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp208C00A149238AA54D55A346ECF3488E" Guid="*">
+                                <File Id="fil82250FC0D266CEE58FA9F1B2A9ACD6E8" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\nashorn.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp9480B60CBF40305C35B63774614DE355" Guid="*">
+                                <File Id="fil5090EEB9028070A27AE8E60A928365BC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\sunec.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpE0257899F33594031B7E7D5A09C70278" Guid="*">
+                                <File Id="fil1211493827D0C1BB134CDBFB23EEDCB0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\sunjce_provider.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp611AAC12C65A83770F0E4395E3B3D867" Guid="*">
+                                <File Id="fil27F12F09E4E433E3220F5AA9FA19613C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\sunmscapi.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp10175AC18AC52CAE1349414862CE91BF" Guid="*">
+                                <File Id="fil1116C5C760BFE06A312AEE33381B8D1A" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\sunpkcs11.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpC117612892E6DCFB96846909254BF022" Guid="*">
+                                <File Id="filAE6511772F17486B519BD459FF0CEA8D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\ext\zipfs.jar" />
+                            </Component>
+                        </Directory>
+                        <Directory Id="dir010A2B7463D60C3AB2E9B65CA2963867" Name="fonts">
+                            <Component Win64="yes" Id="cmp78B9B000B850F021BAA7CDF22C66B4A9" Guid="*">
+                                <File Id="fil92537F35C403F1D15DBFC23B81B730B1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaBrightDemiBold.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp9811B4AB02133EFAB69D92B523E09BF3" Guid="*">
+                                <File Id="fil425319FFB9E4B6C80D15661CEBC44B20" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaBrightDemiItalic.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp08B55166168AE1EFCAF6958F01B5DAF5" Guid="*">
+                                <File Id="filE5DE03C4C9B505061BE9DCCDB88EDF23" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaBrightItalic.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp0ADCBF6DF83D2EE42F736259700103D6" Guid="*">
+                                <File Id="fil9D2A2D28B9AED5C6C498ED6D5817A58E" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaBrightRegular.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpB509F44C2E17D47B0A81CD4BFB3FE614" Guid="*">
+                                <File Id="fil9BE7DE8BCBDAE88703C3B02948D2D8FE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaSansDemiBold.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp1CA207EAB7FA9C47BEB561CDF94BA9A2" Guid="*">
+                                <File Id="fil1CFFE4E5D33C8C98C232439A4230F252" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaSansRegular.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp25DB26A318A7E344712B25315E9D461B" Guid="*">
+                                <File Id="fil4B83977586DBF2496FF28869AA9C3CF4" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaTypewriterBold.ttf" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp98211F5055A31EBB13B1675F87A6E59A" Guid="*">
+                                <File Id="filBFFE3D2D949471E3F7127CF04C25D1FB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\fonts\LucidaTypewriterRegular.ttf" />
+                            </Component>
+                        </Directory>
+                        <Directory Id="dir5048D07307FA6B85D1246DF3548D1827" Name="images">
+                            <Directory Id="dirC058A3445A8E9C6A5473FE512462FAC5" Name="cursors">
+                                <Component Win64="yes" Id="cmpD0515C5661E2F3EDB9B178079CE1A5DA" Guid="*">
+                                    <File Id="fil8DD5EE95D0171173A78851A4C2764BD0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\cursors.properties" />
                                 </Component>
-                                <Component Win64="yes" Id="cmpD9DFCCA545A925AB4B06F72A7666DC48" Guid="*">
-                                    <File Id="filE16A0C6BAA8F18B6ACE6BCF0957CD5C5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\invalid32x32.gif" />
+                                <Component Win64="yes" Id="cmp52D707AD9909E1E15CE8394FF6CC683C" Guid="*">
+                                    <File Id="filBCADB0392F1064967A47306C0D8610A9" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\invalid32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmp7A60C6004D086C538114E68E4A3F0173" Guid="*">
-                                    <File Id="filBB1FC6E218365EE53CD43D3348D38018" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_CopyDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmp95B09D80EB965DA0208A5EC03DC331E0" Guid="*">
+                                    <File Id="fil527E1BB5F42CF838F85E33975E2F4D78" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_CopyDrop32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmpDBE757CADC29CABD9B801C0CD00471F9" Guid="*">
-                                    <File Id="fil6F44F5B97D77782024F309C1AF921085" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_CopyNoDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmp3A005B538B7B1DA48881A32A9EE1C67F" Guid="*">
+                                    <File Id="filD67351BA7C08ADF8F018B8B925614CD0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_CopyNoDrop32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmpA16FC39ECE4BEDCA43BA916A5BCEB87F" Guid="*">
-                                    <File Id="fil7C7A4AD06660DF1930259A820D68BF99" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_LinkDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmpF762ED64143C5213B247F94B27866622" Guid="*">
+                                    <File Id="fil6840297A962E5239A3D2D283DFF161DD" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_LinkDrop32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmp4417CD24F151963E45C7816B2B2654DA" Guid="*">
-                                    <File Id="fil53D691264012DE42E73169B4532BEE11" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_LinkNoDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmp39230713641ADD564B9099D582490831" Guid="*">
+                                    <File Id="fil57EFF61552589299089EC460293B9D5F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_LinkNoDrop32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmp72CC4ED330B90C45B66EDFAEEF067BF4" Guid="*">
-                                    <File Id="filAB22E1FCDA1CBDE280313BEE99FCB086" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_MoveDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmpCC63521D3DFDBC655BF337D8399900C4" Guid="*">
+                                    <File Id="fil069797C9BC89E8FFA4AE1D602B2BF272" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_MoveDrop32x32.gif" />
                                 </Component>
-                                <Component Win64="yes" Id="cmp189B4D181108329A12B027C7BAB53B50" Guid="*">
-                                    <File Id="filC5F64821C86ACE5FE1029B92F329924C" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\images\cursors\win32_MoveNoDrop32x32.gif" />
+                                <Component Win64="yes" Id="cmpE8910BAA121596E28C05A2EEFB544763" Guid="*">
+                                    <File Id="fil09A764991079B3FB4255475094EF32F6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\images\cursors\win32_MoveNoDrop32x32.gif" />
                                 </Component>
                             </Directory>
                         </Directory>
-                        <Directory Id="dir70708BFECE9C1BA45B38A272FF3FF888" Name="jfr">
-                            <Component Win64="yes" Id="cmp3DAE455D9CEE195660952F4FACA54A39" Guid="*">
-                                <File Id="filD4910DF4E3504C638AC40493D79443DF" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jfr\default.jfc" />
+                        <Directory Id="dirF5533D4BA254885CE80E58A6F71D8238" Name="jfr">
+                            <Component Win64="yes" Id="cmp7AC825089ED496130444138838AF5B0D" Guid="*">
+                                <File Id="fil4D6EB20E766C52E4F366E4C375C75A54" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jfr\default.jfc" />
                             </Component>
-                            <Component Win64="yes" Id="cmp3217D903751340C465FFFC58D31482A7" Guid="*">
-                                <File Id="filD38E83DE3EB7B45E167ABEC3D56CD039" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\jfr\profile.jfc" />
-                            </Component>
-                        </Directory>
-                        <Directory Id="dir91CD9070B7443C00006AC22328F3C88A" Name="management">
-                            <Component Win64="yes" Id="cmp8A13E1BA3BAA3F1F281F93B924651544" Guid="*">
-                                <File Id="fil3D4D7CB0BF72B978B5C94DBF7588D943" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\management\jmxremote.access" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp7993FFA9FD9428F7779B984C6A3C14C9" Guid="*">
-                                <File Id="fil16AFE36DCC89CA96F47C0E7F161A7F50" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\management\jmxremote.password.template" />
-                            </Component>
-                            <Component Win64="yes" Id="cmpB43A29CB50D88E8B16A01F92DEFD093D" Guid="*">
-                                <File Id="fil0AF2A11C0001892D9746F259F24C9EF1" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\management\management.properties" />
-                            </Component>
-                            <Component Win64="yes" Id="cmp40729FD28B1CB70A850158DFC7F1AD16" Guid="*">
-                                <File Id="fil8B3280DD9D264A8079F45AFEAF26A89F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\management\snmp.acl.template" />
+                            <Component Win64="yes" Id="cmp47B7F0B0DE56196F4832A86AD64CEC10" Guid="*">
+                                <File Id="fil3AC98DCB8F7981C7FEA5B234A88A5234" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\jfr\profile.jfc" />
                             </Component>
                         </Directory>
-                        <Directory Id="dirB7ABB173FF425F7EF2C94ED774EAE329" Name="security">
-                            <Component Win64="yes" Id="cmpD4AA068826FC26A5D8D6BB7B51014233" Guid="*">
-                                <File Id="filE3EF4BB036781C1DB2F56CE55D1DD6FC" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\blacklist" />
+                        <Directory Id="dirF2148B03F75E3293A66B12906C5F1617" Name="management">
+                            <Component Win64="yes" Id="cmp7D7127D846E2A9F472F62120757FCFDD" Guid="*">
+                                <File Id="fil999BFEE8FCF48A56916B584EF6E6726F" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\management\jmxremote.access" />
                             </Component>
-                            <Component Win64="yes" Id="cmp333315456406EDBF3361344D6B2CE81F" Guid="*">
-                                <File Id="filB3824DD8C12D0EDDBFB22B1704E2FC55" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\blacklisted.certs" />
+                            <Component Win64="yes" Id="cmpA529157A1AF04AF2D44C0DB66465D512" Guid="*">
+                                <File Id="fil90ED681B681B43520FE1207CCEB076BE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\management\jmxremote.password.template" />
                             </Component>
-                            <Component Win64="yes" Id="cmp3B26F1349BB7B4DE79D4093C879E6785" Guid="*">
-                                <File Id="filEAC64EF2C03808CCA48A60F427FC05E2" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\cacerts" />
+                            <Component Win64="yes" Id="cmpC13198733A46F26FFA1C37ABB54100D2" Guid="*">
+                                <File Id="filC464AE612E1F0D91D41C1E1475BAE8AB" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\management\management.properties" />
                             </Component>
-                            <Component Win64="yes" Id="cmpA22A1C55D056D6FE795678318A75CC1A" Guid="*">
-                                <File Id="filB3AE5287B0C8C6210419882B8F1D1091" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\java.policy" />
+                            <Component Win64="yes" Id="cmpE8B6EDBFC0D0C6FCEF542C32F12356EA" Guid="*">
+                                <File Id="filCDB23BD4081311AD3C4C298971E1EB75" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\management\snmp.acl.template" />
                             </Component>
-                            <Component Win64="yes" Id="cmp4E0C740DF14834A8754E23C32618B890" Guid="*">
-                                <File Id="fil96632B7BC767CFD359A558164E92AA21" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\java.security" />
+                        </Directory>
+                        <Directory Id="dirD7A08B47D6A6435835A9F99FACD0433F" Name="security">
+                            <Component Win64="yes" Id="cmp4D1F6807725B7989496D4A8D261012FC" Guid="*">
+                                <File Id="filDCA0FC4427C12880AD581C3613ADA9F3" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\blacklist" />
                             </Component>
-                            <Component Win64="yes" Id="cmp8F2AABF97CF998DA4B2AFCE785947344" Guid="*">
-                                <File Id="filDF1DD5E140EC294FC45D3BD83E57D8F6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\javaws.policy" />
+                            <Component Win64="yes" Id="cmp2085C7EE88E56926216993F8A2D2B7F1" Guid="*">
+                                <File Id="fil9B96C2E6B5D4DA379E1C44FAA7A960FE" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\blacklisted.certs" />
                             </Component>
-                            <Component Win64="yes" Id="cmp46BC2974A055AD26EE687F1349F1004F" Guid="*">
-                                <File Id="fil26559F339D4A531623405F175082515B" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\local_policy.jar" />
+                            <Component Win64="yes" Id="cmp47600F38D471450DEBE29782141EB22B" Guid="*">
+                                <File Id="filEB8B61088FD6186499F2279CE6FBB142" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\cacerts" />
                             </Component>
-                            <Component Win64="yes" Id="cmp378966B4D8D1513B8F5705C5D8EB8499" Guid="*">
-                                <File Id="filC39A6F5197B8A9D9A975C6A2707115EA" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\trusted.libraries" />
+                            <Component Win64="yes" Id="cmp8DB04659699EC7D9238D006DB4096427" Guid="*">
+                                <File Id="fil2614D7F30FAB3E1F849A0B59B2921C52" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\java.policy" />
                             </Component>
-                            <Component Win64="yes" Id="cmp3F4159F6E6A7FC9A9CCF0CA49E989487" Guid="*">
-                                <File Id="fil468BAAB9110370DCAFC6AF2C13A1E8F0" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_121\lib\security\US_export_policy.jar" />
+                            <Component Win64="yes" Id="cmp8FE0130819C545234E7C12AA14D6F62F" Guid="*">
+                                <File Id="fil180D238B6F776C41A56474D869ECCBC5" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\java.security" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp83F3B910CBD3D8A497711A914CB5723A" Guid="*">
+                                <File Id="filA117FD0CD59F6ACD0ED61BC4A12286C6" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\javaws.policy" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpBE5A80584F8D32018700927AA18B0BB8" Guid="*">
+                                <File Id="fil267E31E5299B09ECDAB4277E67944322" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\local_policy.jar" />
+                            </Component>
+                            <Component Win64="yes" Id="cmpD68F4C18CD3A989437D6819FE76E3ACB" Guid="*">
+                                <File Id="filF10D3F2D5E859166C1E9C0A5A83B2162" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\trusted.libraries" />
+                            </Component>
+                            <Component Win64="yes" Id="cmp602D071A90A4C70C7E97372DAC9EE98E" Guid="*">
+                                <File Id="filCA5B8C176FEDE51898607E992AD5E07D" KeyPath="yes" Source="$(var.JavaPath)\jre1.8.0_144\lib\security\US_export_policy.jar" />
                             </Component>
                         </Directory>
                     </Directory>
@@ -628,202 +628,202 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="JavaFilesGroup">
-            <ComponentRef Id="cmp4B802379E302547E2BF3322D162B5C89" />
-            <ComponentRef Id="cmp9C78F7551374F3BBE20AF504BB7CA154" />
-            <ComponentRef Id="cmpDEF4696F6B4222A1B65B68C2F4666297" />
-            <ComponentRef Id="cmp5EB1A61FEA752810649FFD7FC28784C4" />
-            <ComponentRef Id="cmp17DB74D5BEA322A8169099A7B05C89E0" />
-            <ComponentRef Id="cmp92EE90D28F3BBCBE31B60C9037EF279F" />
-            <ComponentRef Id="cmpA6EACB386C151CF58F5A988707E0C123" />
-            <ComponentRef Id="cmp74BA1F4FE78CC4E0AD0FB7C18C431D4E" />
-            <ComponentRef Id="cmp00EA6341E76357651E7227C19BFE11CB" />
-            <ComponentRef Id="cmp0423D397A40EC7ACABE77DD580E6D88A" />
-            <ComponentRef Id="cmp3C43EC3C7D53F2C9849FA90C2036B631" />
-            <ComponentRef Id="cmp0BE794CAD82C05C2CFE1C08B798623E7" />
-            <ComponentRef Id="cmpE5ABEB73AA9B087753B991C371D0F807" />
-            <ComponentRef Id="cmp6CD346DC3588861F8A76624431E4E092" />
-            <ComponentRef Id="cmp57B68D1FC896A5060428E8724DDFED8C" />
-            <ComponentRef Id="cmp02C32AD27D4F018C095D296FFB26E6E0" />
-            <ComponentRef Id="cmp3271548A2D657A19F1E1F4C36C067440" />
-            <ComponentRef Id="cmpD8B193E96AFBFDC8926F581031C817AC" />
-            <ComponentRef Id="cmpECE76F29CA12B9B4B93BE8E5B7714885" />
-            <ComponentRef Id="cmpAC8FA23A184901D7C09FBC0BB392FA75" />
-            <ComponentRef Id="cmp443A08549B1567C39C8DA974986FD4CE" />
-            <ComponentRef Id="cmp50394400D1EA8B5FCDDDA8780D90C246" />
-            <ComponentRef Id="cmp42490B4CB7E86FD9C6BECE4E34671DF3" />
-            <ComponentRef Id="cmp9961D6095834E4A6D9EC2F545C404D93" />
-            <ComponentRef Id="cmp276E257099CF10DC31F994A007F9CBB9" />
-            <ComponentRef Id="cmpF6803E2E67626C6AE113C88E2C32D7AF" />
-            <ComponentRef Id="cmp17EF216932F7AF390690A4A658049B8F" />
-            <ComponentRef Id="cmp3DB023EAAB21CC9D37C9533578900422" />
-            <ComponentRef Id="cmpD24686211FC44E5F384AC3333453DB34" />
-            <ComponentRef Id="cmpED771E8D4856B680963A88DF10BF2C9D" />
-            <ComponentRef Id="cmpD95F2ABE6E51DA4C0786799A8AB9B213" />
-            <ComponentRef Id="cmp33FEEB9D4A74BE8A56911541F4B91D47" />
-            <ComponentRef Id="cmp7F310729A35C0007CD522F3BCDAB019D" />
-            <ComponentRef Id="cmp11E8355DEF371CABFFA7C70BD8D193EF" />
-            <ComponentRef Id="cmpC4FB2A99126781FBA1AC7E25399DFFC3" />
-            <ComponentRef Id="cmpDCE1F4A6165E9B547471F285E8E9906B" />
-            <ComponentRef Id="cmpF81ED3D8CA181CA6566DB17CB1445590" />
-            <ComponentRef Id="cmpFF79204E5938984A83C200A01229D3F3" />
-            <ComponentRef Id="cmpD1BB1E55CEC3D955CF221389A160F7AE" />
-            <ComponentRef Id="cmpC92D45D40BE61A4008FF3FF75736231F" />
-            <ComponentRef Id="cmp1287321552341086870B3A119678EC82" />
-            <ComponentRef Id="cmpA265929AEC333DA95F925A4170C2E821" />
-            <ComponentRef Id="cmpEDC74A841BF1F2F43735E495EDBA3087" />
-            <ComponentRef Id="cmp682B9EFC564327E06613071C65E6BDD7" />
-            <ComponentRef Id="cmp10B74A4F813C136CE0B5B5BD9C937BB4" />
-            <ComponentRef Id="cmp220485371976323F7B1BDED8AD9B9E2D" />
-            <ComponentRef Id="cmp632C45C264AFB73F38C0BC2636378378" />
-            <ComponentRef Id="cmpF6930C9C530A4DB77098A4D65CCFD79A" />
-            <ComponentRef Id="cmpA550E81ED4796098CA5388FD19E7EE81" />
-            <ComponentRef Id="cmp52ACE5AF059455A08E5F1D43F8230557" />
-            <ComponentRef Id="cmp6F1DFA478393F81CE55A0CA21CC61067" />
-            <ComponentRef Id="cmp2F1B6CCE4158DEF82E107FA75D7BCCC8" />
-            <ComponentRef Id="cmpDA7A18B67E2D3F9CFF35F19551863236" />
-            <ComponentRef Id="cmp4B3500254D8457541F8CCD9743F02245" />
-            <ComponentRef Id="cmp8469070C9BCD33D67B1FE5D0E6C7073B" />
-            <ComponentRef Id="cmp37D31E4DDD93F9C7CA98EE88C6B9C6EC" />
-            <ComponentRef Id="cmpF75FD8DF71037D3A94F8B580BE4228C4" />
-            <ComponentRef Id="cmpAA712D7798631C5A721873DC7150AD4A" />
-            <ComponentRef Id="cmpDF469CABB88D3682DE5D0593AD5563C3" />
-            <ComponentRef Id="cmpDB1790BAF6D47D68AE4B0A360273A2F9" />
-            <ComponentRef Id="cmp30D2FABFA420FB09EF895330CB06154A" />
-            <ComponentRef Id="cmpE0D8C8BDFA2453167747361C2632759D" />
-            <ComponentRef Id="cmp871BD0A2E14A9D1DF609003B6E34CEA4" />
-            <ComponentRef Id="cmp5DEE18391958398566D500D232F27018" />
-            <ComponentRef Id="cmp2455DB88895F136BAC8163A913785A2E" />
-            <ComponentRef Id="cmp02E322E78ED0DB1EC006C3551E8362C2" />
-            <ComponentRef Id="cmp3F449AAF9BF30DD5052219D3574470B1" />
-            <ComponentRef Id="cmp74E8EBF2465ED29233C58173AC40670C" />
-            <ComponentRef Id="cmp962E59F5DE7C9AD11D4D153600BD1108" />
-            <ComponentRef Id="cmpCB7FF0453FFA512DC0D8FCE7483C2CB4" />
-            <ComponentRef Id="cmp5F19120A1DDD29A6477C80C62DC9B1BD" />
-            <ComponentRef Id="cmpEF5DE9C7AD26BA99BDB27F6C263970B9" />
-            <ComponentRef Id="cmpD3558B18657DC39980A0B8068D0B9851" />
-            <ComponentRef Id="cmp117B89664495CD5C60EF78C37E037E88" />
-            <ComponentRef Id="cmp72D67C842EECB674F9FD4294414DE8E7" />
-            <ComponentRef Id="cmpD174DABDE086128DD58536D2573B4E93" />
-            <ComponentRef Id="cmpA6012FC7B8C2240D600B113090DBC098" />
-            <ComponentRef Id="cmpC1694D7EEEAADA3FBDD2AD27102EDA84" />
-            <ComponentRef Id="cmpEF60CADEF99F47B174F53FB68D2948EA" />
-            <ComponentRef Id="cmp0549D85E7014A4AE93D9DF354CB2CB77" />
-            <ComponentRef Id="cmp8633E262814970D68DED63890CC57D46" />
-            <ComponentRef Id="cmp536D84A65F0481E70837CD5EDB9CD33F" />
-            <ComponentRef Id="cmp9ED9F765BB3D05FF6C0E3F7DC221D550" />
-            <ComponentRef Id="cmp8EB9596DAC4248AAA376D7265B79833F" />
-            <ComponentRef Id="cmpC046C9280710705E8C5FEEB89B058BC8" />
-            <ComponentRef Id="cmp7606C5B8BB44EB27E43942E65389F5EA" />
-            <ComponentRef Id="cmpB3C3D2B72ED8A01AF1C6A8D4167C1B8D" />
-            <ComponentRef Id="cmpDD62A80432D7D8B3A33FC4B6F2DBC42B" />
-            <ComponentRef Id="cmp6E723174B9578133B9A308A4EA6BC7F6" />
-            <ComponentRef Id="cmp977DDDD25172731D6615FAC7F45EC478" />
-            <ComponentRef Id="cmp627E1BB1BA8E78B0FD5462FECAA8C6D5" />
-            <ComponentRef Id="cmp642C493C396B5EFDE88A2C859902AC17" />
-            <ComponentRef Id="cmp6B282D0A8B58E8736ED9D33D06D36F17" />
-            <ComponentRef Id="cmpE08804F203CEAA2FBF93918E4DD6FFE8" />
-            <ComponentRef Id="cmp549099506F86BEE7AAB32B0E645BC5D2" />
-            <ComponentRef Id="cmpC3B284E2C828A0721BE51E01050E53E1" />
-            <ComponentRef Id="cmp30519546012DDC0B8379E64951351E3C" />
-            <ComponentRef Id="cmp35CFB41094E7122AE1B2A5C05D1282AB" />
-            <ComponentRef Id="cmp57A27CE60199E329996712474E7C2BC5" />
-            <ComponentRef Id="cmpDBD05AF69869CCE3C837B7562D16068E" />
-            <ComponentRef Id="cmp85BD94817D3BEE46F632C9056792A23F" />
-            <ComponentRef Id="cmp94C7F3DEEB4759365E2359996C620A90" />
-            <ComponentRef Id="cmp10969CE7D3F88E5EA268072C50AC80EE" />
-            <ComponentRef Id="cmp322F8DE90DB083662BE11525196928B8" />
-            <ComponentRef Id="cmp60D06410E8E5B96A9FCC38FF122945A6" />
-            <ComponentRef Id="cmpF4F9E6D1CDD3260AE7A7D92E2233468A" />
-            <ComponentRef Id="cmp8CF578783CD5DD74CF84B3BCBA8BC9AC" />
-            <ComponentRef Id="cmpB1DFFA1A90C636C696F25B051FDA8684" />
-            <ComponentRef Id="cmp14D73E26BCAC8082A1848423255FC811" />
-            <ComponentRef Id="cmp797F5F98267E40A22261982C12D9CFC3" />
-            <ComponentRef Id="cmp892468C20DCC027503A65D8E04206AB1" />
-            <ComponentRef Id="cmpA1C2F33D884888E67FDBE4B1B8CF57C3" />
-            <ComponentRef Id="cmp853DD769CDE7C3C4371D541577A26C4D" />
-            <ComponentRef Id="cmp4AE3615F8C9D607F2242D4985722B101" />
-            <ComponentRef Id="cmpE0E8EBD2AB44D40AF60189E9C07C4222" />
-            <ComponentRef Id="cmp08570BCEAEABE3C2D901588C6FAE7545" />
-            <ComponentRef Id="cmpD56FD02B10A0ACE9B04E38DC2C5472E4" />
-            <ComponentRef Id="cmpB3E2E28C4D8CC227C209793D1AD85021" />
-            <ComponentRef Id="cmp2BEAE4F6AF321A28C50633BF5F901613" />
-            <ComponentRef Id="cmp630387AC00CD919B0F77AF24E37E9CF3" />
-            <ComponentRef Id="cmpB9D8A699E4C4C85CF2D9B14A666F2707" />
-            <ComponentRef Id="cmp58F025D23977CFA3001F85DC4B7469DF" />
-            <ComponentRef Id="cmp2D894B0E8B3D7D0028A5006C923DAC5F" />
-            <ComponentRef Id="cmpC8C991D28EB59433F20DBFE6BF789A7C" />
-            <ComponentRef Id="cmpBAC0D0ED957577AAB1FE322A11934592" />
-            <ComponentRef Id="cmp8472150D6469C3E0AC44BD9FAC410384" />
-            <ComponentRef Id="cmp57DC534DDBF7088E5F4A5A93C175EAEA" />
-            <ComponentRef Id="cmpB2DCE9F21CCB99536E7F0AEA94628FFD" />
-            <ComponentRef Id="cmp1BC26A509ABE7933DCA397E7B6293E45" />
-            <ComponentRef Id="cmpC2E51097FA5EE8969D5AB8319B0628CE" />
-            <ComponentRef Id="cmp0E35AE40F78EEAFAF86419E969C1B1B2" />
-            <ComponentRef Id="cmpBAA3A4CAEE23E28DEB96B932E134FCDE" />
-            <ComponentRef Id="cmp7E26975B6E3D28BBCA6CA599683F0148" />
-            <ComponentRef Id="cmp9822520CC60C82DE03B6C29D2D390C1C" />
-            <ComponentRef Id="cmpB922E2D11F35EC238952288C5F7030B3" />
-            <ComponentRef Id="cmp1211D436E2145A05CBE92FF618F6ED57" />
-            <ComponentRef Id="cmp9D63CF739E238F19CEE477B9FC3A0A72" />
-            <ComponentRef Id="cmpC5AD6E98E913FD6AEF51ACA7256765A9" />
-            <ComponentRef Id="cmpE14AA73BED565EC676BC8918BD160030" />
-            <ComponentRef Id="cmp1129DF1EFFBB3035DD9390A337D378B7" />
-            <ComponentRef Id="cmp051BEBDFEC2EA68CBDD0ACD1928473C0" />
-            <ComponentRef Id="cmp58ED204D7790A62311F253242FEA2840" />
-            <ComponentRef Id="cmp8C42517D4E3BA510BE27B2B07B06F468" />
-            <ComponentRef Id="cmp90B01661C04737643F677FA1B913CF2E" />
-            <ComponentRef Id="cmpA0C432025440BCD381AAE02F0CEF079A" />
-            <ComponentRef Id="cmp1D4963222A0E961A21F0278E6FA7BF9B" />
-            <ComponentRef Id="cmp4CA12D6A325014BE48FF4D5A8170362F" />
-            <ComponentRef Id="cmpE10F48B27719A0FB261D42E5E03A75AD" />
-            <ComponentRef Id="cmpFF2D5B3D2FCFEE80663A50F4CB96D784" />
-            <ComponentRef Id="cmpE7DC8BCF87C5F17D8DB155EB722BBCFC" />
-            <ComponentRef Id="cmp6ADE2F98D63F25DA067501F2AA810075" />
-            <ComponentRef Id="cmp25AD6C3294BA4DEBB70A50E75C848A90" />
-            <ComponentRef Id="cmp02A105E1D329EDA37734F523543B4DFA" />
-            <ComponentRef Id="cmp29AE11FF25C478227C2D3865E10DDA7E" />
-            <ComponentRef Id="cmp360B5EE73B6D5B50CC5E734FC4FDF271" />
-            <ComponentRef Id="cmpAFE025619A868A3C3877687C8886D0D5" />
-            <ComponentRef Id="cmpA286C1325AD99D6506F9719B4F53E439" />
-            <ComponentRef Id="cmp6DEDFD39A281FA198E5F78DC631279BF" />
-            <ComponentRef Id="cmpCAB3E8B0372102F1E014DAC77E6ED7BB" />
-            <ComponentRef Id="cmpA0EB7A5B74049F39C78797CFA9B001A5" />
-            <ComponentRef Id="cmpA5278B469D3A56185265BA374CA175C9" />
-            <ComponentRef Id="cmp4DC1231F5095E19BA9213915A1D28887" />
-            <ComponentRef Id="cmp7E3C6714363A993F554304E2440A200E" />
-            <ComponentRef Id="cmpB8C2C115132AFAE584B425E4E62AE7B2" />
-            <ComponentRef Id="cmpC79A834E3BCE8904F810892B20BBDE82" />
-            <ComponentRef Id="cmp059401F9A2DE84011CEDD67BEEA1C7F1" />
-            <ComponentRef Id="cmpE3F20501692A1F7DC5002371BD686885" />
-            <ComponentRef Id="cmp99F773307B19E56B0F560101502F8BCC" />
-            <ComponentRef Id="cmp66A355DD76E2E099329AC8756C838460" />
-            <ComponentRef Id="cmp403CECD67093482B828391572EBCA1F1" />
-            <ComponentRef Id="cmpDA908AA3BF13FB62BE2D44696CCBE1BD" />
-            <ComponentRef Id="cmp0C71296ED704E095E457EA87FAF91FB6" />
-            <ComponentRef Id="cmpE9FD4D89AC50B4C9A07B63CFDB719869" />
-            <ComponentRef Id="cmpD233C23F1AC6D3B316E9C2D83F9202A0" />
-            <ComponentRef Id="cmpD9DFCCA545A925AB4B06F72A7666DC48" />
-            <ComponentRef Id="cmp7A60C6004D086C538114E68E4A3F0173" />
-            <ComponentRef Id="cmpDBE757CADC29CABD9B801C0CD00471F9" />
-            <ComponentRef Id="cmpA16FC39ECE4BEDCA43BA916A5BCEB87F" />
-            <ComponentRef Id="cmp4417CD24F151963E45C7816B2B2654DA" />
-            <ComponentRef Id="cmp72CC4ED330B90C45B66EDFAEEF067BF4" />
-            <ComponentRef Id="cmp189B4D181108329A12B027C7BAB53B50" />
-            <ComponentRef Id="cmp3DAE455D9CEE195660952F4FACA54A39" />
-            <ComponentRef Id="cmp3217D903751340C465FFFC58D31482A7" />
-            <ComponentRef Id="cmp8A13E1BA3BAA3F1F281F93B924651544" />
-            <ComponentRef Id="cmp7993FFA9FD9428F7779B984C6A3C14C9" />
-            <ComponentRef Id="cmpB43A29CB50D88E8B16A01F92DEFD093D" />
-            <ComponentRef Id="cmp40729FD28B1CB70A850158DFC7F1AD16" />
-            <ComponentRef Id="cmpD4AA068826FC26A5D8D6BB7B51014233" />
-            <ComponentRef Id="cmp333315456406EDBF3361344D6B2CE81F" />
-            <ComponentRef Id="cmp3B26F1349BB7B4DE79D4093C879E6785" />
-            <ComponentRef Id="cmpA22A1C55D056D6FE795678318A75CC1A" />
-            <ComponentRef Id="cmp4E0C740DF14834A8754E23C32618B890" />
-            <ComponentRef Id="cmp8F2AABF97CF998DA4B2AFCE785947344" />
-            <ComponentRef Id="cmp46BC2974A055AD26EE687F1349F1004F" />
-            <ComponentRef Id="cmp378966B4D8D1513B8F5705C5D8EB8499" />
-            <ComponentRef Id="cmp3F4159F6E6A7FC9A9CCF0CA49E989487" />
+            <ComponentRef Id="cmp9150AAB3EAFFF4D362A1DB22A1D6617A" />
+            <ComponentRef Id="cmp1EF2B19DEF1928E6243BCD1DE46A93D2" />
+            <ComponentRef Id="cmp4E900697C76718FE44F42586C55A0B7A" />
+            <ComponentRef Id="cmp326545607ED6469417F92DE3D3CD22D7" />
+            <ComponentRef Id="cmp237E7223D546C76123E9EB54C1D72A6A" />
+            <ComponentRef Id="cmp68243A91E6E9ED91FD1F57BABC8D296A" />
+            <ComponentRef Id="cmp8AF8DEF560CA0624A438E16FDE79A9F0" />
+            <ComponentRef Id="cmp3F4AC584057C77D94254CF7E29AB9FFD" />
+            <ComponentRef Id="cmp5BAAF1BB8C38E15566520303ACC4C1AB" />
+            <ComponentRef Id="cmp6D23B728D580C124F382426E586BA5AA" />
+            <ComponentRef Id="cmp6D9925A107FAC2C384F8A31EBB1B8CDB" />
+            <ComponentRef Id="cmp0B2D18DEAEFDA6DC26E157FE58C9F653" />
+            <ComponentRef Id="cmp18BB75ED7B54FF15C80177323E42B6E3" />
+            <ComponentRef Id="cmp85DD09E33CE00B4360A2C2A53885B7BC" />
+            <ComponentRef Id="cmp51486AE483DB48464BE0B5E5B5722A9D" />
+            <ComponentRef Id="cmpA25A309F2C98E82772CF4CF0D2C612DF" />
+            <ComponentRef Id="cmp0614E5F2806D8FA985C358488CD77AD3" />
+            <ComponentRef Id="cmpBFC98984BD3AF61BDEC250E36432140C" />
+            <ComponentRef Id="cmpF285DBFEF8BB4F86F20BA9CAC2DA4CB0" />
+            <ComponentRef Id="cmp2F6EDE9BCF8C3A159F207934C25768B8" />
+            <ComponentRef Id="cmp881E5E9511C2096E01536103CE990B74" />
+            <ComponentRef Id="cmpB60C3CFB879C883B1110CF7F2F3F7DC8" />
+            <ComponentRef Id="cmp6464DC9611861AB3B8E1E45F6E7BAD9D" />
+            <ComponentRef Id="cmp9BB6CC4C4C6DC8191A69DEED4330F778" />
+            <ComponentRef Id="cmp98186E513216CB2243EC9A162D2D16F0" />
+            <ComponentRef Id="cmpA0544C146510E461BA39A8A063704762" />
+            <ComponentRef Id="cmpF3F8E1403C980F4134672DA2253BC0B9" />
+            <ComponentRef Id="cmp74B576E2FFABAE679A0F4FF85ABAEBB7" />
+            <ComponentRef Id="cmp3818B5DC9BCDE400F30EED1D68A2280C" />
+            <ComponentRef Id="cmpE2FAE141A298452CE82BB4C12F668AFC" />
+            <ComponentRef Id="cmp8B085694C4F2EBD0E800847EDEBF9EEC" />
+            <ComponentRef Id="cmpC18E9E9C556FBD609F62FA7B9B67F396" />
+            <ComponentRef Id="cmpAF9213813DBC14461B8A46FC0BAFF52C" />
+            <ComponentRef Id="cmp4854FB3DC26704DDB8BC2C86F605495C" />
+            <ComponentRef Id="cmpA15F4509F3DC6C42EE0F0A0B8573576C" />
+            <ComponentRef Id="cmp9C24968D54CA9925E1CDE32D4C7109E1" />
+            <ComponentRef Id="cmpA078110895E7352A85D08C01D2C8336F" />
+            <ComponentRef Id="cmp7DC4426ABD97BDB3E0FBBD03201226A7" />
+            <ComponentRef Id="cmp87855A2327816CFA79D16D879B9A7287" />
+            <ComponentRef Id="cmpC44652E8B3FC2526C661CA550D343D8F" />
+            <ComponentRef Id="cmpBB578805B2A1F975CE1CE7FADB34E775" />
+            <ComponentRef Id="cmpEF1329846701E4F069ECB6F7BFCE24FC" />
+            <ComponentRef Id="cmp07BE401BE333101C1C18354D7400310B" />
+            <ComponentRef Id="cmp197FB03FE84D218C83966DB50CA0B7BE" />
+            <ComponentRef Id="cmpE75CD236DC5F68A3C2FF858ACEA3F562" />
+            <ComponentRef Id="cmp0EFC1F6F035D81696342446A82C74764" />
+            <ComponentRef Id="cmpD2C273FD16F40E9D11B95E69EB884125" />
+            <ComponentRef Id="cmp43495813F86F7056CD6B5354F560424A" />
+            <ComponentRef Id="cmpD22CD717A9A3636B3C51FDF5F4A3B55E" />
+            <ComponentRef Id="cmp8231A84322E59C457F28FC4162A39A40" />
+            <ComponentRef Id="cmp23854B4C958340E398EA020E6065674F" />
+            <ComponentRef Id="cmp84D26A89DF7E6071B66CF116F6287E2D" />
+            <ComponentRef Id="cmp68AEA4B588534CAF9AA94EE540D41794" />
+            <ComponentRef Id="cmp74380ACDE0AF549401CA651ECC594FBB" />
+            <ComponentRef Id="cmpF0DAC1589E911184B1F3A4423BDB4E59" />
+            <ComponentRef Id="cmpF5F2CAAB1D5DBE6EDDB3B5969E453A5D" />
+            <ComponentRef Id="cmp642FE98ED340C7CB70B41425350E3037" />
+            <ComponentRef Id="cmpD2A7F7C1832E305A7E52320CE879CA98" />
+            <ComponentRef Id="cmp9ADCD4EDA63B89D9660AC5062C16BA9D" />
+            <ComponentRef Id="cmp33D0E70075636258C0721F5D94CE5D0A" />
+            <ComponentRef Id="cmp1EE14383100843EA500A0D5660A96532" />
+            <ComponentRef Id="cmp4B80527C8ED2902740677BF1FF75EC08" />
+            <ComponentRef Id="cmpF558A408E2D36AF70F73353CDFF8D346" />
+            <ComponentRef Id="cmpAD7392E821E037EBDF3586D3936BDA52" />
+            <ComponentRef Id="cmp7DCB3529C1FDF6BB985C95B359750059" />
+            <ComponentRef Id="cmpCA1A386284F2270D77907D8AD7F2F4EA" />
+            <ComponentRef Id="cmp71F02D26C680F1317006EA755AF53EBE" />
+            <ComponentRef Id="cmpCE1734CE5B20C749DA110263F5331EED" />
+            <ComponentRef Id="cmpE7F8EC57D03815F55AC41562429C6DF1" />
+            <ComponentRef Id="cmp258043CE0546AD693110F3B5C49EAACE" />
+            <ComponentRef Id="cmp9872C4D5B59D482F1BDE6DBED490C33D" />
+            <ComponentRef Id="cmp5040BEEED2699442FBEE433237B11FA9" />
+            <ComponentRef Id="cmp98BFF50191AF5AF7664792DAB71FE972" />
+            <ComponentRef Id="cmp4EDC2EBAD12AA32A87E9078A9F46413F" />
+            <ComponentRef Id="cmp7FA022A41D40A8DE766FBEB13687F8BF" />
+            <ComponentRef Id="cmpA8494295A91A87F9469F2D5B9057319A" />
+            <ComponentRef Id="cmpF985C69C726F79D95624190A9A820029" />
+            <ComponentRef Id="cmp60E61D481DFE533BA76D50479234D0F5" />
+            <ComponentRef Id="cmp84707B5EE3758DA547703FAF6A2E0C7E" />
+            <ComponentRef Id="cmp65983F74113F581EA7EAF31EFF1B36C7" />
+            <ComponentRef Id="cmp361073E8F172FA1246BFE8C7B4D03DCF" />
+            <ComponentRef Id="cmpAF50D1276B4264675EB7AFD4952E3319" />
+            <ComponentRef Id="cmpEBAC4EF5A3AAE23CA8E48C2E092E556B" />
+            <ComponentRef Id="cmp19632A87E6DB6AA343B0E4FF2557484D" />
+            <ComponentRef Id="cmp3624DA559C4A049C57A2DD2B1BA945AB" />
+            <ComponentRef Id="cmpB91F8CB9E2D14F25625E16A31ABA061D" />
+            <ComponentRef Id="cmp6FBECB6DBEA1328E0194185B575AA486" />
+            <ComponentRef Id="cmpF8FFE5ABC8A20788ED1F83F951559C39" />
+            <ComponentRef Id="cmp75498870BE2A5C1F625521F6DE315FB8" />
+            <ComponentRef Id="cmpABAA21B687D51A9152F0791CAF008455" />
+            <ComponentRef Id="cmp8B32CE0EBE44DC159D589B865D71C23E" />
+            <ComponentRef Id="cmp8F98680999E1BBF876268196A908E21A" />
+            <ComponentRef Id="cmp4ADF61B0D72010157B2A3C7D07F9EBDC" />
+            <ComponentRef Id="cmpC6D0EDADB193EE3544DA2B4F680E5A3E" />
+            <ComponentRef Id="cmpF556CC184FCEED026161403CF53CE2C7" />
+            <ComponentRef Id="cmp9E5E6EE270C7BC94FF06FB75DB30514F" />
+            <ComponentRef Id="cmp0C3EC50237FD8165F1C1C50B7A636DA5" />
+            <ComponentRef Id="cmp08BD8B00A34AAC7A440A62CB61D18196" />
+            <ComponentRef Id="cmpBBBDC8433930BF8559B37F8CA16F4234" />
+            <ComponentRef Id="cmpB6E8CFE5AA9FECD0A1432B3BE3477F65" />
+            <ComponentRef Id="cmpE7F6B7535957D8B9C585BB994F050C7F" />
+            <ComponentRef Id="cmp922DE94233063980FE899747A88ADBE8" />
+            <ComponentRef Id="cmp3D2C74F27764A1CD5EFDF7AD30CF6183" />
+            <ComponentRef Id="cmp85D72ECB01C326FD595B210A759ECF05" />
+            <ComponentRef Id="cmp4E5527F743EE8B3F7B0A55097523F11D" />
+            <ComponentRef Id="cmp0A25799603986427AA2230F27C1E4BB7" />
+            <ComponentRef Id="cmpC708C8C84DDC5B0A5DB467662526F0A3" />
+            <ComponentRef Id="cmp1C3944077A1AE5D9A8413054D5C27713" />
+            <ComponentRef Id="cmp30500073E25013391B407704C12D6AB6" />
+            <ComponentRef Id="cmp20F09CA3B1EA85CBF0319088337F5FBA" />
+            <ComponentRef Id="cmpDFBC4B930D6AE80EAC69BEEF724E183B" />
+            <ComponentRef Id="cmpAED177F64DAC5AB436779643E1DE4CBA" />
+            <ComponentRef Id="cmp63D14ADC2019C2A413AE781DEC22B2C0" />
+            <ComponentRef Id="cmpB49A26BF3ADEEE1B1AA09CAE2F21B46D" />
+            <ComponentRef Id="cmp3A43CF9FE1E176EBACE134E9B42624B3" />
+            <ComponentRef Id="cmp6C37ABFCC2A2F7FF405848833455F6EC" />
+            <ComponentRef Id="cmpD82E1FC3C19ABCA850CD5BBC5F1EDBFC" />
+            <ComponentRef Id="cmp9A44C687C7A36BFC0955D2111750FD0D" />
+            <ComponentRef Id="cmp875B2F31C74905E913D377A9B3492099" />
+            <ComponentRef Id="cmpB0CD6036FE204D73FB90545516592B32" />
+            <ComponentRef Id="cmpC26EAA7FAD78CA414B38C9E06485313B" />
+            <ComponentRef Id="cmpFC92568357406CD676D46143AC330C3D" />
+            <ComponentRef Id="cmpA4C0A7C6910C7D8AF6D20B7E49146D4D" />
+            <ComponentRef Id="cmp39FD5BDC109FA6701B873552E5FF57F6" />
+            <ComponentRef Id="cmpFB24F919C56995D171CDD258D00177F4" />
+            <ComponentRef Id="cmp9523003154F876E6693B201EC392B03B" />
+            <ComponentRef Id="cmp8D9B950F6F3D7197CE227252BEDE1E0F" />
+            <ComponentRef Id="cmpB4291F9CDC0EA3E66E60492FB4F874D3" />
+            <ComponentRef Id="cmp73CF5D349144B4837B31CCB7FEE8F70C" />
+            <ComponentRef Id="cmpD383BD4FF5C64B46D21A8D453E5684EC" />
+            <ComponentRef Id="cmp1F6D74457E379515C23E331F3054EF97" />
+            <ComponentRef Id="cmp64EE5AE617D8AFE5B49B2930C64C05B6" />
+            <ComponentRef Id="cmp6D62649A9BDE0DEC32ABD1B2F0320B32" />
+            <ComponentRef Id="cmpE8A3DF0866CFC535D677CF2D9AB78926" />
+            <ComponentRef Id="cmp55D6A83082424E1B53E4CF4CAB44C606" />
+            <ComponentRef Id="cmp7935AE46748A45792BCD73F613130835" />
+            <ComponentRef Id="cmp0BC19F5F4C6F03F04B4B892E90B13B78" />
+            <ComponentRef Id="cmpB505DAF0C10F4B62273A084847CC88E1" />
+            <ComponentRef Id="cmp2078DFC69ED85C752F954C18BA3B7F02" />
+            <ComponentRef Id="cmp594554317DC1BC278053166DCF30248A" />
+            <ComponentRef Id="cmp2F17B149B11C66C0DDAFF5588AED82C0" />
+            <ComponentRef Id="cmp130B141C6B98E894B365FE2B936E88FB" />
+            <ComponentRef Id="cmpF95FDDE442CB8A9528CADEB4DBCE48C2" />
+            <ComponentRef Id="cmpFC308E54C07999E4370ACC528E5954F8" />
+            <ComponentRef Id="cmpB884296EF6B7D890B247C5506CAC4820" />
+            <ComponentRef Id="cmp44CE1644BD2C9BE3A2900B7DB4B680E3" />
+            <ComponentRef Id="cmp933F892122EEC197980D7AE76EA79FC4" />
+            <ComponentRef Id="cmpBE3E2EC5EA502D83E3676B77D38021C7" />
+            <ComponentRef Id="cmp77888C8B3F6AB958C0A02FC9607BE445" />
+            <ComponentRef Id="cmp744E2C5C20B10B5EDA1C60321140C04A" />
+            <ComponentRef Id="cmp07D9442F482C8EBD4F9D07C58120846C" />
+            <ComponentRef Id="cmp297B1EDC04D589902C3208D1B77E85E4" />
+            <ComponentRef Id="cmp6DA57044A61C898CD5F57E51A87E6D26" />
+            <ComponentRef Id="cmp42724EBBF0EA64C510E8399A1B893B09" />
+            <ComponentRef Id="cmp031D1BCDA021B786CADB35AC45473DBB" />
+            <ComponentRef Id="cmp053788C6F57E7DBE432884D7DF32CE31" />
+            <ComponentRef Id="cmp3BA17B073321EF6440D11916A9427DA7" />
+            <ComponentRef Id="cmp6D3E218214747C64C74507D77BAA0FBB" />
+            <ComponentRef Id="cmpA939D50EF51EA305F401720A0FCA69B0" />
+            <ComponentRef Id="cmp208C00A149238AA54D55A346ECF3488E" />
+            <ComponentRef Id="cmp9480B60CBF40305C35B63774614DE355" />
+            <ComponentRef Id="cmpE0257899F33594031B7E7D5A09C70278" />
+            <ComponentRef Id="cmp611AAC12C65A83770F0E4395E3B3D867" />
+            <ComponentRef Id="cmp10175AC18AC52CAE1349414862CE91BF" />
+            <ComponentRef Id="cmpC117612892E6DCFB96846909254BF022" />
+            <ComponentRef Id="cmp78B9B000B850F021BAA7CDF22C66B4A9" />
+            <ComponentRef Id="cmp9811B4AB02133EFAB69D92B523E09BF3" />
+            <ComponentRef Id="cmp08B55166168AE1EFCAF6958F01B5DAF5" />
+            <ComponentRef Id="cmp0ADCBF6DF83D2EE42F736259700103D6" />
+            <ComponentRef Id="cmpB509F44C2E17D47B0A81CD4BFB3FE614" />
+            <ComponentRef Id="cmp1CA207EAB7FA9C47BEB561CDF94BA9A2" />
+            <ComponentRef Id="cmp25DB26A318A7E344712B25315E9D461B" />
+            <ComponentRef Id="cmp98211F5055A31EBB13B1675F87A6E59A" />
+            <ComponentRef Id="cmpD0515C5661E2F3EDB9B178079CE1A5DA" />
+            <ComponentRef Id="cmp52D707AD9909E1E15CE8394FF6CC683C" />
+            <ComponentRef Id="cmp95B09D80EB965DA0208A5EC03DC331E0" />
+            <ComponentRef Id="cmp3A005B538B7B1DA48881A32A9EE1C67F" />
+            <ComponentRef Id="cmpF762ED64143C5213B247F94B27866622" />
+            <ComponentRef Id="cmp39230713641ADD564B9099D582490831" />
+            <ComponentRef Id="cmpCC63521D3DFDBC655BF337D8399900C4" />
+            <ComponentRef Id="cmpE8910BAA121596E28C05A2EEFB544763" />
+            <ComponentRef Id="cmp7AC825089ED496130444138838AF5B0D" />
+            <ComponentRef Id="cmp47B7F0B0DE56196F4832A86AD64CEC10" />
+            <ComponentRef Id="cmp7D7127D846E2A9F472F62120757FCFDD" />
+            <ComponentRef Id="cmpA529157A1AF04AF2D44C0DB66465D512" />
+            <ComponentRef Id="cmpC13198733A46F26FFA1C37ABB54100D2" />
+            <ComponentRef Id="cmpE8B6EDBFC0D0C6FCEF542C32F12356EA" />
+            <ComponentRef Id="cmp4D1F6807725B7989496D4A8D261012FC" />
+            <ComponentRef Id="cmp2085C7EE88E56926216993F8A2D2B7F1" />
+            <ComponentRef Id="cmp47600F38D471450DEBE29782141EB22B" />
+            <ComponentRef Id="cmp8DB04659699EC7D9238D006DB4096427" />
+            <ComponentRef Id="cmp8FE0130819C545234E7C12AA14D6F62F" />
+            <ComponentRef Id="cmp83F3B910CBD3D8A497711A914CB5723A" />
+            <ComponentRef Id="cmpBE5A80584F8D32018700927AA18B0BB8" />
+            <ComponentRef Id="cmpD68F4C18CD3A989437D6819FE76E3ACB" />
+            <ComponentRef Id="cmp602D071A90A4C70C7E97372DAC9EE98E" />
         </ComponentGroup>
     </Fragment>
 </Wix>
