@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -91,8 +92,8 @@ public class ModifyJobPriorityPresenter implements Initializable {
 
                 modifyJobPriorityTask.setOnSucceeded(event -> loggingService.logMessage(
                     resourceBundle.getString("priorityModified"), LogType.INFO));
-                modifyJobPriorityTask.setOnFailed(event -> loggingService.logMessage(
-                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR));
+                modifyJobPriorityTask.setOnFailed(SafeHandler.logHandle(event -> loggingService.logMessage(
+                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR)));
                 workers.execute(modifyJobPriorityTask);
             } catch (final Exception e) {
                 LOG.error("Failed to modify the job:", e);
