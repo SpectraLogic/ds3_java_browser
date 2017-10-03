@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -82,11 +83,11 @@ public class CreateFolderPresenter implements Initializable {
                     createFolderButton.setDisable(false);
                 }
             });
-            folderNameField.setOnKeyReleased(event -> {
+            folderNameField.setOnKeyReleased(SafeHandler.logHandle(event -> {
                 if (!createFolderButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     createFolder();
                 }
-            });
+            }));
         } catch (final Throwable t) {
             LOG.error("Encountered an error initializing the CreateFolderPresenter", t);
         }
@@ -104,16 +105,16 @@ public class CreateFolderPresenter implements Initializable {
                 createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
                 loggingService, resourceBundle);
         //Handling task actions
-        createFolderTask.setOnSucceeded(event -> {
+        createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
             loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
                     + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
-        });
-        createFolderTask.setOnCancelled(event -> this.closeDialog());
-        createFolderTask.setOnFailed(event -> {
+        }));
+        createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
+        createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
             this.closeDialog();
             alert.error(CREATE_FOLDER_ERR_LOGS);
-        });
+        }));
         workers.execute(createFolderTask);
     }
 
