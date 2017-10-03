@@ -98,7 +98,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files.stream()
-        .map(p -> new Pair<>(p.getKey().replaceAll(delimiter, BP_DELIMITER), p.getValue()))
+        .map(p -> new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), p.getValue()))
         .collect(GuavaCollectors.immutableList());
         this.settings = settings;
         this.bucket = bucket;
@@ -196,7 +196,7 @@ public class Ds3PutJob extends Ds3JobTask {
         final Path path = pair.getValue();
         if (hasNestedItems(path)) {
             try {
-                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetDir + name + delimiter + path.relativize(p).toString() + appendSlashWhenDirectory(p, delimiter), p))
+                Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>((targetDir + name + delimiter + path.relativize(p).toString() + appendSlashWhenDirectory(p, delimiter)).replace(delimiter, BP_DELIMITER), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final SecurityException e) {
                 LOG.error("Permission denied while accessing path", e);

@@ -86,9 +86,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final DateTimeUtils dateTimeUtils,
             final LoggingService loggingService) {
         this.delimiter = FileSystems.getDefault().getSeparator();
-        this.selectedItems = selectedItems.stream()
-                .map(d -> new Ds3TreeTableValueCustom(d.getBucketName(), d.getName().replaceAll(BP_DELIMITER, delimiter), d.getType(), d.getSize(), d.getLastModified(), d.getOwner(), d.isSearchOn()))
-                .collect(GuavaCollectors.immutableList());
+        this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
         this.client = client;
         this.wrappedDs3Client = Ds3ClientHelpers.wrap(client, RETRY_AFTER);
@@ -133,7 +131,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
-        final String prefix = getParent(selectedItem.getFullName().replaceAll(BP_DELIMITER, delimiter), delimiter);
+        final String prefix = getParent(selectedItem.getFullName(), "/");
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
@@ -193,7 +191,7 @@ public class Ds3GetJob extends Ds3JobTask {
         if (prefix.isEmpty()) {
             objectChannelBuilder = fileObjectGetter;
         } else {
-            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + delimiter);
+            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + "/");
         }
         return objectChannelBuilder;
     }
