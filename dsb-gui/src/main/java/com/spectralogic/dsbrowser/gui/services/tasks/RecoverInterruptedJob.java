@@ -343,10 +343,8 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
         try {
             return Ds3ClientHelpers.wrap(ds3Client, 100).recoverReadJob(uuid);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        } catch (final JobRecoveryException e) {
-            e.printStackTrace();
+        } catch (final IOException|JobRecoveryException e) {
+            LOG.error("Failed to create read job", e);
         }
         return null;
     }
