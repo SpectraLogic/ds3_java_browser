@@ -296,7 +296,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
                 .map(i -> new Pair<>(i.getValue().getName(), i.getValue().getPath()))
-                .filter(pair -> !isEmptyDirectory(pair.getValue(), loggingService))
                 .collect(GuavaCollectors.immutableList());
 
         if (files.isEmpty()) {
