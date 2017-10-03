@@ -18,6 +18,8 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -34,7 +36,14 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     private String fullPath;
     private long logicalCapacity;
 
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
+    public Ds3TreeTableValue(final String bucketName,
+                             final String name,
+                             final Type type,
+                             final long size,
+                             final String lastModified,
+                             final String owner,
+                             final boolean searchOn,
+                             final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -48,7 +57,15 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     }
 
     //constructor with marker
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox, final String marker) {
+    public Ds3TreeTableValue(final String bucketName,
+                             final String name,
+                             final Type type,
+                             final long size,
+                             final String lastModified,
+                             final String owner,
+                             final boolean searchOn,
+                             final HBox physicalPlacementHBox,
+                             final String marker) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
