@@ -145,13 +145,8 @@ public class Ds3PutJob extends Ds3JobTask {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(GuavaCollectors.immutableList());
-        try {
-            this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
-        } catch (final FailedRequestException fe) {
-            loggingService.logMessage(fe.getMessage(), LogType.ERROR);
-            LOG.error("Failed Request", fe);
-            return;
-        }
+
+        this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
         final long totalJobSize = getTotalJobSize();
 
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
@@ -190,7 +185,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     Ds3PanelService.throttledRefresh(remoteDestination);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
-        while(!d.isDisposed()) {
+        while (!d.isDisposed()) {
             Thread.sleep(1000);
         }
     }
