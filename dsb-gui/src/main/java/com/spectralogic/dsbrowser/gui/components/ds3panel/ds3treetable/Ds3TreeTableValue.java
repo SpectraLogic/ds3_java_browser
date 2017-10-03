@@ -18,8 +18,6 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -158,7 +156,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         if (index < 0) {
             return StringConstants.EMPTY_STRING;
         }
-        return fullName.substring(0, index);
+        return fullName.substring(0, index) + '/';
     }
 
     public String getOwner() {

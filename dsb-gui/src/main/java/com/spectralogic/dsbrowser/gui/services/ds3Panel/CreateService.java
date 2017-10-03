@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketPopup;
@@ -28,7 +27,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
-import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
@@ -44,7 +42,7 @@ import java.util.ResourceBundle;
 
 public final class CreateService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CreateService.class);
 
     public static void createBucketPrompt(final Ds3Common ds3Common,
             final Workers workers,
@@ -95,32 +93,33 @@ public final class CreateService {
             LOG.info("You can not create folder here. Please refresh your view");
             alert.info("cantCreateFolderHere");
             return;
+        } else if (values.isEmpty() && root != null && root.getValue() != null) {
+            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
+            values = builder.add(root).build();
+        } else if (values.isEmpty()) {
+            loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
+            alert.info("locationNotSelected");
+            return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
             alert.info("selectSingleLocation");
             return;
-        } else if (Guard.isNullOrEmpty(values)) {
-            loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.info("locationNotSelected");
-            return;
-        } else if (Guard.isNullOrEmpty(values) && root != null && root.getValue() != null) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-            values = builder.add(root).build();
         }
+
         final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
         if (first.isPresent()) {
             final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = first.get();
 
-            if (ds3TreeTableValueTreeItem.getValue().getType() == BaseTreeModel.Type.File) {
-                loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-                alert.error("locationNotSelected");
-                return;
-            }
+            final String destinationDirectory = ds3TreeTableValueTreeItem.getValue().getDirectoryName();
 
-            final String location = ds3TreeTableValueTreeItem.getValue().getDirectoryName();
-            final ImmutableList<String> buckets = values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect(GuavaCollectors.immutableList());
+            final ImmutableList<String> buckets = values.stream()
+                    .map(TreeItem::getValue)
+                    .map(Ds3TreeTableValue::getBucketName)
+                    .distinct().collect(GuavaCollectors.immutableList());
             final Optional<String> bucketElement = buckets.stream().findFirst();
-            bucketElement.ifPresent(s -> CreateFolderPopup.show(new CreateFolderModel(ds3Common.getCurrentSession().getClient(), location, s), resourceBundle));
+            bucketElement.ifPresent(bucket -> CreateFolderPopup.show(
+                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), resourceBundle));
+
             Ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }
     }
