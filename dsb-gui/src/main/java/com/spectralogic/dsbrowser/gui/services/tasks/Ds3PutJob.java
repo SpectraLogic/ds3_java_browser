@@ -26,6 +26,7 @@ import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.JobStatus;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -144,6 +145,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(GuavaCollectors.immutableList());
+
         this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
         final long totalJobSize = getTotalJobSize();
 
@@ -183,7 +185,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     Ds3PanelService.throttledRefresh(remoteDestination);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
-        while(!d.isDisposed()) {
+        while (!d.isDisposed()) {
             Thread.sleep(1000);
         }
     }
