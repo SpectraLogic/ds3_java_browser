@@ -291,7 +291,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private ImmutableList<Pair<String, Path>> getLocalFilesToPut(final Session session, final String bucket) {
+    private ImmutableList<Pair<String, Path>> getLocalFilesToPut() {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
@@ -354,7 +354,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
+        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
             alert.info("fileSelect");
             return;
