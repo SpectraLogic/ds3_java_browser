@@ -426,7 +426,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                 }));
                 putJob.setOnFailed(SafeHandler.logHandle(e -> {
-                    LOG.error("setOnFailed");
+                    LOG.info("setOnFailed");
                     Ds3PanelService.refresh(selectedItem);
                     ds3TreeTable.getSelectionModel().clearSelection();
                     ds3TreeTable.getSelectionModel().select(selectedItem);
