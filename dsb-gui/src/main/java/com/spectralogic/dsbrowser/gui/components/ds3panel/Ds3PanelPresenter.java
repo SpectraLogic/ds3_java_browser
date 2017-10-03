@@ -548,7 +548,7 @@ public class Ds3PanelPresenter implements Initializable {
         final TreeItem<Ds3TreeTableValue> root = ds3TreeTable.getRoot();
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {
-                LOG.info(resourceBundle.getString("noFiles'"));
+                LOG.info(resourceBundle.getString("noFiles"));
                 alert.info("noFiles");
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
