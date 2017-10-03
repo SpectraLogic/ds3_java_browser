@@ -45,6 +45,7 @@ import com.spectralogic.dsbrowser.gui.util.CancelJobsWorker;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -155,27 +156,27 @@ public class CancelJobsWorkerTest {
                 JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task
-                ds3PutJob.setOnSucceeded(event -> {
+                ds3PutJob.setOnSucceeded(SafeHandler.logHandle(event -> {
                     System.out.println("Put job success");
-                });
-                ds3PutJob.setOnFailed(event -> {
+                }));
+                ds3PutJob.setOnFailed(SafeHandler.logHandle(event -> {
                     System.out.println("Put job failed");
-                });
+                }));
                 jobWorkers.execute(ds3PutJob);
                 Thread.sleep(5000);
 
                 //Cancelling put job task
                 final CancelAllRunningJobsTask cancelAllRunningJobsTask = CancelJobsWorker.cancelTasks(jobWorkers, JobInterruptionStore.loadJobIds(), workers, Mockito.mock(LoggingService.class));
-                cancelAllRunningJobsTask.setOnSucceeded(event -> {
+                cancelAllRunningJobsTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     successFlag = true;
                     latch.countDown();
-                });
-                cancelAllRunningJobsTask.setOnFailed(event -> {
+                }));
+                cancelAllRunningJobsTask.setOnFailed(SafeHandler.logHandle(event -> {
                     latch.countDown();
-                });
-                cancelAllRunningJobsTask.setOnCancelled(event -> {
+                }));
+                cancelAllRunningJobsTask.setOnCancelled(SafeHandler.logHandle(event -> {
                     latch.countDown();
-                });
+                }));
             } catch (final InterruptedException | IOException e) {
                 e.printStackTrace();
                 latch.countDown();
@@ -205,28 +206,28 @@ public class CancelJobsWorkerTest {
 
                 //Starting put job task
                 jobWorkers.execute(ds3PutJob);
-                ds3PutJob.setOnSucceeded(event -> {
+                ds3PutJob.setOnSucceeded(SafeHandler.logHandle(event -> {
                     System.out.println("Put job success");
-                });
+                }));
 
-                ds3PutJob.setOnFailed(event -> {
+                ds3PutJob.setOnFailed(SafeHandler.logHandle(event -> {
                     System.out.println("Put job fail");
-                });
+                }));
                 Thread.sleep(5000);
 
                 //Cancelling task by session
                 final CancelAllTaskBySession cancelAllRunningJobsBySession = CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers,
                         jobInterruptionStore, workers, session, Mockito.mock(LoggingService.class));
-                cancelAllRunningJobsBySession.setOnSucceeded(event -> {
+                cancelAllRunningJobsBySession.setOnSucceeded(SafeHandler.logHandle(event -> {
                     successFlag = true;
                     latch.countDown();
-                });
-                cancelAllRunningJobsBySession.setOnFailed(event -> {
+                }));
+                cancelAllRunningJobsBySession.setOnFailed(SafeHandler.logHandle(event -> {
                     latch.countDown();
-                });
-                cancelAllRunningJobsBySession.setOnCancelled(event -> {
+                }));
+                cancelAllRunningJobsBySession.setOnCancelled(SafeHandler.logHandle(event -> {
                     latch.countDown();
-                });
+                }));
             } catch (final InterruptedException | IOException e) {
                 e.printStackTrace();
                 latch.countDown();

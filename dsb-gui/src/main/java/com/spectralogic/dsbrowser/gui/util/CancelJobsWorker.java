@@ -43,12 +43,12 @@ public final class CancelJobsWorker {
                                             final LoggingService loggingService) {
         if (jobWorkers.getTasks().size() != 0) {
             final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers, loggingService);
-            cancelAllRunningJobsTask.setOnSucceeded(event -> {
+            cancelAllRunningJobsTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 if (cancelAllRunningJobsTask.getValue() != null) {
                     LOG.info("Cancelled job. {}", cancelAllRunningJobsTask.getValue());
                 }
-            });
+            }));
 
         }
     }
