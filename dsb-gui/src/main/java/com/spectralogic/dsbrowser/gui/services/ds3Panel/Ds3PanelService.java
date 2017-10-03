@@ -163,10 +163,10 @@ public final class Ds3PanelService {
         final PhysicalPlacementTask getPhysicalPlacement = new PhysicalPlacementTask(ds3Common, values, workers);
 
         workers.execute(getPhysicalPlacement);
-        getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+        getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
             PhysicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue(), resourceBundle);
-        }))));
+        })));
     }
 
     @SuppressWarnings("unchecked")
