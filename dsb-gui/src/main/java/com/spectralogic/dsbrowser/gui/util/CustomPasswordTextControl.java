@@ -16,6 +16,7 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import javafx.beans.property.BooleanProperty;
@@ -52,7 +53,7 @@ public class CustomPasswordTextControl extends GridPane {
         showButton = new Button();
         showButton.setGraphic(Icon.getIcon(FontAwesomeIcon.EYE));
 
-        showButton.setOnAction(event -> {
+        showButton.setOnAction(SafeHandler.logHandle(event -> {
             isShown.setValue(!isShown.get());
 
             if (isShown.getValue()) {
@@ -60,7 +61,7 @@ public class CustomPasswordTextControl extends GridPane {
             } else {
                 showButton.setGraphic(Icon.getIcon(FontAwesomeIcon.EYE));
             }
-        });
+        }));
     }
 
     private void initPasswordField() {
