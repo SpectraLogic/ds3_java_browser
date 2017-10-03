@@ -291,29 +291,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private ImmutableList<Pair<String, Path>> getLocalFilesToPut(final Session session, final String bucket) {
+    private ImmutableList<Pair<String, Path>> getLocalFilesToPut() {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
-
-        currentLocalSelection.stream()
-                .map(selection -> selection.getValue().getPath())
-                .filter(path -> isEmptyDirectory(path, loggingService))
-                .forEach(path -> {
-                    final CreateFolderTask task = new CreateFolderTask(session.getClient(),
-                            bucket,
-                            path.getFileName().toString(),
-                            loggingService,
-                            resourceBundle);
-
-                    task.setOnSucceeded(SafeHandler.logHandle(event -> {
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                        loggingService.logMessage("Created folder " + path.getFileName().toString(), LogType.INFO);
-                    }));
-                    task.setOnFailed(SafeHandler.logHandle(event -> {
-                        loggingService.logMessage("Failed to create folder " + path.getFileName().toString(), LogType.ERROR);
-                    }));
-                    workers.execute(task);
-                });
-
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
                 .map(i -> new Pair<>(i.getValue().getName(), i.getValue().getPath()))
@@ -375,7 +354,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut(session, bucket);
+        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
             alert.info("fileSelect");
             return;
