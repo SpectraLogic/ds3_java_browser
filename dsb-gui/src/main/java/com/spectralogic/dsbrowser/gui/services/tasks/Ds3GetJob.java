@@ -139,7 +139,7 @@ public class Ds3GetJob extends Ds3JobTask {
             LOG.info("Did not create job because items were empty");
             return;
         }
-        ds3Objects.filter(ds3 -> isEmptyDirectory(ds3, delimiter)).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
+        ds3Objects.filter(ds3 -> isEmptyDirectory(ds3, BP_DELIMITER)).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
         } catch (final IOException e) {
