@@ -26,7 +26,6 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -101,13 +100,14 @@ public class CreateFolderPresenter implements Initializable {
 
     public void createFolder() {
         //Instantiating create folder task
+        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
         final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                createFolderModel.getBucketName().trim(), folderNameField.textProperty().getValue().trim(),
+                createFolderModel.getBucketName().trim(), folderWithPath,
                 loggingService, resourceBundle);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
-            loggingService.logMessage(folderNameField.textProperty().getValue() + StringConstants.SPACE
+            loggingService.logMessage(folderWithPath + StringConstants.SPACE
                     + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
