@@ -46,12 +46,14 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("Guava")
 public class Ds3GetJob extends Ds3JobTask {
@@ -69,7 +71,8 @@ public class Ds3GetJob extends Ds3JobTask {
     private final String jobPriority;
     private UUID jobId;
     private final DateTimeUtils dateTimeUtils;
-
+    private final String delimiter;
+    private final static String BP_DELIMITER = "/";
 
     @Inject
     public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
@@ -82,6 +85,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final ResourceBundle resourceBundle,
             final DateTimeUtils dateTimeUtils,
             final LoggingService loggingService) {
+        this.delimiter = FileSystems.getDefault().getSeparator();
         this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
         this.client = client;
@@ -96,8 +100,8 @@ public class Ds3GetJob extends Ds3JobTask {
         this.metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreePath.toString());
     }
 
-    private static boolean isEmptyDirectory(final Ds3Object object) {
-        return (object.getSize() == 0) && (object.getName().endsWith("/"));
+    private static boolean isEmptyDirectory(final Ds3Object object, final String delimiter) {
+        return (object.getSize() == 0) && (object.getName().endsWith(delimiter));
     }
 
     @SuppressWarnings("Guava")
@@ -127,7 +131,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
-        final String prefix = getParent(selectedItem.getFullName());
+        final String prefix = getParent(selectedItem.getFullName(), "/");
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
@@ -135,9 +139,9 @@ public class Ds3GetJob extends Ds3JobTask {
             LOG.info("Did not create job because items were empty");
             return;
         }
-        ds3Objects.filter(Ds3GetJob::isEmptyDirectory).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
+        ds3Objects.filter(ds3 -> isEmptyDirectory(ds3, delimiter)).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
-            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object)));
+            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
             loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
@@ -285,11 +289,11 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(String path) {
-        if (path.endsWith("/")) {
+    private static String getParent(String path, final String delimiter) {
+        if (path.endsWith(delimiter)) {
             path = path.substring(0, path.length() - 1);
         }
-        final int lastIndexOf = path.lastIndexOf('/');
+        final int lastIndexOf = path.lastIndexOf(delimiter);
         if (lastIndexOf < 1) {
             return "";
         } else {
