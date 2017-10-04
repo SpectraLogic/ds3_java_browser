@@ -149,6 +149,8 @@ public class Ds3GetJob extends Ds3JobTask {
         }
         if (job != null) {
             jobId = job.getJobId();
+        } else {
+            return;
         }
         ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
                 client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(), dateTimeUtils,

@@ -321,7 +321,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.error("tipleDestError");
+            alert.error("multipleDestError");
             return null;
         }
 
