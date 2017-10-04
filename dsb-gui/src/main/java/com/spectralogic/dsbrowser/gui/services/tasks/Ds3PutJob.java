@@ -60,7 +60,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class Ds3PutJob extends Ds3JobTask {
 
@@ -107,7 +106,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
-        this.targetDirectory = bucket + "\\" + targetDir;
+        this.targetDirectory = bucket + BP_DELIMITER + targetDir;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.remoteDestination = remoteDestination;
         this.dateTimeUtils = dateTImeUtils;
