@@ -65,7 +65,7 @@ public final class RefreshCompleteViewWorker {
                     ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 } else {
                     if(selectedRoot != null && selectedRoot.getParent() == null) {
-                        loggingService.logMessage("Parent folder no longer existed, redirecting to the root of the tree", LogType.ERROR);
+                        LOG.warn("Parent folder no longer existed, redirecting to the root of the tree");
                     }
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
                     final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
