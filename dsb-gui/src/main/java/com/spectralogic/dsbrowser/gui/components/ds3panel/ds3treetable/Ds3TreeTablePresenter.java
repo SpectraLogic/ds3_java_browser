@@ -243,7 +243,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
-                ds3PanelPresenter.getPaneItemsLabel().setText(info);
+                Platform.runLater(() -> ds3PanelPresenter.getPaneItemsLabel().setText(info));
                 //Make Select All menu item disable if current visible item is Bucket or empty else enable it
                 if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
                     deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
@@ -464,59 +464,78 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-            if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
-                rowNameList.add(row.getTreeItem().getValue().getName());
-                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                ds3TreeTable.getSelectionModel().select(row.getIndex());
-            } else {
-                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                ds3TreeTable.getSelectionModel().clearSelection(row.getIndex());
-                rowNameList.remove(row.getTreeItem().getValue().getName());
-                manageItemsCount(row.getTreeItem());
-            }
+        if (row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null) {
+            return;
+        }
+        if (event.getButton().equals(MouseButton.SECONDARY)) {
+            setRightClickBehavior(row);
+        } else if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
+            setSingleClickMultiSelectBehavior(row);
         } else if (event.getClickCount() == 2) {
-            if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                final ProgressIndicator progress = new ProgressIndicator();
-                progress.setMaxSize(90, 90);
-                ds3TreeTable.setPlaceholder(new StackPane(progress));
-                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-                ds3TreeTable.getSelectionModel().select(row.getIndex());
-                ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
-                ds3Common.setDs3TreeTableView(ds3TreeTable);
-                if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                    if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
-                        ds3TreeTable.setPlaceholder(null);
-                    row.getTreeItem().setExpanded(true);
-                    ds3TreeTable.setShowRoot(false);
-                    ds3TreeTable.setRoot(row.getTreeItem());
-                    ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                }
-            }
-        } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-            if ((row.getTreeItem() != null) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                LOG.info("Loading more entries...");
-                loadMore(row.getTreeItem());
-            }
+            setDoubleClickBehavior(row);
         } else {
-            rowNameList.clear();
-            if (null == row.getTreeItem()) {
-                ds3TreeTable.getSelectionModel().clearSelection();
-            } else {
-                rowNameList.add(row.getTreeItem().getValue().getName());
-                ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
-                if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
-                    if (event.getClickCount() < 2) {
-                        loadMore(row.getTreeItem());
-                    }
+            setSingleClickBehavior(event, row);
+        }
+    }
+
+    private void setSingleClickBehavior(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
+        rowNameList.clear();
+        if (null == row.getTreeItem()) {
+            ds3TreeTable.getSelectionModel().clearSelection();
+        } else {
+            rowNameList.add(row.getTreeItem().getValue().getName());
+            ds3TreeTable.getSelectionModel().clearAndSelect(row.getIndex());
+            if (row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+                if (event.getClickCount() < 2) {
+                    loadMore(row.getTreeItem());
                 }
             }
-            if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
-                ds3PanelPresenter.getDs3PathIndicator().setText("");
-                ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
-            } else {
-                ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
+        }
+        if (ds3TreeTable.getRoot().getParent() == null && ds3TreeTable.getSelectionModel().getSelectedItem() == null) {
+            ds3PanelPresenter.getDs3PathIndicator().setText("");
+            ds3PanelPresenter.getDs3PathIndicator().setTooltip(null);
+        } else {
+            ds3PanelPresenter.getDs3PathIndicator().setTooltip(ds3PanelPresenter.getDs3PathIndicatorTooltip());
+        }
+    }
+
+    private void setRightClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+        if ((row.getTreeItem() != null) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+            LOG.info("Loading more entries...");
+            loadMore(row.getTreeItem());
+        }
+    }
+
+    private void setDoubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+        if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+            final ProgressIndicator progress = new ProgressIndicator();
+            progress.setMaxSize(90, 90);
+            ds3TreeTable.setPlaceholder(new StackPane(progress));
+            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            ds3TreeTable.getSelectionModel().select(row.getIndex());
+            ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
+            ds3Common.setDs3TreeTableView(ds3TreeTable);
+            if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
+                    ds3TreeTable.setPlaceholder(null);
+                row.getTreeItem().setExpanded(true);
+                ds3TreeTable.setShowRoot(false);
+                ds3TreeTable.setRoot(row.getTreeItem());
+                ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             }
+        }
+    }
+
+    private void setSingleClickMultiSelectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+        if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
+            rowNameList.add(row.getTreeItem().getValue().getName());
+            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            ds3TreeTable.getSelectionModel().select(row.getIndex());
+        } else {
+            ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            ds3TreeTable.getSelectionModel().clearSelection(row.getIndex());
+            rowNameList.remove(row.getTreeItem().getValue().getName());
+            manageItemsCount(row.getTreeItem());
         }
     }
 
