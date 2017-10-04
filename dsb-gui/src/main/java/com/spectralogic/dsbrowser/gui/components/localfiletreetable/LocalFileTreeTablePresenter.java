@@ -235,13 +235,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             LOG.info("Starting drag and drop event");
                             final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
                             final ClipboardContent content = new ClipboardContent();
-                            final ImmutableList.Builder<Pair<String, String>> selectedModelsBuilder = ImmutableList.builder();
-                            selectedItems.stream()
+                            final ImmutableList<Pair<String, String>> selectedModels = selectedItems.stream()
                                     .map(TreeItem::getValue)
                                     .filter(siValue -> siValue.getName() != null)
                                     .filter(siValue -> siValue.getPath() != null)
-                                    .forEach(si -> selectedModelsBuilder.add(new Pair<>(si.getName(), si.getPath().toAbsolutePath().toString())));
-                            content.put(local, selectedModelsBuilder.build());
+                                    .map(si -> new Pair<>(si.getName(), si.getPath().toAbsolutePath().toString()))
+                                    .collect(GuavaCollectors.immutableList());
+                            content.put(local, selectedModels);
                             db.setContent(content);
                         }
                         event.consume();
