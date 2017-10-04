@@ -97,8 +97,8 @@ public class Ds3PutJob extends Ds3JobTask {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files.stream()
-        .map(p -> new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), p.getValue()))
-        .collect(GuavaCollectors.immutableList());
+                .map(p -> new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), p.getValue()))
+                .collect(GuavaCollectors.immutableList());
         this.settings = settings;
         this.bucket = bucket;
         this.targetDir = targetDir;
@@ -185,7 +185,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     Ds3PanelService.throttledRefresh(remoteDestination);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
-        while(!d.isDisposed()) {
+        while (!d.isDisposed()) {
             Thread.sleep(1000);
         }
     }
@@ -205,7 +205,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 loggingService.logMessage("Tried to walk " + path.toString() + " but could not", LogType.ERROR);
             }
         } else {
-            fileMapBuilder.put(targetDir + name + appendSlashWhenDirectory(path, delimiter), path);
+            fileMapBuilder.put(targetDir + name + appendSlashWhenDirectory(path, delimiter).replace(delimiter, BP_DELIMITER), path);
         }
     }
 
