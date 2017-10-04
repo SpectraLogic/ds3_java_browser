@@ -78,7 +78,7 @@ public class Ds3PutJob extends Ds3JobTask {
     private final TreeItem<Ds3TreeTableValue> remoteDestination;
     private final DateTimeUtils dateTimeUtils;
     private final String delimiter;
-    private final static String BP_DELIMITER = "/";
+    private final static String BP_DELIMITER = Constants.BP_DELIMITER;
 
     @Inject
     public Ds3PutJob(final Ds3Client client,
