@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Guice;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.models.JobRequestType;
@@ -30,14 +29,11 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
-import com.spectralogic.dsbrowser.gui.injector.GuicePresenterInjector;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPriorities;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
@@ -240,7 +236,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
                             final ClipboardContent content = new ClipboardContent();
                             final ImmutableList.Builder<Pair<String, String>> selectedModelsBuilder = ImmutableList.builder();
-                            selectedItems.forEach(si -> selectedModelsBuilder.add(new Pair<String, String>(si.getValue().getName(), si.getValue().getPath().toAbsolutePath().toString())));
+                            selectedItems.stream()
+                                    .map(TreeItem::getValue)
+                                    .filter(siValue -> siValue.getName() != null)
+                                    .filter(siValue -> siValue.getPath() != null)
+                                    .forEach(si -> selectedModelsBuilder.add(new Pair<>(si.getName(), si.getPath().toAbsolutePath().toString())));
                             content.put(local, selectedModelsBuilder.build());
                             db.setContent(content);
                         }
@@ -439,6 +439,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param row         select row
      */
     private void selectMultipleItems(final List<String> rowNameList, final TreeTableRow<FileTreeModel> row) {
+        if(row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null || row.getTreeItem().getValue().getName() == null) {
+            return;
+        }
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
             rowNameList.add(row.getTreeItem().getValue().getName());
