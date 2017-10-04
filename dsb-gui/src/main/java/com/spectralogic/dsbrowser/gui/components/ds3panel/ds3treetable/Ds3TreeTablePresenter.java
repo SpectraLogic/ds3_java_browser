@@ -468,17 +468,17 @@ public class Ds3TreeTablePresenter implements Initializable {
             return;
         }
         if (event.getButton().equals(MouseButton.SECONDARY)) {
-            setRightClickBehavior(row);
+            rightClickBehavior(row);
         } else if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-            setSingleClickMultiSelectBehavior(row);
+            multiselectBehavior(row);
         } else if (event.getClickCount() == 2) {
-            setDoubleClickBehavior(row);
+            doubleClickBehavior(row);
         } else {
-            setSingleClickBehavior(event, row);
+            singleClickBehavior(event, row);
         }
     }
 
-    private void setSingleClickBehavior(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
+    private void singleClickBehavior(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         rowNameList.clear();
         if (null == row.getTreeItem()) {
             ds3TreeTable.getSelectionModel().clearSelection();
@@ -499,14 +499,14 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private void setRightClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+    private void rightClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         if ((row.getTreeItem() != null) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             LOG.info("Loading more entries...");
             loadMore(row.getTreeItem());
         }
     }
 
-    private void setDoubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+    private void doubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
@@ -526,7 +526,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private void setSingleClickMultiSelectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+    private void multiselectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
             rowNameList.add(row.getTreeItem().getValue().getName());
             ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
