@@ -112,8 +112,8 @@ public class CreateFolderPresenter implements Initializable {
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
-            this.closeDialog();
             alert.error(CREATE_FOLDER_ERR_LOGS);
+            this.closeDialog();
         }));
         workers.execute(createFolderTask);
     }
