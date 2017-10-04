@@ -131,7 +131,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
-        final String prefix = getParent(selectedItem.getFullName(), "/");
+        final String prefix = getParent(selectedItem.getFullName(), BP_DELIMITER);
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
@@ -191,7 +191,7 @@ public class Ds3GetJob extends Ds3JobTask {
         if (prefix.isEmpty()) {
             objectChannelBuilder = fileObjectGetter;
         } else {
-            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + "/");
+            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + BP_DELIMITER);
         }
         return objectChannelBuilder;
     }
@@ -289,15 +289,16 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(String path, final String delimiter) {
-        if (path.endsWith(delimiter)) {
-            path = path.substring(0, path.length() - 1);
+    private static String getParent(final String path, final String delimiter) {
+        String newPath = path;
+        if (newPath.endsWith(delimiter)) {
+            newPath = newPath.substring(0, newPath.length() - 1);
         }
-        final int lastIndexOf = path.lastIndexOf(delimiter);
+        final int lastIndexOf = newPath.lastIndexOf(delimiter);
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return path.substring(0, lastIndexOf);
+            return newPath.substring(0, lastIndexOf);
         }
     }
 

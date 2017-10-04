@@ -144,7 +144,7 @@ public class RecoverInterruptedJobTest {
         Platform.runLater(() -> {
             try {
                 jobWorkers.execute(recoverInterruptedJob);
-                recoverInterruptedJob.setOnSucceeded(Saevent -> {
+                recoverInterruptedJob.setOnSucceeded(event -> {
                     if (!recoverInterruptedJob.isJobFailed()) {
                         successFlag = true;
                     }
