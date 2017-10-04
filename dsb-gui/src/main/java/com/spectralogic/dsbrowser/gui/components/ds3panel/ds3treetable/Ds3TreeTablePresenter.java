@@ -464,20 +464,21 @@ public class Ds3TreeTablePresenter implements Initializable {
      * @param row   row
      */
     private void setBehaviorOnMouseClick(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
-        if (row != null && row.getTreeItem() != null && row.getTreeItem().getValue() != null) {
-            if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-                setSingleClickBehavior(row);
-            } else if (event.getClickCount() == 2) {
-                setDoubleClickBehavior(row);
-            } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-                setRightClickBehavior(row);
-            } else {
-                setClickOutsideRowsBehavior(event, row);
-            }
+        if (row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null) {
+            return;
+        }
+        if (event.getButton().equals(MouseButton.SECONDARY)) {
+            setRightClickBehavior(row);
+        } else if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
+            setSingleClickMultiSelectBehavior(row);
+        } else if (event.getClickCount() == 2) {
+            setDoubleClickBehavior(row);
+        } else {
+            setSingleClickBehavior(event, row);
         }
     }
 
-    private void setClickOutsideRowsBehavior(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
+    private void setSingleClickBehavior(final MouseEvent event, final TreeTableRow<Ds3TreeTableValue> row) {
         rowNameList.clear();
         if (null == row.getTreeItem()) {
             ds3TreeTable.getSelectionModel().clearSelection();
@@ -525,7 +526,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private void setSingleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+    private void setSingleClickMultiSelectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
             rowNameList.add(row.getTreeItem().getValue().getName());
             ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
