@@ -35,4 +35,5 @@ public interface Constants {
     String HTTP_PREFIX = "http";
     double MIN_HEIGHT = 600.0;
     double MIN_WIDTH = 720.0;
+    String BP_DELIMITER = StringConstants.FORWARD_SLASH;
 }

@@ -72,7 +72,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private UUID jobId;
     private final DateTimeUtils dateTimeUtils;
     private final String delimiter;
-    private final static String BP_DELIMITER = "/";
+    private final static String BP_DELIMITER = Constants.BP_DELIMITER;
 
     @Inject
     public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
