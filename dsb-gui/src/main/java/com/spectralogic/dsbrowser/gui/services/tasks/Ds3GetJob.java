@@ -46,10 +46,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -163,6 +160,9 @@ public class Ds3GetJob extends Ds3JobTask {
             } else {
                 throw new IOException("Something went wrong getting the job");
             }
+        } catch (final InvalidPathException ipe) {
+            loggingService.logMessage("File name " + fileName + "contains an illegal character", LogType.ERROR);
+            LOG.error("File name " + fileName + " contains an illegal character", ipe);
         } catch (final IOException e) {
             loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
             LOG.error("Unable to transfer Job", e);
