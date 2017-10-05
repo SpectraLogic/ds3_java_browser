@@ -305,14 +305,14 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private static void buildEmptyDirectories(final Ds3Object emtpyDir, final Path fileTreePath, final LoggingService loggingService) {
-        final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
         try {
+            final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
             Files.createDirectories(directoryPath);
         } catch (final InvalidPathException ipe) {
-            LOG.error("Invalid character in " + directoryPath.toString(), ipe);
-            loggingService.logMessage("Invalid character in" + directoryPath.toString(), LogType.ERROR);
+            LOG.error("Invalid character in " + emtpyDir.getName(), ipe);
+            loggingService.logMessage("Invalid character in" + emtpyDir.getName(), LogType.ERROR);
         } catch (final IOException e) {
-            final String pathString = directoryPath.toString();
+            final String pathString = emtpyDir.getName();
             LOG.error("Could not create " + pathString, e);
             loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
