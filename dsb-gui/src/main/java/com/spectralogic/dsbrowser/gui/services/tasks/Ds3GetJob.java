@@ -46,7 +46,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
@@ -199,11 +198,16 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private void notifyIfOverwriting(final String name) {
-        if (Files.exists(fileTreePath.resolve(name))) {
-            loggingService.logMessage(resourceBundle.getString("fileOverridden")
-                    + StringConstants.SPACE + name + StringConstants.SPACE
-                    + resourceBundle.getString("to")
-                    + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+        try {
+            if (Files.exists(fileTreePath.resolve(name))) {
+                loggingService.logMessage(resourceBundle.getString("fileOverridden")
+                        + StringConstants.SPACE + name + StringConstants.SPACE
+                        + resourceBundle.getString("to")
+                        + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+            }
+        } catch (final InvalidPathException ipe) {
+           LOG.error("Invalid character in path " + name, ipe);
+           loggingService.logMessage("Invalid character in path " + name, LogType.ERROR);
         }
     }
 
