@@ -46,6 +46,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
@@ -307,6 +308,9 @@ public class Ds3GetJob extends Ds3JobTask {
         final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
         try {
             Files.createDirectories(directoryPath);
+        } catch (final InvalidPathException ipe) {
+            LOG.error("Invalid character in " + directoryPath.toString(), ipe);
+            loggingService.logMessage("Invalid character in" + directoryPath.toString(), LogType.ERROR);
         } catch (final IOException e) {
             final String pathString = directoryPath.toString();
             LOG.error("Could not create " + pathString, e);
