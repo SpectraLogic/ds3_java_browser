@@ -669,7 +669,7 @@ public class Ds3PanelPresenter implements Initializable {
                 selectedItems.add(root);
             }
             //start a new task for calculating
-            itemsTask = new GetNoOfItemsTask(ds3Common, selectedItems);
+            itemsTask = new GetNoOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
 
             itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()

@@ -15,13 +15,13 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.FilesCountModel;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import javafx.collections.ObservableList;
@@ -36,13 +36,13 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
 
     private final static Logger LOG = LoggerFactory.getLogger(GetNoOfItemsTask.class);
 
-    private final Ds3Common ds3Common;
+    private final Ds3Client ds3Client;
     private ListBucketResult listBucketResult;
     private final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems;
 
-    public GetNoOfItemsTask(final Ds3Common ds3Common,
+    public GetNoOfItemsTask(final Ds3Client ds3Client,
                             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
-        this.ds3Common = ds3Common;
+        this.ds3Client = ds3Client;
         this.selectedItems = selectedItems;
     }
 
@@ -67,7 +67,7 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
                 }
             }
             selectedItems.forEach(item -> {
-                if (null != item && null != item.getValue()) {
+                if (!this.isCancelled() && null != item && null != item.getValue()) {
                     if (item.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                         filesCountModelTotal.setNoOfFiles(filesCountModelTotal.getNoOfFiles() + 1);
                         filesCountModelTotal.setTotalCapacity(filesCountModelTotal.getTotalCapacity() + item.getValue().getSize());
@@ -77,7 +77,7 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
                             request.withPrefix(item.getValue().getFullName());
                         }
                         try {
-                            final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
+                            final GetBucketResponse bucketResponse = ds3Client.getBucket(request);
                             listBucketResult = bucketResponse.getListBucketResult();
                             if (bucketResponse.getListBucketResult().getObjects().size() > 0) {
                                 if (bucketResponse.getListBucketResult().getObjects().get(0).getKey().equals(item.getValue().getFullName()) && bucketResponse.getListBucketResult().getObjects().get(0).getETag() == null) {
@@ -108,7 +108,10 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
      * @param bucketName       bucketName
      * @return FilesCountModel
      */
-    private FilesCountModel getNoOfItemsInFolder(final ListBucketResult listBucketResult, FilesCountModel filesCountModel, final GetNoOfItemsTask getNoOfItemsTask, final String bucketName) {
+    private FilesCountModel getNoOfItemsInFolder(final ListBucketResult listBucketResult,
+                                                 FilesCountModel filesCountModel,
+                                                 final GetNoOfItemsTask getNoOfItemsTask,
+                                                 final String bucketName) {
         try {
             if (!getNoOfItemsTask.isCancelled()) {
                 final int noOfFiles = filesCountModel.getNoOfFiles() + listBucketResult.getObjects().size();
@@ -122,7 +125,7 @@ public class GetNoOfItemsTask extends Task<FilesCountModel> {
                     for (final CommonPrefixes pref : listBucketResult.getCommonPrefixes()) {
                         final GetBucketRequest request = new GetBucketRequest(bucketName).withDelimiter("/");
                         request.withPrefix(pref.getPrefix());
-                        final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
+                        final GetBucketResponse bucketResponse = ds3Client.getBucket(request);
                         final ListBucketResult listBucketResultLocal = bucketResponse.getListBucketResult();
                         if (bucketResponse.getListBucketResult().getObjects().size() > 0) {
                             if (bucketResponse.getListBucketResult().getObjects().get(0).getKey().equals(pref.getPrefix()) && bucketResponse.getListBucketResult().getObjects().get(0).getETag() == null) {
