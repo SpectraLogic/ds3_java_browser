@@ -197,6 +197,9 @@ public class Ds3PutJob extends Ds3JobTask {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>((targetDir + name + delimiter + path.relativize(p).toString() + appendSlashWhenDirectory(p, delimiter)).replace(delimiter, BP_DELIMITER), p))
                         .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+            } catch (final AccessDeniedException ae) {
+                LOG.error("Access was denied to", ae);
+                loggingService.logMessage("Access was denied while attempting to access " + path.toString(), LogType.ERROR);
             } catch (final SecurityException e) {
                 LOG.error("Permission denied while accessing path", e);
                 loggingService.logMessage("Tried to walk " + path.toString() + " but did not have permission", LogType.ERROR);
