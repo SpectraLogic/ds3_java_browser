@@ -37,6 +37,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @SuppressWarnings("Guava")
 public class Ds3GetJob extends Ds3JobTask {
     private static final int RETRY_AFTER = 100;
+    private final static String BP_DELIMITER = Constants.BP_DELIMITER;
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
     private final List<Ds3TreeTableValueCustom> selectedItems;
@@ -71,7 +73,7 @@ public class Ds3GetJob extends Ds3JobTask {
     private UUID jobId;
     private final DateTimeUtils dateTimeUtils;
     private final String delimiter;
-    private final static String BP_DELIMITER = Constants.BP_DELIMITER;
+    private final SettingsStore settingsStore;
 
     @Inject
     public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
@@ -83,6 +85,7 @@ public class Ds3GetJob extends Ds3JobTask {
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final ResourceBundle resourceBundle,
             final DateTimeUtils dateTimeUtils,
+            final SettingsStore settingsStore,
             final LoggingService loggingService) {
         this.delimiter = FileSystems.getDefault().getSeparator();
         this.selectedItems = selectedItems;
@@ -96,6 +99,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
         this.dateTimeUtils = dateTimeUtils;
+        this.settingsStore = settingsStore;
         this.metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreePath.toString());
     }
 
@@ -181,7 +185,9 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void attachListenersToJob(final Instant startTime, final long totalJobSize, final Ds3ClientHelpers.Job job) {
         job.attachObjectCompletedListener(o -> setObjectCompleteListener(o, startTime, totalJobSize));
-        job.attachMetadataReceivedListener(this::setMetadataReceivedListener);
+        if (settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled()) {
+            job.attachMetadataReceivedListener(this::setMetadataReceivedListener);
+        }
         job.attachWaitingForChunksListener(this::setWaitingForChunksListener);
         job.attachDataTransferredListener(l -> setDataTransferredListener(l, totalJobSize));
     }
