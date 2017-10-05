@@ -118,6 +118,14 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                 LOG.info("Success");
                 super.setGraphic(previousGraphics);
             }));
+            buildChildren.setOnFailed(SafeHandler.logHandle(event -> {
+                LOG.info("Success");
+                super.setGraphic(previousGraphics);
+            }));
+            buildChildren.setOnCancelled(SafeHandler.logHandle(event -> {
+                LOG.info("Success");
+                super.setGraphic(previousGraphics);
+            }));
         }
         return super.getChildren();
     }
