@@ -182,6 +182,14 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
             super.setGraphic(previousGraphics);
             children.setAll(list);
         }));
+        getChildren.setOnCancelled(SafeHandler.logHandle(event -> {
+            super.setGraphic(previousGraphics);
+            children.setAll(list);
+        }));
+        getChildren.setOnFailed(SafeHandler.logHandle(event -> {
+            super.setGraphic(previousGraphics);
+            children.setAll(list);
+        }));
         workers.execute(getChildren);
 
     }
