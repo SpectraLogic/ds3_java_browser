@@ -46,10 +46,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -163,6 +160,9 @@ public class Ds3GetJob extends Ds3JobTask {
             } else {
                 throw new IOException("Something went wrong getting the job");
             }
+        } catch (final InvalidPathException ipe) {
+            loggingService.logMessage("File name " + fileName + "contains an illegal character", LogType.ERROR);
+            LOG.error("File name " + fileName + " contains an illegal character", ipe);
         } catch (final IOException e) {
             loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
             LOG.error("Unable to transfer Job", e);
@@ -198,11 +198,16 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private void notifyIfOverwriting(final String name) {
-        if (Files.exists(fileTreePath.resolve(name))) {
-            loggingService.logMessage(resourceBundle.getString("fileOverridden")
-                    + StringConstants.SPACE + name + StringConstants.SPACE
-                    + resourceBundle.getString("to")
-                    + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+        try {
+            if (Files.exists(fileTreePath.resolve(name))) {
+                loggingService.logMessage(resourceBundle.getString("fileOverridden")
+                        + StringConstants.SPACE + name + StringConstants.SPACE
+                        + resourceBundle.getString("to")
+                        + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+            }
+        } catch (final InvalidPathException ipe) {
+           LOG.error("Invalid character in path " + name, ipe);
+           loggingService.logMessage("Invalid character in path " + name, LogType.ERROR);
         }
     }
 
@@ -304,11 +309,14 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     private static void buildEmptyDirectories(final Ds3Object emtpyDir, final Path fileTreePath, final LoggingService loggingService) {
-        final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
         try {
+            final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
             Files.createDirectories(directoryPath);
+        } catch (final InvalidPathException ipe) {
+            LOG.error("Invalid character in " + emtpyDir.getName(), ipe);
+            loggingService.logMessage("Invalid character in" + emtpyDir.getName(), LogType.ERROR);
         } catch (final IOException e) {
-            final String pathString = directoryPath.toString();
+            final String pathString = emtpyDir.getName();
             LOG.error("Could not create " + pathString, e);
             loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
