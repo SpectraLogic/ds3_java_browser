@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -36,7 +35,6 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
@@ -157,20 +155,23 @@ public final class DeleteService {
                 ds3TreeTable.getRoot().getChildren().removeAll(selectedItems);
                 ds3TreeTable.getSelectionModel().clearSelection();
             } else {
-                final TreeItem<Ds3TreeTableValue> selectedItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
-                        .findFirst().get().getParent();
-                if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
-                    ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-                    ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
-                } else {
-                    ds3TreeTable.setRoot(selectedItem);
-                }
-                ds3TreeTable.getSelectionModel().select(selectedItem);
+                final Optional<TreeItem<Ds3TreeTableValue>> optionalItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
+                        .findFirst();
+                optionalItem.ifPresent( item -> {
+                    final TreeItem<Ds3TreeTableValue> selectedItem = item.getParent();
+                    if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
+                        ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
+                        ds3TreeTable.getSelectionModel().clearSelection();
+                        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
+                        ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
+                    } else {
+                        ds3TreeTable.setRoot(selectedItem);
+                    }
+                    ds3TreeTable.getSelectionModel().select(selectedItem);
 
-                ds3TreeTable.getSelectionModel().clearSelection();
-                RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    ds3TreeTable.getSelectionModel().clearSelection();
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                });
             }
         });
     }
