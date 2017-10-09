@@ -257,8 +257,8 @@ public class JobInfoPresenter implements Initializable {
                         LOG.info("Cancellation of recovered job success");
                         refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                     }));
-                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(cancelJobTaskFailedEvent -> {
-                        LOG.info("Cancellation of interrupted job " + jobId + " failed");
+                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent cancelJobTaskFailedEvent) -> {
+                        LOG.error("Cancellation of interrupted job " + jobId + " failed", cancelJobTaskFailedEvent.getSource().getException());
                     }));
                     ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
                         LOG.error("Cancellation of recovered job failed", event.getSource().getException());
@@ -376,8 +376,8 @@ public class JobInfoPresenter implements Initializable {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
-        getJobIDs.setOnFailed(SafeHandler.logHandle(event -> {
-            LOG.error("Get Job IDs failed");
+        getJobIDs.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
+            LOG.error("Get Job IDs failed", event.getSource().getException());
             loggingService.logMessage("Get Job IDs failed", LogType.ERROR);
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
