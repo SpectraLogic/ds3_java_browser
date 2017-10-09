@@ -241,6 +241,7 @@ public class JobInfoPresenter implements Initializable {
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
                 recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(recoverInterruptedJobFailedEvent -> {
+                    LOG.error("Failed to recover", recoverInterruptedJob.getException());
                     loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
@@ -306,6 +307,7 @@ public class JobInfoPresenter implements Initializable {
                 }));
                 recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(event -> {
                     loggingService.logMessage("Failed to recover " + value.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
+                    LOG.error("Failed to recover Job", event.getSource().getException());
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 }));
