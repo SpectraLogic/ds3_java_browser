@@ -54,7 +54,6 @@ public class ModifyJobPriorityPresenter implements Initializable {
 
     private final ResourceBundle resourceBundle;
     private final Workers workers;
-    private final Ds3Common ds3Common;
     private final LoggingService loggingService;
 
     @ModelContext
@@ -63,11 +62,9 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @Inject
     public ModifyJobPriorityPresenter(final ResourceBundle resourceBundle,
                                       final Workers workers,
-                                      final Ds3Common ds3Common,
                                       final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.workers = workers;
-        this.ds3Common = ds3Common;
         this.loggingService = loggingService;
     }
 
