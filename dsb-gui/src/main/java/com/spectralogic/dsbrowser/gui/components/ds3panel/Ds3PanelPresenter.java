@@ -347,10 +347,10 @@ public class Ds3PanelPresenter implements Initializable {
 
                         ModifyJobPriorityPopUp.show(jobPriorityTask.getValue(), resourceBundle);
                     })));
-                    jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> Platform.runLater(() -> {
+                    jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> {
                         LOG.error(resourceBundle.getString("failedToModifyPriority"));
                         loggingService.logMessage(resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
-                    })));
+                    }));
                     workers.execute(jobPriorityTask);
                 } else {
                     LOG.info("Job is not started yet");
