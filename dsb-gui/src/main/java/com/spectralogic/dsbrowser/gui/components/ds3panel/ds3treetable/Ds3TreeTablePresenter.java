@@ -470,7 +470,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         if (event.getButton().equals(MouseButton.SECONDARY)) {
             rightClickBehavior(row);
         } else if (event.isControlDown() || event.isShiftDown() || event.isShortcutDown()) {
-            multiselectBehavior(row);
+            multiSelectBehavior(row);
         } else if (event.getClickCount() == 2) {
             doubleClickBehavior(row);
         } else {
@@ -513,7 +513,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3TreeTable.setPlaceholder(new StackPane(progress));
             ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             ds3TreeTable.getSelectionModel().select(row.getIndex());
-            ds3Common.getDs3PanelPresenter().setDs3TreeTablePresenter(this);
             ds3Common.setDs3TreeTableView(ds3TreeTable);
             if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                 if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
@@ -526,7 +525,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private void multiselectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+    private void multiSelectBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         if (!rowNameList.contains(row.getTreeItem().getValue().getName())) {
             rowNameList.add(row.getTreeItem().getValue().getName());
             ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

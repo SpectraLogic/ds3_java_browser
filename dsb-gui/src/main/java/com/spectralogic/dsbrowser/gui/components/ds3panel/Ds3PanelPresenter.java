@@ -25,7 +25,6 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
-import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityModel;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -103,9 +102,6 @@ public class Ds3PanelPresenter implements Initializable {
 
     @FXML
     private ImageView imageView, imageViewForTooltip;
-
-    @FXML
-    private Ds3TreeTablePresenter ds3TreeTablePresenter;
 
     private final ResourceBundle resourceBundle;
     private final Ds3SessionStore ds3SessionStore;
@@ -348,8 +344,13 @@ public class Ds3PanelPresenter implements Initializable {
 
                     jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
-                        ModifyJobPriorityPopUp.show((ModifyJobPriorityModel) jobPriorityTask.getValue(), resourceBundle);
+
+                        ModifyJobPriorityPopUp.show(jobPriorityTask.getValue(), resourceBundle);
                     })));
+                    jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> {
+                        LOG.error(resourceBundle.getString("failedToModifyPriority"));
+                        loggingService.logMessage(resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
+                    }));
                     workers.execute(jobPriorityTask);
                 } else {
                     LOG.info("Job is not started yet");
@@ -718,10 +719,6 @@ public class Ds3PanelPresenter implements Initializable {
 
     public Label getCapacityLabel() {
         return capacityLabel;
-    }
-
-    public void setDs3TreeTablePresenter(final Ds3TreeTablePresenter ds3TreeTablePresenter) {
-        this.ds3TreeTablePresenter = ds3TreeTablePresenter;
     }
 
     public Label getDs3PathIndicator() {
