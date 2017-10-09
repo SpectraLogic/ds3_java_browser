@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -29,10 +30,13 @@ import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
+    private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
+
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
@@ -141,7 +145,11 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
         }));
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
-        getBucketTask.setOnFailed(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
+        getBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
+            super.setGraphic(previousGraphics);
+            loggingService.logMessage("Failed to get bucket", LogType.ERROR);
+            LOG.error("Failed to get bucket", event.getSource().getException());
+        }));
         workers.execute(getBucketTask);
     }
 
