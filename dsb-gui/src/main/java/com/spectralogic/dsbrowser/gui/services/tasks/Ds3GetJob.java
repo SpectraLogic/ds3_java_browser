@@ -17,6 +17,9 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
@@ -31,22 +34,26 @@ import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("Guava")
 public class Ds3GetJob extends Ds3JobTask {
-    private static final int retryAfter = 100;
+    private static final int RETRY_AFTER = 100;
     private final static Logger LOG = LoggerFactory.getLogger(Ds3GetJob.class);
 
     private final List<Ds3TreeTableValueCustom> selectedItems;
@@ -59,68 +66,78 @@ public class Ds3GetJob extends Ds3JobTask {
     private final int maximumNumberOfParallelThreads;
     private final String jobPriority;
     private UUID jobId;
+    private final DateTimeUtils dateTimeUtils;
+    private final String delimiter;
+    private final static String BP_DELIMITER = Constants.BP_DELIMITER;
 
-
-    public Ds3GetJob(final List<Ds3TreeTableValueCustom> selectedItems,
-                     final Path fileTreePath,
-                     final Ds3Client client,
-                     final String jobPriority,
-                     final int maximumNumberOfParallelThreads,
-                     final JobInterruptionStore jobInterruptionStore,
-                     final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-                     final ResourceBundle resourceBundle,
-                     final LoggingService loggingService) {
+    @Inject
+    public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
+            @Assisted final Path fileTreePath,
+            final Ds3Client client,
+            @Nullable @Named("jobPriority") final String jobPriority,
+            @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
+            final JobInterruptionStore jobInterruptionStore,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final ResourceBundle resourceBundle,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService) {
+        this.delimiter = FileSystems.getDefault().getSeparator();
         this.selectedItems = selectedItems;
         this.fileTreePath = fileTreePath;
         this.client = client;
-        this.wrappedDs3Client = Ds3ClientHelpers.wrap(client, retryAfter);
+        this.wrappedDs3Client = Ds3ClientHelpers.wrap(client, RETRY_AFTER);
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
         this.jobPriority = jobPriority;
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.maximumNumberOfParallelThreads = maximumNumberOfParallelThreads;
+        this.dateTimeUtils = dateTimeUtils;
         this.metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreePath.toString());
     }
 
-    private static boolean isEmptyDirectory(final Ds3Object object) {
-        return (object.getSize() == 0) && (object.getName().endsWith("/"));
-    }
-
-    private static boolean isFullDirectory(final Ds3Object object) {
-        return !isEmptyDirectory(object);
+    private static boolean isEmptyDirectory(final Ds3Object object, final String delimiter) {
+        return (object.getSize() == 0) && (object.getName().endsWith(delimiter));
     }
 
     @SuppressWarnings("Guava")
     @Override
     public void executeJob() throws Exception {
         if (!CheckNetwork.isReachable(client)) {
-            hostNotAvaialble();
+            hostNotAvailable();
             return;
         }
-        final String startJobDate = DateFormat.formatDate(new Date());
+        final String startJobDate = dateTimeUtils.nowAsString();
+        final ImmutableMap<String, Path> fileMap = getFileMap(selectedItems);
+        final ImmutableMap<String, Path> folderMap = getFolderMap(selectedItems);
         updateTitle(getJobStart(startJobDate, client));
         loggingService.logMessage(getJobStart(startJobDate, client), LogType.INFO);
-        updateMessage(resourceBundle.getString("transferring") + StringConstants.DOUBLE_DOTS);
+        updateMessage(resourceBundle.getString("transferringEllipsis"));
         selectedItems.stream()
                 .filter(Objects::nonNull)
                 .map(Ds3TreeTableValueCustom::getBucketName).distinct()
                 .forEach(bucketName -> selectedItems.stream()
                         .filter(item -> bucketName.equals(item.getBucketName()))
-                        .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem)));
+                        .forEach(selectedItem -> transferFromSelectedItem(bucketName, selectedItem, fileMap, folderMap)));
     }
 
-    private void transferFromSelectedItem(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
+    private void transferFromSelectedItem(final String bucketName,
+            final Ds3TreeTableValueCustom selectedItem,
+            final ImmutableMap<String, Path> fileMap,
+            final ImmutableMap<String, Path> folderMap) {
         final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
-        final String prefix = getParent(selectedItem.getFullName());
-        final FluentIterable<Ds3Object> ds3Objects = buildIteratorFromSelectedItems(bucketName, selectedItem);
+        final String prefix = getParent(selectedItem.getFullName(), BP_DELIMITER);
+        final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
         final Ds3ClientHelpers.Job job;
-        ds3Objects.filter(Ds3GetJob::isEmptyDirectory)
-                .forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
+        if (ds3Objects.isEmpty()) {
+            LOG.info("Did not create job because items were empty");
+            return;
+        }
+        ds3Objects.filter(ds3 -> isEmptyDirectory(ds3, BP_DELIMITER)).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
-            job = getJobFromIterator(bucketName, ds3Objects.filter(Ds3GetJob::isFullDirectory));
+            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
             loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
@@ -128,7 +145,12 @@ public class Ds3GetJob extends Ds3JobTask {
         }
         if (job != null) {
             jobId = job.getJobId();
+        } else {
+            return;
         }
+        ParseJobInterruptionMap.saveValuesToFiles(jobInterruptionStore, fileMap, folderMap,
+                client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(), dateTimeUtils,
+                "GET", bucketName);
         updateMessage(getTransferringMessage(totalJobSize));
         attachListenersToJob(startTime, totalJobSize, job);
         try {
@@ -138,20 +160,23 @@ public class Ds3GetJob extends Ds3JobTask {
             } else {
                 throw new IOException("Something went wrong getting the job");
             }
+        } catch (final InvalidPathException ipe) {
+            loggingService.logMessage("File name " + fileName + "contains an illegal character", LogType.ERROR);
+            LOG.error("File name " + fileName + " contains an illegal character", ipe);
         } catch (final IOException e) {
             loggingService.logMessage("Unable to transfer Job", LogType.ERROR);
             LOG.error("Unable to transfer Job", e);
         }
         updateUI(totalJobSize);
+        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
+                client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
     }
 
     private void updateUI(final long totalJobSize) {
         updateProgress(totalJobSize, totalJobSize);
         updateMessage(getJobTransferred(totalJobSize));
         updateProgress(totalJobSize, totalJobSize);
-        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client).toString(), LogType.SUCCESS);
+        loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client, dateTimeUtils.nowAsString()).toString(), LogType.SUCCESS);
     }
 
     private void attachListenersToJob(final Instant startTime, final long totalJobSize, final Ds3ClientHelpers.Job job) {
@@ -167,17 +192,22 @@ public class Ds3GetJob extends Ds3JobTask {
         if (prefix.isEmpty()) {
             objectChannelBuilder = fileObjectGetter;
         } else {
-            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + "/");
+            objectChannelBuilder = new PrefixRemoverObjectChannelBuilder(fileObjectGetter, prefix + BP_DELIMITER);
         }
         return objectChannelBuilder;
     }
 
     private void notifyIfOverwriting(final String name) {
-        if (Files.exists(fileTreePath.resolve(name))) {
-            loggingService.logMessage(resourceBundle.getString("fileOverridden")
-                    + StringConstants.SPACE + name + StringConstants.SPACE
-                    + resourceBundle.getString("to")
-                    + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+        try {
+            if (Files.exists(fileTreePath.resolve(name))) {
+                loggingService.logMessage(resourceBundle.getString("fileOverridden")
+                        + StringConstants.SPACE + name + StringConstants.SPACE
+                        + resourceBundle.getString("to")
+                        + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
+            }
+        } catch (final InvalidPathException ipe) {
+           LOG.error("Invalid character in path " + name, ipe);
+           loggingService.logMessage("Invalid character in path " + name, LogType.ERROR);
         }
     }
 
@@ -200,12 +230,11 @@ public class Ds3GetJob extends Ds3JobTask {
     private String getJobTransferred(final long totalJobSize) {
         return StringBuilderUtil.jobSuccessfullyTransferredString(JobRequestType.GET.toString(),
                 FileSizeFormat.getFileSizeType(totalJobSize), fileTreePath.toString(),
-                DateFormat.formatDate(new Date()), null, false).toString();
+                dateTimeUtils.nowAsString(), null, false).toString();
     }
 
     private static String getJobStart(final String startJobDate, final Ds3Client client) {
-        return StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, client.getConnectionDetails().getEndpoint())
-                .toString();
+        return StringBuilderUtil.jobInitiatedString(JobRequestType.GET.toString(), startJobDate, client.getConnectionDetails().getEndpoint()).toString();
     }
 
     private void setMetadataReceivedListener(final String string, final Metadata metadata) {
@@ -223,7 +252,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 .sum();
     }
 
-    private FluentIterable<Ds3Object> buildIteratorFromSelectedItems(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
+    public FluentIterable<Ds3Object> getDS3Objects(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
         Iterable<Contents> c;
         try {
             c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
@@ -235,7 +264,7 @@ public class Ds3GetJob extends Ds3JobTask {
         return FluentIterable.from(c).transform(contents -> {
             if (contents != null) {
                 return new Ds3Object(contents.getKey(), contents.getSize());
-            } else  {
+            } else {
                 return null;
             }
         });
@@ -248,7 +277,7 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setWaitingForChunksListener(final int retryAfterSeconds) {
         try {
-            loggingService.logMessage("Attempting Retry", LogType.INFO);
+            loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(retryAfterSeconds), LogType.INFO);
             Thread.sleep(1000 * retryAfterSeconds);
         } catch (final InterruptedException e) {
             LOG.error("Did not receive chunks before timeout", e);
@@ -263,32 +292,58 @@ public class Ds3GetJob extends Ds3JobTask {
 
     private void setObjectCompleteListener(final String o, final Instant startTime, final long totalJobSize) {
         getTransferRates(startTime, totalSent, totalJobSize, o, fileTreePath.toString());
-        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), DateFormat.formatDate(new Date()), null).toString(), LogType.SUCCESS);
+        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS);
     }
 
-    private static String getParent(final String path) {
-        final String resultPath;
-        if (path.endsWith("/")) {
-            resultPath = path.substring(0, path.length() - 1);
-        } else {
-            resultPath = path;
+    private static String getParent(final String path, final String delimiter) {
+        String newPath = path;
+        if (newPath.endsWith(delimiter)) {
+            newPath = newPath.substring(0, newPath.length() - 1);
         }
-        final int lastIndexOf = resultPath.lastIndexOf('/');
+        final int lastIndexOf = newPath.lastIndexOf(delimiter);
         if (lastIndexOf < 1) {
             return "";
         } else {
-            return resultPath.substring(0, lastIndexOf);
+            return newPath.substring(0, lastIndexOf);
         }
     }
 
     private static void buildEmptyDirectories(final Ds3Object emtpyDir, final Path fileTreePath, final LoggingService loggingService) {
-        final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
         try {
+            final Path directoryPath = fileTreePath.resolve(emtpyDir.getName());
             Files.createDirectories(directoryPath);
+        } catch (final InvalidPathException ipe) {
+            LOG.error("Invalid character in " + emtpyDir.getName(), ipe);
+            loggingService.logMessage("Invalid character in" + emtpyDir.getName(), LogType.ERROR);
         } catch (final IOException e) {
-            final String pathString = directoryPath.toString();
+            final String pathString = emtpyDir.getName();
             LOG.error("Could not create " + pathString, e);
             loggingService.logMessage("Could not create " + pathString, LogType.ERROR);
         }
     }
+
+    public static ImmutableMap<String, Path> getFileMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> fileList = selectedItems.stream().filter(value ->
+                value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        fileList.forEach(file -> {
+            fileMap.put(file.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
+    public static ImmutableMap<String, Path> getFolderMap(final List<Ds3TreeTableValueCustom> selectedItems) {
+        final ImmutableList<Ds3TreeTableValueCustom> folderList = selectedItems.stream().filter(value ->
+                !value.getType().equals(Ds3TreeTableValue.Type.File)).collect(GuavaCollectors.immutableList());
+        final ImmutableMap.Builder<String, Path> fileMap = ImmutableMap.builder();
+        folderList.forEach(folder -> {
+            fileMap.put(folder.getFullName(), Paths.get(StringConstants.FORWARD_SLASH));
+        });
+        return fileMap.build();
+    }
+
+    public interface Ds3GetJobFactory {
+        Ds3GetJob createDs3GetJob(final List<Ds3TreeTableValueCustom> selectedItems, final Path fileTreePath);
+    }
+
 }

@@ -40,6 +40,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.MetadataTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -48,6 +49,8 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -57,7 +60,7 @@ public final class Ds3PanelService {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
-    private static final LazyAlert alert = new LazyAlert("Error");
+    private static Instant lastRefresh = Instant.now();
 
     /**
      * check if bucket contains or folders
@@ -79,8 +82,8 @@ public final class Ds3PanelService {
     }
 
     public static Optional<ImmutableList<Bucket>> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem,
-                                                                      final Session session,
-                                                                      final TreeTableView<Ds3TreeTableValue> treeTableView) {
+            final Session session,
+            final TreeTableView<Ds3TreeTableValue> treeTableView) {
         try {
             if (null != treeTableView) {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItemTemp = selectedItem;
@@ -130,13 +133,20 @@ public final class Ds3PanelService {
         }
     }
 
+    public static void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+        if (lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
+            lastRefresh = Instant.now();
+            refresh(modifiedTreeItem);
+        }
+    }
+
     public static void showPhysicalPlacement(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
             LOG.info(resourceBundle.getString("nothingSelected"));
-            alert.showAlert(resourceBundle.getString("nothingSelected"));
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("nothingSelected"));
             return;
         } else if (tempValues.isEmpty()) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -146,17 +156,17 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
-            alert.showAlert(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
             return;
         }
 
         final PhysicalPlacementTask getPhysicalPlacement = new PhysicalPlacementTask(ds3Common, values, workers);
 
         workers.execute(getPhysicalPlacement);
-        getPhysicalPlacement.setOnSucceeded(event -> Platform.runLater(() -> {
+        getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
             PhysicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue(), resourceBundle);
-        }));
+        })));
     }
 
     @SuppressWarnings("unchecked")
@@ -165,25 +175,25 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3TreeTableView.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.info(resourceBundle.getString("noFiles"));
-            alert.showAlert(resourceBundle.getString("noFiles"));
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("noFiles"));
             return;
         }
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
-            alert.showAlert(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
+            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
             return;
         }
 
         final MetadataTask getMetadata = new MetadataTask(ds3Common, values);
         workers.execute(getMetadata);
-        getMetadata.setOnSucceeded(event -> Platform.runLater(() -> {
+        getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching metadata popup");
             final MetadataView metadataView = new MetadataView((Ds3Metadata) getMetadata.getValue());
             Popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
-        }));
+        })));
     }
 
-    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle) {
+    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
         final String newValue = ds3PanelPresenter.getSearchedText();
         ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
@@ -192,7 +202,7 @@ public final class Ds3PanelService {
         final Session session = ds3Common.getCurrentSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
             setVisibilityOfItemsInfo(true, ds3Common);
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, loggingService);
+            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
         } else {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
@@ -209,9 +219,9 @@ public final class Ds3PanelService {
                 ds3TreeTableView.setShowRoot(false);
                 setVisibilityOfItemsInfo(false, ds3Common);
 
-                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, loggingService);
+                final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, dateTimeUtils, loggingService);
                 workers.execute(searchJobTask);
-                searchJobTask.setOnSucceeded(event -> {
+                searchJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Search completed!");
                     Platform.runLater(() -> {
                         try {
@@ -236,8 +246,8 @@ public final class Ds3PanelService {
                             loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
                         }
                     });
-                });
-                searchJobTask.setOnCancelled(event -> LOG.info("Search cancelled"));
+                }));
+                searchJobTask.setOnCancelled(SafeHandler.logHandle(event -> LOG.info("Search cancelled")));
             } catch (final Exception e) {
                 LOG.error("Could not complete search: ", e);
             }

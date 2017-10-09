@@ -26,10 +26,12 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFolderTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -50,8 +52,6 @@ public class DeleteItemPresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(DeleteItemPresenter.class);
 
-    private final LazyAlert alert = new LazyAlert("Error");
-
     @FXML
     private TextField deleteField;
 
@@ -68,16 +68,21 @@ public class DeleteItemPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
+    private final LazyAlert alert;
 
     @Inject
     public DeleteItemPresenter(final Workers workers,
                                final Ds3Common ds3Common,
                                final ResourceBundle resourceBundle,
+                               final DateTimeUtils dateTimeUtils,
                                final LoggingService loggingService) {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
+        this.alert = new LazyAlert(resourceBundle);
     }
 
     @Override
@@ -97,14 +102,14 @@ public class DeleteItemPresenter implements Initializable {
                     deleteButton.setDisable(true);
                 }
             });
-            deleteField.setOnKeyReleased(event -> {
+            deleteField.setOnKeyReleased(SafeHandler.logHandle(event -> {
                 if (!deleteButton.isDisabled() && event.getCode().equals(KeyCode.ENTER)) {
                     deleteItems();
                 }
-            });
+            }));
 
-        } catch (final Exception e) {
-            LOG.error("Encountered an error making the delete file presenter", e);
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the DeleteItemPresenter", t);
         }
     }
 
@@ -135,14 +140,14 @@ public class DeleteItemPresenter implements Initializable {
 
     public void deleteItems() {
         closeDialog();
-        deleteTask.setOnCancelled(event -> constructMessageForLog());
-        deleteTask.setOnFailed(event -> constructMessageForLog());
-        deleteTask.setOnSucceeded(event -> {
+        deleteTask.setOnCancelled(SafeHandler.logHandle(event -> constructMessageForLog()));
+        deleteTask.setOnFailed(SafeHandler.logHandle(event -> constructMessageForLog()));
+        deleteTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
             LOG.info("Successfully deleted selected item(s).");
 
-            DeleteService.managePathIndicator(ds3Common, workers, loggingService);
-        });
+            DeleteService.managePathIndicator(ds3Common, workers, dateTimeUtils, loggingService);
+        }));
         workers.execute(deleteTask);
     }
 
@@ -162,7 +167,7 @@ public class DeleteItemPresenter implements Initializable {
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {
             alertMessage = resourceBundle.getString("deleteBucketErr");
-        } else if (deleteTask instanceof Ds3DeleteFolderTask) {
+        } else if (deleteTask instanceof Ds3DeleteFoldersTask) {
             alertMessage = resourceBundle.getString("folderDeleteFailed");
         } else if (deleteTask instanceof Ds3DeleteFilesTask) {
             alertMessage = resourceBundle.getString("deleteFailedError");
@@ -173,6 +178,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.showAlert(alertMessage);
+        alert.errorRaw(alertMessage);
     }
 }

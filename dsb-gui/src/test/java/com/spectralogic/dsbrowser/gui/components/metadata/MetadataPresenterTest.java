@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.spectralogic.ds3client.helpers.MetadataReceivedListener;
 import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import org.apache.http.Header;
@@ -32,11 +33,11 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class MetadataPresenterTest {
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
 
     @Test
     public void testMetadataFromDsb() {
@@ -50,22 +51,17 @@ public class MetadataPresenterTest {
                 new BasicHeader("ds3-flags", "FLAG"),
                 new BasicHeader("ds3-dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("ds3-mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
-        final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
-        metadataPresenter.createMetadataBuilder(metadata, builder);
-        assertThat(builder, is(notNullValue()));
-        assertFalse(builder.build().isEmpty());
-        assertThat(builder.build().size(), is(10));
-        assertThat(builder.build().get(0).getValue(), is("2017-01-01 14:44:2 "));
-        assertThat(builder.build().get(1).getValue(), is("2017-01-05 14:44:2 "));
-        assertThat(builder.build().get(2).getValue(), is("2017-01-03 14:44:2 "));
-        assertThat(builder.build().get(3).getValue(), is("OWNER"));
-        assertThat(builder.build().get(4).getValue(), is("GROUP"));
-        assertThat(builder.build().get(5).getValue(), is("UID"));
-        assertThat(builder.build().get(6).getValue(), is("GID"));
-        assertThat(builder.build().get(7).getValue(), is("FLAG"));
-        assertThat(builder.build().get(8).getValue(), is("11bwuyhdsubsjxxsakdnewufhe"));
-        assertThat(builder.build().get(9).getValue(), is("MODE"));
+        assertThat(metadata, is(notNullValue()));
+        assertThat(metadata.get("ds3-creation-time").get(0), is("2017-01-01 14:44:2T"));
+        assertThat(metadata.get("ds3-last-modified-time").get(0), is("2017-01-03 14:44:2T"));
+        assertThat(metadata.get("ds3-last-access-time").get(0), is("2017-01-05 14:44:2T"));
+        assertThat(metadata.get("ds3-owner").get(0), is("OWNER"));
+        assertThat(metadata.get("ds3-group").get(0), is("GROUP"));
+        assertThat(metadata.get("ds3-uid").get(0), is("UID"));
+        assertThat(metadata.get("ds3-gid").get(0), is("GID"));
+        assertThat(metadata.get("ds3-flags").get(0), is("FLAG"));
+        assertThat(metadata.get("ds3-dacl").get(0), is("11bwuyhdsubsjxxsakdnewufhe"));
+        assertThat(metadata.get("ds3-mode").get(0), is("MODE"));
     }
 
     @Test
@@ -80,12 +76,10 @@ public class MetadataPresenterTest {
                 new BasicHeader("flags", "FLAG"),
                 new BasicHeader("dacl", "11bwuyhdsubsjxxsakdnewufhe"),
                 new BasicHeader("mode", "MODE"));
-        final MetadataPresenter metadataPresenter = new MetadataPresenter(resourceBundle);
-        final ImmutableList.Builder<MetadataEntry> builder = ImmutableList.builder();
-        metadataPresenter.createMetadataBuilder(metadata, builder);
-        assertThat(builder, is(notNullValue()));
-        assertFalse(builder.build().isEmpty());
-        assertThat(builder.build().size(), is(10));
+        final ImmutableList<MetadataEntry> metadataList = MetadataPresenter.createMetadataEntries(metadata);
+        assertThat(metadataList, is(notNullValue()));
+        assertFalse(metadataList.isEmpty());
+        assertThat(metadataList.size(), is(10));
     }
 
     private Metadata genMetadata(final Header... headers) {

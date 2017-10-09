@@ -1,8 +1,10 @@
 package com.spectralogic.dsbrowser.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Map;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collector.Characteristics.UNORDERED;
@@ -30,6 +32,5 @@ public final class GuavaCollectors {
         return Collector.of(ImmutableSet.Builder::new, ImmutableSet.Builder::add,
                 (l, r) -> l.addAll(r.build()), ImmutableSet.Builder<T>::build, UNORDERED);
     }
-
 
 }

@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -109,8 +110,8 @@ public class ShutdownServiceImpl implements ShutdownService {
 
             final ShutdownTask task = new ShutdownTask(outstandingJobs);
 
+            task.setOnSucceeded(SafeHandler.logHandle(event -> finalShutdown()));
             workers.execute(task);
-            task.setOnSucceeded(event -> finalShutdown());
         } else {
             finalShutdown();
         }
@@ -125,6 +126,9 @@ public class ShutdownServiceImpl implements ShutdownService {
         System.exit(0);
     }
 
+    /*
+     * Cancel any jobs that are not fully uploaded to cache
+     */
     private class ShutdownTask extends Task {
 
         private final ImmutableList<Ds3JobTask> outstandingJobs;
@@ -161,8 +165,8 @@ public class ShutdownServiceImpl implements ShutdownService {
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
-                } catch (final Exception e1) {
-                    LOG.error("Failed to cancel job", e1);
+                } catch (final InterruptedException  | IOException e) {
+                    LOG.error("Failed to cancel job", e);
                 }
             });
             return null;

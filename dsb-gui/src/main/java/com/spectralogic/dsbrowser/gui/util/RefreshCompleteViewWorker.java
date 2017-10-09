@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TabPane;
@@ -38,7 +39,7 @@ import java.util.Optional;
 public final class RefreshCompleteViewWorker {
     private final static Logger LOG = LoggerFactory.getLogger(RefreshCompleteViewWorker.class);
 
-    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService) {
+    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final DateTimeUtils dateTimeUtils, final LoggingService loggingService) {
         if (ds3Common.getCurrentSession() != null && ds3Common.getCurrentTabPane() != null) {
             final Session session = ds3Common.getCurrentSession();
             loggingService.logMessage("Refreshing session " + session.getSessionName() +
@@ -55,7 +56,7 @@ public final class RefreshCompleteViewWorker {
                     ds3TreeTableValueTreeTableColumn.setVisible(false);
                 }
                 final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
-                if (selectedRoot != null && selectedRoot.getValue() != null) {
+                if (selectedRoot != null && selectedRoot.getValue() != null && selectedRoot.getParent() != null) {
                     ds3TreeTableView.getSelectionModel().clearSelection();
                     ds3TreeTableView.setRoot(selectedRoot);
                     ds3TreeTableView.getSelectionModel().select(selectedRoot);
@@ -63,10 +64,12 @@ public final class RefreshCompleteViewWorker {
                     setPathIndicator((Ds3TreeTableItem)selectedRoot , ds3Common);
                     ds3Common.getDs3PanelPresenter().calculateFiles(ds3TreeTableView);
                 } else {
+                    if(selectedRoot != null && selectedRoot.getParent() == null) {
+                        LOG.warn("Parent folder no longer existed, redirecting to the root of the tree");
+                    }
                     final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-                    final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, loggingService);
-                    workers.execute(getServiceTask);
-                    getServiceTask.setOnSucceeded(event -> {
+                    final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
+                    getServiceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         ds3TreeTableView.setRoot(rootTreeItem);
                         if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + StringConstants.SESSION_SEPARATOR +
                                 session.getEndpoint())) {
@@ -90,11 +93,12 @@ public final class RefreshCompleteViewWorker {
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                             ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(null);
                         }
-                    });
-                    getServiceTask.setOnFailed(event -> {
+                    }));
+                    getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
                         LOG.info("GetServiceTask failed");
                         ds3TreeTableView.setRoot(null);
-                    });
+                    }));
+                    workers.execute(getServiceTask);
                 }
             } else {
                 LOG.info("TreeView is null");

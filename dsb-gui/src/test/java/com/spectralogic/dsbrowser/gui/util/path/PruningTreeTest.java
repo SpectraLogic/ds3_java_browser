@@ -12,6 +12,10 @@ package com.spectralogic.dsbrowser.gui.util.path;/*
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
+import com.google.common.collect.ImmutableList;
+import com.spectralogic.dsbrowser.gui.util.treeItem.PruningTree;
+import javafx.util.Pair;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.*;
@@ -19,16 +23,57 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.CoreMatchers.is;
 
 public class PruningTreeTest {
-    private final PruningTree<String, String> pt = new PruningTree<>();
+    private PruningTree<String, String> pt;
+
+    @Before
+    public void setup() {
+        pt = new PruningTree<>();
+    }
 
     @Test
-    public void EmptyTreeIsEmpty() {
+    public void emptyTreeIsEmpty() {
         assertThat(pt.toList().size(), is(0));
     }
 
     @Test
-    public void SingleItemTest() {
+    public void singleItemTest() {
         pt.add("foo".split("/"), "bar");
         assertThat(pt.toList(), containsInAnyOrder("bar"));
+    }
+
+    @Test
+    public void secondItemRemovesFirstItem() {
+        pt.add("foo/bar/baz".split("/"), "baz");
+        pt.add("foo".split("/"), "foo");
+        assertThat(pt.toList(), containsInAnyOrder("foo"));
+    }
+
+    @Test
+    public void secondItemShouldNotRemoveFirstItem() {
+        pt.add("foo/bar".split("/"), "bar");
+        assertThat(pt.toList(), containsInAnyOrder("bar"));
+        pt.add("foo/baz".split("/"), "baz");
+        assertThat(pt.toList(), containsInAnyOrder("baz", "bar"));
+    }
+
+    @Test
+    public void addWithPair() {
+        pt.add(new Pair<>("foo".split("/"), "foo"));
+        assertThat(pt.toList(), containsInAnyOrder("foo"));
+    }
+
+    @Test
+    public void addFromList() {
+        final ImmutableList<String[]> stringsPaths = ImmutableList.of("foo".split("/"), "foo/bar".split("/"));
+        final ImmutableList<String> strings = ImmutableList.of("foo", "bar");
+        pt.addAll(stringsPaths, strings);
+        assertThat(pt.toList(), containsInAnyOrder("foo"));
+    }
+
+    @Test
+    public void functionalTest() {
+        final ImmutableList<String> stringPaths = ImmutableList.of("foo/bar", "foo/baz");
+        pt.addAll(stringPaths, s -> s.split("/"));
+        assertThat(pt.toList(), containsInAnyOrder("foo/bar","foo/baz"));
     }
 }

@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.services;
 
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -45,7 +46,7 @@ public class JobWorkers {
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
             if (c.next() && c.wasAdded()) {
-                c.getAddedSubList().stream().forEach(workers::execute);
+                c.getAddedSubList().forEach(workers::execute);
             }
         });
     }
@@ -59,13 +60,21 @@ public class JobWorkers {
     }
 
     public void execute(final Ds3JobTask run) {
-        run.setOnCancelled(this::handleStop);
-        run.setOnFailed(this::handleStop);
-        final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
-        run.setOnSucceeded(event -> {
+        final EventHandler<WorkerStateEvent> onCancelled = run.getOnCancelled();
+        run.setOnCancelled(SafeHandler.logHandle(event -> {
+            onCancelled.handle(event);
             handleStop(event);
+        }));
+        final EventHandler<WorkerStateEvent> onFailed = run.getOnFailed();
+        run.setOnFailed(SafeHandler.logHandle(event -> {
+            onFailed.handle(event);
+            handleStop(event);
+        }));
+        final EventHandler<WorkerStateEvent> onSucceeded = run.getOnSucceeded();
+        run.setOnSucceeded(SafeHandler.logHandle(event -> {
             onSucceeded.handle(event);
-        });
+            handleStop(event);
+        }));
         LOG.info("Adding to task list");
         tasks.add(0,run);
         run.updateProgressPutJob();

@@ -30,6 +30,7 @@ import javafx.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -39,36 +40,36 @@ public class Ds3CancelSingleJobTask extends Task {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3CancelSingleJobTask.class);
     private final ResourceBundle resourceBundle;
-    private final String uuid;
+    private final String jobId;
     private final EndpointInfo endpointInfo;
     private final JobInterruptionStore jobInterruptionStore;
     private final String jobType;
     private final LoggingService loggingService;
 
-    public Ds3CancelSingleJobTask(final String uuid,
+    public Ds3CancelSingleJobTask(final String jobId,
                                   final EndpointInfo endpointInfo,
                                   final JobInterruptionStore jobInterruptionStore,
                                   final String jobType,
                                   final LoggingService loggingService) {
         this.jobType = jobType;
         this.resourceBundle = ResourceBundleProperties.getResourceBundle();
-        this.uuid = uuid;
+        this.jobId = jobId;
         this.endpointInfo = endpointInfo;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
     }
 
     @Override
-    protected CancelJobSpectraS3Response call() throws Exception {
+    protected CancelJobSpectraS3Response call() {
         try {
-            final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(uuid));
+            final CancelJobSpectraS3Response cancelJobSpectraS3Response = endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
             loggingService.logMessage(resourceBundle.getString("cancelJobStatus") + StringConstants.SPACE + cancelJobSpectraS3Response, LogType.SUCCESS);
-        } catch (final Exception e) {
-            LOG.error("Unable to cancel " + jobType + "  job", e);
+        } catch (final IOException e) {
+            LOG.error("Unable to cancel " + jobType + "  job " + jobId, e);
             loggingService.logMessage(resourceBundle.getString("failedCancelJob") + StringConstants.SPACE + e, LogType.ERROR);
             fireEvent(new Event(WorkerStateEvent.WORKER_STATE_FAILED));
         } finally {
-            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
+            final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, endpointInfo.getEndpoint(), endpointInfo.getDeepStorageBrowserPresenter(), loggingService);
             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, endpointInfo.getDeepStorageBrowserPresenter());
         }
         return null;

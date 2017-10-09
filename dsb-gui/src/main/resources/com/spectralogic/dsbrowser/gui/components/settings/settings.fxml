@@ -153,9 +153,6 @@
                                       <Tooltip fx:id="showCachedJobTooltip" prefWidth="300.0" wrapText="true" />
                                   </tooltip>
                               </Label>
-                              <CheckBox fx:id="showCachedJobCheckbox" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                        <!--<Label text="Enable Logging:" GridPane.rowIndex="3" />
-                                        <CheckBox fx:id="debugLogging" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />-->
                                     </children>
                                     <padding>
                                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />

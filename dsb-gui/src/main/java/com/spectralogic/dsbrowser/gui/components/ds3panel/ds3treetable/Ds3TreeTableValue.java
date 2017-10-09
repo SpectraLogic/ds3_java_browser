@@ -34,7 +34,14 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     private String fullPath;
     private long logicalCapacity;
 
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox) {
+    public Ds3TreeTableValue(final String bucketName,
+                             final String name,
+                             final Type type,
+                             final long size,
+                             final String lastModified,
+                             final String owner,
+                             final boolean searchOn,
+                             final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -48,7 +55,15 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     }
 
     //constructor with marker
-    public Ds3TreeTableValue(final String bucketName, final String name, final Type type, final long size, final String lastModified, final String owner, final boolean searchOn, final HBox physicalPlacementHBox, final String marker) {
+    public Ds3TreeTableValue(final String bucketName,
+                             final String name,
+                             final Type type,
+                             final long size,
+                             final String lastModified,
+                             final String owner,
+                             final boolean searchOn,
+                             final HBox physicalPlacementHBox,
+                             final String marker) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -141,7 +156,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         if (index < 0) {
             return StringConstants.EMPTY_STRING;
         }
-        return fullName.substring(0, index);
+        return fullName.substring(0, index) + '/';
     }
 
     public String getOwner() {

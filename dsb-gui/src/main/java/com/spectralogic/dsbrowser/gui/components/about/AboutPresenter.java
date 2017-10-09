@@ -19,17 +19,24 @@ import com.google.inject.Inject;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.util.Constants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 @Presenter
@@ -57,34 +64,42 @@ public class AboutPresenter implements Initializable {
 
     @Inject
     public AboutPresenter(final ResourceBundle resourceBundle,
-                          final BuildInfoServiceImpl buildInfoService) {
+            final BuildInfoServiceImpl buildInfoService) {
         this.resourceBundle = resourceBundle;
         this.buildInfoService = buildInfoService;
     }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        title.setText(resourceBundle.getString("title"));
-        buildVersion.setText(buildInfoService.getBuildVersion());
-        buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
+        try {
+            title.setText(resourceBundle.getString("title"));
+            buildVersion.setText(buildInfoService.getBuildVersion());
+            buildDateTime.setText(buildInfoService.getBuildDateTime().toString());
+            dsbReleasesLink.setOnAction(SafeHandler.logHandle(event -> tryToOpenInBrowser(Constants.DSB_RELEASES_URI)));
+            copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
+            apacheLicenseLink.setOnAction(SafeHandler.logHandle(event -> tryToOpenInBrowser(Constants.APACHE_URI)));
+            copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error initializing the AboutPresenter", t);
+        }
+    }
 
-        dsbReleasesLink.setOnAction( event -> {
-            try {
-                new ProcessBuilder("x-www-browser", Constants.DSB_RELEASES_URL).start();
-            } catch (final IOException e) {
-                LOG.error("Failed to open Spectra Releases in a browser", e);
+    @NotNull
+    private static void tryToOpenInBrowser(final URI uri) {
+        if (Desktop.isDesktopSupported()) {
+            final Desktop desktop = Desktop.getDesktop();
+            if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(uri);
+                } catch (final IOException e) {
+                    LOG.error("Unable to open link", e);
+                }
+            } else {
+                LOG.info("OS does not support sending links to browser");
             }
-        });
-
-        copyRightLabel1.setText(resourceBundle.getString("copyrightTxt1"));
-        apacheLicenseLink.setOnAction(event -> {
-            try {
-                new ProcessBuilder("x-www-browser", Constants.APACHE_URL).start();
-            } catch (final IOException e) {
-                LOG.error("Failed to open apache license in a browser", e);
-            }
-        });
-        copyRightLabel2.setText(resourceBundle.getString("copyrightTxt2"));
+        } else {
+            LOG.info("OS does not support Desktop");
+        }
     }
 
     public void closeDialog() {

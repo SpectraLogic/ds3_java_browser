@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import java.net.URI;
+
 public interface Constants {
     int OPEN_DELAY = 100;
     int CLOSE_DELAY = 0;
@@ -23,7 +25,9 @@ public interface Constants {
     int MAX_PARALLEL_THREAD_DEFAULT = 10;
     String PORT_NUMBER = "80";
     String APACHE_URL = "http://www.apache.org/licenses/LICENSE-2.0";
+    URI APACHE_URI = URI.create(APACHE_URL);
     String DSB_RELEASES_URL = "https://github.com/SpectraLogic/ds3_java_browser/releases";
+    URI DSB_RELEASES_URI = URI.create(DSB_RELEASES_URL);
     String LIBRARY_NAME = "ds3_java_sdk";
     String LICENSE = "Apache 2";
     int PROGRESS_BAR_SIZE = 90;
@@ -31,4 +35,5 @@ public interface Constants {
     String HTTP_PREFIX = "http";
     double MIN_HEIGHT = 600.0;
     double MIN_WIDTH = 720.0;
+    String BP_DELIMITER = StringConstants.FORWARD_SLASH;
 }

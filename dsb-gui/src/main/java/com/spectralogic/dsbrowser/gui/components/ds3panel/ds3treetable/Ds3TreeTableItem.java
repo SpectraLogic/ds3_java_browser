@@ -20,13 +20,16 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
+
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
@@ -37,6 +40,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final Workers workers;
     private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
+    private final DateTimeUtils dateTimeUtils;
     private TreeTableView ds3TreeTable;
     private final LoggingService loggingService;
 
@@ -45,6 +49,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                             final Ds3TreeTableValue value,
                             final Workers workers,
                             final Ds3Common ds3Common,
+                            final DateTimeUtils dateTimeUtils,
                             final LoggingService loggingService) {
         super(value);
         this.bucket = bucket;
@@ -52,6 +57,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.ds3Value = value;
         this.leaf = isLeaf(value);
         this.workers = workers;
+        this.dateTimeUtils = dateTimeUtils;
         this.ds3Common = ds3Common;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
         this.loggingService = loggingService;
@@ -128,15 +134,15 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         processImage.setFitWidth(20);
         super.setGraphic(processImage);
         final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, leaf, workers,
-                this, ds3TreeTable, ds3Common, loggingService);
-        workers.execute(getBucketTask);
-        getBucketTask.setOnSucceeded(event -> {
+                dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
+        getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
             if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
-        });
-        getBucketTask.setOnCancelled(event -> super.setGraphic(previousGraphics));
-        getBucketTask.setOnFailed(event -> super.setGraphic(previousGraphics));
+        }));
+        getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
+        getBucketTask.setOnFailed(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
+        workers.execute(getBucketTask);
     }
 
     @Override

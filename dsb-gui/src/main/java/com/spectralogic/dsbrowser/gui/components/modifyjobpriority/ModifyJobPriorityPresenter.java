@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -53,7 +54,6 @@ public class ModifyJobPriorityPresenter implements Initializable {
 
     private final ResourceBundle resourceBundle;
     private final Workers workers;
-    private final Ds3Common ds3Common;
     private final LoggingService loggingService;
 
     @ModelContext
@@ -62,17 +62,19 @@ public class ModifyJobPriorityPresenter implements Initializable {
     @Inject
     public ModifyJobPriorityPresenter(final ResourceBundle resourceBundle,
                                       final Workers workers,
-                                      final Ds3Common ds3Common,
                                       final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.workers = workers;
-        this.ds3Common = ds3Common;
         this.loggingService = loggingService;
     }
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        initGUIElement();
+        try {
+            initGUIElement();
+        } catch (final Throwable t) {
+            LOG.error("Encountered an error when initializing ModifyJobPriorityPresenter", t);
+        }
     }
 
     public void saveModifyJobPriority() {
@@ -84,12 +86,12 @@ public class ModifyJobPriorityPresenter implements Initializable {
             try {
                 final ModifyJobPriorityTask modifyJobPriorityTask = new ModifyJobPriorityTask(value,
                         newPriority);
-                workers.execute(modifyJobPriorityTask);
 
                 modifyJobPriorityTask.setOnSucceeded(event -> loggingService.logMessage(
                     resourceBundle.getString("priorityModified"), LogType.INFO));
-                modifyJobPriorityTask.setOnFailed(event -> loggingService.logMessage(
-                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR));
+                modifyJobPriorityTask.setOnFailed(SafeHandler.logHandle(event -> loggingService.logMessage(
+                    resourceBundle.getString("failedToModifyPriority"), LogType.ERROR)));
+                workers.execute(modifyJobPriorityTask);
             } catch (final Exception e) {
                 LOG.error("Failed to modify the job:", e);
                 loggingService.logMessage(

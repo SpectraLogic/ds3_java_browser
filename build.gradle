@@ -1,6 +1,6 @@
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.0'
+    version = '2.1.1'
 }
 
 subprojects {
@@ -19,7 +19,7 @@ subprojects {
     }
 
     dependencies {
-        compile 'com.spectralogic.ds3:ds3-sdk:3.5.0'
+        compile 'com.spectralogic.ds3:ds3-sdk:3.5.2'
         compile 'com.spectralogic.ds3:ds3-metadata:3.4.0'
         compile 'com.airhacks:afterburner.fx:1.7.0'
         compile 'org.controlsfx:controlsfx:8.40.12'
@@ -47,5 +47,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.4.1'
+    gradleVersion = '4.1'
 }

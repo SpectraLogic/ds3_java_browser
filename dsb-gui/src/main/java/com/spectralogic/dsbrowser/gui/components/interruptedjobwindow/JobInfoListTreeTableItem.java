@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -177,11 +178,19 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                 return Optional.empty();
             }
         };
-        workers.execute(getChildren);
-        getChildren.setOnSucceeded(event -> {
+        getChildren.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
             children.setAll(list);
-        });
+        }));
+        getChildren.setOnCancelled(SafeHandler.logHandle(event -> {
+            super.setGraphic(previousGraphics);
+            children.setAll(list);
+        }));
+        getChildren.setOnFailed(SafeHandler.logHandle(event -> {
+            super.setGraphic(previousGraphics);
+            children.setAll(list);
+        }));
+        workers.execute(getChildren);
 
     }
 

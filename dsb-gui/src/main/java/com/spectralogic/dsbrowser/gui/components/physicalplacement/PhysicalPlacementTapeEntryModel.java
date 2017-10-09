@@ -15,41 +15,44 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
-import java.util.Date;
+import org.apache.commons.io.FileUtils;
 
 public class PhysicalPlacementTapeEntryModel {
     private final String barcode;
-    private final String serialNO;
+    private final String serialNumber;
     private final String type;
     private final String state;
-    private final Date lastTapeError;
     private final boolean writeProtected;
-    private final boolean available;
-    private final long used;
+    private final String availableCapacity;
+    private final String usedCapacity;
     private final String tapePartition;
     private final String lastModified;
     private final String ejectLabel;
     private final String ejectLocation;
 
-    public PhysicalPlacementTapeEntryModel(final String barcode, final String serialNO, final String type, final String state, final Date lastTapeError, final boolean writeProtected,
-                                       final boolean available, final long used, final String tapePartition, final String lastModified, final String ejectLabel, final String ejectLocation) {
+    PhysicalPlacementTapeEntryModel(final String barcode,
+                                    final String serialNumber,
+                                    final String type,
+                                    final String state,
+                                    final boolean writeProtected,
+                                    final long availableCapacity,
+                                    final long usedCapacity,
+                                    final String tapePartition,
+                                    final String lastModified,
+                                    final String ejectLabel,
+                                    final String ejectLocation) {
         this.barcode = barcode;
-        this.serialNO = serialNO;
+        this.serialNumber = serialNumber;
         this.type = type;
         this.state = state;
-        this.lastTapeError = lastTapeError;
         this.writeProtected = writeProtected;
-        this.available = available;
-        this.used = used;
+        this.availableCapacity = FileUtils.byteCountToDisplaySize(availableCapacity);
+        this.usedCapacity = FileUtils.byteCountToDisplaySize(usedCapacity);
         this.tapePartition = tapePartition;
         this.lastModified = lastModified;
         this.ejectLabel = ejectLabel;
         this.ejectLocation = ejectLocation;
 
-    }
-
-    public boolean isAvailable() {
-        return available;
     }
 
     public boolean isWriteProtected() {
@@ -60,20 +63,20 @@ public class PhysicalPlacementTapeEntryModel {
         return barcode;
     }
 
-    public Date getLastTapeError() {
-        return lastTapeError;
-    }
-
-    public String getSerialNO() {
-        return serialNO;
+    public String getSerialNumber() {
+        return serialNumber;
     }
 
     public String getState() {
         return state;
     }
 
-    public long getUsed() {
-        return used;
+    public String getAvailableCapacity() {
+        return availableCapacity;
+    }
+
+    public String getUsedCapacity() {
+        return usedCapacity;
     }
 
     public String getType() {

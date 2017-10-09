@@ -25,16 +25,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.controlsfx.control.TaskProgressView;
 
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
-        SkinBase<DeepStorageBrowserTaskProgressView<T>> {
+        SkinBase<TaskProgressView<T>> {
 
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public DeepStorageTaskProgressViewSkin(final DeepStorageBrowserTaskProgressView<T> monitor) {
+    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor) {
         super(monitor);
 
         final BorderPane borderPane = new BorderPane();
@@ -44,7 +45,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
         listView.setPlaceholder(new Label(resourceBundle.getString("noTaskRunning")));
-        listView.setCellFactory(param -> new TaskCell());
+        listView.setCellFactory(param -> new TaskCell(listView));
         listView.setFocusTraversable(false);
 
         Bindings.bindContent(listView.getItems(), monitor.getTasks());
@@ -62,12 +63,15 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         private T task;
         private final BorderPane borderPane;
 
-        public TaskCell() {
+        public TaskCell(final ListView<T> listView) {
+            final VBox vbox = new VBox();
+
             titleText = new Label();
             titleText.getStyleClass().add("task-title");
 
             messageText = new Label();
             messageText.getStyleClass().add("task-message");
+            messageText.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
 
             progressBar = new ProgressBar();
             progressBar.setMaxWidth(Double.MAX_VALUE);
@@ -81,7 +85,6 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
                 popupCancelTask(task, evt);
             });
 
-            final VBox vbox = new VBox();
             vbox.setSpacing(4);
             vbox.getChildren().add(titleText);
             vbox.getChildren().add(progressBar);
@@ -94,6 +97,9 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
             borderPane.setCenter(vbox);
             borderPane.setRight(cancelButton);
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+            prefWidthProperty().bind(listView.widthProperty().subtract(4));
+            setMaxWidth(Control.USE_COMPUTED_SIZE);
         }
 
         @Override

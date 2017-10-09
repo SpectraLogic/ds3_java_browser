@@ -102,24 +102,19 @@
                         <PropertyValueFactory property="state"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="98.0" text="Last Tape Error">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="lastTapeError"/>
-                    </cellValueFactory>
-                </TableColumn>
                 <TableColumn prefWidth="100.0" text="WriteProtected">
                     <cellValueFactory>
                         <PropertyValueFactory property="writeProtected"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn minWidth="0.0" prefWidth="60.0" text="Available">
+                <TableColumn prefWidth="60.0" text="Available Capacity">
                     <cellValueFactory>
-                        <PropertyValueFactory property="available"/>
+                        <PropertyValueFactory property="availableCapacity"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn prefWidth="45.0" text="Used">
+                <TableColumn prefWidth="60.0" text="Used Capacity">
                     <cellValueFactory>
-                        <PropertyValueFactory property="used"/>
+                        <PropertyValueFactory property="usedCapacity"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn minWidth="0.0" prefWidth="138.0" text="Tape Library Partition">
@@ -164,29 +159,9 @@
         </HBox>
         <TableView fx:id="physicalPlacementReplication" editable="true" prefHeight="150.0">
             <columns>
-                <TableColumn prefWidth="103.0" sortable="true" text="AccessControlReplication">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="accessControlReplication"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn prefWidth="101.0" text="AdminAuthId">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="adminAuthId"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn prefWidth="102.0" text="AdminSecretKey">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="adminSecretKey"/>
-                    </cellValueFactory>
-                </TableColumn>
                 <TableColumn prefWidth="112.0" text="DataPathEndPoint">
                     <cellValueFactory>
                         <PropertyValueFactory property="dataPathEndPoint"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn  prefWidth="93.0" text="DataPathHttps">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="dataPathHttps"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="86.0" text="DataPathPort">
@@ -194,19 +169,9 @@
                         <PropertyValueFactory property="dataPathPort"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn  prefWidth="93.0" text="DataPathProxy">
+                <TableColumn prefWidth="101.0" text="AuthId">
                     <cellValueFactory>
-                        <PropertyValueFactory property="dataPathProxy"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn prefWidth="155.0"  text="DataPathVerifyCertificate">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="dataPathVerifyCertificate"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn  prefWidth="146.0" text="DefaultReadPreference">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="defaultReadPreference"/>
+                        <PropertyValueFactory property="authId"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="19.0"  text="Id">
@@ -219,6 +184,16 @@
                         <PropertyValueFactory property="name"/>
                     </cellValueFactory>
                 </TableColumn>
+                <TableColumn prefWidth="103.0" text="AccessControlReplication">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="accessControlReplication"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="58.0" text="State">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="state"/>
+                    </cellValueFactory>
+                </TableColumn>
                 <TableColumn prefWidth="142.0" text="PermitGoingOutOfSync">
                     <cellValueFactory>
                         <PropertyValueFactory property="permitGoingOutOfSync"/>
@@ -227,16 +202,6 @@
                 <TableColumn prefWidth="58.0" text="Quiesced">
                     <cellValueFactory>
                         <PropertyValueFactory property="quiesced"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn prefWidth="199.0" text="ReplicatedUserDefaultDataPolicy">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="replicatedUserDefaultDataPolicy"/>
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn prefWidth="58.0" text="State">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="state"/>
                     </cellValueFactory>
                 </TableColumn>
             </columns>
