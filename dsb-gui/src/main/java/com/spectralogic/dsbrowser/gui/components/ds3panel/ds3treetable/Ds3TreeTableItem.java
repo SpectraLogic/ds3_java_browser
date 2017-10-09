@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
@@ -145,10 +146,10 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
         }));
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
-        getBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
+        getBucketTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
             super.setGraphic(previousGraphics);
             loggingService.logMessage("Failed to get bucket", LogType.ERROR);
-            LOG.error("Failed to get bucket");
+            LOG.error("Failed to get bucket", event.getSource().getException());
         }));
         workers.execute(getBucketTask);
     }

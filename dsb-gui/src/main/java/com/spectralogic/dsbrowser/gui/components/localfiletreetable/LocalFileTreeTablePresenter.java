@@ -449,8 +449,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
             refreshFileTreeView();
         }));
         getJob.setOnFailed(SafeHandler.logHandle(event -> {
-            LOG.error("Get Job failed", event.getSource().getException());
-            loggingService.logMessage("Get Job failed with message: " + event.getSource().getException().getMessage(), LogType.ERROR);
+            final Throwable exception = event.getSource().getException();
+            LOG.error("Get Job failed", exception);
+            loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
             refreshFileTreeView();
         }));
         getJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
@@ -480,8 +481,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
             refreshBlackPearlSideItem(remoteDestination);
         }));
         putJob.setOnFailed(SafeHandler.logHandle(failEvent -> {
-            LOG.error("Put Job Failed", failEvent.getSource().getException());
-            loggingService.logMessage("Put Job Failed with message: " + failEvent.getSource().getException().getMessage(), LogType.ERROR);
+            final Throwable throwable = failEvent.getSource().getException();
+            LOG.error("Put Job Failed", throwable);
+            loggingService.logMessage("Put Job Failed with message: " + throwable.getMessage(), LogType.ERROR);
         }));
         putJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
             final UUID jobId = putJob.getJobId();
