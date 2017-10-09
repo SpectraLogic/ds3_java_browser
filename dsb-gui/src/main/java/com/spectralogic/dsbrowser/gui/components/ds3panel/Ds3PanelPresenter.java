@@ -111,9 +111,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final Ds3SessionStore ds3SessionStore;
     private final Workers workers;
     private final JobWorkers jobWorkers;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final FileTreeTableProvider fileTreeTableProvider;
     private final Ds3Common ds3Common;
@@ -130,9 +128,7 @@ public class Ds3PanelPresenter implements Initializable {
             final Ds3SessionStore ds3SessionStore,
             final Workers workers,
             final JobWorkers jobWorkers,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final JobInterruptionStore jobInterruptionStore,
-            final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final FileTreeTableProvider fileTreeTableProvider,
             final DateTimeUtils dateTimeUtils,
@@ -145,9 +141,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.ds3Common = ds3Common;
@@ -492,8 +486,8 @@ public class Ds3PanelPresenter implements Initializable {
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         }));
         getJob.setOnFailed(SafeHandler.logHandle(e -> {
-            LOG.info("Get Job {} failed.", getJob.getJobId());
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
+            LOG.error("Get Job failed", e.getSource().getException());
+            loggingService.logMessage("Get Job failed with message: " + e.getSource().getException().getMessage(), LogType.ERROR);
         }));
         getJob.setOnCancelled(SafeHandler.logHandle(e -> {
             LOG.info("Get Job {} cancelled.", getJob.getJobId());

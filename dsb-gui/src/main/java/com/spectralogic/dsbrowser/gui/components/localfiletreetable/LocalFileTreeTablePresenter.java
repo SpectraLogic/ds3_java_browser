@@ -90,9 +90,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DataFormat dataFormat;
     private final Workers workers;
     private final JobWorkers jobWorkers;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
@@ -100,6 +98,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
+    private final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -112,13 +111,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final DataFormat dataFormat,
             final Workers workers,
             final JobWorkers jobWorkers,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final JobInterruptionStore jobInterruptionStore,
-            final SettingsStore settingsStore,
             final EndpointInfo endpointInfo,
             final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
+            final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
@@ -126,26 +124,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
         this.ds3GetJobFactory = ds3GetJobFactory;
+        this.ds3PutJobFactory = ds3PutJobFactory;
         this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.alert = new LazyAlert(resourceBundle);
-    }
-
-    private static boolean isEmptyDirectory(final Path path, final LoggingService loggingService) {
-        try {
-            return Files.isDirectory(path) && Files.list(path).count() == 0;
-        } catch (final IOException exception) {
-            final String errorMessage = "Unable to get folder properties for " + path.getFileName().toString();
-            loggingService.logMessage(errorMessage, LogType.ERROR);
-            LOG.error(errorMessage, exception);
-        }
-        return false;
     }
 
     @Override
@@ -359,10 +345,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             return;
         }
 
-        final String priority = !savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))
-                ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority()
-                : null;
-        startPutJob(session, filesToPut, bucket, targetDir, priority, jobInterruptionStore, remoteDestination);
+        startPutJob(session, filesToPut, bucket, targetDir, jobInterruptionStore, remoteDestination);
     }
 
     static private void refreshBlackPearlSideItem(final TreeItem<Ds3TreeTableValue> treeItem) {
@@ -466,7 +449,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             refreshFileTreeView();
         }));
         getJob.setOnFailed(SafeHandler.logHandle(event -> {
-            LOG.error("Get Job failed");
+            LOG.error("Get Job failed", event.getSource().getException());
+            loggingService.logMessage("Get Job failed with message: " + event.getSource().getException().getMessage(), LogType.ERROR);
             refreshFileTreeView();
         }));
         getJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
@@ -487,25 +471,17 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final List<Pair<String, Path>> files,
             final String bucket,
             final String targetDir,
-            final String priority,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3Client client = session.getClient();
-        final Ds3PutJob putJob = new Ds3PutJob(client, files, bucket, targetDir, jobInterruptionStore, priority,
-                settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
-                resourceBundle, settingsStore, loggingService, deepStorageBrowserPresenter, dateTimeUtils, remoteDestination);
+        final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
         putJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
             refreshBlackPearlSideItem(remoteDestination);
         }));
         putJob.setOnFailed(SafeHandler.logHandle(failEvent -> {
-            final UUID jobId = putJob.getJobId();
-            if (jobId == null) {
-                LOG.info("BULK_PUT job Failed without receiving an ID");
-            } else {
-                LOG.info("BULK_PUT job {} Failed.", jobId);
-                refreshBlackPearlSideItem(remoteDestination);
-            }
+            LOG.error("Put Job Failed", failEvent.getSource().getException());
+            loggingService.logMessage("Put Job Failed with message: " + failEvent.getSource().getException().getMessage(), LogType.ERROR);
         }));
         putJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
             final UUID jobId = putJob.getJobId();
