@@ -107,9 +107,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final Ds3SessionStore ds3SessionStore;
     private final Workers workers;
     private final JobWorkers jobWorkers;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final FileTreeTableProvider fileTreeTableProvider;
     private final Ds3Common ds3Common;
@@ -117,6 +115,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
     private final LazyAlert alert;
+    private final Ds3GetJob.Ds3GetJobFactory getJobFactory;
 
     private GetNoOfItemsTask itemsTask;
 
@@ -125,22 +124,20 @@ public class Ds3PanelPresenter implements Initializable {
             final Ds3SessionStore ds3SessionStore,
             final Workers workers,
             final JobWorkers jobWorkers,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final JobInterruptionStore jobInterruptionStore,
-            final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final FileTreeTableProvider fileTreeTableProvider,
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
+            final Ds3GetJob.Ds3GetJobFactory getJobFactory,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
+        this.getJobFactory = getJobFactory;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.ds3Common = ds3Common;
@@ -484,19 +481,14 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final String priority = (!savedJobPrioritiesStore.getJobSettings().getGetJobPriority()
-                .equals(resourceBundle.getString("defaultPolicyText"))) ?
-                savedJobPrioritiesStore.getJobSettings().getGetJobPriority() : null;
-        final Ds3GetJob getJob = new Ds3GetJob(selectedItemsAtSourceLocationListCustom, localPath, session.getClient(),
-                priority, settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads(),
-                jobInterruptionStore, deepStorageBrowserPresenter, resourceBundle, dateTimeUtils, loggingService);
+        final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job {} succeeded.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         }));
         getJob.setOnFailed(SafeHandler.logHandle(e -> {
-            LOG.info("Get Job {} failed.", getJob.getJobId());
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
+            LOG.error("Get Job failed", e.getSource().getException());
+            loggingService.logMessage("Get Job failed with message: " + e.getSource().getException().getMessage(), LogType.ERROR);
         }));
         getJob.setOnCancelled(SafeHandler.logHandle(e -> {
             LOG.info("Get Job {} cancelled.", getJob.getJobId());

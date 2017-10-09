@@ -56,13 +56,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     @Override
     protected final Boolean call() throws Exception {
         LOG.info("Starting DS3 Job");
-        try {
-            executeJob();
-        } catch (final Throwable e) {
-            LOG.error("Job failed with an exception: " + e.getMessage(), e);
-            return false;
-        }
-        LOG.info("Job finished successfully");
+        executeJob();
         return true;
     }
 
@@ -119,7 +113,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
                     totalJobSize, sourceLocation, targetLocation).toString());
         }
 
-        updateProgress(totalSent.get() / 2 , totalJobSize);
+        updateProgress(totalSent.get() / 2, totalJobSize);
     }
 
     void updateInterruptedJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {

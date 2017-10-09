@@ -26,6 +26,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -118,8 +119,8 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                 LOG.info("Success");
                 super.setGraphic(previousGraphics);
             }));
-            buildChildren.setOnFailed(SafeHandler.logHandle(event -> {
-                LOG.info("Success");
+            buildChildren.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
+                LOG.error("Failed to build children", event.getSource().getException());
                 super.setGraphic(previousGraphics);
             }));
             buildChildren.setOnCancelled(SafeHandler.logHandle(event -> {

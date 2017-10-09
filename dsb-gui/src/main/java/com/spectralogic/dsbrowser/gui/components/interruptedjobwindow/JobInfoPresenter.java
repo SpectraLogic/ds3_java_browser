@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -241,6 +242,7 @@ public class JobInfoPresenter implements Initializable {
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
                 recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(recoverInterruptedJobFailedEvent -> {
+                    LOG.error("Failed to recover", recoverInterruptedJob.getException());
                     loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
@@ -255,8 +257,9 @@ public class JobInfoPresenter implements Initializable {
                         LOG.info("Cancellation of recovered job success");
                         refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                     }));
-                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(cancelJobTaskFailedEvent -> {
-                        LOG.info("Cancellation of interrupted job " + jobId + " failed");
+                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
+                        LOG.error("Cancellation of recovered job failed", event.getSource().getException());
+                        loggingService.logMessage("Cancellation of recoved job failed", LogType.ERROR);
                     }));
 
                     workers.execute(ds3CancelSingleJobTask);
@@ -306,6 +309,7 @@ public class JobInfoPresenter implements Initializable {
                 }));
                 recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(event -> {
                     loggingService.logMessage("Failed to recover " + value.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
+                    LOG.error("Failed to recover Job", event.getSource().getException());
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 }));
@@ -369,7 +373,9 @@ public class JobInfoPresenter implements Initializable {
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
-        getJobIDs.setOnFailed(SafeHandler.logHandle(event -> {
+        getJobIDs.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
+            LOG.error("Get Job IDs failed", event.getSource().getException());
+            loggingService.logMessage("Get Job IDs failed", LogType.ERROR);
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));

@@ -419,14 +419,16 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
                 final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
                 putJob.setOnSucceeded(SafeHandler.logHandle(e -> {
-                    LOG.info("Succeed");
+                    LOG.info("Put Job Succeed");
                     Ds3PanelService.refresh(selectedItem);
                     ds3TreeTable.getSelectionModel().clearSelection();
                     ds3TreeTable.getSelectionModel().select(selectedItem);
 
                 }));
                 putJob.setOnFailed(SafeHandler.logHandle(e -> {
-                    LOG.info("setOnFailed");
+                    final Throwable exception = e.getSource().getException();
+                    LOG.error("Put Job Failed", exception);
+                    loggingService.logMessage("Put job failed with message: " + exception.getMessage(), LogType.ERROR);
                     Ds3PanelService.refresh(selectedItem);
                     ds3TreeTable.getSelectionModel().clearSelection();
                     ds3TreeTable.getSelectionModel().select(selectedItem);
