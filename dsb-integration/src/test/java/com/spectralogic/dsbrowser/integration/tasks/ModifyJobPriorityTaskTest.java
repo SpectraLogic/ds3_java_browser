@@ -96,7 +96,7 @@ public class ModifyJobPriorityTaskTest {
                         final GetJobPriorityTask getJobPriorityTask = new GetJobPriorityTask(session, UUID.fromString(jobId.get()));
                         workers.execute(getJobPriorityTask);
                         latch.countDown();
-                        final ModifyJobPriorityModel value = (ModifyJobPriorityModel) getJobPriorityTask.get();
+                        final ModifyJobPriorityModel value = getJobPriorityTask.getValue();
 
                         //Changing priority of job
                         final ModifyJobPriorityTask modifyJobPriorityTask = new ModifyJobPriorityTask(value, Priority.LOW);
