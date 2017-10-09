@@ -260,7 +260,7 @@ public class JobInfoPresenter implements Initializable {
                         LOG.info("Cancellation of interrupted job " + jobId + " failed");
                     }));
                     ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> {
-                        LOG.error("Cancellation of recoved job faile", event.getSource().getException());
+                        LOG.error("Cancellation of recoved job faile");
                         loggingService.logMessage("Cancellation of recoved job failed", LogType.ERROR);
                     }));
 
@@ -376,7 +376,7 @@ public class JobInfoPresenter implements Initializable {
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
         getJobIDs.setOnFailed(SafeHandler.logHandle(event -> {
-            LOG.error("Get Job IDs failed", event.getSource().getException());
+            LOG.error("Get Job IDs failed");
             loggingService.logMessage("Get Job IDs failed", LogType.ERROR);
             treeTableView.setRoot(rootTreeItem);
             treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));

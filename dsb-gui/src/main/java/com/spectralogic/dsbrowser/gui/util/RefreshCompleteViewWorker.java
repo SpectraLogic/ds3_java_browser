@@ -95,7 +95,7 @@ public final class RefreshCompleteViewWorker {
                         }
                     }));
                     getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
-                        LOG.info("GetServiceTask failed", event.getSource().getException());
+                        LOG.info("GetServiceTask failed");
                         loggingService.logMessage("Get Service Task failed", LogType.ERROR);
                         ds3TreeTableView.setRoot(null);
                     }));

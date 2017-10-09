@@ -148,7 +148,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         getBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
             loggingService.logMessage("Failed to get bucket", LogType.ERROR);
-            LOG.error("Failed to get bucket", event.getSource().getException());
+            LOG.error("Failed to get bucket");
         }));
         workers.execute(getBucketTask);
     }
