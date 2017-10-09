@@ -246,7 +246,7 @@ public class JobInfoPresenter implements Initializable {
                     loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
-                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle((WorkerStateEvent recoverInterruptedJobCancelledEvent) -> {
+                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle(recoverInterruptedJobCancelledEvent -> {
                     final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
                             jobId,
                             endpointInfo,
@@ -256,9 +256,6 @@ public class JobInfoPresenter implements Initializable {
                     ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(eventCancel -> {
                         LOG.info("Cancellation of recovered job success");
                         refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
-                    }));
-                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent cancelJobTaskFailedEvent) -> {
-                        LOG.error("Cancellation of interrupted job " + jobId + " failed", cancelJobTaskFailedEvent.getSource().getException());
                     }));
                     ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
                         LOG.error("Cancellation of recovered job failed", event.getSource().getException());
