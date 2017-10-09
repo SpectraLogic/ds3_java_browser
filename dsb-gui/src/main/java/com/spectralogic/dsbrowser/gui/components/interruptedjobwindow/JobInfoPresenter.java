@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -245,7 +246,7 @@ public class JobInfoPresenter implements Initializable {
                     loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
-                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle(recoverInterruptedJobCancelledEvent -> {
+                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle((WorkerStateEvent recoverInterruptedJobCancelledEvent) -> {
                     final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
                             jobId,
                             endpointInfo,
@@ -259,8 +260,8 @@ public class JobInfoPresenter implements Initializable {
                     ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(cancelJobTaskFailedEvent -> {
                         LOG.info("Cancellation of interrupted job " + jobId + " failed");
                     }));
-                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> {
-                        LOG.error("Cancellation of recoved job faile");
+                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
+                        LOG.error("Cancellation of recovered job failed", event.getSource().getException());
                         loggingService.logMessage("Cancellation of recoved job failed", LogType.ERROR);
                     }));
 
