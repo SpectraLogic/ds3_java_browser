@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui.util.treeItem;/*
+/*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
@@ -12,6 +12,7 @@ package com.spectralogic.dsbrowser.gui.util.treeItem;/*
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.util.treeItem;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
