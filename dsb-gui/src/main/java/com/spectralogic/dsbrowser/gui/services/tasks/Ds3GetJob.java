@@ -144,7 +144,7 @@ public class Ds3GetJob extends Ds3JobTask {
             job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
-            loggingService.logMessage("Unable to get jobs from Black Perl", LogType.ERROR);
+            loggingService.logMessage("Unable to get jobs from BlackPerl", LogType.ERROR);
             return;
         }
         if (job != null) {

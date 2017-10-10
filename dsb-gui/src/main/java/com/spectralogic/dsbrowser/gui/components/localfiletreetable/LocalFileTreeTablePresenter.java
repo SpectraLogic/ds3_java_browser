@@ -33,9 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -55,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -483,7 +480,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         putJob.setOnFailed(SafeHandler.logHandle(failEvent -> {
             final Throwable throwable = failEvent.getSource().getException();
             LOG.error("Put Job Failed", throwable);
-            loggingService.logMessage("Put Job Failed with message: " + throwable.getMessage(), LogType.ERROR);
+            loggingService.logMessage("Put Job Failed with message: " + throwable.getClass().getName() + ": " + throwable.getMessage(), LogType.ERROR);
         }));
         putJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
             final UUID jobId = putJob.getJobId();
@@ -513,7 +510,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
-            sizeColumn.setCellFactory(c -> new ValueTreeTableCell<FileTreeModel>());
+            sizeColumn.setCellFactory(c -> new ValueTreeTableCell<>());
             treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         }));
         workers.execute(getMediaDeviceTask);
