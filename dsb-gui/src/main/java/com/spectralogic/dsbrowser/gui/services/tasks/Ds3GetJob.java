@@ -212,8 +212,8 @@ public class Ds3GetJob extends Ds3JobTask {
                         + StringConstants.SPACE + fileTreePath, LogType.SUCCESS);
             }
         } catch (final InvalidPathException ipe) {
-           LOG.error("Invalid character in path " + name, ipe);
-           loggingService.logMessage("Invalid character in path " + name, LogType.ERROR);
+            LOG.error("Invalid character in path " + name, ipe);
+            loggingService.logMessage("Invalid character in path " + name, LogType.ERROR);
         }
     }
 
@@ -259,21 +259,26 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     public FluentIterable<Ds3Object> getDS3Objects(final String bucketName, final Ds3TreeTableValueCustom selectedItem) {
-        Iterable<Contents> c;
-        try {
-            c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
-        } catch (final IOException e) {
-            LOG.error("Failed to list objects", e);
-            loggingService.logMessage("Failed to list objects for " + bucketName, LogType.ERROR);
-            c = FluentIterable.from(new Contents[0]);
-        }
-        return FluentIterable.from(c).transform(contents -> {
-            if (contents != null) {
-                return new Ds3Object(contents.getKey(), contents.getSize());
-            } else {
-                return null;
+        if (selectedItem.getType() == Ds3TreeTableValue.Type.Directory) {
+            Iterable<Contents> c;
+            try {
+                c = wrappedDs3Client.listObjects(bucketName, selectedItem.getFullName());
+            } catch (final IOException e) {
+                LOG.error("Failed to list objects", e);
+                loggingService.logMessage("Failed to list objects for " + bucketName, LogType.ERROR);
+                c = FluentIterable.from(new Contents[0]);
             }
-        });
+            return FluentIterable.from(c).transform(contents -> {
+                if (contents != null) {
+                    return new Ds3Object(contents.getKey(), contents.getSize());
+                } else {
+                    return null;
+                }
+            });
+        } else {
+            final Ds3Object[] ds3Object = {new Ds3Object(selectedItem.getFullName())};
+            return FluentIterable.from(ds3Object);
+        }
     }
 
     @Override
