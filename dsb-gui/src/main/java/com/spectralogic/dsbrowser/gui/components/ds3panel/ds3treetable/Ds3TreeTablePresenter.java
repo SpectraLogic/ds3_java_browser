@@ -517,8 +517,9 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3TreeTable.getSelectionModel().select(row.getIndex());
             ds3Common.setDs3TreeTableView(ds3TreeTable);
             if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session))
+                if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session)) {
                     ds3TreeTable.setPlaceholder(null);
+                }
                 row.getTreeItem().setExpanded(true);
                 ds3TreeTable.setShowRoot(false);
                 ds3TreeTable.setRoot(row.getTreeItem());
