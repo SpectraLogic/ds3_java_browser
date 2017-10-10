@@ -39,7 +39,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsAndTooltip;
+import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
 
 public final class BucketUtil {
     private final static Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
@@ -89,7 +89,7 @@ public final class BucketUtil {
                                 .filter(j -> j.getKey().equals(i.getName()))
                                 .findFirst()
                                 .get();
-                        final HBox iconsAndTooltip = addPlacementIconsAndTooltip(i.getPhysicalPlacement(), i.getInCache());
+                        final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
                         return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File,
                                 content.getSize(), dateTimeUtils.format(content.getLastModified()),
                                 content.getOwner().getDisplayName(), false, iconsAndTooltip);
