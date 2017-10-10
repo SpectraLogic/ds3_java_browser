@@ -34,11 +34,9 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -117,7 +115,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final LazyAlert alert;
     private final Ds3GetJob.Ds3GetJobFactory getJobFactory;
 
-    private GetNoOfItemsTask itemsTask;
+    private GetNumberOfItemsTask itemsTask;
 
     @Inject
     public Ds3PanelPresenter(final ResourceBundle resourceBundle,
@@ -662,7 +660,7 @@ public class Ds3PanelPresenter implements Initializable {
                 selectedItems.add(root);
             }
             //start a new task for calculating
-            itemsTask = new GetNoOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
+            itemsTask = new GetNumberOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
 
             itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
@@ -693,11 +691,11 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void setItemCountPanelInfo(final FilesCountModel filesCountModel, final TreeItem<Ds3TreeTableValue> selectedRoot) {
         //For no. of folder(s) and file(s)
-        if (filesCountModel.getNoOfFiles() == 0 && filesCountModel.getNoOfFolders() == 0) {
+        if (filesCountModel.getNumberOfFiles() == 0 && filesCountModel.getNumberOfFolders() == 0) {
             getInfoLabel().setText(resourceBundle.getString("containsNoItem"));
         } else {
-            getInfoLabel().setText(StringBuilderUtil.getItemsCountInfoMessage(filesCountModel.getNoOfFolders(),
-                    filesCountModel.getNoOfFiles()).toString());
+            getInfoLabel().setText(StringBuilderUtil.getItemsCountInfoMessage(filesCountModel.getNumberOfFolders(),
+                    filesCountModel.getNumberOfFiles()).toString());
         }
         //For capacity of bucket or folder
         getCapacityLabel().setText(StringBuilderUtil.getCapacityMessage(filesCountModel.getTotalCapacity(),

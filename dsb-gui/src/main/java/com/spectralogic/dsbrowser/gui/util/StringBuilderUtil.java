@@ -239,12 +239,12 @@ public class StringBuilderUtil {
                 .append(StringConstants.SPACE);
     }
 
-    public static StringBuilder getItemsCountInfoMessage(final int noOfFolders, final int noOfFiles) {
+    public static StringBuilder getItemsCountInfoMessage(final long numberOfFolders, final long numberOfFiles) {
         return new StringBuilder()
                 .append(resourceBundle.getString("contains")).append(StringConstants.SPACE)
-                .append(noOfFolders).append(StringConstants.SPACE)
+                .append(numberOfFolders).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("folders")).append(StringConstants.SPACE)
-                .append(noOfFiles).append(StringConstants.SPACE)
+                .append(numberOfFiles).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("files"));
     }
 

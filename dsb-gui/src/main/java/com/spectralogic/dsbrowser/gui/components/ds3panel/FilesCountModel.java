@@ -17,31 +17,29 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 public class FilesCountModel {
 
-    private int noOfFolders = 0;
-    private int noOfFiles = 0;
-    private long totalCapacity = 0;
+    private final long numberOfFolders;
+    private final long numberOfFiles;
+    private final long totalCapacity;
 
-    public int getNoOfFolders() {
-        return noOfFolders;
+    public FilesCountModel(final long numberOfFolders, final long numberOfFiles, final long totalCapacity) {
+        this.numberOfFolders = numberOfFolders;
+        this.numberOfFiles = numberOfFiles;
+        this.totalCapacity = totalCapacity;
     }
 
-    public void setNoOfFolders(final int noOfFolders) {
-        this.noOfFolders = noOfFolders;
+    public FilesCountModel() {
+        this(0,0,0);
     }
 
-    public int getNoOfFiles() {
-        return noOfFiles;
+    public long getNumberOfFolders() {
+        return numberOfFolders;
     }
 
-    public void setNoOfFiles(final int noOfFiles) {
-        this.noOfFiles = noOfFiles;
+    public long getNumberOfFiles() {
+        return numberOfFiles;
     }
 
     public long getTotalCapacity() {
         return totalCapacity;
-    }
-
-    public void setTotalCapacity(final long totalCapacity) {
-        this.totalCapacity = totalCapacity;
     }
 }

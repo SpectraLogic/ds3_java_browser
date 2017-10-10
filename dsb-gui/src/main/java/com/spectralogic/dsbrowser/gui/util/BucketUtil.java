@@ -39,7 +39,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
+import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsAndTooltip;
 
 public final class BucketUtil {
     private final static Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
@@ -55,15 +55,15 @@ public final class BucketUtil {
             request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength)
                     .withMarker(ds3Value.getMarker());
         }
-        if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
-        } else if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
-            if (ds3TreeTableItem.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
+        if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
+            if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
+                if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
+                    final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
+                    request.withPrefix(ds3ParentValue.getFullName());
+                }
             } else {
-                final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
-                request.withPrefix(ds3ParentValue.getFullName());
+                request.withPrefix(ds3Value.getFullName());
             }
-        } else {
-            request.withPrefix(ds3Value.getFullName());
         }
         return request;
     }
@@ -89,7 +89,7 @@ public final class BucketUtil {
                                 .filter(j -> j.getKey().equals(i.getName()))
                                 .findFirst()
                                 .get();
-                        final HBox iconsAndTooltip = addPlacementIconsandTooltip(i.getPhysicalPlacement(), i.getInCache());
+                        final HBox iconsAndTooltip = addPlacementIconsAndTooltip(i.getPhysicalPlacement(), i.getInCache());
                         return new Ds3TreeTableValue(bucket, i.getName(), Ds3TreeTableValue.Type.File,
                                 content.getSize(), dateTimeUtils.format(content.getLastModified()),
                                 content.getOwner().getDisplayName(), false, iconsAndTooltip);
