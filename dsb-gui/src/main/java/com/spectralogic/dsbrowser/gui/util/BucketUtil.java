@@ -55,15 +55,15 @@ public final class BucketUtil {
             request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength)
                     .withMarker(ds3Value.getMarker());
         }
-        if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
-        } else if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
-            if (ds3TreeTableItem.getParent().getValue().getType() == Ds3TreeTableValue.Type.Bucket) {
+        if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
+            if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
+                if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
+                    final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
+                    request.withPrefix(ds3ParentValue.getFullName());
+                }
             } else {
-                final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
-                request.withPrefix(ds3ParentValue.getFullName());
+                request.withPrefix(ds3Value.getFullName());
             }
-        } else {
-            request.withPrefix(ds3Value.getFullName());
         }
         return request;
     }
