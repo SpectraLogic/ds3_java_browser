@@ -19,6 +19,7 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request;
@@ -266,7 +267,7 @@ public class Ds3GetJob extends Ds3JobTask {
             } catch (final IOException e) {
                 LOG.error("Failed to list objects", e);
                 loggingService.logMessage("Failed to list objects for " + bucketName, LogType.ERROR);
-                c = FluentIterable.from(new Contents[0]);
+                c = FluentIterable.from(Collections.emptyList());
             }
             return FluentIterable.from(c).transform(contents -> {
                 if (contents != null) {
@@ -276,8 +277,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 }
             });
         } else {
-            final Ds3Object[] ds3Object = {new Ds3Object(selectedItem.getFullName())};
-            return FluentIterable.from(ds3Object);
+            return FluentIterable.from(ImmutableList.of(new Ds3Object((selectedItem.getFullName()))));
         }
     }
 
