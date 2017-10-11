@@ -40,7 +40,7 @@ public final class GetStorageLocations {
     private static final AtomicInteger ejectedTapesCount = new AtomicInteger(0);
     private static final AtomicInteger nearLineDiskCount = new AtomicInteger(0);
     private static final AtomicInteger replicationCount = new AtomicInteger(0);
-    private static int cloudCount, azureCloud, amazoneCloud = 0;
+    private static int cloudCount, azureCloud = 0, amazonCloud = 0;
     private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
     public static HBox addPlacementIconsandTooltip(final PhysicalPlacement placement, final boolean inCache) {
@@ -114,11 +114,12 @@ public final class GetStorageLocations {
         }
 
         if (placement != null && Guard.isNotNullAndNotEmpty(placement.getDs3Targets())) {
-            placement.getDs3Targets().forEach(i -> {
-                if (!i.getReplicatedUserDefaultDataPolicy().isEmpty()) {
-                    replicationCount.incrementAndGet();
-                }
-            });
+            placement.getDs3Targets().stream()
+                    .filter(ds3Target ->
+                                ds3Target != null
+                                && ds3Target.getReplicatedUserDefaultDataPolicy() != null
+                                && !ds3Target.getReplicatedUserDefaultDataPolicy().isEmpty())
+                    .forEach(targetWithDefaultDP -> replicationCount.incrementAndGet() );
             if (replicationCount.intValue() != 0) {
                 final ImageView replicationIcon = new ImageView();
                 final String toolTipMessage = pluralize(replicationCount.intValue(), resourceBundle, "replication", "replications");
@@ -134,9 +135,9 @@ public final class GetStorageLocations {
             azureCloud = placement.getAzureTargets().size();
         }
         if (placement != null && Guard.isNotNullAndNotEmpty(placement.getS3Targets())) {
-            amazoneCloud = placement.getS3Targets().size();
+            amazonCloud = placement.getS3Targets().size();
         }
-        cloudCount = azureCloud + amazoneCloud;
+        cloudCount = azureCloud + amazonCloud;
         if (cloudCount != 0) {
             final ImageView cloudIcon = new ImageView();
             final String toolTipMessage = pluralize(cloudCount, resourceBundle, "cloud", "clouds");

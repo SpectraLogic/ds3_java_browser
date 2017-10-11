@@ -233,8 +233,6 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
-                LOG.info("Loading Session {}", session.getSessionName());
-
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItemsLabel().setVisible(true);

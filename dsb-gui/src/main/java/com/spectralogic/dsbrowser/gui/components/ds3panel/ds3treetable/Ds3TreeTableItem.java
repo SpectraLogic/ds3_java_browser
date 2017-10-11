@@ -138,7 +138,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         processImage.setFitHeight(20);
         processImage.setFitWidth(20);
         super.setGraphic(processImage);
-        final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, leaf, workers,
+        final GetBucketTask getBucketTask = new GetBucketTask(observableList, bucket, session, ds3Value, workers,
                 dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
         getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
@@ -148,8 +148,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
         getBucketTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
             super.setGraphic(previousGraphics);
-            loggingService.logMessage("Failed to get bucket", LogType.ERROR);
-            LOG.error("Failed to get bucket", event.getSource().getException());
+            loggingService.logMessage("Failed to get bucket " + bucket, LogType.ERROR);
+            LOG.error("Failed to get bucket " + bucket, event.getSource().getException());
         }));
         workers.execute(getBucketTask);
     }
