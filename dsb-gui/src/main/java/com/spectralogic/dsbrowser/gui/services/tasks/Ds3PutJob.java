@@ -104,9 +104,11 @@ public class Ds3PutJob extends Ds3JobTask {
                     } catch (final IOException e) {
                         loggingService.logMessage("Could not readd from filesystem, aborting put job", LogType.ERROR);
                         LOG.error("Could not read from filesystem", e);
-                        return new Pair<String, Path>(null,null);
+                        return null;
                     }
-                }).collect(GuavaCollectors.immutableList());
+                })
+                .filter(Objects::nonNull)
+                .collect(GuavaCollectors.immutableList());
         this.settings = settings;
         this.bucket = bucket;
         this.targetDir = targetDir;
