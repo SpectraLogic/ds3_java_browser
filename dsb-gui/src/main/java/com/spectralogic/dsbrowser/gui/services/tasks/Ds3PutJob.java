@@ -26,6 +26,7 @@ import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.JobStatus;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.utils.FileUtils;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -97,7 +98,16 @@ public class Ds3PutJob extends Ds3JobTask {
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
         this.files = files.stream()
-                .map(p -> new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), p.getValue()))
+                .map(p -> {
+                    try {
+                        return new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), FileUtils.resolveForSymbolic(p.getValue()));
+                    } catch (final IOException e) {
+                        loggingService.logMessage("Could not read from filesystem, skipping item " + p.getValue().toString(), LogType.ERROR);
+                        LOG.error("Could not read from filesystem", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .collect(GuavaCollectors.immutableList());
         this.settings = settings;
         this.bucket = bucket;
@@ -146,6 +156,10 @@ public class Ds3PutJob extends Ds3JobTask {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(GuavaCollectors.immutableList());
+        if(objects.isEmpty()) {
+            loggingService.logMessage("Job was empty, not sending", LogType.INFO);
+            return;
+        }
         this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
         final long totalJobSize = getTotalJobSize();
 
