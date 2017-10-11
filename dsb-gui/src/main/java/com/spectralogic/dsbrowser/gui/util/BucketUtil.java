@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
-import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Response;
 import com.spectralogic.ds3client.models.Contents;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.Guard;
@@ -39,9 +38,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsandTooltip;
+import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsAndTooltip;
 
 public final class BucketUtil {
     private final static Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
@@ -100,7 +98,7 @@ public final class BucketUtil {
                                     dateTimeUtils.format(content.getLastModified()),
                                     content.getOwner().getDisplayName(),
                                     false,
-                                    addPlacementIconsandTooltip(objectPhysicalPlacement.getPhysicalPlacement(), objectPhysicalPlacement.getInCache()));
+                                    addPlacementIconsAndTooltip(objectPhysicalPlacement.getPhysicalPlacement(), objectPhysicalPlacement.getInCache()));
                         } else {
                             LOG.warn("No PhysicalPlacement found for [{}]", objectPhysicalPlacement.getName());
                             return null;
@@ -133,4 +131,11 @@ public final class BucketUtil {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
+    static String pluralize(final long count, final ResourceBundle resourceBundle, final String one, final String many) {
+        if(count == 1) {
+            return count + " " + resourceBundle.getString(one);
+        } else {
+            return count + " " + resourceBundle.getString(many);
+        }
+    }
 }
