@@ -75,7 +75,6 @@ public class GetNumberOfItemsTask extends Task<FilesCountModel> {
                         return new FilesCountModel();
                     } else {
                         final String path = contentsKey.substring(0, index + 1);
-                        LOG.info("path[{}]", path);
                         foldersSet.add(path);
                         return new FilesCountModel(0, 1, contents.getSize());
                     }
