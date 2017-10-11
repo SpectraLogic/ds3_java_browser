@@ -102,7 +102,7 @@ public class Ds3PutJob extends Ds3JobTask {
                     try {
                         return new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), FileUtils.resolveForSymbolic(p.getValue()));
                     } catch (final IOException e) {
-                        loggingService.logMessage("Could not readd from filesystem, skipping item " + p.getValue().toString(), LogType.ERROR);
+                        loggingService.logMessage("Could not read from filesystem, skipping item " + p.getValue().toString(), LogType.ERROR);
                         LOG.error("Could not read from filesystem", e);
                         return null;
                     }
