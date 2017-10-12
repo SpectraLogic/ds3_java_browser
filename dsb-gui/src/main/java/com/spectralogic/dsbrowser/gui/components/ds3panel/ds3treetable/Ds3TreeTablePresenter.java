@@ -54,7 +54,6 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,20 +231,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.setRoot(rootTreeItem);
 
-        ds3TreeTable.expandedItemCountProperty().addListener(getNumberChangeListener());
-
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
-        LOG.info("Getting buckets from {}", session.getEndpoint());
-
-        progress.progressProperty().bind(getServiceTask.progressProperty());
-
-        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
-        workers.execute(getServiceTask);
-    }
-
-    @NotNull
-    private ChangeListener<Number> getNumberChangeListener() {
-        return (observable, oldValue, newValue) -> {
+        ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
                 LOG.info("Loading Session {}", session.getSessionName());
 
@@ -264,7 +250,15 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3PanelPresenter.setBlank(true);
                 ds3PanelPresenter.disableSearch(true);
             }
-        };
+        });
+
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
+        LOG.info("Getting buckets from {}", session.getEndpoint());
+
+        progress.progressProperty().bind(getServiceTask.progressProperty());
+
+        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+        workers.execute(getServiceTask);
     }
 
     private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
