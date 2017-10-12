@@ -156,7 +156,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return leaf;
+        return getChildren().isEmpty();
     }
 
 }

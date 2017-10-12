@@ -188,26 +188,27 @@ public class Ds3PanelPresenter implements Initializable {
      */
     private void goToParentDirectory() {
         //if root is null back button will not work
-        if (null != getTreeTableView().getRoot().getValue() &&
-                null != getTreeTableView().getRoot().getParent()) {
-            if (null == getTreeTableView().getRoot().getParent().getValue()) {
-                getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-                getDs3PathIndicator().setTooltip(null);
+        final TreeItem<Ds3TreeTableValue> root = getTreeTableView().getRoot();
+        final Label ds3PathIndicator = getDs3PathIndicator();
+        if (null != root.getValue() && null != root.getParent()) {
+            if (null == root.getParent().getValue()) {
+                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
+                ds3PathIndicator.setTooltip(null);
                 capacityLabel.setText(StringConstants.EMPTY_STRING);
                 capacityLabel.setVisible(false);
                 infoLabel.setText(StringConstants.EMPTY_STRING);
                 infoLabel.setVisible(false);
             } else {
-                getDs3PathIndicator().setTooltip(getDs3PathIndicatorTooltip());
+                ds3PathIndicator.setTooltip(getDs3PathIndicatorTooltip());
             }
-            getTreeTableView().setRoot(getTreeTableView().getRoot().getParent());
-            getTreeTableView().getRoot().getChildren().forEach(treeItem -> treeItem.setExpanded(false));
+            getTreeTableView().setRoot(root.getParent());
+            root.getChildren().forEach(treeItem -> treeItem.setExpanded(false));
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
-            ds3Common.getDs3PanelPresenter().getTreeTableView().refresh();
+            getTreeTableView().refresh();
         } else {
-            getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
-            getDs3PathIndicator().setTooltip(null);
+            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
+            ds3PathIndicator.setTooltip(null);
 
         }
     }
