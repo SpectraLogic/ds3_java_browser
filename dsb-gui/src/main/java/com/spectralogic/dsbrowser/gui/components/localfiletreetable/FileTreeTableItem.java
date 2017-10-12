@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
-import ch.qos.logback.core.joran.conditional.ThenOrElseActionBase;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
