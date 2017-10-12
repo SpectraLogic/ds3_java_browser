@@ -86,7 +86,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             );
             icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
             return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
-        } catch (final Exception e) {
+        } catch (final Throwable e) {
             LOG.error("Unable to get FileSystem Icon", e);
             return getGraphicFont(fileTreeModel);
         }
