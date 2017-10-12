@@ -34,7 +34,9 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.HBox;
 import org.junit.BeforeClass;
@@ -89,10 +91,15 @@ public class GetBucketTaskTest {
                         false,
                         Mockito.mock(HBox.class));
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
-                        bucketName,
-                        session, ds3TreeTableValue,
-                        false, workers, DTU, Mockito.mock(Ds3TreeTableItem.class),
-                        Mockito.mock(TreeTableView.class), Mockito.mock(Ds3Common.class), Mockito.mock(LoggingService.class));
+                                                                      bucketName,
+                                                                      session,
+                                                                      ds3TreeTableValue,
+                                                                      workers,
+                                                                      DTU,
+                                                                      Mockito.mock(Ds3TreeTableItem.class),
+                                                                      Mockito.mock(TreeTableView.class),
+                                                                      Mockito.mock(Ds3Common.class),
+                                                                      Mockito.mock(LoggingService.class));
                 workers.execute(getBucketTask);
                 getBucketTask.setOnSucceeded(event -> {
                     successFlag = true;
