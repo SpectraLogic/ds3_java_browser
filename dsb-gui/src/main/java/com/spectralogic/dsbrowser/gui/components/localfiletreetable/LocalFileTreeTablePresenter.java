@@ -278,14 +278,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
-                .map(i -> new Pair<>(i.getValue().getName(), i.getValue().getPath()))
+                .map(TreeItem::getValue)
+                .filter(Objects::nonNull)
+                .map(i -> new Pair<>(i.getName(), i.getPath()))
                 .collect(GuavaCollectors.immutableList());
-
         if (files.isEmpty()) {
             ds3Common.getDs3TreeTableView().refresh();
             return null;
         }
-
         return files;
     }
 

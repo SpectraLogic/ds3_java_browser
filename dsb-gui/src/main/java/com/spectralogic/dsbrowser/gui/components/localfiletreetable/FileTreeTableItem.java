@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import ch.qos.logback.core.joran.conditional.ThenOrElseActionBase;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
@@ -86,7 +87,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             );
             icon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
             return new ImageView(SwingFXUtils.toFXImage(bufferedImage, null));
-        } catch (final Exception e) {
+        } catch (final Throwable e) {
             LOG.error("Unable to get FileSystem Icon", e);
             return getGraphicFont(fileTreeModel);
         }
