@@ -152,7 +152,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
         final Optional<BulkObject> first = objects.stream().findFirst();
         if (first.isPresent()) {
             final BulkObject bulkObject = first.get();
-            return GetStorageLocations.addPlacementIconsandTooltip(bulkObject.getPhysicalPlacement(), bulkObject.getInCache());
+            return GetStorageLocations.addPlacementIconsAndTooltip(bulkObject.getPhysicalPlacement(), bulkObject.getInCache());
         }
         return null;
     }

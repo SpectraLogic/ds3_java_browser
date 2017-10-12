@@ -665,7 +665,7 @@ public class Ds3PanelPresenter implements Initializable {
 
             itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                        .stream().collect(GuavaCollectors.immutableList());
+                        .stream().filter(Objects::nonNull).collect(GuavaCollectors.immutableList());
                 TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 if (!Guard.isNullOrEmpty(values)) {
                     final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();

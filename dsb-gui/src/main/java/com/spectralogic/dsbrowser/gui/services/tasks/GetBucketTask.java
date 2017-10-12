@@ -44,8 +44,8 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.spectralogic.dsbrowser.gui.util.BucketUtil.distinctByKey;
 
@@ -56,12 +56,11 @@ public class GetBucketTask extends Ds3Task {
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
-    private final boolean leaf;
     private final DateTimeUtils dateTimeUtils;
     private final Workers workers;
     private final TreeTableView ds3TreeTable;
     private final Ds3Common ds3Common;
-    private final static int PAGE_LENGTH = 10;
+    private final static int PAGE_LENGTH = 100;
     private final ResourceBundle resourceBundle;
     private final Ds3TreeTableItem ds3TreeTableItem;
     private final LoggingService loggingService;
@@ -70,7 +69,6 @@ public class GetBucketTask extends Ds3Task {
                          final String bucket,
                          final Session session,
                          final Ds3TreeTableValue ds3Value,
-                         final boolean leaf,
                          final Workers workers,
                          final DateTimeUtils dateTimeUtils,
                          final Ds3TreeTableItem ds3TreeTableItem,
@@ -82,7 +80,6 @@ public class GetBucketTask extends Ds3Task {
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = ds3Value;
-        this.leaf = leaf;
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3TreeTableItem = ds3TreeTableItem;
@@ -90,15 +87,6 @@ public class GetBucketTask extends Ds3Task {
         this.ds3Common = ds3Common;
         this.loggingService = loggingService;
     }
-
-    public ObservableList<TreeItem<Ds3TreeTableValue>> getPartialResults() {
-        return this.partialResults.get();
-    }
-
-    public ReadOnlyObjectProperty<ObservableList<TreeItem<Ds3TreeTableValue>>> partialResultsProperty() {
-        return partialResults.getReadOnlyProperty();
-    }
-
 
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
@@ -108,41 +96,51 @@ public class GetBucketTask extends Ds3Task {
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             //marker for the next request
             final String marker = bucketResponse.getListBucketResult().getNextMarker();
-            //use to store list of files
-            final List<Ds3TreeTableValue> filteredFiles = new ArrayList<>();
             //get list of objects with condition key should not be null and key name and prefix should not be same
-            final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
+            final ImmutableList<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
                     .getObjects()
                     .stream()
                     .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName()))))
                     .map(i -> new Ds3Object(i.getKey(), i.getSize()))
-                    .collect(Collectors.toList());
+                    .collect(GuavaCollectors.immutableList());
+
+            //use to store list of files
+            final ImmutableList<Ds3TreeTableValue> filteredFiles;
             if (!Guard.isNullOrEmpty(ds3ObjectListFiles)) {
-                filteredFiles.addAll(BucketUtil.getFilterFilesList(ds3ObjectListFiles, bucketResponse, bucket, session, dateTimeUtils));
+                filteredFiles = BucketUtil.getFilterFilesList(ds3ObjectListFiles, bucketResponse, bucket, session, dateTimeUtils);
+            } else {
+                filteredFiles = ImmutableList.of();
             }
+
             //directoryValues is used to store directories
-            final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, bucket);
+            final ImmutableList<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, bucket);
+
             //after getting both lists we need to merge in partialResult and need to sort
             Platform.runLater(() -> {
-                final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues
-                        .stream()
-                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, dateTimeUtils, loggingService))
-                        .collect(GuavaCollectors.immutableList());
-                final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles
-                        .stream()
-                        .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, dateTimeUtils, loggingService))
-                        .filter(distinctByKey(p -> p.getValue().getFullName()))
-                        .collect(GuavaCollectors.immutableList());
                 //if selected item is not load more then clear partial result list so that items will not appear twice
                 if(ds3Value.getType() != Ds3TreeTableValue.Type.Loader) {
                     partialResults.get().clear();
                 }
 
-                partialResults.get().addAll(directoryItems);
-                partialResults.get().addAll(fileItems);
-                Collections.sort(partialResults.get(), new PartialResultComparator());
+                if (Guard.isNotNullAndNotEmpty(directoryValues)) {
+                    final ImmutableList<Ds3TreeTableItem> directoryItems = directoryValues
+                            .stream()
+                            .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, dateTimeUtils, loggingService))
+                            .collect(GuavaCollectors.immutableList());
+                    partialResults.get().addAll(directoryItems);
+                }
+                if (Guard.isNotNullAndNotEmpty(filteredFiles)) {
+                    final ImmutableList<Ds3TreeTableItem> fileItems = filteredFiles
+                            .stream()
+                            .map(item -> new Ds3TreeTableItem(bucket, session, item, workers, ds3Common, dateTimeUtils, loggingService))
+                            .filter(distinctByKey(p -> p.getValue().getFullName()))
+                            .collect(GuavaCollectors.immutableList());
+                    partialResults.get().addAll(fileItems);
+                }
+                partialResults.get().sort(new PartialResultComparator());
                 ds3Common.getExpandedNodesInfo().put(session.getSessionName() + StringConstants.SESSION_SEPARATOR
                         + session.getEndpoint(), ds3TreeTableItem);
+
                 //if selected item was button then just remove that click more button and add new one
                 if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
                     //clear the selection
@@ -175,7 +173,7 @@ public class GetBucketTask extends Ds3Task {
 
                 }
             });
-        } catch (final Exception e) {
+        } catch (final IOException e) {
             LOG.error("Encountered an error trying to get the next list of items", e);
         }
         return partialResults.get();

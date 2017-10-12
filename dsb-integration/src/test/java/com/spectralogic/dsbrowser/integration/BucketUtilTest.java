@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.GetBucketRequest;
@@ -34,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.util.BucketUtil;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.layout.HBox;
@@ -125,12 +127,12 @@ public class BucketUtilTest {
                 final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Mockito.mock(Ds3TreeTableItem.class), 100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
-                final List<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
+                final ImmutableList<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
                         .getObjects()
                         .stream()
                         .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3TreeTableValue.getFullName()))))
                         .map(i -> new Ds3Object(i.getKey(), i.getSize()))
-                        .collect(Collectors.toList());
+                        .collect(GuavaCollectors.immutableList());
                 final List<Ds3TreeTableValue> filterFilesList = BucketUtil.getFilterFilesList(ds3ObjectListFiles,
                         bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME, session, DTU);
                 successFlag = (null != filterFilesList) ? true : false;
