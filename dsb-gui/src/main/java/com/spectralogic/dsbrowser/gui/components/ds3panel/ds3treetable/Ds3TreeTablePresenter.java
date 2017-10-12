@@ -44,7 +44,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -55,6 +54,7 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,10 +107,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private ContextMenu contextMenu;
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
-
-    private final ObservableMap<Integer, Node> disclosureNodeMap = FXCollections.observableHashMap();
-
-    private boolean isFirstTime = true;
 
     final private Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
 
@@ -236,7 +232,20 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         ds3TreeTable.setRoot(rootTreeItem);
 
-        ds3TreeTable.expandedItemCountProperty().addListener((observable, oldValue, newValue) -> {
+        ds3TreeTable.expandedItemCountProperty().addListener(getNumberChangeListener());
+
+        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
+        LOG.info("Getting buckets from {}", session.getEndpoint());
+
+        progress.progressProperty().bind(getServiceTask.progressProperty());
+
+        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+        workers.execute(getServiceTask);
+    }
+
+    @NotNull
+    private ChangeListener<Number> getNumberChangeListener() {
+        return (observable, oldValue, newValue) -> {
             if (ds3Common.getCurrentSession() != null) {
                 LOG.info("Loading Session {}", session.getSessionName());
 
@@ -255,15 +264,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3PanelPresenter.setBlank(true);
                 ds3PanelPresenter.disableSearch(true);
             }
-        });
-
-        final GetServiceTask getServiceTask = new GetServiceTask(rootTreeItem.getChildren(), session, workers, ds3Common, dateTimeUtils, loggingService);
-        LOG.info("Getting buckets from {}", session.getEndpoint());
-
-        progress.progressProperty().bind(getServiceTask.progressProperty());
-
-        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
-        workers.execute(getServiceTask);
+        };
     }
 
     private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
@@ -331,20 +332,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             row.treeItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (ds3TreeTable == null) {
                     ds3TreeTable = ds3Common.getDs3TreeTableView();
-                }
-                if (null != ds3TreeTable.getRoot() && null != ds3TreeTable.getRoot().getValue()) {
-                    //Set disclosure node of row to null if it is child of bucket
-                    row.setDisclosureNode(null);
-                    isFirstTime = false;
-                } else {
-                    if (isFirstTime && null != row.getDisclosureNode()) {
-                        //Put disclosure nodes into disclosureNodeMap so that
-                        // we can use this to set on row to make it expandable
-                        disclosureNodeMap.put(row.getIndex(), row.getDisclosureNode());
-                    } else if (null != disclosureNodeMap.get(row.getIndex())) {
-                        //Set disclosure node on row to make it expandable in case of bucket
-                        row.setDisclosureNode(disclosureNodeMap.get(row.getIndex()));
-                    }
                 }
             });
             return row;
@@ -509,21 +496,20 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void doubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
-        if ((row.getTreeItem() != null) && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+        final TreeItem<Ds3TreeTableValue> treeItem = row.getTreeItem();
+        if ((treeItem != null) && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
             ds3TreeTable.setPlaceholder(new StackPane(progress));
             ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             ds3TreeTable.getSelectionModel().select(row.getIndex());
             ds3Common.setDs3TreeTableView(ds3TreeTable);
-            if (row.getTreeItem() != null && !row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                if (Ds3PanelService.checkIfBucketEmpty(row.getTreeItem().getValue().getBucketName(), session)) {
-                    ds3TreeTable.setPlaceholder(null);
-                }
-                row.getTreeItem().setExpanded(true);
+            if (!treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
+                treeItem.setExpanded(true);
                 ds3TreeTable.setShowRoot(false);
-                ds3TreeTable.setRoot(row.getTreeItem());
+                ds3TreeTable.setRoot(treeItem);
                 ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+                ds3TreeTable.setPlaceholder(null);
             }
         }
     }
