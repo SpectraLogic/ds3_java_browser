@@ -23,14 +23,10 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
 
 public final class GetStorageLocations {
-    private final static Logger LOG = LoggerFactory.getLogger(GetStorageLocations.class);
-
     private static final Image ONLINEDISK = new Image(ImageURLs.ONLINE_DISK);
     private static final Image NEARLINEDISK = new Image(ImageURLs.NEARLINE_DISK);
     private static final Image STORAGETAPES = new Image(ImageURLs.STORAGE_TAPES);
@@ -120,11 +116,9 @@ public final class GetStorageLocations {
     private static void addPoolIconsAndTooltip(final PhysicalPlacement placement, final HBox placementIconTooltipHbox) {
         if (placement != null && Guard.isNotNullAndNotEmpty(placement.getPools())) {
             final int poolsCount = placement.getPools().size();
-            LOG.info("***poolsCount[{}]", poolsCount);
             final long nearlinePoolsCount = placement.getPools().stream()
                     .filter(pool -> pool.getType().equals(PoolType.NEARLINE))
                     .count();
-            LOG.info("***nearlinePoolsCount[{}]", nearlinePoolsCount);
             if (nearlinePoolsCount > 0) {
                 final ImageView nearlineDiskIcon = new ImageView();
                 final String toolTipMessage = BucketUtil.pluralize(nearlinePoolsCount, resourceBundle, "nearLine", "nearLines");
@@ -134,9 +128,9 @@ public final class GetStorageLocations {
                 Tooltip.install(nearlineDiskIcon, new Tooltip(toolTipMessage));
                 placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
             }
-            if ((nearlinePoolsCount - poolsCount) > 0) {
+            if ((poolsCount - nearlinePoolsCount) > 0) {
                 final ImageView onlineDiskIcon = new ImageView();
-                final String toolTipMessage = BucketUtil.pluralize(nearlinePoolsCount - poolsCount, resourceBundle, "online", "onlines");
+                final String toolTipMessage = BucketUtil.pluralize(poolsCount - nearlinePoolsCount, resourceBundle, "online", "onlines");
                 onlineDiskIcon.setImage(ONLINEDISK);
                 onlineDiskIcon.setFitHeight(15);
                 onlineDiskIcon.setFitWidth(15);
