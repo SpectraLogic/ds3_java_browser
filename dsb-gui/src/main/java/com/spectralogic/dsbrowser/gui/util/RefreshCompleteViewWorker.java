@@ -44,8 +44,7 @@ public final class RefreshCompleteViewWorker {
             loggingService.logMessage("Refreshing session " + session.getSessionName() +
                     StringConstants.SESSION_SEPARATOR +
                     session.getEndpoint(), LogType.INFO);
-            @SuppressWarnings("unchecked")
-            final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
+            @SuppressWarnings("unchecked") final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
             final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
             final Label ds3PathIndicator = ds3PanelPresenter.getDs3PathIndicator();
             ds3PathIndicator.setText(null);
@@ -54,55 +53,70 @@ public final class RefreshCompleteViewWorker {
                 final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
                 if (selectedRoot != null && selectedRoot.getValue() != null && selectedRoot.getParent() != null) {
-                    selectionModel.clearSelection();
-                    ds3TreeTableView.setRoot(selectedRoot);
-                    selectionModel.select(selectedRoot);
-                    ((Ds3TreeTableItem) selectedRoot).refresh();
-                    setPathIndicator((Ds3TreeTableItem)selectedRoot , ds3Common);
-                    ds3PanelPresenter.calculateFiles(ds3TreeTableView);
+                    refreshCurrentView(ds3Common, ds3TreeTableView, ds3PanelPresenter, selectedRoot, selectionModel);
                 } else {
-                    if(selectedRoot != null && selectedRoot.getParent() == null) {
-                        LOG.warn("Parent folder no longer existed, redirecting to the root of the tree");
-                    }
-                    final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
-                    final ObservableList<TreeItem<Ds3TreeTableValue>> children = rootTreeItem.getChildren();
-                    final GetServiceTask getServiceTask = new GetServiceTask(children, session, workers, ds3Common, dateTimeUtils, loggingService);
-                    getServiceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
-                        ds3TreeTableView.setRoot(rootTreeItem);
-                        if (ds3Common.getExpandedNodesInfo().containsKey(session.getSessionName() + StringConstants.SESSION_SEPARATOR +
-                                session.getEndpoint())) {
-                            children.forEach(i ->
-                                    i.expandedProperty().addListener((observable, oldValue, newValue) -> {
-                                        final BooleanProperty bb = (BooleanProperty) observable;
-                                        final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
-                                        ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
-                                    }));
-                            final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint());
-                            if (children.stream().anyMatch(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName()))) {
-                                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = children.stream().filter(i -> i.getValue().getBucketName().equals(item.getValue().getBucketName())).findFirst().get();
-                                ds3TreeTableValueTreeItem.setExpanded(false);
-                                if (!ds3TreeTableValueTreeItem.isLeaf() && !ds3TreeTableValueTreeItem.isExpanded()) {
-                                    selectionModel.select(ds3TreeTableValueTreeItem);
-                                    ds3TreeTableValueTreeItem.setExpanded(true);
-                                    setPathIndicator((Ds3TreeTableItem)ds3TreeTableValueTreeItem , ds3Common);
-                                }
-                            }
-                        } else {
-                            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-                            ds3PathIndicator.setTooltip(null);
-                        }
-                    }));
-                    getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
-                        LOG.error("GetServiceTask failed", event);
-                        loggingService.logMessage("Get Service Task failed", LogType.ERROR);
-                        ds3TreeTableView.setRoot(null);
-                    }));
-                    workers.execute(getServiceTask);
+                    refreshBpRootView(ds3Common, workers, dateTimeUtils, loggingService, session, ds3TreeTableView, ds3PathIndicator, selectedRoot, selectionModel);
                 }
             } else {
                 LOG.info("TreeView is null");
             }
         }
+    }
+
+    private static void refreshBpRootView(final Ds3Common ds3Common, final Workers workers, final DateTimeUtils dateTimeUtils, final LoggingService loggingService, final Session session, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
+        if (selectedRoot != null && selectedRoot.getParent() == null) {
+            LOG.warn("Parent folder no longer existed, redirecting to the root of the tree");
+        }
+        final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
+        final ObservableList<TreeItem<Ds3TreeTableValue>> children = rootTreeItem.getChildren();
+        final GetServiceTask getServiceTask = new GetServiceTask(children, session, workers, ds3Common, dateTimeUtils, loggingService);
+        getServiceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+            ds3TreeTableView.setRoot(rootTreeItem);
+            final String key = session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint();
+            if (ds3Common.getExpandedNodesInfo().containsKey(key)) {
+                expandNodes(ds3Common, session, selectionModel, children, key);
+            } else {
+                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
+                ds3PathIndicator.setTooltip(null);
+            }
+        }));
+        getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
+            LOG.error("GetServiceTask failed", event);
+            loggingService.logMessage("Get Service Task failed", LogType.ERROR);
+            ds3TreeTableView.setRoot(null);
+        }));
+        workers.execute(getServiceTask);
+    }
+
+    private static void refreshCurrentView(final Ds3Common ds3Common, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Ds3PanelPresenter ds3PanelPresenter, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
+        selectionModel.clearSelection();
+        ds3TreeTableView.setRoot(selectedRoot);
+        selectionModel.select(selectedRoot);
+        ((Ds3TreeTableItem) selectedRoot).refresh();
+        setPathIndicator((Ds3TreeTableItem) selectedRoot, ds3Common);
+        ds3PanelPresenter.calculateFiles(ds3TreeTableView);
+    }
+
+    private static void expandNodes(final Ds3Common ds3Common, final Session session, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel, final ObservableList<TreeItem<Ds3TreeTableValue>> children, final String key) {
+        final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(key);
+        final String bucketName = item.getValue().getBucketName();
+        children.forEach(treeItem ->
+                treeItem.expandedProperty().addListener((observable, oldValue, newValue) -> {
+                    final BooleanProperty bb = (BooleanProperty) observable;
+                    final TreeItem<Ds3TreeTableValue> bean = (TreeItem<Ds3TreeTableValue>) bb.getBean();
+                    ds3Common.getExpandedNodesInfo().put(session.getSessionName() + "-" + session.getEndpoint(), bean);
+                }));
+        children.stream()
+                .filter(i -> i.getValue().getBucketName().equals(bucketName))
+                .findFirst()
+                .ifPresent((TreeItem<Ds3TreeTableValue> value) -> {
+                    value.setExpanded(false);
+                    if (!value.isLeaf() && !value.isExpanded()) {
+                        selectionModel.select(value);
+                        value.setExpanded(true);
+                        setPathIndicator((Ds3TreeTableItem) value, ds3Common);
+                    }
+                });
     }
 
     private static void setPathIndicator(final Ds3TreeTableItem selectedRoot, final Ds3Common ds3Common) {
