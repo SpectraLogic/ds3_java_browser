@@ -123,5 +123,6 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
         new LazyAlert(resourceBundle).error(msg);
     }
+
 }
 

@@ -113,15 +113,14 @@ public class RecoverInterruptedJobTest {
                             deepStorageBrowserPresenter,
                             ds3Common
                     );
-                    if(jobIdKeyElement.isPresent()) {
+                    if (jobIdKeyElement.isPresent()) {
                         final String jobIdKey = jobIdKeyElement.get();
                         final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
                         recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle);
                         taskProgressView.getTasks().add(recoverInterruptedJob);
-                    }
-                    else {
+                    } else {
                         LOG.info("No job available to recover");
                     }
                 } else {
@@ -145,9 +144,7 @@ public class RecoverInterruptedJobTest {
             try {
                 jobWorkers.execute(recoverInterruptedJob);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    if (!Ds3JobTask.isJobFailed()) {
-                        successFlag = true;
-                    }
+                    successFlag = true;
                     latch.countDown();
                 });
                 recoverInterruptedJob.setOnFailed(event -> latch.countDown());

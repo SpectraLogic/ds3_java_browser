@@ -167,7 +167,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
                 })
                 .doOnComplete(() -> {
                     loggingService.logMessage(buildFinalMessage, SUCCESS);
-                    //removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
                 })
                 .subscribe();
     }
