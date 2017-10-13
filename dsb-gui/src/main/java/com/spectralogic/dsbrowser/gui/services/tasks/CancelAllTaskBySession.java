@@ -32,16 +32,13 @@ import java.util.Optional;
 public class CancelAllTaskBySession extends Task {
     private final static Logger LOG = LoggerFactory.getLogger(CancelAllTaskBySession.class);
     final ImmutableList<Ds3JobTask> tasks;
-    final Session session;
     private final JobInterruptionStore jobInterruptionStore;
     private final LoggingService loggingService;
 
     public CancelAllTaskBySession(final ImmutableList<Ds3JobTask> tasks,
-                                  final Session session,
                                   final JobInterruptionStore jobInterruptionStore,
                                   final LoggingService loggingService) {
         this.tasks = tasks;
-        this.session = session;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
     }
