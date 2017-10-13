@@ -122,13 +122,15 @@ public final class Ds3PanelService {
             } else {
                 item = (Ds3TreeTableItem) modifiedTreeItem;
             }
-            if (item.isExpanded()) {
-                item.refresh();
-            } else if (item.isAccessedChildren()) {
-                item.setExpanded(true);
-                item.refresh();
-            } else {
-                item.setExpanded(true);
+            if (item != null) {
+                if (item.isExpanded()) {
+                    item.refresh();
+                } else if (item.isAccessedChildren()) {
+                    item.setExpanded(true);
+                    item.refresh();
+                } else {
+                    item.setExpanded(true);
+                }
             }
         }
     }
