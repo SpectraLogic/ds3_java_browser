@@ -80,10 +80,6 @@ public class JobInterruptionStore {
         return jobIdsModel;
     }
 
-    public void setJobIdsModel(final JobIdsModel jobIdsModel) {
-        jobIdsModel.overwrite(jobIdsModel);
-    }
-
     private static class SerializedJobInterruptionStore {
         @JsonProperty("jobIdsModel")
         private final JobIdsModel jobIdsModel;

@@ -146,7 +146,7 @@ public class Ds3PutJobTest {
         Platform.runLater(() -> {
             jobWorkers.execute(ds3PutJob);
             ds3PutJob.setOnSucceeded(event -> {
-                if (!ds3PutJob.isJobFailed()) {
+                if (!Ds3JobTask.isJobFailed()) {
                     successFlag = true;
                 }
                 latch.countDown();

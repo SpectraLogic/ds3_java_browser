@@ -145,7 +145,7 @@ public class RecoverInterruptedJobTest {
             try {
                 jobWorkers.execute(recoverInterruptedJob);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    if (!recoverInterruptedJob.isJobFailed()) {
+                    if (!Ds3JobTask.isJobFailed()) {
                         successFlag = true;
                     }
                     latch.countDown();
