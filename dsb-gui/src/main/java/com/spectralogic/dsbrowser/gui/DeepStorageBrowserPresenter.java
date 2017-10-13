@@ -116,12 +116,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     private final JobWorkers jobWorkers;
     private final ResourceBundle resourceBundle;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
-    private final SettingsStore settingsStore;
     private final ShowCachedJobSettings showCachedJobSettings;
-    private final SavedSessionStore savedSessionStore;
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
@@ -141,12 +138,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
                                        final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.ds3Common = ds3Common;
         this.jobInterruptionStore = jobInterruptionStore;
-        this.settingsStore = settingsStore;
         this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
-        this.savedSessionStore = savedSessionStore;
         this.workers = workers;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
@@ -401,16 +395,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 .subscribe();
     }
 
-    private void logText(final String log, final LogType type) {
-        if (inlineCssTextArea != null) {
-            inlineCssTextArea.appendText(formattedString(log));
-            final int size = inlineCssTextArea.getParagraphs().size() - 2;
-
-            setStyleForLogMessage(type, size);
-            scrollPane.setVvalue(1.0);
-        }
-    }
-
     //set the same color for all the lines of string log separated by \n
     private void logTextForParagraph(final String log, final LogType type) {
         final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
@@ -436,7 +420,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         }
     }
 
-    private String formattedString(final String log) {
+    private static String formattedString(final String log) {
         return StringConstants.FORWARD_OPR + StringConstants.SPACE + log + "\n";
     }
 
@@ -456,11 +440,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         return numInterruptedJobsCircle;
     }
 
-    public AnchorPane getFileSystem() {
-        return fileSystem;
-    }
-
-    public AnchorPane getBlackPearl() {
+    private AnchorPane getBlackPearl() {
         return blackPearl;
     }
 
