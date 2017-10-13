@@ -1,6 +1,6 @@
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.1'
+    version = '2.1.2'
 }
 
 subprojects {
@@ -42,7 +42,7 @@ subprojects {
             compile group: 'net.java.dev.jna', name: 'jna', version: '4.0.0'
 
         }
-        testCompile 'junit:junit:4.12'
+        testCompile 'junit:junit:4.2.1'
     }
 }
 
