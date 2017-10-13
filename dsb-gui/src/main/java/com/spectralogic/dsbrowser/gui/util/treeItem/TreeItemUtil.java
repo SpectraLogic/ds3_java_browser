@@ -26,21 +26,4 @@ public final class TreeItemUtil {
        return pruningTree.toList();
     }
 
-    public static String pathParent(final String string) {
-       final String truncatedPath;
-       if(endsinSlash(string)) {
-            truncatedPath = string.substring(0, string.lastIndexOf('/'));
-       } else {
-           truncatedPath = string;
-       }
-       final int lastIndex = truncatedPath.lastIndexOf('/');
-       if(lastIndex < 1) {
-           return "/";
-       }
-       return truncatedPath.substring(0, lastIndex);
-    }
-
-    public static boolean endsinSlash(final String string) {
-        return string.endsWith("/");
-    }
 }

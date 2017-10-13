@@ -68,7 +68,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
-    private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
     private final DateTimeUtils dateTimeUtils;
@@ -77,7 +76,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     public RecoverInterruptedJob(
             @Assisted final UUID uuid,
             @Assisted final EndpointInfo endpointInfo,
-            final JobInterruptionStore jobInterruptionStore,
             final Ds3Client client,
             final LoggingService loggingService,
             final SettingsStore settingsStore,
@@ -86,7 +84,6 @@ public class RecoverInterruptedJob extends Ds3JobTask {
     ) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
-        this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Client = client;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
