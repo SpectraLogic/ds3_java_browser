@@ -73,13 +73,8 @@ public final class GetStorageLocations {
 
         final int cloudCount = azureCloud + amazonCloud;
         if (cloudCount > 0) {
-            final ImageView cloudIcon = new ImageView();
             final String toolTipMessage = BucketUtil.pluralize(cloudCount, resourceBundle, "cloud", "clouds");
-            cloudIcon.setImage(CLOUD);
-            cloudIcon.setFitHeight(15);
-            cloudIcon.setFitWidth(15);
-            Tooltip.install(cloudIcon, new Tooltip(toolTipMessage));
-            placementIconTooltipHbox.getChildren().add(cloudIcon);
+            placementIconTooltipHbox.getChildren().add(createIcon(CLOUD, toolTipMessage));
         }
     }
 
@@ -91,25 +86,15 @@ public final class GetStorageLocations {
                                          && !ds3Target.getReplicatedUserDefaultDataPolicy().isEmpty())
                     .count();
             if (replicationCount > 0) {
-                final ImageView replicationIcon = new ImageView();
                 final String toolTipMessage = BucketUtil.pluralize(replicationCount, resourceBundle, "replication", "replications");
-                replicationIcon.setImage(REPLICATION);
-                replicationIcon.setFitHeight(15);
-                replicationIcon.setFitWidth(15);
-                Tooltip.install(replicationIcon, new Tooltip(toolTipMessage));
-                placementIconTooltipHbox.getChildren().add(replicationIcon);
+                placementIconTooltipHbox.getChildren().add(createIcon(REPLICATION, toolTipMessage));
             }
         }
     }
 
     private static void addCacheIconAndTooltip(final boolean inCache, final HBox placementIconTooltipHbox) {
         if (inCache) {
-            final ImageView blackPearlCacheIcon = new ImageView();
-            blackPearlCacheIcon.setImage(BLACKPEARLCACHE);
-            blackPearlCacheIcon.setFitHeight(15);
-            blackPearlCacheIcon.setFitWidth(15);
-            Tooltip.install(blackPearlCacheIcon, new Tooltip(resourceBundle.getString("cache")));
-            placementIconTooltipHbox.getChildren().add(blackPearlCacheIcon);
+            placementIconTooltipHbox.getChildren().add(createIcon(BLACKPEARLCACHE, resourceBundle.getString("cache")));
         }
     }
 
@@ -120,22 +105,12 @@ public final class GetStorageLocations {
                     .filter(pool -> pool.getType().equals(PoolType.NEARLINE))
                     .count();
             if (nearlinePoolsCount > 0) {
-                final ImageView nearlineDiskIcon = new ImageView();
                 final String toolTipMessage = BucketUtil.pluralize(nearlinePoolsCount, resourceBundle, "nearLine", "nearLines");
-                nearlineDiskIcon.setImage(NEARLINEDISK);
-                nearlineDiskIcon.setFitHeight(15);
-                nearlineDiskIcon.setFitWidth(15);
-                Tooltip.install(nearlineDiskIcon, new Tooltip(toolTipMessage));
-                placementIconTooltipHbox.getChildren().add(nearlineDiskIcon);
+                placementIconTooltipHbox.getChildren().add(createIcon(NEARLINEDISK, toolTipMessage));
             }
             if ((poolsCount - nearlinePoolsCount) > 0) {
-                final ImageView onlineDiskIcon = new ImageView();
                 final String toolTipMessage = BucketUtil.pluralize(poolsCount - nearlinePoolsCount, resourceBundle, "online", "onlines");
-                onlineDiskIcon.setImage(ONLINEDISK);
-                onlineDiskIcon.setFitHeight(15);
-                onlineDiskIcon.setFitWidth(15);
-                Tooltip.install(onlineDiskIcon, new Tooltip(toolTipMessage));
-                placementIconTooltipHbox.getChildren().add(onlineDiskIcon);
+                placementIconTooltipHbox.getChildren().add(createIcon(ONLINEDISK, toolTipMessage));
             }
         }
     }
@@ -145,25 +120,24 @@ public final class GetStorageLocations {
             final int storageTapeCount = placement.getTapes().size();
             final long ejectedTapesCount = placement.getTapes().stream().filter(tape -> tape.getEjectDate() != null).count();
             if (ejectedTapesCount < 0) {
-                final ImageView ejectedTapeIcon = new ImageView();
                 final String toolTipMessage = BucketUtil.pluralize(ejectedTapesCount, resourceBundle, "ejected", "ejecteds");
-                ejectedTapeIcon.setImage(EJECTEDTAPES);
-                ejectedTapeIcon.setFitHeight(15);
-                ejectedTapeIcon.setFitWidth(15);
-                Tooltip.install(ejectedTapeIcon, new Tooltip(toolTipMessage));
-                placementIconTooltipHbox.getChildren().add(ejectedTapeIcon);
+                placementIconTooltipHbox.getChildren().add(createIcon(EJECTEDTAPES, toolTipMessage));
             }
             if ((storageTapeCount - ejectedTapesCount) > 0) {
-                final ImageView storageTapeIcon = new ImageView();
                 final long tapeCount = storageTapeCount - ejectedTapesCount;
                 final String toolTipMessage = BucketUtil.pluralize(tapeCount, resourceBundle, "storage", "storages");
-                storageTapeIcon.setImage(STORAGETAPES);
-                storageTapeIcon.setFitHeight(15);
-                storageTapeIcon.setFitWidth(15);
-                Tooltip.install(storageTapeIcon, new Tooltip(toolTipMessage));
-                placementIconTooltipHbox.getChildren().add(storageTapeIcon);
+                placementIconTooltipHbox.getChildren().add(createIcon(STORAGETAPES, toolTipMessage));
             }
         }
+    }
+
+    private static ImageView createIcon(final Image image, final String tooltipMessage) {
+        final ImageView icon = new ImageView();
+        icon.setImage(image);
+        icon.setFitHeight(15);
+        icon.setFitWidth(15);
+        Tooltip.install(icon, new Tooltip(tooltipMessage));
+        return icon;
     }
 
 }
