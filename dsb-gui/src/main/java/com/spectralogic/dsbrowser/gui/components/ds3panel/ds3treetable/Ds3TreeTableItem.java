@@ -21,6 +21,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -48,6 +49,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final DateTimeUtils dateTimeUtils;
     private TreeTableView ds3TreeTable;
     private final LoggingService loggingService;
+    private final BaseTreeModel.Type type;
 
     public Ds3TreeTableItem(final String bucket,
                             final Session session,
@@ -66,6 +68,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.ds3Common = ds3Common;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
         this.loggingService = loggingService;
+        this.type = value.getType();
     }
 
     public boolean isAccessedChildren() {
@@ -156,7 +159,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return getChildren().isEmpty();
+        return type == BaseTreeModel.Type.File || getChildren().isEmpty();
     }
 
 }
