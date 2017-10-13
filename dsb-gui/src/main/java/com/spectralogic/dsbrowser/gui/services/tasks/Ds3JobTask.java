@@ -113,10 +113,6 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         updateProgress(totalSent.get() / 2, totalJobSize);
     }
 
-    public static boolean isJobFailed() {
-        return false;
-    }
-
     void hostNotAvailable() {
         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
         ErrorUtils.dumpTheStack(msg);
