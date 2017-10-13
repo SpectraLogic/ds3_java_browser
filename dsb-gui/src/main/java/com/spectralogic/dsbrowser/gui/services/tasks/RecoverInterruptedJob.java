@@ -317,7 +317,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             case PUT:
                 return buildWriteJob(ds3Client, uuid, loggingService);
             case GET:
-                return buildReadJob(ds3Client, uuid, loggingService);
+                return buildReadJob(ds3Client, uuid);
             default:
                 return null;
         }
@@ -337,7 +337,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         return null;
     }
 
-    private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
+    private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid) {
         try {
             return Ds3ClientHelpers.wrap(ds3Client, 100).recoverReadJob(uuid);
         } catch (final IOException|JobRecoveryException e) {
