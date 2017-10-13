@@ -42,7 +42,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
-    private final boolean leaf;
     private final Workers workers;
     private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
@@ -62,7 +61,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = value;
-        this.leaf = isLeaf(value);
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3Common = ds3Common;
@@ -73,10 +71,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     public boolean isAccessedChildren() {
         return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
@@ -91,11 +85,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 return null;
         }
     }
-
-    private static boolean isLeaf(final Ds3TreeTableValue value) {
-        return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
-    }
-
 
     public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
