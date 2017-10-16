@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.ds3client.models.common.Credentials;
 
+import java.util.Objects;
+
 public class SavedCredentials {
     @JsonProperty("accessId")
     private final String accessId;
@@ -43,8 +45,20 @@ public class SavedCredentials {
         return secretKey;
     }
 
-    public Credentials toCredentials() {
-        return new Credentials(this.accessId, this.secretKey);
+    @Override
+    public boolean equals (final Object o) {
+        if(o == this) {
+            return true;
+        }
+        if(!(o instanceof SavedCredentials)) {
+            return false;
+        }
+        final SavedCredentials savedCredentials = (SavedCredentials) o;
+        return Objects.equals(this.accessId, savedCredentials.accessId) && Objects.equals(this.secretKey, savedCredentials.secretKey);
     }
 
+   @Override
+   public int hashCode() {
+        return Objects.hash(accessId, secretKey);
+   }
 }

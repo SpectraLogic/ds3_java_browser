@@ -105,51 +105,19 @@ public class SavedSessionStore {
     }
 
     public int addSession(final Session session) {
-        final String sessionName = session.getSessionName();
         final SavedSession saved = new SavedSession(session, SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()));
-        if (containsSessionName(sessions, sessionName)) {
-            final Optional<SavedSession> savedSession = sessions.stream().filter(o -> o.getName().equals(sessionName)).findFirst();
-            if (savedSession.isPresent() && isNewValuePresent(savedSession.get(), session)) {
-                final int index = sessions.indexOf(savedSession.get());
-                this.sessions.remove(savedSession.get());
-                this.sessions.add(index, saved);
-                return index;
-            } else {
-                return -1;
-            }
-        } else {
+        if (!sessions.contains(saved)) {
             this.sessions.add(saved);
-            return sessions.size() - 1;
         }
-    }
-
-    private static boolean isNewValuePresent(final SavedSession savedSession, final Session session) {
-        if (!savedSession.getName().equals(session.getSessionName()))
-            return true;
-        if (!savedSession.getCredentials().getAccessId().equals(session.getClient().getConnectionDetails().getCredentials().getClientId()))
-            return true;
-        if (!savedSession.getCredentials().getSecretKey().equals(session.getClient().getConnectionDetails().getCredentials().getKey()))
-            return true;
-        if (!savedSession.getEndpoint().equals(session.getEndpoint()))
-            return true;
-        if (!savedSession.getPortNo().equals(session.getPortNo()))
-            return true;
-        if (savedSession.getProxyServer() != null) {
-            if (!savedSession.getProxyServer().equals(session.getProxyServer())) {
-                return true;
-            }
-        } else if (session.getProxyServer() != null) {
-            return true;
-        }
-        return savedSession.isDefaultSession() != session.getDefaultSession();
+        return sessions.indexOf(saved);
     }
 
     public static boolean containsSessionName(final ObservableList<SavedSession> list, final String name) {
-        return list.stream().anyMatch(o -> o.getName().equals(name));
+        return list.stream().map(SavedSession::getName).anyMatch(o -> o.equals(name));
     }
 
     public static boolean containsNewSessionName(final ObservableList<Session> list, final String name) {
-        return list.stream().anyMatch(o -> o.getSessionName().equals(name));
+        return list.stream().map(Session::getSessionName).anyMatch(o -> o.equals(name));
     }
 
     public void removeSession(final SavedSession sessionName) {

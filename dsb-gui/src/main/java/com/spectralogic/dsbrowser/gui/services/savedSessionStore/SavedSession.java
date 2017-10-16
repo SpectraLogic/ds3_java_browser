@@ -18,6 +18,10 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
+import java.util.Objects;
 
 public class SavedSession {
     @JsonProperty("name")
@@ -75,4 +79,26 @@ public class SavedSession {
 
     public Boolean isUseSSL() { return useSSL; }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof SavedSession)) {
+            return false;
+        }
+        final SavedSession ss = (SavedSession) o;
+        return Objects.equals(this.name, ss.name)
+                && Objects.equals(this.endpoint, ss.endpoint)
+                && Objects.equals(this.portNo, ss.portNo)
+                && Objects.equals(this.proxyServer, ss.proxyServer)
+                && Objects.equals(this.useSSL, ss.useSSL)
+                && Objects.equals(this.defaultSession, ss.defaultSession)
+                && Objects.equals(this.credentials, ss.credentials);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, endpoint, portNo, proxyServer, useSSL, defaultSession, credentials);
+    }
 }

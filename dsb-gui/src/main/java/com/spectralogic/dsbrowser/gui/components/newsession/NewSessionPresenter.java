@@ -276,18 +276,14 @@ public class NewSessionPresenter implements Initializable {
             final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
             if (session != null) {
                 final int i = savedSessionStore.addSession(session);
-                if (i == -1) {
-                    alert.info("noNewChanges");
-                } else {
-                    try {
-                        SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-                        savedSessions.getSelectionModel().select(i);
-                        savedSessions.getFocusModel().focus(i);
-                        alert.info("sessionUpdatedSuccessfully");
-                    } catch (final IOException e) {
-                        LOG.error("Failed to save session: ", e);
-                        alert.error("sessionNotUpdatedSuccessfully");
-                    }
+                try {
+                    SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                    savedSessions.getSelectionModel().select(i);
+                    savedSessions.getFocusModel().focus(i);
+                    alert.info("sessionUpdatedSuccessfully");
+                } catch (final IOException e) {
+                    LOG.error("Failed to save session: ", e);
+                    alert.error("sessionNotUpdatedSuccessfully");
                 }
             }
         }
