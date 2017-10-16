@@ -278,8 +278,6 @@ public class NewSessionPresenter implements Initializable {
                 final int i = savedSessionStore.addSession(session);
                 if (i == -1) {
                     alert.info("noNewChanges");
-                } else if (i == -2) {
-                    alert.info("alreadyExistSession");
                 } else {
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);

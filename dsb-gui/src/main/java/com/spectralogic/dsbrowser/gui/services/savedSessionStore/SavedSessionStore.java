@@ -18,6 +18,8 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
+import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
@@ -52,8 +54,8 @@ public class SavedSessionStore {
     private boolean dirty = false;
 
     private SavedSessionStore(final List<SavedSession> sessionList,
-                              final ResourceBundle resourceBundle,
-                              final BuildInfoService buildInfoService) {
+            final ResourceBundle resourceBundle,
+            final BuildInfoService buildInfoService) {
         this.sessions = FXCollections.observableArrayList(sessionList);
         this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
             if (c.next() && (c.wasAdded() || c.wasRemoved())) {
@@ -66,12 +68,12 @@ public class SavedSessionStore {
     }
 
     public static SavedSessionStore empty(final ResourceBundle resourceBundle,
-                                          final BuildInfoService buildInfoService) {
+            final BuildInfoService buildInfoService) {
         return new SavedSessionStore(new ArrayList<>(), resourceBundle, buildInfoService);
     }
 
     public static SavedSessionStore loadSavedSessionStore(final ResourceBundle resourceBundle,
-                                                          final BuildInfoService buildInfoService) throws IOException {
+            final BuildInfoService buildInfoService) throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
@@ -103,25 +105,22 @@ public class SavedSessionStore {
     }
 
     public int addSession(final Session session) {
-        final int index;
-        if (containsSessionName(sessions, session.getSessionName())) {
-            final SavedSession savedSession = sessions.stream().filter(o -> o.getName().equals(session.getSessionName())).findFirst().get();
-            if (isNewValuePresent(savedSession, session)) {
-                index = sessions.indexOf(savedSession);
-                this.sessions.remove(savedSession);
-                this.sessions.add(index, new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                        SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.isUseSSL()));
+        final String sessionName = session.getSessionName();
+        final SavedSession saved = new SavedSession(session, SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()));
+        if (containsSessionName(sessions, sessionName)) {
+            final Optional<SavedSession> savedSession = sessions.stream().filter(o -> o.getName().equals(sessionName)).findFirst();
+            if (savedSession.isPresent() && isNewValuePresent(savedSession.get(), session)) {
+                final int index = sessions.indexOf(savedSession.get());
+                this.sessions.remove(savedSession.get());
+                this.sessions.add(index, saved);
+                return index;
             } else {
                 return -1;
             }
-        } else if (!containsSessionName(sessions, session.getSessionName())) {
-            this.sessions.add(new SavedSession(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(),
-                    SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()), session.getDefaultSession(), session.isUseSSL()));
-            index = sessions.size() - 1;
         } else {
-            index = -2;
+            this.sessions.add(saved);
+            return sessions.size() - 1;
         }
-        return index;
     }
 
     private static boolean isNewValuePresent(final SavedSession savedSession, final Session session) {

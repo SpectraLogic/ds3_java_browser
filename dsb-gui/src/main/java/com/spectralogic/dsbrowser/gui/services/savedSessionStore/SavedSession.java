@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 
 public class SavedSession {
     @JsonProperty("name")
@@ -44,6 +45,10 @@ public class SavedSession {
         this.credentials = credentials;
         this.defaultSession = defaultSession;
         this.useSSL = useSSL;
+    }
+
+    public SavedSession(final Session session, final SavedCredentials savedCredentials) {
+       this(session.getSessionName(), session.getEndpoint(), session.getPortNo(), session.getProxyServer(), savedCredentials, session.getDefaultSession(), session.isUseSSL());
     }
 
     public String getName() {
