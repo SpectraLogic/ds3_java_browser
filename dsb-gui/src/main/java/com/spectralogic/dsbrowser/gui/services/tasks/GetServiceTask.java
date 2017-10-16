@@ -82,7 +82,7 @@ public class GetServiceTask extends Ds3Task {
                         hbox.setAlignment(Pos.CENTER);
                         return new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
                                 0, dateTimeUtils.format(bucket.getCreationDate()), StringConstants.TWO_DASH,
-                                false, hbox);
+                                false);
                     }).sorted(Comparator.comparing(b -> b.getName().toLowerCase())).collect(GuavaCollectors.immutableList());
 
             loggingService.logMessage(resourceBundle.getString("receivedBucketList"), LogType.SUCCESS);

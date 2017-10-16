@@ -126,7 +126,7 @@ public class Ds3DeleteFilesTaskTest {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(
                         DELETE_FILES_TASK_TEST_BUCKET_NAME, "files/SampleFiles.txt",
                         Ds3TreeTableValue.Type.File, 0L, StringConstants.EMPTY_STRING,
-                        StringConstants.TWO_DASH, false, Mockito.mock(HBox.class));
+                        StringConstants.TWO_DASH, false);
 
                 final TreeItem<Ds3TreeTableValue> value = new TreeItem<>();
                 value.setValue(ds3TreeTableValue);
