@@ -281,9 +281,10 @@ public class NewSessionPresenter implements Initializable {
                 } else if (i == -2) {
                     alert.info("alreadyExistSession");
                 } else {
-                    savedSessions.getSelectionModel().select(i);
                     try {
                         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
+                        savedSessions.getSelectionModel().select(i);
+                        savedSessions.getFocusModel().focus(i);
                         alert.info("sessionUpdatedSuccessfully");
                     } catch (final IOException e) {
                         LOG.error("Failed to save session: ", e);
