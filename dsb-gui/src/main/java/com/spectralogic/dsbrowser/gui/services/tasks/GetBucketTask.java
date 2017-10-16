@@ -167,7 +167,7 @@ public class GetBucketTask extends Ds3Task {
                     final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue
                             (bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1,
                                     StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING, false,
-                                    hbox, marker), workers, ds3Common, dateTimeUtils, loggingService);
+                                    marker), workers, ds3Common, dateTimeUtils, loggingService);
                     partialResults.get().add(addMoreItem);
 
                 }

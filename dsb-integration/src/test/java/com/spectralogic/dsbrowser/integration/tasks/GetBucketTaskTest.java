@@ -88,8 +88,7 @@ public class GetBucketTaskTest {
                         0L,
                         StringConstants.EMPTY_STRING,
                         StringConstants.TWO_DASH,
-                        false,
-                        Mockito.mock(HBox.class));
+                        false);
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
                                                                       bucketName,
                                                                       session,
