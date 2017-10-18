@@ -17,9 +17,6 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.inject.Inject;
-import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.models.common.Credentials;
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
@@ -105,7 +102,7 @@ public class SavedSessionStore {
     }
 
     public int addSession(final Session session) {
-        final SavedSession saved = new SavedSession(session, SavedCredentials.fromCredentials(session.getClient().getConnectionDetails().getCredentials()));
+        final SavedSession saved = new SavedSession(session, SavedCredentialsKt.toSavedCredentials(session.getClient().getConnectionDetails().getCredentials()));
         if (!sessions.contains(saved)) {
             this.sessions.add(saved);
         }
@@ -126,7 +123,7 @@ public class SavedSessionStore {
 
     //open default session when DSB launched
     public void openDefaultSession(final Ds3SessionStore store) {
-        final Optional<SavedSession> savedSessions = getSessions().stream().filter(SavedSession::isDefaultSession).findFirst();
+        final Optional<SavedSession> savedSessions = getSessions().stream().filter(SavedSession::getDefaultSession).findFirst();
         savedSessions.ifPresent(savedSession ->
                 store.addSession(
                         CreateConnectionTask.createConnection(
