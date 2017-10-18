@@ -502,9 +502,6 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3TreeTable.getSelectionModel().select(row.getIndex());
             ds3Common.setDs3TreeTableView(ds3TreeTable);
             if (!treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
-                if(treeItem.getParent() != ds3TreeTable.getRoot()) {
-
-                }
                 treeItem.setExpanded(true);
                 ds3TreeTable.setShowRoot(false);
                 ds3TreeTable.setRoot(treeItem);
