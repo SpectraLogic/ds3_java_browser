@@ -37,10 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
@@ -103,6 +100,15 @@ public class SavedSessionStore {
 
     public int addSession(final Session session) {
         final SavedSession saved = new SavedSession(session, SavedCredentialsKt.toSavedCredentials(session.getClient().getConnectionDetails().getCredentials()));
+        sessions.stream()
+                .filter(Objects::nonNull)
+                .filter(s -> Objects.equals(s.getName(), saved.getName()))
+                .findFirst()
+                .ifPresent(s -> {
+                    final int index = sessions.indexOf(s);
+                    sessions.remove(s);
+                    sessions.add(index, saved);
+                });
         if (!sessions.contains(saved)) {
             this.sessions.add(saved);
         }
