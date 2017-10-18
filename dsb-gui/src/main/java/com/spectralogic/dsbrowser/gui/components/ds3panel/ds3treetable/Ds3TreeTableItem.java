@@ -21,6 +21,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -41,13 +42,13 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final String bucket;
     private final Session session;
     private final Ds3TreeTableValue ds3Value;
-    private final boolean leaf;
     private final Workers workers;
     private final Ds3Common ds3Common;
     private boolean accessedChildren = false;
     private final DateTimeUtils dateTimeUtils;
     private TreeTableView ds3TreeTable;
     private final LoggingService loggingService;
+    private final BaseTreeModel.Type type;
 
     public Ds3TreeTableItem(final String bucket,
                             final Session session,
@@ -60,20 +61,16 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         this.bucket = bucket;
         this.session = session;
         this.ds3Value = value;
-        this.leaf = isLeaf(value);
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3Common = ds3Common;
         this.setGraphic(getIcon(value.getType())); // sets the default icon
         this.loggingService = loggingService;
+        this.type = value.getType();
     }
 
     public boolean isAccessedChildren() {
         return accessedChildren;
-    }
-
-    public void setAccessedChildren(final boolean accessedChildren) {
-        this.accessedChildren = accessedChildren;
     }
 
     private static Node getIcon(final Ds3TreeTableValue.Type type) {
@@ -88,11 +85,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 return null;
         }
     }
-
-    private static boolean isLeaf(final Ds3TreeTableValue value) {
-        return (value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Loader);
-    }
-
 
     public void setDs3TreeTable(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
@@ -156,7 +148,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return getChildren().isEmpty();
+        return type == BaseTreeModel.Type.File || getChildren().isEmpty();
     }
 
 }

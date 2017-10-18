@@ -3,4 +3,4 @@ sudo: false
 dist: trusty
 jdk:
   - oraclejdk8
-script: ./gradlew -S clean jar compileTest
+script: ./gradlew -S clean jar compileTestJava compileTestKotlin
