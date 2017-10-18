@@ -115,4 +115,5 @@ public class GuiModule extends AbstractModule {
                 .matchClassesWithAnnotation(Presenter.class, binder::accept)
                 .scan();
     }
+
 }
