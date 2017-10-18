@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
+import com.spectralogic.dsbrowser.gui.util.treeItem.TreeItemUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -47,8 +48,6 @@ public final class RefreshCompleteViewWorker {
             @SuppressWarnings("unchecked") final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
             final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
             final Label ds3PathIndicator = ds3PanelPresenter.getDs3PathIndicator();
-            ds3PathIndicator.setText(null);
-            ds3PathIndicator.setTooltip(null);
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
@@ -75,9 +74,6 @@ public final class RefreshCompleteViewWorker {
             final String key = session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint();
             if (ds3Common.getExpandedNodesInfo().containsKey(key)) {
                 expandNodes(ds3Common, session, selectionModel, children, key);
-            } else {
-                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-                ds3PathIndicator.setTooltip(null);
             }
         }));
         getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
@@ -93,7 +89,6 @@ public final class RefreshCompleteViewWorker {
         ds3TreeTableView.setRoot(selectedRoot);
         selectionModel.select(selectedRoot);
         ((Ds3TreeTableItem) selectedRoot).refresh();
-        setPathIndicator((Ds3TreeTableItem) selectedRoot, ds3Common);
         ds3PanelPresenter.calculateFiles(ds3TreeTableView);
     }
 
@@ -114,20 +109,10 @@ public final class RefreshCompleteViewWorker {
                     if (!value.isLeaf() && !value.isExpanded()) {
                         selectionModel.select(value);
                         value.setExpanded(true);
-                        setPathIndicator((Ds3TreeTableItem) value, ds3Common);
                     }
                 });
     }
 
-    private static void setPathIndicator(final Ds3TreeTableItem selectedRoot, final Ds3Common ds3Common) {
-        String path = selectedRoot.getValue().getFullName();
-        if (!selectedRoot.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-            path = selectedRoot.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
-        }
-        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setTooltip(ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip());
-        ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
-        ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
-    }
 
     @SuppressWarnings("unchecked")
     private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {

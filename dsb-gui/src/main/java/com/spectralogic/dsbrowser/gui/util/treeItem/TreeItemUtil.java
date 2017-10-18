@@ -27,20 +27,17 @@ public final class TreeItemUtil {
     }
 
     public static String pathParent(final String string) {
-       final String truncatedPath;
-       if(endsinSlash(string)) {
-            truncatedPath = string.substring(0, string.lastIndexOf('/'));
-       } else {
-           truncatedPath = string;
-       }
-       final int lastIndex = truncatedPath.lastIndexOf('/');
-       if(lastIndex < 1) {
-           return "/";
-       }
-       return truncatedPath.substring(0, lastIndex);
+        if(!string.contains("/")) {
+            return string;
+        }
+        if (endsinSlash(string)) {
+            return string;
+        }
+        final int lastSlash = string.lastIndexOf('/');
+        return string.substring(0,lastSlash);
     }
 
-    public static boolean endsinSlash(final String string) {
+    private static boolean endsinSlash(final String string) {
         return string.endsWith("/");
     }
 }
