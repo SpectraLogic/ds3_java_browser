@@ -54,7 +54,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +148,6 @@ public class Ds3PanelPresenter implements Initializable {
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
             LOG.info("Loading Ds3PanelPresenter");
-            ds3PathIndicator = makeSelectable(ds3PathIndicator);
             ds3PathIndicator.setTooltip(null);
             initMenuItems();
             initButtons();
@@ -158,29 +156,11 @@ public class Ds3PanelPresenter implements Initializable {
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-
             //open default session when DSB launched
             savedSessionStore.openDefaultSession(ds3SessionStore);
         } catch (final Throwable t) {
             LOG.error("Encountered error when initializing Ds3PanelPresenter", t);
         }
-    }
-
-    private Label makeSelectable(final Label label) {
-        final StackPane textStack = new StackPane();
-        final TextField textField = new TextField(label.getText());
-        textField.setEditable(false);
-        textField.getStyleClass().add("selectableClass");
-
-        // the invisible label is a hack to get the textField to size like a label.
-        final Label invisibleLabel = new Label();
-        invisibleLabel.textProperty().bind(label.textProperty());
-        invisibleLabel.setVisible(false);
-        textStack.getChildren().addAll(invisibleLabel, textField);
-        label.textProperty().bindBidirectional(textField.textProperty());
-        label.setGraphic(textStack);
-        label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        return label;
     }
 
     /**
@@ -189,27 +169,18 @@ public class Ds3PanelPresenter implements Initializable {
     private void goToParentDirectory() {
         //if root is null back button will not work
         final TreeItem<Ds3TreeTableValue> root = getTreeTableView().getRoot();
-        final Label ds3PathIndicator = getDs3PathIndicator();
         if (null != root.getValue() && null != root.getParent()) {
             if (null == root.getParent().getValue()) {
-                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-                ds3PathIndicator.setTooltip(null);
                 capacityLabel.setText(StringConstants.EMPTY_STRING);
                 capacityLabel.setVisible(false);
                 infoLabel.setText(StringConstants.EMPTY_STRING);
                 infoLabel.setVisible(false);
-            } else {
-                ds3PathIndicator.setTooltip(getDs3PathIndicatorTooltip());
             }
             getTreeTableView().setRoot(root.getParent());
             root.getChildren().forEach(treeItem -> treeItem.setExpanded(false));
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
             getTreeTableView().refresh();
-        } else {
-            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-            ds3PathIndicator.setTooltip(null);
-
         }
     }
 
@@ -258,15 +229,6 @@ public class Ds3PanelPresenter implements Initializable {
                             setBlank(false);
                             final Optional<TreeItem<Ds3TreeTableValue>> ds3TreeTableValueTreeItemElement = values.stream().findFirst();
                             if (ds3TreeTableValueTreeItemElement.isPresent()) {
-                                final TreeItem<Ds3TreeTableValue> ds3TreeTableValueTreeItem = ds3TreeTableValueTreeItemElement.get();
-                                final Ds3TreeTableValue value = ds3TreeTableValueTreeItem.getValue();
-                                if (!value.getType().equals(Ds3TreeTableValue.Type.Bucket)) {
-                                    ds3PathIndicator.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                    ds3PathIndicatorTooltip.setText(value.getBucketName() + StringConstants.FORWARD_SLASH + value.getFullName());
-                                } else {
-                                    ds3PathIndicator.setText(value.getBucketName());
-                                    ds3PathIndicatorTooltip.setText(value.getBucketName());
-                                }
                                 calculateFiles(ds3TreeTableView);
                             }
                         }
@@ -383,22 +345,15 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to remove session:", e);
             }
-            if (ds3SessionStore.size() == 0) {
-                ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-                addNewTab.setTooltip(null);
-            }
         }
     }
 
     public void setBlank(final boolean isSetBlank) {
         if (isSetBlank) {
-            ds3PathIndicator.setText(StringConstants.EMPTY_STRING);
-            ds3PathIndicator.setTooltip(null);
             paneItemsLabel.setVisible(false);
             capacityLabel.setVisible(false);
             infoLabel.setVisible(false);
         } else {
-            ds3PathIndicator.setTooltip(ds3PathIndicatorTooltip);
             paneItemsLabel.setVisible(true);
             capacityLabel.setVisible(true);
             infoLabel.setVisible(true);
@@ -630,9 +585,6 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void disableMenu(final boolean disable) {
-        if (disable) {
-            ds3PathIndicator.setTooltip(null);
-        }
         imageViewForTooltip.setDisable(disable);
         ds3ParentDir.setDisable(disable);
         ds3Refresh.setDisable(disable);
