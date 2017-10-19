@@ -49,6 +49,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     protected LoggingService loggingService;
     protected Ds3ClientHelpers.Job job = null;
+    protected Session currentSession;
 
     @Override
     protected final Boolean call() throws Exception {
@@ -119,6 +120,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
         new LazyAlert(resourceBundle).error(msg);
     }
+
+
 
 }
 
