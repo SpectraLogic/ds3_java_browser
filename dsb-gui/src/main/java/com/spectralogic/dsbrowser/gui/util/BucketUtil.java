@@ -21,7 +21,6 @@ import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.models.Contents;
-import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
