@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,13 +111,18 @@ public final class BucketUtil {
     //Enables you to get Directories/Folders list
     public static ImmutableList<Ds3TreeTableValue> getDirectoryValues(final GetBucketResponse bucketResponse, final String bucket) {
         final List<CommonPrefixes> commonPrefixes = bucketResponse.getListBucketResult().getCommonPrefixes();
+        return commonPrefixes
+                .stream()
+                .map(cP -> createDs3TreeTableValue(bucket, cP))
+                .collect(GuavaCollectors.immutableList());
+    }
+
+    @NotNull
+    private static Ds3TreeTableValue createDs3TreeTableValue(final String bucket, final CommonPrefixes cP) {
         final HBox hbox = new HBox();
         hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
         hbox.setAlignment(Pos.CENTER);
-        return commonPrefixes
-                .stream()
-                .map(cP -> new Ds3TreeTableValue(bucket, cP.getPrefix(), Ds3TreeTableValue.Type.Directory, 0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, hbox))
-                .collect(GuavaCollectors.immutableList());
+        return new Ds3TreeTableValue(bucket, cP.getPrefix(), Ds3TreeTableValue.Type.Directory, 0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, hbox);
     }
 
     //function for distinction on the basis of some property
