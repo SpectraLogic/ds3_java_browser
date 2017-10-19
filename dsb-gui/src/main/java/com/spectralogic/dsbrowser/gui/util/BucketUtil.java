@@ -21,7 +21,9 @@ import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request;
 import com.spectralogic.ds3client.models.Contents;
+import com.spectralogic.ds3client.models.ListBucketResult;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.ds3client.models.common.CommonPrefixes;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -46,36 +48,30 @@ public final class BucketUtil {
 
     //Get bucket request used to get Bucket data
     public static GetBucketRequest createRequest(final Ds3TreeTableValue ds3Value,
-                                                 final String bucket,
-                                                 final Ds3TreeTableItem ds3TreeTableItem,
-                                                 final int pageLength) {
-        final GetBucketRequest request;
-        //if marker is set blank for a item that means offset is 0 else set the marker
-        if (Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
-            request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
-        } else {
-            request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength)
-                    .withMarker(ds3Value.getMarker());
+            final String bucket,
+            final Ds3TreeTableItem ds3TreeTableItem,
+            final int pageLength) {
+        final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
+        if (!Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
+            request.withMarker(ds3Value.getMarker());
         }
-        if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
-            if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
-                if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
-                    final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
-                    request.withPrefix(ds3ParentValue.getFullName());
-                }
-            } else {
-                request.withPrefix(ds3Value.getFullName());
-            }
+        if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
+            return request;
+        }
+        if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader && ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
+            request.withPrefix(ds3TreeTableItem.getParent().getValue().getFullName());
+        } else {
+            request.withPrefix(ds3Value.getFullName());
         }
         return request;
     }
 
     //Enables you to get list of filtered files based on equals of key and name
     public static ImmutableList<Ds3TreeTableValue> getFilterFilesList(final ImmutableList<Ds3Object> ds3ObjectListFiles,
-                                                                      final GetBucketResponse bucketResponse,
-                                                                      final String bucket,
-                                                                      final Session session,
-                                                                      final DateTimeUtils dateTimeUtils) {
+            final GetBucketResponse bucketResponse,
+            final String bucket,
+            final Session session,
+            final DateTimeUtils dateTimeUtils) {
         final GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request requestPlacement
                 = new GetPhysicalPlacementForObjectsWithFullDetailsSpectraS3Request(bucket, ds3ObjectListFiles);
         try {
@@ -112,17 +108,15 @@ public final class BucketUtil {
     }
 
     //Enables you to get Directories/Folders list
-    public static ImmutableList<Ds3TreeTableValue> getDirectoryValues(final GetBucketResponse bucketResponse,
-                                                                      final String bucket) {
-        return bucketResponse.getListBucketResult().getCommonPrefixes().stream().map(commonPrefix -> {
-            final String folderName = commonPrefix.getPrefix();
-            final HBox hbox = new HBox();
-            hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
-            hbox.setAlignment(Pos.CENTER);
-            return new Ds3TreeTableValue(bucket, folderName, Ds3TreeTableValue.Type.Directory, 0,
-                    StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, hbox);
-
-        }).collect(GuavaCollectors.immutableList());
+    public static ImmutableList<Ds3TreeTableValue> getDirectoryValues(final GetBucketResponse bucketResponse, final String bucket) {
+        final List<CommonPrefixes> commonPrefixes = bucketResponse.getListBucketResult().getCommonPrefixes();
+        final HBox hbox = new HBox();
+        hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
+        hbox.setAlignment(Pos.CENTER);
+        return commonPrefixes
+                .stream()
+                .map(cP -> new Ds3TreeTableValue(bucket, cP.getPrefix(), Ds3TreeTableValue.Type.Directory, 0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, hbox))
+                .collect(GuavaCollectors.immutableList());
     }
 
     //function for distinction on the basis of some property
@@ -132,7 +126,7 @@ public final class BucketUtil {
     }
 
     static String pluralize(final long count, final ResourceBundle resourceBundle, final String one, final String many) {
-        if(count == 1) {
+        if (count == 1) {
             return count + " " + resourceBundle.getString(one);
         } else {
             return count + " " + resourceBundle.getString(many);
