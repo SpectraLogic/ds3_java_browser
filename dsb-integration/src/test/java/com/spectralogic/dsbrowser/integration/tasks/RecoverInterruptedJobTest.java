@@ -118,7 +118,7 @@ public class RecoverInterruptedJobTest {
                         final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
-                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle);
+                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle, jobInterruptionStore, session);
                         taskProgressView.getTasks().add(recoverInterruptedJob);
                     } else {
                         LOG.info("No job available to recover");
