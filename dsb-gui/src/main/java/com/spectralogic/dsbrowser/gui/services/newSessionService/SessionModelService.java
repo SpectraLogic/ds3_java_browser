@@ -24,7 +24,7 @@ public class SessionModelService {
         final NewSessionModel newModel = new NewSessionModel();
         newModel.setSessionName(savedSession.getName());
         newModel.setDefaultSession(defaultSession);
-        newModel.setUseSSL(savedSession.isUseSSL());
+        newModel.setUseSSL(savedSession.getUseSSL());
         newModel.setAccessKey(savedSession.getCredentials().getAccessId());
         newModel.setSecretKey(savedSession.getCredentials().getSecretKey());
         newModel.setEndpoint(savedSession.getEndpoint());

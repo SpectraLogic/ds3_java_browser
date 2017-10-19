@@ -45,7 +45,7 @@ public class SessionModelServiceTest {
                 true,
                 false);
         final NewSessionModel newSessionModel = SessionModelService.setSessionModel(savedSession,false);
-        if (!savedSession.isDefaultSession().equals(newSessionModel.getDefaultSession())) {
+        if (!savedSession.getDefaultSession() == newSessionModel.getDefaultSession()) {
             successFlag = true;
             latch.countDown();
         } else {
