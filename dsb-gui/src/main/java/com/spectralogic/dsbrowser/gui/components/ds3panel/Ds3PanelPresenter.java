@@ -325,7 +325,7 @@ public class Ds3PanelPresenter implements Initializable {
                 if (closedTab != null) {
                     final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
-                        CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, workers, closedSession, loggingService);
+                        CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, workers, loggingService);
                         ds3SessionStore.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());

@@ -216,7 +216,7 @@ public class CancelJobsWorkerTest {
 
                 //Cancelling task by session
                 final CancelAllTaskBySession cancelAllRunningJobsBySession = CancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers,
-                        jobInterruptionStore, workers, session, Mockito.mock(LoggingService.class));
+                        jobInterruptionStore, workers, Mockito.mock(LoggingService.class));
                 cancelAllRunningJobsBySession.setOnSucceeded(event -> {
                     successFlag = true;
                     latch.countDown();

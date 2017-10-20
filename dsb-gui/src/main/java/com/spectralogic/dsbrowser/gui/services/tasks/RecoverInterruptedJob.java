@@ -32,12 +32,11 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.FileSizeFormat;
-import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.*;
 import io.reactivex.Completable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -49,6 +48,7 @@ import javax.inject.Inject;
 
 import static com.spectralogic.ds3client.models.JobRequestType.*;
 import static com.spectralogic.dsbrowser.api.services.logging.LogType.*;
+import static com.spectralogic.dsbrowser.gui.util.StringConstants.COLON;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,30 +68,32 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     private final UUID uuid;
     private final EndpointInfo endpointInfo;
-    private final JobInterruptionStore jobInterruptionStore;
     private final ResourceBundle resourceBundle;
     private final SettingsStore settingsStore;
     private final DateTimeUtils dateTimeUtils;
+    private final JobInterruptionStore jobInterruptionStore;
 
     @Inject
     public RecoverInterruptedJob(
             @Assisted final UUID uuid,
             @Assisted final EndpointInfo endpointInfo,
-            final JobInterruptionStore jobInterruptionStore,
             final Ds3Client client,
             final LoggingService loggingService,
             final SettingsStore settingsStore,
             final DateTimeUtils dateTimeUtils,
-            final ResourceBundle resourceBundle
+            final ResourceBundle resourceBundle,
+            final JobInterruptionStore jobInterruptionStore,
+            final Session currentSession
     ) {
         this.uuid = uuid;
         this.endpointInfo = endpointInfo;
-        this.jobInterruptionStore = jobInterruptionStore;
         this.ds3Client = client;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
         this.resourceBundle = resourceBundle;
         this.settingsStore = settingsStore;
+        this.jobInterruptionStore = jobInterruptionStore;
+        this.currentSession = currentSession;
     }
 
     @Override
@@ -136,7 +138,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         foldersMap.forEach((name, path) -> {
             try {
                 Files.walk(path).filter(child -> !hasNestedItems(child)).map(p -> new Pair<>(targetLocation + name + "/" + path.relativize(p).toString() + appendSlashWhenDirectory(p), p))
-                     .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
+                        .forEach(p -> folderMapBuilder.put(p.getKey(), p.getValue()));
             } catch (final SecurityException ex) {
                 loggingService.logMessage("Unable to access path, please check permssions on " + path.toString(), LogType.ERROR);
                 LOG.error("Unable to access path", ex);
@@ -163,16 +165,17 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         });
 
 
-        waitForTransfer(filesAndFolderMap, jobId, isCacheJobEnable, ds3Client)
+        final Disposable d = waitForTransfer(filesAndFolderMap, jobId, isCacheJobEnable, ds3Client)
                 .observeOn(JavaFxScheduler.platform())
-                .doOnError(throwable -> {
-                    LOG.error("Encountered a failure while waiting for transfer", throwable);
-                })
+                .doOnError(throwable -> LOG.error("Encountered a failure while waiting for transfer", throwable))
                 .doOnComplete(() -> {
                     loggingService.logMessage(buildFinalMessage, SUCCESS);
                     removeJobIdAndUpdateJobsBtn(jobInterruptionStore, uuid);
                 })
                 .subscribe();
+        while(!d.isDisposed()) {
+            Thread.sleep(1000);
+        }
     }
 
     private void setDataTransferredListener(final long l, final Long totalJobSize, final AtomicLong totalSent) {
@@ -278,8 +281,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         } else {
             result = "/";
         }
-        final Path resultPath = Paths.get("/", result, obj);
-        return resultPath;
+        return Paths.get("/", result, obj);
     }
 
     private void onCompleteListener(final Instant jobStartInstant, final String targetLocation, final long totalJobSize, final AtomicLong totalSent, final String s) {
@@ -320,7 +322,7 @@ public class RecoverInterruptedJob extends Ds3JobTask {
             case PUT:
                 return buildWriteJob(ds3Client, uuid, loggingService);
             case GET:
-                return buildReadJob(ds3Client, uuid, loggingService);
+                return buildReadJob(ds3Client, uuid);
             default:
                 return null;
         }
@@ -340,10 +342,10 @@ public class RecoverInterruptedJob extends Ds3JobTask {
         return null;
     }
 
-    private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid, final LoggingService loggingService) {
+    private static Ds3ClientHelpers.Job buildReadJob(final Ds3Client ds3Client, final UUID uuid) {
         try {
             return Ds3ClientHelpers.wrap(ds3Client, 100).recoverReadJob(uuid);
-        } catch (final IOException|JobRecoveryException e) {
+        } catch (final IOException | JobRecoveryException e) {
             LOG.error("Failed to create read job", e);
         }
         return null;
@@ -375,5 +377,15 @@ public class RecoverInterruptedJob extends Ds3JobTask {
 
     public interface RecoverInterruptedJobFactory {
         RecoverInterruptedJob createRecoverInterruptedJob(final UUID uuid, final EndpointInfo endpointInfo);
+    }
+
+    private void removeJobIdAndUpdateJobsBtn(final JobInterruptionStore jobInterruptionStore, final UUID jobId) {
+        final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+        if (currentSession != null) {
+            final String currentSelectedEndpoint = currentSession.getEndpoint() + COLON + currentSession.getPortNo();
+            if (currentSelectedEndpoint.equals(ds3Client.getConnectionDetails().getEndpoint())) {
+                ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
+            }
+        }
     }
 }

@@ -65,11 +65,10 @@ public final class CancelJobsWorker {
     public static CancelAllTaskBySession cancelAllRunningJobsBySession(final JobWorkers jobWorkers,
                                                                        final JobInterruptionStore jobInterruptionStore,
                                                                        final Workers workers,
-                                                                       final Session session,
                                                                        final LoggingService loggingService) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
         if (tasks.size() != 0) {
-            final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks, session,
+            final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks,
                     jobInterruptionStore, loggingService);
             cancelAllRunningJobs.setOnSucceeded(SafeHandler.logHandle(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
