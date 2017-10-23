@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.services;
 
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
@@ -37,12 +36,8 @@ public class JobWorkers {
     private final ObservableList<Ds3JobTask> tasks;
 
     @Inject
-    public JobWorkers(final SettingsStore settingsStore) {
-        this(settingsStore.getProcessSettings().getMaximumNumberOfParallelThreads());
-    }
-
-    public JobWorkers(final int num) {
-        workers = Executors.newFixedThreadPool(num);
+    public JobWorkers() {
+        workers = Executors.newCachedThreadPool();
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
             if (c.next() && c.wasAdded()) {
@@ -77,7 +72,6 @@ public class JobWorkers {
         }));
         LOG.info("Adding to task list");
         tasks.add(0,run);
-        run.updateProgressPutJob();
     }
 
     public ObservableList<Ds3JobTask> getTasks() {
