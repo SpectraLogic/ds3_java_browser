@@ -52,32 +52,31 @@ public final class CreateService {
         final LazyAlert alert = new LazyAlert(resourceBundle);
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
-        if (session != null) {
-            loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
-            final Ds3GetDataPoliciesTask getDataPoliciesTask = new Ds3GetDataPoliciesTask(session, workers, resourceBundle, loggingService);
-            getDataPoliciesTask.setOnSucceeded(SafeHandler.logHandle(taskEvent -> {
-                final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
-                if (value.isPresent()) {
-                    LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
-                    Platform.runLater(() -> {
-                        CreateBucketPopup.show(value.get(), resourceBundle);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                    });
-                } else {
-                    LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                    alert.error("dataPolicyNotFoundErr");
-                }
-            }));
-            getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
+        if (session == null) {
+            LOG.error("Invalid Session");
+            alert.error("invalidSession");
+            return;
+        }
+        loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
+        final Ds3GetDataPoliciesTask getDataPoliciesTask = new Ds3GetDataPoliciesTask(session, workers, resourceBundle, loggingService);
+        getDataPoliciesTask.setOnSucceeded(SafeHandler.logHandle(taskEvent -> {
+            final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
+            if (value.isPresent()) {
+                LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
+                Platform.runLater(() -> {
+                    CreateBucketPopup.show(value.get(), resourceBundle);
+                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                });
+            } else {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
                 alert.error("dataPolicyNotFoundErr");
-            }));
-            workers.execute(getDataPoliciesTask);
-        } else {
-            LOG.error("invalid session");
-            alert.error("invalidSession");
-        }
-
+            }
+        }));
+        getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
+            LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
+            alert.error("dataPolicyNotFoundErr");
+        }));
+        workers.execute(getDataPoliciesTask);
     }
 
     public static void createFolderPrompt(

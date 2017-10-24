@@ -40,7 +40,7 @@ public class JobWorkers {
         workers = Executors.newCachedThreadPool();
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
-            if (c.next() && c.wasAdded()) {
+            if (c.next()) {
                 c.getAddedSubList().forEach(workers::execute);
             }
         });

@@ -43,6 +43,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -62,10 +63,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @Singleton
 @Presenter
@@ -127,11 +125,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
                                        final ResourceBundle resourceBundle,
-                                       final SavedJobPrioritiesStore savedJobPrioritiesStore,
                                        final Ds3Common ds3Common,
                                        final JobInterruptionStore jobInterruptionStore,
                                        final SettingsStore settingsStore,
-                                       final SavedSessionStore savedSessionStore,
                                        final Workers workers,
                                        final LoggingService loggingService,
                                        final DateTimeUtils dateTimeUtils,
@@ -168,11 +164,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
             initToggleShowCachedJobsButton();
             initJobsPane();
 
-            inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                selectAllItem.setDisable(oldValue);
-            });
+            inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
 
-        } catch (final Exception e) {
+        } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
         }
@@ -220,6 +214,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     //Implementation and design of "Recover Interrupted Jobs" button in bottom pane
     private void initRecoverInterruptedJobsButton() {
+        final Session session = ds3Common.getCurrentSession();
         interruptedJobImageView.setFitHeight(15);
         interruptedJobImageView.setFitWidth(15);
         recoverInterruptedJobsButton.setTranslateX(20);
@@ -230,8 +225,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         recoverInterruptedJobsButton.setGraphic(interruptedJobImageView);
         recoverInterruptedJobsButton.setDisable(true);
         recoverInterruptedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
-            if (ds3Common.getCurrentSession() != null) {
-                final Session session = ds3Common.getCurrentSession();
+            if (session != null) {
                 final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(endpoints, endpoint, jobProgressView, null);
@@ -269,13 +263,12 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"),
                     resourceBundle.getString("exitBtnJobCancelConfirm"),
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
-            if (closeResponse.get().equals(ButtonType.OK)) {
-                CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
-                event.consume();
-            }
-            if (closeResponse.get().equals(ButtonType.CANCEL)) {
-                event.consume();
-            }
+            closeResponse.ifPresent(cR -> {
+                if (Objects.equals(cR, ButtonType.OK)) {
+                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
+                }
+            });
+            event.consume();
         }));
     }
 
@@ -327,9 +320,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
         viewMenu.setText(resourceBundle.getString("viewMenu"));
         logsMenuItem.setText(resourceBundle.getString("logsMenuItem"));
-        logsMenuItem.setOnAction(SafeHandler.logHandle(event -> {
-            logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab);
-        }));
+        logsMenuItem.setOnAction(SafeHandler.logHandle(event -> logsORJobsMenuItemAction(logsMenuItem, null, scrollPane, logsTab)));
         jobsMenuItem.setText(resourceBundle.getString("jobsMenuItem"));
         jobsMenuItem.selectedProperty().setValue(true);
         logsMenuItem.selectedProperty().setValue(true);
@@ -365,25 +356,27 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     private void logsORJobsMenuItemAction(final CheckMenuItem menuItem, final VBox vBox, final ScrollPane pane, final Tab tab) {
+        final ObservableList<Node> items = jobSplitter.getItems();
+        final ObservableList<Tab> tabs = bottomTabPane.getTabs();
         if (menuItem.isSelected()) {
             if (menuItem.getId().contains("jobsMenuItem")) {
                 tab.setContent(vBox);
-                bottomTabPane.getTabs().add(0, tab);
+                tabs.add(0, tab);
             } else {
                 tab.setContent(pane);
-                bottomTabPane.getTabs().add(tab);
+                tabs.add(tab);
             }
             bottomTabPane.getSelectionModel().select(tab);
-            if (jobSplitter.getItems().stream().noneMatch(i -> i instanceof TabPane)) {
-                jobSplitter.getItems().add(bottomTabPane);
+            if (items.stream().noneMatch(i -> i instanceof TabPane)) {
+                items.add(bottomTabPane);
                 jobSplitter.setDividerPositions(0.75);
             }
         } else {
             if (!menuItem.isSelected())
-                bottomTabPane.getTabs().remove(tab);
+                tabs.remove(tab);
         }
-        if (bottomTabPane.getTabs().size() == 0) {
-            jobSplitter.getItems().remove(bottomTabPane);
+        if (tabs.size() == 0) {
+            items.remove(bottomTabPane);
         }
     }
 
