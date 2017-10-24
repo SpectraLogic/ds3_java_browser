@@ -286,7 +286,17 @@ public class Ds3PutJob extends Ds3JobTask {
 
         if (isCacheJobEnable) {
             return Observable.interval(60, TimeUnit.SECONDS)
-                    .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                    .takeUntil(event -> {
+                        boolean completed;
+                        try {
+                            completed = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED;
+                        } catch (Throwable t) {
+                            LOG.error("Error received trying to check if job completed", t);
+                            loggingService.logMessage("Error checking job status, will retry", LogType.ERROR);
+                            completed = false;
+                        }
+                        return completed;
+                    })
                     .ignoreElements();
         }
 
