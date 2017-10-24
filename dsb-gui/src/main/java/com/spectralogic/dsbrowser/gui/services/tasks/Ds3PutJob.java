@@ -292,7 +292,7 @@ public class Ds3PutJob extends Ds3JobTask {
                             completed = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED;
                         } catch (Throwable t) {
                             LOG.error("Error received trying to check if job completed", t);
-                            loggingService.logMessage("Error checking job status, will retry", LogType.ERROR);
+                            loggingService.logMessage("Error checking status of job " + getJobId() + ", will retry", LogType.ERROR);
                             completed = false;
                         }
                         return completed;
