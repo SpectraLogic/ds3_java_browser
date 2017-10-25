@@ -262,7 +262,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     resourceBundle.getString("exitBtnJobCancelConfirm"),
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
             closeResponse.ifPresent(cR -> {
-                if (Objects.equals(cR, ButtonType.OK)) {
+                if (cR.equals(ButtonType.OK)) {
                     CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
                 }
             });
