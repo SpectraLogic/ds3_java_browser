@@ -295,8 +295,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         updateToggleShowCachedJobsButtonGraphic();
 
         toggleShowCachedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
-            loggingService.logMessage("Click ToggleShowCachedJobsButton", LogType.INFO);
-            LOG.info("Click ToggleShowCachedJobsButton");
+            LOG.debug("Click ToggleShowCachedJobsButton");
 
             showCachedJobSettings.setShowCachedJob(!showCachedJobSettings.getShowCachedJob());
             updateToggleShowCachedJobsButtonGraphic();
