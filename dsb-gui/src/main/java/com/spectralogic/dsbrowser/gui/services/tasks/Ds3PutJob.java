@@ -156,7 +156,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(GuavaCollectors.immutableList());
-        if(objects.isEmpty()) {
+        if (objects.isEmpty()) {
             loggingService.logMessage("Job was empty, not sending", LogType.INFO);
             return;
         }
@@ -286,20 +286,14 @@ public class Ds3PutJob extends Ds3JobTask {
 
         if (isCacheJobEnable) {
             return Observable.interval(60, TimeUnit.SECONDS)
-                    .takeUntil(event -> {
-                        boolean completed;
-                        try {
-                            completed = ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED;
-                        } catch (Throwable t) {
-                            LOG.error("Error received trying to check if job completed", t);
-                            loggingService.logMessage("Error checking status of job " + getJobId() + ", will retry", LogType.ERROR);
-                            completed = false;
-                        }
-                        return completed;
+                    .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                    .retry(throwable -> {
+                        loggingService.logMessage("Error checking status of job " + getJobId() + " will retry", LogType.ERROR);
+                        LOG.error("Unable to check status of job " + getJobId(), throwable);
+                        return true;
                     })
                     .ignoreElements();
         }
-
         return Completable.complete();
     }
 
