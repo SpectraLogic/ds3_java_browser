@@ -68,7 +68,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class CancelJobsWorkerTest {
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static final Workers workers = new Workers();
     private static Session session;
     private static File file;

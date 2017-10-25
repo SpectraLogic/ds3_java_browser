@@ -66,7 +66,7 @@ import static org.junit.Assert.fail;
 
 public class Ds3GetJob_Test {
 
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static Session session;
     private static Ds3GetJob ds3GetJob;
     private boolean successFlag = false;

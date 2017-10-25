@@ -70,7 +70,7 @@ import static org.junit.Assert.fail;
 
 public class Ds3PutJobTest {
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Ds3Client client;

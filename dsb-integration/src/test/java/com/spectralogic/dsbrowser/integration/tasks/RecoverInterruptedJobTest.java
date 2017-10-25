@@ -62,7 +62,7 @@ public class RecoverInterruptedJobTest {
 
     private final static DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJobTest.class);
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static Session session;
     private static RecoverInterruptedJob recoverInterruptedJob;
     private static final String fileName = "SampleFiles.txt";
