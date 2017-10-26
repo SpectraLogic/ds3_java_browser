@@ -53,9 +53,9 @@ public class CreateBucketTask extends Ds3Task {
         try {
             return ds3Client.putBucketSpectraS3(new PutBucketSpectraS3Request(bucketName)
                     .withDataPolicyId(createBucketModel.getId()));
-        } catch (final Exception e) {
+        } catch (final Throwable e) {
             LOG.error("Failed to create bucket", e);
-            loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("createBucketFailedErr"), LogType.ERROR);
             throw e;
         }
     }
