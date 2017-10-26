@@ -29,11 +29,6 @@ public class Ds3SessionStore implements SessionStore {
     }
 
     @Override
-    public Stream<Session> getSessions() {
-        return sessions.stream();
-    }
-
-    @Override
     public ObservableList<Session> getObservableList() {
         return this.sessions;
     }

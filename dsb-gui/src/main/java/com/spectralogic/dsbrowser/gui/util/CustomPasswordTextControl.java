@@ -34,8 +34,6 @@ public class CustomPasswordTextControl extends GridPane {
     private PasswordField passwordField;
     private Button showButton;
     private final BooleanProperty isShown = new SimpleBooleanProperty(false);
-    private ValidationSupport support;
-    private String validatorToolTip;
 
     public CustomPasswordTextControl() {
 
@@ -74,19 +72,6 @@ public class CustomPasswordTextControl extends GridPane {
         textField = new TextField();
         textField.managedProperty().bind(isShown);
         textField.visibleProperty().bind(isShown);
-    }
-
-    public void setSupportValidation(final ValidationSupport support, final String validatorToolTip) {
-        this.support = support;
-        this.validatorToolTip = validatorToolTip;
-
-        support.registerValidator(textField, Validator.createEmptyValidator(validatorToolTip));
-        support.registerValidator(passwordField, Validator.createEmptyValidator(validatorToolTip));
-    }
-
-    public void setPromptText(final String promptText) {
-        textField.setPromptText(promptText);
-        passwordField.setPromptText(promptText);
     }
 
     public void setText(final String text) {

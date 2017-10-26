@@ -132,7 +132,4 @@ public class LogSettings {
         this.consoleLogging.set(consoleLogging);
     }
 
-    public BooleanProperty consoleLoggingProperty() {
-        return consoleLogging;
-    }
 }

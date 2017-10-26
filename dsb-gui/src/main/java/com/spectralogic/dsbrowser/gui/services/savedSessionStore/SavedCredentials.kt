@@ -1,4 +1,5 @@
-/* ****************************************************************************
+/*
+ * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
@@ -12,18 +13,12 @@
  *  ****************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.util.treeItem;
+package com.spectralogic.dsbrowser.gui.services.savedSessionStore
 
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import javafx.scene.control.TreeItem;
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.spectralogic.ds3client.models.common.Credentials
 
-import java.util.List;
+data class SavedCredentials @JsonCreator constructor(@JsonProperty("accessId") val accessId: String, @JsonProperty("secretKey") val secretKey: String)
 
-public final class TreeItemUtil {
-    public static List<TreeItem<Ds3TreeTableValue>> minimumPaths(final List<TreeItem<Ds3TreeTableValue>> treeItems)  {
-       final PruningTree<String,TreeItem<Ds3TreeTableValue>> pruningTree = new PruningTree<>();
-       pruningTree.addAll(treeItems, t -> t.getValue().getFullPath().split("/"));
-       return pruningTree.toList();
-    }
-
-}
+fun Credentials.toSavedCredentials(): SavedCredentials = SavedCredentials(this.clientId, this.key)

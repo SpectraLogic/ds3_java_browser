@@ -62,7 +62,7 @@ public class RecoverInterruptedJobTest {
 
     private final static DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private final static Logger LOG = LoggerFactory.getLogger(RecoverInterruptedJobTest.class);
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static Session session;
     private static RecoverInterruptedJob recoverInterruptedJob;
     private static final String fileName = "SampleFiles.txt";
@@ -113,15 +113,14 @@ public class RecoverInterruptedJobTest {
                             deepStorageBrowserPresenter,
                             ds3Common
                     );
-                    if(jobIdKeyElement.isPresent()) {
+                    if (jobIdKeyElement.isPresent()) {
                         final String jobIdKey = jobIdKeyElement.get();
                         final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
-                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, jobInterruptionStore, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle);
+                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle, jobInterruptionStore, session);
                         taskProgressView.getTasks().add(recoverInterruptedJob);
-                    }
-                    else {
+                    } else {
                         LOG.info("No job available to recover");
                     }
                 } else {
@@ -145,9 +144,7 @@ public class RecoverInterruptedJobTest {
             try {
                 jobWorkers.execute(recoverInterruptedJob);
                 recoverInterruptedJob.setOnSucceeded(event -> {
-                    if (!recoverInterruptedJob.isJobFailed()) {
-                        successFlag = true;
-                    }
+                    successFlag = true;
                     latch.countDown();
                 });
                 recoverInterruptedJob.setOnFailed(event -> latch.countDown());

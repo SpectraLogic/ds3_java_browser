@@ -147,16 +147,16 @@ public class NewSessionPresenter implements Initializable {
         model.setPortno(Constants.PORT_NUMBER);
         savedSessions.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                final Boolean defaultSession = newSelection.isDefaultSession();
-                final Boolean useSSL = newSelection.isUseSSL();
+                final Boolean defaultSession = newSelection.getDefaultSession();
+                final Boolean useSSL = newSelection.getUseSSL();
                 model.setSessionName(newSelection.getName());
                 model.setEndpoint(newSelection.getEndpoint());
                 model.setAccessKey(newSelection.getCredentials().getAccessId());
                 model.setSecretKey(newSelection.getCredentials().getSecretKey());
                 model.setPortno(newSelection.getPortNo());
                 model.setProxyServer(newSelection.getProxyServer());
-                model.setDefaultSession(defaultSession == null ? false : defaultSession);
-                model.setUseSSL(useSSL == null ? false : useSSL);
+                model.setDefaultSession(defaultSession);
+                model.setUseSSL(useSSL);
             } else {
                 clearFields();
             }
@@ -167,7 +167,7 @@ public class NewSessionPresenter implements Initializable {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
-                        final Boolean isDefaultSession = rowData.isDefaultSession() == null ? false : rowData.isDefaultSession(); // DefaultSession property is not present in 2.047; default to false
+                        final Boolean isDefaultSession = rowData.getDefaultSession();
                         final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), resourceBundle, buildInfoService);
                         sessionValidates(connection);
                     } else {
@@ -243,8 +243,8 @@ public class NewSessionPresenter implements Initializable {
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
         if (NewSessionModelValidation.validationNewSession(newSessionModel)) {
             if (newSessionModel.getDefaultSession()) {
-                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(item ->
-                        item.isDefaultSession() != null && item.isDefaultSession().equals(true)).collect(GuavaCollectors.immutableList());
+                final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(SavedSession::getDefaultSession)
+                        .collect(GuavaCollectors.immutableList());
                 if (Guard.isNotNullAndNotEmpty(defaultSession) && !model.getSessionName().equals(defaultSession.get(0).getName())) {
                     final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("defaultSession"),
                             resourceBundle.getString("alreadyExistDefaultSession"), Alert.AlertType.CONFIRMATION, null,
@@ -276,19 +276,14 @@ public class NewSessionPresenter implements Initializable {
             final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
             if (session != null) {
                 final int i = savedSessionStore.addSession(session);
-                if (i == -1) {
-                    alert.info("noNewChanges");
-                } else if (i == -2) {
-                    alert.info("alreadyExistSession");
-                } else {
+                try {
+                    SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     savedSessions.getSelectionModel().select(i);
-                    try {
-                        SavedSessionStore.saveSavedSessionStore(savedSessionStore);
-                        alert.info("sessionUpdatedSuccessfully");
-                    } catch (final IOException e) {
-                        LOG.error("Failed to save session: ", e);
-                        alert.error("sessionNotUpdatedSuccessfully");
-                    }
+                    savedSessions.getFocusModel().focus(i);
+                    alert.info("sessionUpdatedSuccessfully");
+                } catch (final IOException e) {
+                    LOG.error("Failed to save session: ", e);
+                    alert.error("sessionNotUpdatedSuccessfully");
                 }
             }
         }

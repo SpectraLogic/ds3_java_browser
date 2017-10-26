@@ -70,7 +70,7 @@ import static org.junit.Assert.*;
 
 
 public class CloseConfirmationHandlerTest {
-    private static final JobWorkers jobWorkers = new JobWorkers(10);
+    private static final JobWorkers jobWorkers = new JobWorkers();
     private static final Workers workers = new Workers();
     private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
