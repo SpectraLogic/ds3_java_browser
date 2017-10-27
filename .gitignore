@@ -17,7 +17,7 @@ hs_err_pid*
 .idea/
 .gradle/
 build/
-out/*
+out/
 ### .Net
 .vs/
 bin/
@@ -29,3 +29,4 @@ obj/
 *~
 ### MacOS
 .DS_Store
+.gradletasknamecache

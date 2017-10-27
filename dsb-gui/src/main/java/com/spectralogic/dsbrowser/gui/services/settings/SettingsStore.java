@@ -187,8 +187,4 @@ public class SettingsStore {
         return showCachedJobSettings;
     }
 
-    public void setShowCachedJobSettings(final boolean settings) {
-        dirty = true;
-        showCachedJobSettings.overwrite(settings);
-    }
 }
