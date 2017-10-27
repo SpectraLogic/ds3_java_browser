@@ -88,9 +88,9 @@
                                         <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" maxHeight="Infinity" wrapText="true" />
-                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                        <Label fx:id="performanceLabel" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="0" maxHeight="Infinity" wrapText="true" />
+                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#savePerformanceSettings" />
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
