@@ -190,14 +190,18 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void initTreeTableView() {
 
         ds3TreeTable.rootProperty().addListener((observable, oldValue, newValue) -> {
-            final String newText;
-            if(newValue.getParent() == null) {
-               newText = "";
-            } else {
-                newText = newValue.getValue().getFullPath();
+            try {
+                final String newText;
+                if (newValue.getParent() == null) {
+                    newText = "";
+                } else {
+                    newText = newValue.getValue().getFullPath();
+                }
+                ds3PanelPresenter.getDs3PathIndicator().setText(newText);
+                ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(newText);
+            } catch (final Throwable t) {
+                LOG.error("Encountered an error when reacting to the root property changing", t);
             }
-            ds3PanelPresenter.getDs3PathIndicator().setText(newText);
-            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(newText);
         });
         ds3Common.setDs3TreeTableView(ds3TreeTable);
 
@@ -219,7 +223,9 @@ public class Ds3TreeTablePresenter implements Initializable {
         ds3TreeTable.setOnKeyPressed(SafeHandler.logHandle(event -> {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
             if (!Guard.isNullOrEmpty(selectedItems)) {
-                if (event.getCode().equals(KeyCode.DELETE)) {
+
+                final KeyCode keyCode = event.getCode();
+                if (keyCode == KeyCode.DELETE || keyCode == KeyCode.BACK_SPACE ) {
                     ds3Common.getDs3PanelPresenter().ds3DeleteObject();
                     event.consume();
                 }
