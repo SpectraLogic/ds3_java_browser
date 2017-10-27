@@ -78,7 +78,7 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0" vgap="10.0" maxHeight="Infinity">
+                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0" vgap="10.0">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="270.0" minWidth="10.0" prefWidth="201.0" />
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="204.0" />
@@ -90,7 +90,7 @@
                                         <RowConstraints maxHeight="116.0" minHeight="10.0" prefHeight="103.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" maxHeight="Infinity" wrapText="true" />
+                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" maxHeight="Infinity" wrapText="true" ellipsisString=""/>
                                         <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <children>
