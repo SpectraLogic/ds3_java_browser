@@ -90,7 +90,7 @@
                                         <RowConstraints maxHeight="116.0" minHeight="10.0" prefHeight="103.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" maxHeight="Infinity" wrapText="true" />
+                                        <Label fx:id="performanceLabel" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" maxHeight="Infinity" wrapText="true" />
                                         <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <children>
@@ -176,7 +176,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" maxHeight="Infinity" wrapText="true">
+                                        <Label fx:id="enableFileProperties" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" maxHeight="Infinity" wrapText="true">
                                             <tooltip>
                                                 <Tooltip fx:id="enableFilePropertiesTooltip" prefWidth="300.0" wrapText="true" />
                                             </tooltip>
