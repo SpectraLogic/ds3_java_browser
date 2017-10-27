@@ -42,9 +42,9 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="locationSetting" alignment="TOP_LEFT" />
-                                        <Label fx:id="logSizeSetting" GridPane.rowIndex="1" />
-                                        <Label fx:id="savedLogSetting" GridPane.rowIndex="2" />
+                                        <Label fx:id="locationSetting" alignment="TOP_LEFT" wrapText="true"/>
+                                        <Label fx:id="logSizeSetting" GridPane.rowIndex="1" wrapText="true" />
+                                        <Label fx:id="savedLogSetting" GridPane.rowIndex="2" wrapText="true" />
                                         <TextField fx:id="logSize" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <GridPane.margin>
                                                 <Insets />
@@ -61,7 +61,7 @@
                                                 <Insets top="10.0" />
                                             </GridPane.margin>
                                         </HBox>
-                                        <Label fx:id="enableLoggingSetting" GridPane.rowIndex="3" />
+                                        <Label fx:id="enableLoggingSetting" GridPane.rowIndex="3" wrapText="true" />
                                         <CheckBox fx:id="debugLogging" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                     </children>
                                     <padding>
@@ -90,7 +90,7 @@
                                         <RowConstraints maxHeight="116.0" minHeight="10.0" prefHeight="103.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <Label fx:id="performanceLabel" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="1" wrapText="true" />
                                         <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                             <children>
@@ -125,8 +125,8 @@
                                         <RowConstraints maxHeight="61.0" minHeight="39.0" prefHeight="39.0" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="putJobPriorityText" alignment="TOP_LEFT" />
-                                        <Label fx:id="getJobPriorityText" GridPane.rowIndex="1" />
+                                        <Label fx:id="putJobPriorityText" alignment="TOP_LEFT" wrapText="true" />
+                                        <Label fx:id="getJobPriorityText" GridPane.rowIndex="1" wrapText="true" />
                                         <ComboBox fx:id="putJobPriority" prefHeight="25.0" prefWidth="200.0" GridPane.columnIndex="1">
                                             <GridPane.margin>
                                                 <Insets />
@@ -176,7 +176,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0">
+                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" wrapText="true">
                                             <tooltip>
                                                 <Tooltip fx:id="enableFilePropertiesTooltip" prefWidth="300.0" wrapText="true" />
                                             </tooltip>
