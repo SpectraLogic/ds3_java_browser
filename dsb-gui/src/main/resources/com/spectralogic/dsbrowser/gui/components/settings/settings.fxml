@@ -176,7 +176,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" wrapText="true">
+                                        <Label fx:id="enableFileProperties" alignment="CENTER_LEFT" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" maxHeight="Infinity" wrapText="true">
                                             <tooltip>
                                                 <Tooltip fx:id="enableFilePropertiesTooltip" prefWidth="300.0" wrapText="true" />
                                             </tooltip>
