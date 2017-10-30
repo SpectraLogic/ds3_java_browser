@@ -352,7 +352,7 @@ public class JobInfoPresenter implements Initializable {
             protected Optional<Object> call() {
                 loggingService.logMessage("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
-                if (jobIDMap == null) {
+                if (jobIDMap != null) {
                     if (jobIDMap.size() == 0) {
                         Platform.runLater(() -> stage.close());
                     }
@@ -367,17 +367,14 @@ public class JobInfoPresenter implements Initializable {
         progress.progressProperty().bind(getJobIDs.progressProperty());
         getJobIDs.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTableView.setRoot(rootTreeItem);
-            treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
         getJobIDs.setOnCancelled(SafeHandler.logHandle(event -> {
             treeTableView.setRoot(rootTreeItem);
-            treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
         getJobIDs.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
             LOG.error("Get Job IDs failed", event.getSource().getException());
             loggingService.logMessage("Get Job IDs failed", LogType.ERROR);
             treeTableView.setRoot(rootTreeItem);
-            treeTableView.setPlaceholder(new Label(resourceBundle.getString("dontHaveInterruptedJobs")));
         }));
         workers.execute(getJobIDs);
     }
