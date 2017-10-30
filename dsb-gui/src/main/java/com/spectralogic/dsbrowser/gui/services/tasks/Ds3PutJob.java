@@ -189,10 +189,7 @@ public class Ds3PutJob extends Ds3JobTask {
                 .observeOn(JavaFxScheduler.platform())
                 .doOnComplete(() -> {
                     LOG.info("Job transferred to permanent storage location");
-
-                    final String newDate = dateTimeUtils.nowAsString();
                     loggingService.logMessage(resourceBundle.getString("jobFinished"), LogType.SUCCESS);
-
                     Ds3PanelService.throttledRefresh(remoteDestination);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, this.getJobId().toString(), ds3Client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
                 }).subscribe();
