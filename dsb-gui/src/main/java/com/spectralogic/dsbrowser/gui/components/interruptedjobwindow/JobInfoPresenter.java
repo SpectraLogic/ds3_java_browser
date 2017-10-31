@@ -310,6 +310,7 @@ public class JobInfoPresenter implements Initializable {
                 recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(event -> {
                     loggingService.logMessage("Failed to recover " + value.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     LOG.error("Failed to recover Job", event.getSource().getException());
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, key, endpointInfo.getEndpoint(), deepStorageBrowserPresenter, loggingService);
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 }));
