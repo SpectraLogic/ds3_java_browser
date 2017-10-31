@@ -212,7 +212,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     //Implementation and design of "Recover Interrupted Jobs" button in bottom pane
     private void initRecoverInterruptedJobsButton() {
-        final Session session = ds3Common.getCurrentSession();
+
         interruptedJobImageView.setFitHeight(15);
         interruptedJobImageView.setFitWidth(15);
         recoverInterruptedJobsButton.setTranslateX(20);
@@ -223,6 +223,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         recoverInterruptedJobsButton.setGraphic(interruptedJobImageView);
         recoverInterruptedJobsButton.setDisable(true);
         recoverInterruptedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
+            final Session session = ds3Common.getCurrentSession();
             if (session != null) {
                 final String endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
                 final List<Map<String, Map<String, FilesAndFolderMap>>> endpoints = jobInterruptionStore.getJobIdsModel().getEndpoints();

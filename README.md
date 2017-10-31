@@ -14,3 +14,6 @@ Join us at our [Google Groups](https://groups.google.com/d/forum/spectralogicds3
 
 ## Contributing
 If you would like to contribute to the source code, sign the [Contributors Agreement](https://developer.spectralogic.com/contributors-agreement/) and make sure that your source conforms to our [Java Style Guide](https://github.com/SpectraLogic/spectralogic.github.com/wiki/Java-Style-Guide).  For an overview of how we use Github, please review our [Github Workflow](https://github.com/SpectraLogic/spectralogic.github.com/wiki/Github-Workflow).
+
+## Third Party License
+This project uses open source third-party software, licenses can be found at [Third-party](https://github.com/SpectraLogic/ds3_java_browser/tree/master/ThirdParty/)
