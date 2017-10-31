@@ -50,9 +50,9 @@ task genConfigProperties {
         Files.createDirectories(configPath)
 
         File configFile = new File(sourceSets.main.output.resourcesDir, "/dsb_build.properties")
-        configFile.withWriter{out ->
-            out.writeLine("version="+version)
-            out.writeLine("build.date="+new Date().toString())
+        configFile.withWriter { out ->
+            out.writeLine("version=" + version)
+            out.writeLine("build.date=" + new Date().toString())
         }
     }
 }
