@@ -293,16 +293,10 @@ public class NewSessionPresenter implements Initializable {
 
     @NotNull
     private String buildSessionAlert(final Session session) {
-        final String message;
-        final int index = savedSessionStore.getSessions().stream()
+        return savedSessionStore.getSessions().stream()
                 .map(SavedSession::getName)
-                .collect(GuavaCollectors.immutableList()).indexOf(session.getSessionName());
-        if (index == -1) {
-            message = "sessionSavedSuccessfully";
-        } else {
-            message = "sessionUpdatedSuccessfully";
-        }
-        return message;
+                .anyMatch(s -> s.equals(session.getSessionName()))
+                ? "sessionUpdatedSuccessfully" : "sessionSavedSuccessfully";
     }
 
     public void closeDialog() {
