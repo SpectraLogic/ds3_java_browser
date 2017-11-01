@@ -42,6 +42,8 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -79,6 +81,8 @@ public class Ds3PutJob extends Ds3JobTask {
     private final DateTimeUtils dateTimeUtils;
     private final String delimiter;
     private final static String BP_DELIMITER = Constants.BP_DELIMITER;
+    private final BooleanProperty isInCache = new SimpleBooleanProperty(false);
+    public final BooleanProperty isVisible = new SimpleBooleanProperty(true);
 
     @Inject
     public Ds3PutJob(final Ds3Client client,
@@ -120,6 +124,13 @@ public class Ds3PutJob extends Ds3JobTask {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.remoteDestination = remoteDestination;
         this.dateTimeUtils = dateTImeUtils;
+        settings.getShowCachedJobSettings().showCachedJobEnableProperty().addListener((observable, oldValue, newValue) -> {
+            if (isInCache.get()) {
+                isVisible.set(newValue);
+            } else {
+                isVisible.set(true);
+            }
+        });
     }
 
     @Override
@@ -277,18 +288,16 @@ public class Ds3PutJob extends Ds3JobTask {
         updateProgress(1, 1);
         updateMessage(finishedMessage);
         loggingService.logMessage(finishedMessage, SUCCESS);
+        isInCache.set(true);
 
-        if (isCacheJobEnable) {
-            return Observable.interval(60, TimeUnit.SECONDS)
-                    .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
-                    .retry(throwable -> {
-                        loggingService.logMessage("Error checking status of job " + getJobId() + " will retry", LogType.ERROR);
-                        LOG.error("Unable to check status of job " + getJobId(), throwable);
-                        return true;
-                    })
-                    .ignoreElements();
-        }
-        return Completable.complete();
+        return Observable.interval(60, TimeUnit.SECONDS)
+                .takeUntil(event -> ds3Client.getJobSpectraS3(new GetJobSpectraS3Request(this.job.getJobId())).getMasterObjectListResult().getStatus() == JobStatus.COMPLETED)
+                .retry(throwable -> {
+                    loggingService.logMessage("Error checking status of job " + getJobId() + " will retry", LogType.ERROR);
+                    LOG.error("Unable to check status of job " + getJobId(), throwable);
+                    return true;
+                })
+                .ignoreElements();
     }
 
     private static String buildFinishedMessage(final long totalJobSize, final boolean isCacheJobEnable, final String dateOfTransfer, final String targetDir, final ResourceBundle resourceBundle) {
