@@ -100,7 +100,7 @@ public class GetBucketTask extends Ds3Task {
                     .getObjects()
                     .stream()
                     .filter(c -> c.getKey() != null)
-                    .filter(c -> c.getKey().equals(ds3Value.getFullName()))
+                    .filter(c -> !c.getKey().equals(ds3Value.getFullName()))
                     .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                     .collect(GuavaCollectors.immutableList());
 
