@@ -219,6 +219,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             final Dragboard db = treeTable.startDragAndDrop(TransferMode.COPY);
                             final ClipboardContent content = new ClipboardContent();
                             final ImmutableList<Pair<String, String>> selectedModels = selectedItems.stream()
+                                    .filter(Objects::nonNull)
                                     .map(TreeItem::getValue)
                                     .filter(siValue -> siValue.getName() != null)
                                     .filter(siValue -> siValue.getPath() != null)
