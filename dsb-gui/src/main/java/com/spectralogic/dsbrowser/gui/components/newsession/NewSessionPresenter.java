@@ -33,6 +33,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,15 +276,7 @@ public class NewSessionPresenter implements Initializable {
             }
             final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
             if (session != null) {
-                final String message;
-                final int index = savedSessionStore.getSessions().stream()
-                        .map(SavedSession::getName)
-                        .collect(GuavaCollectors.immutableList()).indexOf(session.getSessionName());
-                if (index == -1) {
-                    message = "sessionSavedSuccessfully";
-                } else {
-                    message = "sessionUpdatedSuccessfully";
-                }
+                final String message = buildSessionAlert(session);
                 final int i = savedSessionStore.addSession(session);
                 try {
                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
@@ -296,6 +289,20 @@ public class NewSessionPresenter implements Initializable {
                 }
             }
         }
+    }
+
+    @NotNull
+    private String buildSessionAlert(final Session session) {
+        final String message;
+        final int index = savedSessionStore.getSessions().stream()
+                .map(SavedSession::getName)
+                .collect(GuavaCollectors.immutableList()).indexOf(session.getSessionName());
+        if (index == -1) {
+            message = "sessionSavedSuccessfully";
+        } else {
+            message = "sessionUpdatedSuccessfully";
+        }
+        return message;
     }
 
     public void closeDialog() {
