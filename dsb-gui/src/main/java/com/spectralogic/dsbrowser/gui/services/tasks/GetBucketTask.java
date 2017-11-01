@@ -99,7 +99,8 @@ public class GetBucketTask extends Ds3Task {
             final ImmutableList<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
                     .getObjects()
                     .stream()
-                    .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3Value.getFullName()))))
+                    .filter(c -> c.getKey() != null)
+                    .filter(c -> !c.getKey().equals(ds3Value.getFullName()))
                     .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                     .collect(GuavaCollectors.immutableList());
 

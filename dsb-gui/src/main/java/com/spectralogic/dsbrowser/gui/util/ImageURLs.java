@@ -38,6 +38,7 @@ public interface ImageURLs {
     String JOB_ICON = "/images/job.png";
     String FOLDER_ICON = "/images/folder.png";
     String FILE_ICON = "/images/file.png";
+    String TRANSPARENT_ICON = "/images/transparent.png";
     String CHILD_LOADER = "/images/loading.gif";
     String DEEP_STORAGE_BROWSER = "/images/deep_storage_browser.png";
     String BUCKET_ICON="/images/bucket.png";

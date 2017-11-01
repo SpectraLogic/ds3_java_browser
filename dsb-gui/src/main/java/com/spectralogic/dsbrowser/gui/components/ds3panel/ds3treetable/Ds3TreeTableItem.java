@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
+import com.spectralogic.dsbrowser.util.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
@@ -51,12 +52,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final BaseTreeModel.Type type;
 
     public Ds3TreeTableItem(final String bucket,
-                            final Session session,
-                            final Ds3TreeTableValue value,
-                            final Workers workers,
-                            final Ds3Common ds3Common,
-                            final DateTimeUtils dateTimeUtils,
-                            final LoggingService loggingService) {
+            final Session session,
+            final Ds3TreeTableValue value,
+            final Workers workers,
+            final Ds3Common ds3Common,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService) {
         super(value);
         this.bucket = bucket;
         this.session = session;
@@ -81,6 +82,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 return new ImageView(ImageURLs.FOLDER_ICON);
             case File:
                 return new ImageView(ImageURLs.FILE_ICON);
+            case Loader:
+                return new ImageView(ImageURLs.TRANSPARENT_ICON);
             default:
                 return null;
         }
@@ -106,7 +109,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     }
 
     /**
-     * @param ds3TreeTable                used to clear all selection in case of load moreused to save bucket selection
+     * @param ds3TreeTable used to clear all selection in case of load moreused to save bucket selection
      */
     public void loadMore(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
@@ -134,8 +137,9 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
         getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
-            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
+            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null) {
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
+            }
         }));
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
         getBucketTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
