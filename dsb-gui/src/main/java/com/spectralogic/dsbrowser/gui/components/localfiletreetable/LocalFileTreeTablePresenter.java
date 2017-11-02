@@ -279,6 +279,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
         final ImmutableList<Pair<String, Path>> files = currentLocalSelection
                 .stream()
+                .filter(Objects::nonNull)
                 .map(TreeItem::getValue)
                 .filter(Objects::nonNull)
                 .map(i -> new Pair<>(i.getName(), i.getPath()))
@@ -313,12 +314,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void transferToBlackPearl() {
-        if (ds3Common.getCurrentSession() == null) {
+        final Session session = ds3Common.getCurrentSession();
+        if (session == null) {
             LOG.error("No valid session to initiate BULK_PUT");
             alert.error("noSession");
             return;
         }
-        final Session session = ds3Common.getCurrentSession();
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {

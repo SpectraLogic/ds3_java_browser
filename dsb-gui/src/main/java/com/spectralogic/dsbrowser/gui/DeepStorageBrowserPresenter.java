@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.settings.ShowCachedJobSettings;
@@ -155,15 +156,14 @@ public class DeepStorageBrowserPresenter implements Initializable {
             setToolTipBehavior.setToolTipBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
 
             initLocalTreeTableView();
-            initDs3TreeTableView();
 
             initRecoverInterruptedJobsButton();
             initCancelInterruptedJobsButton();
             initToggleShowCachedJobsButton();
             initJobsPane();
+            initDs3TreeTableView();
 
             inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
-
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
