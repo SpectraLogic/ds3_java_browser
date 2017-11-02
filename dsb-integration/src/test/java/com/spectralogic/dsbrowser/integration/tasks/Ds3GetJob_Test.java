@@ -119,7 +119,7 @@ public class Ds3GetJob_Test {
             Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
 
             try {
-                ds3GetJob = new Ds3GetJob(listTreeTable, path, ds3Client, Priority.URGENT.toString(), 5, Mockito.mock(JobInterruptionStore.class), deepStorageBrowserPresenter, resourceBundle, DTU, SettingsStore.createDefaultSettingStore(), Mockito.mock(LoggingService.class));
+                ds3GetJob = new Ds3GetJob(listTreeTable, path, null, ds3Client, Priority.URGENT.toString(), 5, Mockito.mock(JobInterruptionStore.class), deepStorageBrowserPresenter, resourceBundle, DTU, SettingsStore.createDefaultSettingStore(), Mockito.mock(LoggingService.class));
                 taskProgressView.getTasks().add(ds3GetJob);
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);

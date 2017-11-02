@@ -68,7 +68,6 @@ public class Ds3PutJob extends Ds3JobTask {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3PutJob.class);
     private static final String PUT = JobRequestType.PUT.toString();
-    private final ResourceBundle resourceBundle;
     private final List<Pair<String, Path>> files;
     private final SettingsStore settings;
     private final String bucket;
@@ -89,6 +88,7 @@ public class Ds3PutJob extends Ds3JobTask {
             @Assisted final List<Pair<String, Path>> files,
             @Assisted("bucket") final String bucket,
             @Assisted("targetDir") final String targetDir,
+            @Assisted @Nullable final Ds3ClientHelpers.Job job,
             final JobInterruptionStore jobInterruptionStore,
             @Nullable @Named("jobPriority") final String jobPriority,
             @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
@@ -101,18 +101,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.delimiter = FileSystems.getDefault().getSeparator();
         this.ds3Client = client;
         this.resourceBundle = resourceBundle;
-        this.files = files.stream()
-                .map(p -> {
-                    try {
-                        return new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), FileUtils.resolveForSymbolic(p.getValue()));
-                    } catch (final IOException e) {
-                        loggingService.logMessage("Could not read from filesystem, skipping item " + p.getValue().toString(), LogType.ERROR);
-                        LOG.error("Could not read from filesystem", e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(GuavaCollectors.immutableList());
+        this.files = files;
         this.settings = settings;
         this.bucket = bucket;
         this.targetDir = targetDir;
@@ -124,6 +113,7 @@ public class Ds3PutJob extends Ds3JobTask {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.remoteDestination = remoteDestination;
         this.dateTimeUtils = dateTImeUtils;
+        this.job = job;
         settings.getShowCachedJobSettings().showCachedJobEnableProperty().addListener((observable, oldValue, newValue) -> {
             if (isInCache.get()) {
                 isVisible.set(newValue);
@@ -155,7 +145,18 @@ public class Ds3PutJob extends Ds3JobTask {
         final ImmutableMap.Builder<String, Path> fileMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> folderMapBuilder = ImmutableMap.builder();
         final ImmutableMap.Builder<String, Path> fileMapperBuilder = ImmutableMap.builder();
-        files.forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService, targetDir, delimiter));
+        files.stream()
+                .map(p -> {
+                    try {
+                        return new Pair<>(p.getKey().replace(delimiter, BP_DELIMITER), FileUtils.resolveForSymbolic(p.getValue()));
+                    } catch (final IOException e) {
+                        loggingService.logMessage("Could not read from filesystem, skipping item " + p.getValue().toString(), LogType.ERROR);
+                        LOG.error("Could not read from filesystem", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .forEach(pair -> buildMaps(fileMapBuilder, folderMapBuilder, pair, loggingService, targetDir, delimiter));
         final ImmutableMap<String, Path> fileMap = fileMapBuilder.build();
         final ImmutableMap<String, Path> folderMap = folderMapBuilder.build();
         fileMapperBuilder.putAll(fileMap);
@@ -171,7 +172,9 @@ public class Ds3PutJob extends Ds3JobTask {
             loggingService.logMessage("Job was empty, not sending", LogType.INFO);
             return;
         }
-        this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
+        if (job == null) {
+            this.job = Ds3ClientHelpers.wrap(ds3Client).startWriteJob(bucket, objects);
+        }
         final long totalJobSize = getTotalJobSize();
 
         job.withMaxParallelRequests(maximumNumberOfParallelThreads);
@@ -326,6 +329,7 @@ public class Ds3PutJob extends Ds3JobTask {
         Ds3PutJob createDs3PutJob(final List<Pair<String, Path>> pairs,
                 @Assisted("bucket") final String bucket,
                 @Assisted("targetDir") final String targetDir,
-                final TreeItem<Ds3TreeTableValue> treeItem);
+                final TreeItem<Ds3TreeTableValue> treeItem,
+                final Ds3ClientHelpers.Job job);
     }
 }

@@ -90,7 +90,7 @@ public class FactoryTest {
         final Ds3PutJob.Ds3PutJobFactory f = injector.getInstance(Ds3PutJob.Ds3PutJobFactory.class);
         Ds3PutJob ds3PutJob = null;
         try {
-            ds3PutJob = f.createDs3PutJob(ImmutableList.of(new Pair<>("", path)), "bucket", "", mock(TreeItem.class));
+            ds3PutJob = f.createDs3PutJob(ImmutableList.of(new Pair<>("", path)), "bucket", "", mock(TreeItem.class), null);
         } catch (final ProvisionException pe) {
             fail("Provision Exception was thrown");
         }
@@ -102,7 +102,7 @@ public class FactoryTest {
         final Ds3GetJob.Ds3GetJobFactory f = injector.getInstance(Ds3GetJob.Ds3GetJobFactory.class);
         Ds3GetJob ds3GetJob = null;
         try {
-            ds3GetJob = f.createDs3GetJob(ImmutableList.of(mock(Ds3TreeTableValueCustom.class)), path);
+            ds3GetJob = f.createDs3GetJob(ImmutableList.of(mock(Ds3TreeTableValueCustom.class)), path, null);
         } catch (final ProvisionException pe) {
             fail("Provision Exception was thrown");
         }
@@ -114,7 +114,7 @@ public class FactoryTest {
         final RecoverInterruptedJob.RecoverInterruptedJobFactory f = injector.getInstance(RecoverInterruptedJob.RecoverInterruptedJobFactory.class);
         RecoverInterruptedJob rij = null;
         try {
-            rij = f.createRecoverInterruptedJob(new UUID(0,0), endpointInfo);
+            rij = f.createRecoverInterruptedJob(new UUID(0,0), endpointInfo, new JobWorkers());
         } catch (final ProvisionException pe) {
             fail("Provision Exception was thrown");
         }

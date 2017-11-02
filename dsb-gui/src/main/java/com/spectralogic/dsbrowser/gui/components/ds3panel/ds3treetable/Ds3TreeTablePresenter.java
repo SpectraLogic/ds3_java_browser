@@ -413,7 +413,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     Ds3PanelService.refresh(selectedItem);
                     return;
                 }
-                final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
+                final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem, null);
                 putJob.setOnSucceeded(SafeHandler.logHandle(e -> {
                     LOG.info("Put Job Succeed");
                     Ds3PanelService.refresh(selectedItem);

@@ -119,7 +119,7 @@ public class Ds3PutJobTest {
             try {
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 settingsStore.getShowCachedJobSettings().setShowCachedJob(false);
-                ds3PutJob = new Ds3PutJob(ds3Client, pair, BUCKET_NAME, "", JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(),
+                ds3PutJob = new Ds3PutJob(ds3Client, pair, BUCKET_NAME, "", null, JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(),
                         5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);

@@ -259,7 +259,7 @@ public class CloseConfirmationHandlerTest {
                 final Ds3Common ds3Common = new Ds3Common();
                 ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
-                        JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
+                        null, JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
                         settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
                 ds3PutJob.setOnSucceeded(event -> {
                     System.out.println("Put job success");

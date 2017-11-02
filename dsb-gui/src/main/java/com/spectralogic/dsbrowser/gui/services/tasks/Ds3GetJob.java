@@ -72,10 +72,12 @@ public class Ds3GetJob extends Ds3JobTask {
     private final DateTimeUtils dateTimeUtils;
     private final String delimiter;
     private final SettingsStore settingsStore;
+    private Ds3ClientHelpers.Job job;
 
     @Inject
     public Ds3GetJob(@Assisted final List<Ds3TreeTableValueCustom> selectedItems,
             @Assisted final Path fileTreePath,
+            @Assisted @Nullable final Ds3ClientHelpers.Job job,
             final Ds3Client client,
             @Nullable @Named("jobPriority") final String jobPriority,
             @Named("jobWorkerThreadCount") final int maximumNumberOfParallelThreads,
@@ -99,6 +101,7 @@ public class Ds3GetJob extends Ds3JobTask {
         this.dateTimeUtils = dateTimeUtils;
         this.settingsStore = settingsStore;
         this.metadataReceivedListener = new MetadataReceivedListenerImpl(fileTreePath.toString());
+        this.job = job;
     }
 
     private static boolean isEmptyDirectory(final Ds3Object object, final String delimiter) {
@@ -135,14 +138,15 @@ public class Ds3GetJob extends Ds3JobTask {
         final String prefix = getParent(selectedItem.getFullName(), BP_DELIMITER);
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
         final long totalJobSize = getTotalJobSize(ds3Objects);
-        final Ds3ClientHelpers.Job job;
         if (ds3Objects.isEmpty()) {
             LOG.info("Did not create job because items were empty");
             return;
         }
         ds3Objects.filter(ds3 -> isEmptyDirectory(ds3, BP_DELIMITER)).forEach(ds3Object -> Ds3GetJob.buildEmptyDirectories(ds3Object, fileTreePath, loggingService));
         try {
-            job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
+            if (job == null) {
+                job = getJobFromIterator(bucketName, ds3Objects.filter(ds3Object -> !isEmptyDirectory(ds3Object, delimiter)));
+            }
         } catch (final IOException e) {
             LOG.error("Unable to get Jobs", e);
             loggingService.logMessage("Unable to get jobs from BlackPerl", LogType.ERROR);
@@ -354,7 +358,7 @@ public class Ds3GetJob extends Ds3JobTask {
     }
 
     public interface Ds3GetJobFactory {
-        Ds3GetJob createDs3GetJob(final List<Ds3TreeTableValueCustom> selectedItems, final Path fileTreePath);
+        Ds3GetJob createDs3GetJob(final List<Ds3TreeTableValueCustom> selectedItems, final Path fileTreePath, final Ds3ClientHelpers.Job job);
     }
 
 }
