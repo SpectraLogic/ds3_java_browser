@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DsbExecutable.Properties")]
+[assembly: AssemblyTitle("CustomAction.Properties")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Spectra Logic Corporation")]
-[assembly: AssemblyProduct("DsbExecutable.Properties")]
+[assembly: AssemblyProduct("CustomAction.Properties")]
 [assembly: AssemblyCopyright("Copyright © Spectra Logic Corporation 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,4 +20,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("10ee79a3-e802-4b42-8445-53d370805c02")]
+[assembly: Guid("aa0e90c8-d7cd-4129-a96e-b46d80c8ae20")]
+
