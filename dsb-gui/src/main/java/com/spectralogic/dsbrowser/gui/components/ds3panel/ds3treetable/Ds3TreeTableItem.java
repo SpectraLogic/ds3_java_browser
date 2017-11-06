@@ -15,7 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -27,7 +27,6 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
-import com.spectralogic.dsbrowser.util.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
-    private final static ImmutableList<BaseTreeModel.Type> leafs = ImmutableList.of(BaseTreeModel.Type.File, BaseTreeModel.Type.Loader);
+    private final static ImmutableSet<BaseTreeModel.Type> leafs = ImmutableSet.of(BaseTreeModel.Type.File, BaseTreeModel.Type.Loader);
 
     private final String bucket;
     private final Session session;
