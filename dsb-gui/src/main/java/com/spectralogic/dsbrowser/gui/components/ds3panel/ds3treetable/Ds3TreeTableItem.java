@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.google.common.collect.ImmutableSet;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -26,7 +27,6 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
-import com.spectralogic.dsbrowser.util.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.Node;
@@ -35,10 +35,12 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.spectralogic.dsbrowser.gui.util.BaseTreeModel.Type.*;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
+    private final static ImmutableSet<BaseTreeModel.Type> VALID_LEAVES = ImmutableSet.of(File, Loader);
 
     private final String bucket;
     private final Session session;
@@ -97,7 +99,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     public void refresh() {
         if (super.getValue() != null) {
             String path = super.getValue().getFullName();
-            if (!super.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+            if (!super.getValue().getType().equals(Bucket))
                 path = super.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
@@ -152,7 +154,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return type == BaseTreeModel.Type.File || getChildren().isEmpty();
+        return VALID_LEAVES.contains(type) || getChildren().isEmpty();
     }
 
 }

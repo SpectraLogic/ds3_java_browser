@@ -58,10 +58,8 @@ public final class BucketUtil {
         if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
             return request;
         }
-        if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader && ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
+        if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
             request.withPrefix(ds3TreeTableItem.getParent().getValue().getFullName());
-        } else {
-            request.withPrefix(ds3Value.getFullName());
         }
         return request;
     }
