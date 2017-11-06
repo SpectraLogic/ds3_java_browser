@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.google.common.collect.ImmutableList;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
+    private final static ImmutableList<BaseTreeModel.Type> leafs = ImmutableList.of(BaseTreeModel.Type.File, BaseTreeModel.Type.Loader);
 
     private final String bucket;
     private final Session session;
@@ -152,7 +154,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return type == BaseTreeModel.Type.File || getChildren().isEmpty();
+        return leafs.contains(type) || getChildren().isEmpty();
     }
 
 }
