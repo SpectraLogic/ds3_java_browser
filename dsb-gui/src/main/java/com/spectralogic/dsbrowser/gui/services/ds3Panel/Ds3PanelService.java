@@ -136,9 +136,11 @@ public final class Ds3PanelService {
     }
 
     public static void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
-        if (lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
-            lastRefresh = Instant.now();
-            refresh(modifiedTreeItem);
+        if (modifiedTreeItem != null) {
+            if (lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
+                lastRefresh = Instant.now();
+                refresh(modifiedTreeItem);
+            }
         }
     }
 

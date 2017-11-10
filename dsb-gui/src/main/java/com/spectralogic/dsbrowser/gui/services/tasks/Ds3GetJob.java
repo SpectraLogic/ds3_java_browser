@@ -130,7 +130,6 @@ public class Ds3GetJob extends Ds3JobTask {
             final Ds3TreeTableValueCustom selectedItem,
             final ImmutableMap<String, Path> fileMap,
             final ImmutableMap<String, Path> folderMap) {
-        final Instant startTime = Instant.now();
         final String fileName = selectedItem.getName();
         final String prefix = getParent(selectedItem.getFullName(), BP_DELIMITER);
         final FluentIterable<Ds3Object> ds3Objects = getDS3Objects(bucketName, selectedItem);
@@ -157,7 +156,7 @@ public class Ds3GetJob extends Ds3JobTask {
                 client.getConnectionDetails().getEndpoint(), jobId, totalJobSize, fileTreePath.toString(), dateTimeUtils,
                 "GET", bucketName);
         updateMessage(getTransferringMessage(totalJobSize));
-        attachListenersToJob(startTime, totalJobSize, job);
+        attachListenersToJob(totalJobSize, job);
         try {
             notifyIfOverwriting(fileName);
             if (job != null) {
@@ -184,8 +183,8 @@ public class Ds3GetJob extends Ds3JobTask {
         loggingService.logMessage(StringBuilderUtil.getJobCompleted(totalJobSize, client, dateTimeUtils.nowAsString()).toString(), LogType.SUCCESS);
     }
 
-    private void attachListenersToJob(final Instant startTime, final long totalJobSize, final Ds3ClientHelpers.Job job) {
-        job.attachObjectCompletedListener(o -> setObjectCompleteListener(o, startTime, totalJobSize));
+    private void attachListenersToJob(final long totalJobSize, final Ds3ClientHelpers.Job job) {
+        job.attachObjectCompletedListener(o -> setObjectCompleteListener(o, totalJobSize));
         if (settingsStore.getFilePropertiesSettings().isFilePropertiesEnabled()) {
             job.attachMetadataReceivedListener(this::setMetadataReceivedListener);
         }
@@ -301,8 +300,8 @@ public class Ds3GetJob extends Ds3JobTask {
         totalSent.addAndGet(l);
     }
 
-    private void setObjectCompleteListener(final String o, final Instant startTime, final long totalJobSize) {
-        getTransferRates(startTime, totalSent, totalJobSize, o, fileTreePath.toString());
+    private void setObjectCompleteListener(final String o, final long totalJobSize) {
+        getTransferRates(Instant.now(), totalSent, totalJobSize, o, fileTreePath.toString());
         loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(o, fileTreePath.toString(), dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS);
     }
 

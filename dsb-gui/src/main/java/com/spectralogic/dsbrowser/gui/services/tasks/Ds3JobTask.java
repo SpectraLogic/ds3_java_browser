@@ -20,24 +20,18 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.spectralogic.dsbrowser.gui.util.StringConstants.COLON;
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
 
 public abstract class Ds3JobTask extends Task<Boolean> {
