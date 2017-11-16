@@ -85,10 +85,9 @@
                                 <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="true" pannable="true"
                                             vbarPolicy="AS_NEEDED">
                                     <content>
-                                        <InlineCssTextArea fx:id="inlineCssTextArea" prefHeight="Infinity"
-                                                           style="-fx-font-weight: bold;" editable="false"
-                                                           wrapText="true">
-                                        </InlineCssTextArea>
+                                        <ListView fx:id="logView" prefHeight="Infinity"
+                                                  style="-fx-font-weight: bold;" editable="false" >
+                                        </ListView>
                                     </content>
                                 </ScrollPane>
                             </content>

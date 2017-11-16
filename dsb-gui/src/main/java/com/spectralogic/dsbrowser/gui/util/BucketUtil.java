@@ -51,17 +51,23 @@ public final class BucketUtil {
             final String bucket,
             final Ds3TreeTableItem ds3TreeTableItem,
             final int pageLength) {
-        final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
-        if (!Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
-            request.withMarker(ds3Value.getMarker());
-        }
-        if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
-            return request;
-        }
-        if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
-            request.withPrefix(ds3TreeTableItem.getParent().getValue().getFullName());
+        final GetBucketRequest request;
+        //if marker is set blank for a item that means offset is 0 else set the marker
+        if (Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
+            request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
         } else {
-            request.withPrefix(ds3Value.getFullName());
+            request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength)
+                    .withMarker(ds3Value.getMarker());
+        }
+        if (ds3Value.getType() != Ds3TreeTableValue.Type.Bucket) {
+            if (ds3Value.getType() == Ds3TreeTableValue.Type.Loader) {
+                if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
+                    final Ds3TreeTableValue ds3ParentValue = ds3TreeTableItem.getParent().getValue();
+                    request.withPrefix(ds3ParentValue.getFullName());
+                }
+            } else {
+                request.withPrefix(ds3Value.getFullName());
+            }
         }
         return request;
     }
