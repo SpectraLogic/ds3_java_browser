@@ -1,7 +1,6 @@
-package com.spectralogic.dsbrowser.gui.services.jobService
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
 
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
-import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import io.reactivex.Completable
 
 /*
  * ****************************************************************************
@@ -17,14 +16,6 @@ import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
-class ResumableJobState(private val jobStore: JobInterruptionStore, private val jobState: JobState) : JobState by jobState {
-    override fun prepareJob() {
-        jobState.prepareJob()
-        ParseJobInterruptionMap.saveValuesToFiles(jobStore, filesMap, mutableMapOf(), endpoint, jobId, totalJobSize, targetLocation, dateTimeUtils, jobType.toString(), bucket)
-    }
-
-    override fun cleanJob() {
-        jobState.cleanJob()
-        ParseJobInterruptionMap.removeJobIdFromFile(jobStore, jobId.toString(), endpoint)
-    }
+interface TeardownStage {
+    fun tearDown()
 }

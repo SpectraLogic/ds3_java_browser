@@ -21,26 +21,27 @@ import javafx.beans.property.*
 import org.reactivestreams.Publisher
 
 abstract class JobService : JobFacade {
-    protected val title : StringProperty = SimpleStringProperty("")
-    private val titleObservable : Observable<String> = title.toObservable()
+    protected val title: StringProperty = SimpleStringProperty("")
+    private val titleObservable: Observable<String> = title.toObservable()
 
-    protected val message : StringProperty = SimpleStringProperty("")
-    private val messageObservable : Observable<String> = message.toObservable()
+    protected val message: StringProperty = SimpleStringProperty("")
+    private val messageObservable: Observable<String> = message.toObservable()
 
-    protected val totalJob : DoubleProperty = SimpleDoubleProperty(0.0)
-    private val totalObservable : Observable<Number> = totalJob.toObservable()
+    protected val totalJob: LongProperty = SimpleLongProperty(0L)
+    private val totalObservable: Observable<Number> = totalJob.toObservable()
 
-    protected val percentDone : DoubleProperty = SimpleDoubleProperty(0.0)
-    private val progressObservable : Observable<Number> = percentDone.toObservable()
+    protected val visible: BooleanProperty = SimpleBooleanProperty(true)
+    private val visibilityObservable: Observable<Boolean> = visible.toObservable()
 
-    protected val visible : BooleanProperty = SimpleBooleanProperty(true)
-    private val visibilityObservable : Observable<Boolean> = visible.toObservable()
+    protected val sent: LongProperty = SimpleLongProperty(0L)
+    private val sentObservable: Observable<Number> = sent.toObservable()
 
     override fun titleObservable(): Observable<String> = titleObservable
     override fun messageObservable(): Observable<String> = messageObservable
-    override fun progressObservable(): Observable<Number> = progressObservable
     override fun visabilityObservable(): Observable<Boolean> = visibilityObservable
     override fun jobSizeObservable(): Observable<Number> = totalObservable
+    override fun sentObservable(): Observable<Number> = sentObservable
+    override fun totalJob(): LongProperty = totalJob
 
     abstract override fun finishedCompletable(): Completable
 }

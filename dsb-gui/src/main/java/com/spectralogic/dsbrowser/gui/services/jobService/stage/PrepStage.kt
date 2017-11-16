@@ -1,3 +1,9 @@
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
+
+import com.google.common.collect.ImmutableMap
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
+import java.nio.file.Path
+
 /*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
@@ -12,28 +18,6 @@
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
-package com.spectralogic.dsbrowser.gui.services.jobService
-
-import com.github.thomasnield.rxkotlinfx.toObservable
-import com.spectralogic.ds3client.models.JobRequestType
-import io.reactivex.Completable
-import io.reactivex.Observable
-import javafx.beans.property.*
-import org.reactivestreams.Publisher
-import java.nio.file.Path
-
-class PutJobState(val jobState : JobState) : JobService(), JobState by jobState{
-
-    override fun prepareJob() {
-    }
-
-    override fun finishedCompletable(): Completable = run()
-
-
-    override fun runJob() {
-    }
-
-    override fun cleanJob() {
-    }
-
+interface PrepStage<T> {
+    fun prepare(resources : T) : Pair<Ds3ClientHelpers.Job,Ds3ClientHelpers.ObjectChannelBuilder>
 }

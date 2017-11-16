@@ -1,3 +1,7 @@
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
+
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
+
 /*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
@@ -12,20 +16,6 @@
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
-package com.spectralogic.dsbrowser.gui.services.jobService
-
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Observer
-import javafx.beans.property.LongProperty
-import java.util.concurrent.atomic.AtomicLong
-
-interface JobFacade {
-    public fun titleObservable(): Observable<String>
-    public fun jobSizeObservable(): Observable<Number>
-    public fun messageObservable(): Observable<String>
-    public fun visabilityObservable(): Observable<Boolean>
-    public fun finishedCompletable(): Completable
-    public fun sentObservable(): Observable<Number>
-    public fun totalJob(): LongProperty
+interface TransferStage {
+    fun transfer(job : Ds3ClientHelpers.Job,ocb : Ds3ClientHelpers.ObjectChannelBuilder)
 }

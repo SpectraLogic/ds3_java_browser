@@ -32,11 +32,16 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
+import com.spectralogic.dsbrowser.gui.services.jobService.GetJob;
+import com.spectralogic.dsbrowser.gui.services.jobService.GetJobData;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobService;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -55,6 +60,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import kotlin.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +70,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -190,7 +197,13 @@ public class Ds3PanelPresenter implements Initializable {
         ds3Refresh.setOnAction(SafeHandler.logHandle(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService)));
         ds3ParentDir.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
         ds3NewFolder.setOnAction(SafeHandler.logHandle(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle)));
-        ds3TransferLeft.setOnAction(SafeHandler.logHandle(event -> ds3TransferToLocal()));
+        ds3TransferLeft.setOnAction(SafeHandler.logHandle(event -> {
+            try {
+                ds3TransferToLocal();
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        }));
         ds3NewBucket.setOnAction(SafeHandler.logHandle(event -> {
             LOG.debug("Attempting to create bucket...");
             CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle);
@@ -366,7 +379,7 @@ public class Ds3PanelPresenter implements Initializable {
         return ds3Common.getCurrentSession();
     }
 
-    private void ds3TransferToLocal() {
+    private void ds3TransferToLocal() throws IOException {
         final Session session = getSession();
         if ((session == null) || (ds3Common == null)) {
             alert.error("invalidSession");
@@ -435,7 +448,20 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
+        final GetJobData getJobData = new GetJobData(localPath,
+                session.getClient(),
+                selectedItemsAtSourceLocationList.stream()
+                .map(treeItem -> new Pair<>(treeItem.getFullName(), treeItem.getType()))
+                        .collect(GuavaCollectors.immutableList()),
+                selectedItemsAtSourceLocationList.stream().findFirst().get().getBucketName(),
+                "",
+                loggingService,
+                resourceBundle,
+                SettingsStore.loadSettingsStore(),
+                dateTimeUtils);
+        final GetJob get = new GetJob(getJobData);
+        final JobTask getJob = new JobTask(get);
+        //final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job {} succeeded.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);

@@ -23,34 +23,35 @@ import javafx.concurrent.Task
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
-class JobTask(private val jorb : JobFacade) : Ds3JobTask() {
+class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
     override fun executeJob() {
         jorb.titleObservable()
-                .doOnNext { s : String -> updateTitle(s) }
+                .doOnNext { s: String -> updateTitle(s) }
                 .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
         jorb.messageObservable()
-                .doOnNext { s : String -> updateMessage(s) }
-                .doOnError { t : Throwable -> throw t }
+                .doOnNext { s: String -> updateMessage(s) }
+                .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
-        jorb.progressObservable()
-                .doOnNext { n: Number -> updateProgress(n.toDouble(), 100.0)}
-                .doOnError { t : Throwable -> throw t}
+        jorb.jobSizeObservable()
+                .doOnNext { n: Number -> updateProgress(0L, n.toLong()) }
+                .doOnError { throw it }
+
+        jorb.sentObservable()
+                .doOnNext { n: Number -> updateProgress(n.toLong(), jorb.totalJob().get()) }
+                .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
         jorb.visabilityObservable()
-                .doOnNext { b : Boolean -> isVisible.set(b) }
+                .doOnNext { b: Boolean -> isVisible.set(b) }
                 .subscribe()
 
-        val disposed : Disposable = jorb.finishedCompletable().subscribe()
-        while(!disposed.isDisposed) {
-            Thread.sleep(1000)
-        }
+        jorb.finishedCompletable().subscribe()
     }
 
     override fun getJobId(): UUID = UUID.fromString("1")
 
-    public val isVisible : BooleanProperty = SimpleBooleanProperty(true)
+    public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 }
