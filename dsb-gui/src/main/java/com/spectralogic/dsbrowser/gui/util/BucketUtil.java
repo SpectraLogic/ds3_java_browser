@@ -51,20 +51,20 @@ public final class BucketUtil {
             final String bucket,
             final Ds3TreeTableItem ds3TreeTableItem,
             final int pageLength) {
-        final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
-        if (!Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
-            request.withMarker(ds3Value.getMarker());
-        }
-        if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
+            final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
+            if (!Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
+                request.withMarker(ds3Value.getMarker());
+            }
+            if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
+                return request;
+            }
+            if (Objects.equals(ds3Value.getFullName(), "Click to Add More")) {
+                request.withPrefix(ds3TreeTableItem.getParent().getValue().getFullName());
+            } else {
+                request.withPrefix(ds3Value.getFullName());
+            }
             return request;
         }
-        if (ds3TreeTableItem.getParent().getValue().getType() != Ds3TreeTableValue.Type.Bucket) {
-            request.withPrefix(ds3TreeTableItem.getParent().getValue().getFullName());
-        } else {
-            request.withPrefix(ds3Value.getFullName());
-        }
-        return request;
-    }
 
     //Enables you to get list of filtered files based on equals of key and name
     public static ImmutableList<Ds3TreeTableValue> getFilterFilesList(final ImmutableList<Ds3Object> ds3ObjectListFiles,

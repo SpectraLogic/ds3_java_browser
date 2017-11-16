@@ -105,11 +105,9 @@ public class BucketUtilTest {
         final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                 false, Mockito.mock(HBox.class));
-        final GetBucketRequest request1 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
-                Mockito.mock(Ds3TreeTableItem.class), 100);
+        final GetBucketRequest request1 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME , 100);
         ds3TreeTableValue.setMarker("testFolder/");
-        final GetBucketRequest request2 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
-                Mockito.mock(Ds3TreeTableItem.class), 100);
+        final GetBucketRequest request2 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME, 100);
         successFlag = (request1 != null && request2 != null) ? true : false;
         assertTrue(successFlag);
     }
@@ -124,8 +122,7 @@ public class BucketUtilTest {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));
-                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
-                        Mockito.mock(Ds3TreeTableItem.class), 100);
+                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME, 100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 final ImmutableList<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
                         .getObjects()
@@ -157,8 +154,7 @@ public class BucketUtilTest {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
                         false, Mockito.mock(HBox.class));
-                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
-                        Mockito.mock(Ds3TreeTableItem.class), 100);
+                final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME, 100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 latch.countDown();
                 final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME);
