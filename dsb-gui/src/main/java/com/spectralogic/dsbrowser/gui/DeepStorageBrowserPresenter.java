@@ -32,7 +32,6 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.settings.ShowCachedJobSettings;
@@ -42,6 +41,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -58,6 +58,7 @@ import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javafx.scene.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -100,7 +101,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private Tab jobsTab, logsTab;
 
     @FXML
-    private InlineCssTextArea inlineCssTextArea;
+    private ListView<Text> logView;
 
     @FXML
     private ScrollPane scrollPane;
@@ -163,7 +164,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
             initJobsPane();
             initDs3TreeTableView();
 
-            inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
+            logView.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
+            logView.setFocusTraversable(false);
+            logView.getItems().addListener((ListChangeListener<? super Text>) c -> {
+                final ObservableList<? extends Text> cList = c.getList();
+                final int size = cList.size();
+                logView.scrollTo(size);
+                if (size >= 1000) {
+                    cList.remove(0, 100);
+                }
+            });
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
@@ -388,32 +398,26 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     //set the same color for all the lines of string log separated by \n
     private void logTextForParagraph(final String log, final LogType type) {
-        final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
-        inlineCssTextArea.appendText(formattedString(log));
-        final int size = inlineCssTextArea.getParagraphs().size() - 2;
-
-        for (int i = previousSize + 1; i <= size; i++) {
-            setStyleForLogMessage(type, i);
-        }
+        final Text area = new Text(log);
+        area.setWrappingWidth(logView.getWidth());
+        setStyleForLogMessage(area, type);
+        logView.getItems().add(area);
         scrollPane.setVvalue(1.0);
     }
 
-    private void setStyleForLogMessage(final LogType type, final int i) {
+    private void setStyleForLogMessage(final Text logItem, final LogType type) {
         switch (type) {
             case SUCCESS:
-                inlineCssTextArea.setStyle(i, "-fx-fill: GREEN;");
+                logItem.setFill(Color.GREEN);
                 break;
             case ERROR:
-                inlineCssTextArea.setStyle(i, "-fx-fill: RED;");
+                logItem.setFill(Color.RED);
                 break;
             default:
-                inlineCssTextArea.setStyle(i, "-fx-fill: BLACK;");
+                logItem.setFill(Color.BLACK);
         }
     }
 
-    private static String formattedString(final String log) {
-        return StringConstants.FORWARD_OPR + StringConstants.SPACE + log + "\n";
-    }
 
     public MenuItem getSelectAllMenuItem() {
         return selectAllItem;
