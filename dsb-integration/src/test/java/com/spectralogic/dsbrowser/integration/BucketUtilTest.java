@@ -162,7 +162,7 @@ public class BucketUtilTest {
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
                 latch.countDown();
                 final List<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME);
-                successFlag = (null != directoryValues) ? true : false;
+                successFlag = null != directoryValues;
                 latch.countDown();
             } catch (final IOException e) {
                 e.printStackTrace();
