@@ -90,7 +90,7 @@ public class GetBucketTask extends Ds3Task {
     @Override
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
         try {
-            final GetBucketRequest request = BucketUtil.createRequest(ds3Value, bucket, ds3TreeTableItem, PAGE_LENGTH);
+            final GetBucketRequest request = BucketUtil.createRequest(ds3Value, bucket, ds3TreeTableItem, resourceBundle, PAGE_LENGTH);
             //if marker is set blank for a item that means offset is 0 else set the marker
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             //marker for the next request
