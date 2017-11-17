@@ -15,6 +15,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.github.thomasnield.rxkotlinfx.toObservable
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import io.reactivex.Completable
 import io.reactivex.Observable
 import javafx.beans.property.*

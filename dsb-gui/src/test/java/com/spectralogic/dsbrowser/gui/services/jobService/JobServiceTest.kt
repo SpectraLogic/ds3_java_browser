@@ -23,8 +23,8 @@ import org.assertj.core.api.Assertions.*
 
 const val INITIAL_MESSAGE: String = ""
 const val RAN_MESSAGE: String = "ran"
-const val PERCENT_INITIAL: Double = 0.0
-const val PERCENT_RAN: Double = 1.0
+const val PERCENT_INITIAL: Long = 0L
+const val PERCENT_RAN: Long = 1L
 const val VISIBLE: Boolean = true
 const val VISIBLE_RAN: Boolean = false
 
@@ -36,7 +36,6 @@ class JobServiceTest {
         override fun finishedCompletable(): Completable {
             return Completable.fromAction {
                 message.set(RAN_MESSAGE)
-                percentDone.set(PERCENT_RAN)
                 totalJob.set(PERCENT_RAN)
                 title.set(RAN_MESSAGE)
                 visible.set(false)

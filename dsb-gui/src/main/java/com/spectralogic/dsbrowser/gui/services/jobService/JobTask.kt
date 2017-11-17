@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.Task
@@ -26,29 +27,34 @@ import java.util.concurrent.atomic.AtomicLong
 class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
     override fun executeJob() {
         jorb.titleObservable()
+                .observeOn(JavaFxScheduler.platform())
                 .doOnNext { s: String -> updateTitle(s) }
                 .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
         jorb.messageObservable()
+                .observeOn(JavaFxScheduler.platform())
                 .doOnNext { s: String -> updateMessage(s) }
                 .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
         jorb.jobSizeObservable()
+                .observeOn(JavaFxScheduler.platform())
                 .doOnNext { n: Number -> updateProgress(0L, n.toLong()) }
                 .doOnError { throw it }
 
         jorb.sentObservable()
+                .observeOn(JavaFxScheduler.platform())
                 .doOnNext { n: Number -> updateProgress(n.toLong(), jorb.totalJob().get()) }
                 .doOnError { t: Throwable -> throw t }
                 .subscribe()
 
         jorb.visabilityObservable()
+                .observeOn(JavaFxScheduler.platform())
                 .doOnNext { b: Boolean -> isVisible.set(b) }
                 .subscribe()
 
-        jorb.finishedCompletable().subscribe()
+        jorb.finishedCompletable().subscribe({  }, { throw it })
     }
 
     override fun getJobId(): UUID = UUID.fromString("1")

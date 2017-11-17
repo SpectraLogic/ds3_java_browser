@@ -36,9 +36,12 @@ import java.util.concurrent.atomic.AtomicLong
 class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJobData>, TransferStage, TeardownStage {
     private val log: Logger = LoggerFactory.getLogger(GetJob::class.java)
 
+    private var job: Ds3ClientHelpers.Job? = null
+
     override fun prepare(resources: GetJobData): Pair<Ds3ClientHelpers.Job, Ds3ClientHelpers.ObjectChannelBuilder> {
         title.set("Preparing Job")
         val job = getJobData.getJob()
+        this.job = job
         title.set("Transferring Job " + job.jobId)
         totalJob.set(getJobData.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes)
         if (getJobData.hasMetadata()) {
@@ -52,17 +55,13 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
 
     private fun updateStatistics(s: String?) {
         val elapsedSeconds = TimeUnit.MILLISECONDS.toSeconds(Instant.now().toEpochMilli() - getJobData.startTime.epochSecond)
-        val transferRate = if (elapsedSeconds != 0L) {
-            (sent.get().toLong() / 2) / elapsedSeconds
+        val transferRate = sent.get().toFloat() / elapsedSeconds.toFloat()
+        val timeRemaining : Float = if (transferRate != 0F) {
+            totalJob.get().toFloat() / 2/ transferRate
         } else {
-            0L
+            0F
         }
-        val timeRemaining = if (transferRate != 0L) {
-            (totalJob.get() / 2) / transferRate
-        } else {
-            0L
-        }
-        message.set(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining.toLong(), AtomicLong(sent.longValue()),
+        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), AtomicLong(sent.longValue()),
                 totalJob.longValue(), s, getJobData.remotePrefix).toString())
         getJobData.loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, getJobData.localPath.toString(), getJobData.dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS)
     }
