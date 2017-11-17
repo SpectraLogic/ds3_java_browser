@@ -50,6 +50,7 @@ public final class BucketUtil {
     public static GetBucketRequest createRequest(final Ds3TreeTableValue ds3Value,
             final String bucket,
             final Ds3TreeTableItem ds3TreeTableItem,
+            final ResourceBundle resourceBundle,
             final int pageLength) {
         final GetBucketRequest request = new GetBucketRequest(bucket).withDelimiter(StringConstants.FORWARD_SLASH).withMaxKeys(pageLength);
         if (!Guard.isStringNullOrEmpty(ds3Value.getMarker())) {
@@ -58,7 +59,7 @@ public final class BucketUtil {
         if (ds3Value.getType() == Ds3TreeTableValue.Type.Bucket) {
             return request;
         }
-        if (Objects.equals(ds3Value.getFullName(), "Click to Add More")) {
+        if (Objects.equals(ds3Value.getFullName(), resourceBundle.getString("addMoreButton"))) {
             final Ds3TreeTableValue parent = ds3TreeTableItem.getParent().getValue();
             if (parent.getType() != BaseTreeModel.Type.Bucket) {
                 request.withPrefix(parent.getFullName());
