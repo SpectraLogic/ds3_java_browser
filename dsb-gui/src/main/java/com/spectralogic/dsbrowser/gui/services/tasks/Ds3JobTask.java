@@ -98,10 +98,10 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         if (transferRate != 0) {
             final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
 
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining, totalSent,
+            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining, totalSent.get(),
                     totalJobSize, sourceLocation, targetLocation).toString());
         } else {
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent,
+            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent.get(),
                     totalJobSize, sourceLocation, targetLocation).toString());
         }
 

@@ -15,6 +15,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
@@ -40,7 +41,12 @@ data class GetJobData(val localPath: Path,
                       private val settingStore: SettingsStore,
                       val dateTimeUtils: DateTimeUtils) {
 
-    public val startTime : Instant = Instant.now()
+    private var startTime = Instant.now()
+    public fun getStartTime() : Instant = startTime
+    public fun setStartTime() : Instant {
+        startTime = Instant.now()
+        return startTime
+    }
 
     fun getObjectChannelBuilder(): Ds3ClientHelpers.ObjectChannelBuilder {
         val ocb: Ds3ClientHelpers.ObjectChannelBuilder = OverWritingObjectChannelBuilder(FileObjectGetter(localPath), localPath, loggingService, resourceBundle)
@@ -71,4 +77,5 @@ data class GetJobData(val localPath: Path,
     }
 
     fun hasMetadata() = settingStore.filePropertiesSettings.isFilePropertiesEnabled
+
 }

@@ -47,21 +47,22 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
         if (getJobData.hasMetadata()) {
             job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.localPath.toString()).metadataReceived(s, metadata) }
         }
-        job.attachDataTransferredListener { sent.set(sent.get() + it) }
+        job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
         job.attachObjectCompletedListener { updateStatistics(it) }
         job.attachWaitingForChunksListener { waitForChunks(it) }
         return Pair(job, getJobData.getObjectChannelBuilder())
     }
 
     private fun updateStatistics(s: String?) {
-        val elapsedSeconds = TimeUnit.MILLISECONDS.toSeconds(Instant.now().toEpochMilli() - getJobData.startTime.epochSecond)
-        val transferRate = sent.get().toFloat() / elapsedSeconds.toFloat()
-        val timeRemaining : Float = if (transferRate != 0F) {
-            totalJob.get().toFloat() / 2/ transferRate
+        val elapsedSeconds = Instant.now().epochSecond - getJobData.getStartTime().epochSecond
+        val sent = sent.get()
+        val transferRate = sent / elapsedSeconds.toFloat()
+        val timeRemaining: Float = if (transferRate != 0F) {
+            totalJob.get().toFloat() / transferRate
         } else {
             0F
         }
-        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), AtomicLong(sent.longValue()),
+        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent),
                 totalJob.longValue(), s, getJobData.remotePrefix).toString())
         getJobData.loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, getJobData.localPath.toString(), getJobData.dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS)
     }
@@ -78,6 +79,7 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
 
 
     override fun transfer(job: Ds3ClientHelpers.Job, ocb: Ds3ClientHelpers.ObjectChannelBuilder) {
+        getJobData.setStartTime()
         job.transfer(ocb)
     }
 

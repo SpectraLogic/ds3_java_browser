@@ -134,6 +134,7 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
             final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request()
                     .withBucketId(bucketName).withName(StringConstants.PERCENT + searchText + StringConstants.PERCENT)
                     .withIncludePhysicalPlacement(true);
+            request.getHeaders().put("Accept-Encoding", "gzip, deflate");
             final GetObjectsWithFullDetailsSpectraS3Response responseFullDetails = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
             return responseFullDetails.getDetailedS3ObjectListResult().getDetailedS3Objects();
         } catch (final Exception e) {
