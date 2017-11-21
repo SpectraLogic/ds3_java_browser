@@ -18,7 +18,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Reque
 import com.spectralogic.ds3client.helpers.*
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
-import com.spectralogic.dsbrowser.gui.services.jobService.Util.OverWritingObjectChannelBuilder
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
@@ -27,30 +26,31 @@ import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil
 import io.reactivex.Completable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicLong
 
 class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJobData>, TransferStage, TeardownStage {
+    override fun jobUUID(): UUID? = job?.jobId
+
     private val log: Logger = LoggerFactory.getLogger(GetJob::class.java)
 
     private var job: Ds3ClientHelpers.Job? = null
 
-    override fun prepare(resources: GetJobData): Pair<Ds3ClientHelpers.Job, Ds3ClientHelpers.ObjectChannelBuilder> {
+    override fun prepare(resources: GetJobData): Ds3ClientHelpers.Job {
         title.set("Preparing Job")
         val job = getJobData.getJob()
         this.job = job
         title.set("Transferring Job " + job.jobId)
-        totalJob.set(getJobData.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes)
+        val getActiveJobSpectraS3Request = GetActiveJobSpectraS3Request(job.jobId)
+        totalJob.set(getJobData.client.getActiveJobSpectraS3(getActiveJobSpectraS3Request).activeJobResult.originalSizeInBytes)
         if (getJobData.hasMetadata()) {
             job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.localPath.toString()).metadataReceived(s, metadata) }
         }
         job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
-        job.attachObjectCompletedListener { updateStatistics(it) }
-        job.attachWaitingForChunksListener { waitForChunks(it) }
-        return Pair(job, getJobData.getObjectChannelBuilder())
+        job.attachObjectCompletedListener(ObjectCompletedListener{ updateStatistics(it) })
+        job.attachWaitingForChunksListener(WaitingForChunksListener { waitForChunks(it) })
+        job.attachFailureEventListener { getJobData.loggingService.logMessage(it.withObjectNamed(), LogType.ERROR) }
+        return job
     }
 
     private fun updateStatistics(s: String?) {
@@ -63,7 +63,7 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
             0F
         }
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent),
-                totalJob.longValue(), s, getJobData.remotePrefix).toString())
+                totalJob.longValue(), s, "").toString())
         getJobData.loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, getJobData.localPath.toString(), getJobData.dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS)
     }
 
@@ -78,9 +78,11 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
     }
 
 
-    override fun transfer(job: Ds3ClientHelpers.Job, ocb: Ds3ClientHelpers.ObjectChannelBuilder) {
+    override fun transfer(job: Ds3ClientHelpers.Job) {
         getJobData.setStartTime()
-        job.transfer(ocb)
+        job.transfer {s: String? ->
+            getJobData.getObjectChannelBuilder(getJobData.prefixMap().get(s)).buildChannel(s)
+        }
     }
 
     override fun tearDown() {
@@ -89,7 +91,7 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
     override fun finishedCompletable(): Completable {
         return Completable.fromAction {
             val prep = prepare(getJobData)
-            transfer(prep.first, prep.second)
+            transfer(prep)
             tearDown()
         }
     }

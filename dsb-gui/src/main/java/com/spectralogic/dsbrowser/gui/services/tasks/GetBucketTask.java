@@ -91,7 +91,6 @@ public class GetBucketTask extends Ds3Task {
     protected ObservableList<TreeItem<Ds3TreeTableValue>> call() {
         try {
             final GetBucketRequest request = BucketUtil.createRequest(ds3Value, bucket, ds3TreeTableItem, resourceBundle, PAGE_LENGTH);
-            request.getHeaders().put("Content-Encoding", "gzip, deflate");
             //if marker is set blank for a item that means offset is 0 else set the marker
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
             //marker for the next request

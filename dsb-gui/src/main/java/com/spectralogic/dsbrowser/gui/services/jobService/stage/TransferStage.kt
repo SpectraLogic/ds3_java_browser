@@ -17,5 +17,5 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
  *  ****************************************************************************
  */
 interface TransferStage {
-    fun transfer(job : Ds3ClientHelpers.Job,ocb : Ds3ClientHelpers.ObjectChannelBuilder)
+    fun transfer(job : Ds3ClientHelpers.Job)
 }

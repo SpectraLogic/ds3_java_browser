@@ -19,5 +19,5 @@ import java.nio.file.Path
  *  ****************************************************************************
  */
 interface PrepStage<T> {
-    fun prepare(resources : T) : Pair<Ds3ClientHelpers.Job,Ds3ClientHelpers.ObjectChannelBuilder>
+    fun prepare(resources : T) : Ds3ClientHelpers.Job
 }

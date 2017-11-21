@@ -18,6 +18,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import javafx.beans.property.LongProperty
+import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 interface JobFacade {
@@ -28,4 +29,5 @@ interface JobFacade {
     public fun finishedCompletable(): Completable
     public fun sentObservable(): Observable<Number>
     public fun totalJob(): LongProperty
+    public fun jobUUID(): UUID?
 }

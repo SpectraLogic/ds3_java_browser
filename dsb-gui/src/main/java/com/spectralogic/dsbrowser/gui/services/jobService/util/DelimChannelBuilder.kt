@@ -13,30 +13,28 @@
  * ***************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.services.jobService.Util
+package com.spectralogic.dsbrowser.gui.services.jobService.util
 
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
+import com.spectralogic.ds3client.helpers.ObjectChannelBuilderLogger
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.StringConstants
 import java.nio.channels.SeekableByteChannel
+import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 
-class OverWritingObjectChannelBuilder(private val ocb: FileObjectGetter,
-                                      private val root: Path,
-                                      private val loggingService: LoggingService,
-                                      private val resourceBundle: ResourceBundle) : Ds3ClientHelpers.ObjectChannelBuilder by ocb {
-    override fun buildChannel(p0: String?): SeekableByteChannel {
-        if (Files.exists(root.resolve(p0))) {
-            loggingService.logMessage( resourceBundle.getString("fileOverridden")
-                            + StringConstants.SPACE + p0 + StringConstants.SPACE
-                            + resourceBundle.getString("to")
-                            + StringConstants.SPACE + root, LogType.SUCCESS)
-        }
-        return ocb.buildChannel(p0)
+class DelimChannelBuilder(private val ocb: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by ocb {
+    private val localDelim = localPath.fileSystem.separator
+    override fun buildChannel(p0: String): SeekableByteChannel {
+        return ocb.buildChannel(if (localPath.fileSystem.separator != "/") {
+            p0.replace("/", localDelim)
+        } else {
+            p0
+        })
     }
-
 }

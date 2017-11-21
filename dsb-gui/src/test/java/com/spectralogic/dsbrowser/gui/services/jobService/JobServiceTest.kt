@@ -20,6 +20,7 @@ import io.reactivex.functions.Consumer
 import org.junit.Before
 import org.junit.Test
 import org.assertj.core.api.Assertions.*
+import java.util.*
 
 const val INITIAL_MESSAGE: String = ""
 const val RAN_MESSAGE: String = "ran"
@@ -33,6 +34,8 @@ class JobServiceTest {
     private var jobService: IncrementalJobService? = null
 
     protected class IncrementalJobService() : JobService() {
+        override fun jobUUID(): UUID? = UUID.randomUUID()
+
         override fun finishedCompletable(): Completable {
             return Completable.fromAction {
                 message.set(RAN_MESSAGE)
@@ -57,14 +60,6 @@ class JobServiceTest {
         assertThat(message).isEqualTo(RAN_MESSAGE)
     }
 
-    @Test
-    fun progressTest() {
-        var progress = 100.00
-        jobService!!.progressObservable().subscribe(Consumer { t: Number -> progress = t.toDouble() })
-        assertThat(progress).isEqualTo(PERCENT_INITIAL)
-        jobService!!.finishedCompletable().blockingGet()
-        assertThat(progress).isEqualTo(PERCENT_RAN)
-    }
 
     @Test
     fun titleTest() {

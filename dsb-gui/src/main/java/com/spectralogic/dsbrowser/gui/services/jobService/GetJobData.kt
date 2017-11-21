@@ -22,7 +22,8 @@ import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
-import com.spectralogic.dsbrowser.gui.services.jobService.Util.OverWritingObjectChannelBuilder
+import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
+import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyErrorChannelBuilder
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel.Type.*
@@ -33,47 +34,60 @@ import java.util.*
 
 data class GetJobData(val localPath: Path,
                       val client: Ds3Client,
-                      private val doubles: List<Pair<String, BaseTreeModel.Type>>,
+                      private val doubles: List<Triple<String, String, BaseTreeModel.Type>>,
                       val bucket: String,
-                      val remotePrefix: String,
                       val loggingService: LoggingService,
                       val resourceBundle: ResourceBundle,
                       private val settingStore: SettingsStore,
                       val dateTimeUtils: DateTimeUtils) {
 
     private var startTime = Instant.now()
-    public fun getStartTime() : Instant = startTime
-    public fun setStartTime() : Instant {
+    private val last : String? = null
+    private var map : ImmutableMap<String,String>? = null
+    public fun getStartTime(): Instant = startTime
+    public fun setStartTime(): Instant {
         startTime = Instant.now()
         return startTime
     }
 
-    fun getObjectChannelBuilder(): Ds3ClientHelpers.ObjectChannelBuilder {
-        val ocb: Ds3ClientHelpers.ObjectChannelBuilder = OverWritingObjectChannelBuilder(FileObjectGetter(localPath), localPath, loggingService, resourceBundle)
-        return if (remotePrefix.isEmpty()) {
+    fun getObjectChannelBuilder(prefix : String?): Ds3ClientHelpers.ObjectChannelBuilder {
+        val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(EmptyErrorChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
+        return if (prefix == null || prefix.isEmpty()) {
             ocb
         } else {
-            PrefixRemoverObjectChannelBuilder(ocb, remotePrefix)
+            PrefixRemoverObjectChannelBuilder(ocb, prefix)
         }
     }
 
-    fun getJob(): Ds3ClientHelpers.Job = Ds3ClientHelpers.wrap(client).startReadJob(bucket, buildDs3Objects())
-
-    private fun buildDs3Objects(): List<Ds3Object> = doubles.flatMap({ dataToDs3Objects(it) })
-
-    private fun dataToDs3Objects(t: Pair<String, BaseTreeModel.Type>): Iterable<Ds3Object> = when(t.second) {
-        Directory -> { folderToObjects(t) }
-        File -> { ImmutableList.of(Ds3Object(t.first))}
-        else -> { Collections.emptyList()}
+    fun getJob(): Ds3ClientHelpers.Job {
+        val buildDs3Objects = buildDs3Objects()
+        return Ds3ClientHelpers.wrap(client).startReadJob(bucket, buildDs3Objects)
     }
 
-    private fun folderToObjects(t: Pair<String, BaseTreeModel.Type>) : Iterable<Ds3Object> {
-        var folderObjects = Ds3ClientHelpers.wrap(client).listObjects(bucket, t.first).map { contents -> Ds3Object(contents.key) }
-        return if (folderObjects.isEmpty()) {
-           ImmutableList.of(Ds3Object(t.first))
-        } else {
-            folderObjects
+    private fun buildDs3Objects(): List<Ds3Object> = doubles.flatMap({ dataToDs3Objects(it) }).distinct()
+
+    private fun dataToDs3Objects(t: Triple<String, String, BaseTreeModel.Type>): Iterable<Ds3Object> = when (t.third) {
+        Directory -> {
+            folderToObjects(t)
         }
+        File -> {
+            ImmutableList.of(Ds3Object(t.first))
+        }
+        else -> {
+            Collections.emptyList()
+        }
+    }
+
+    private fun folderToObjects(t: Triple<String, String, BaseTreeModel.Type>) : Iterable<Ds3Object> =
+            Ds3ClientHelpers.wrap(client).listObjects(bucket, t.first).map { contents -> Ds3Object(contents.key) }
+
+    fun prefixMap() : ImmutableMap<String,String> {
+        if (map == null) {
+            val b : ImmutableMap.Builder<String,String> = ImmutableMap.builder()
+            doubles.forEach({ b.put(it.first, it.second)})
+            map = b.build()
+        }
+        return map!!
     }
 
     fun hasMetadata() = settingStore.filePropertiesSettings.isFilePropertiesEnabled

@@ -14,8 +14,10 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
@@ -25,7 +27,9 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
+    @Throws(Throwable::class)
     override fun executeJob() {
+        var throwable : Throwable? = null
         jorb.titleObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { s: String -> updateTitle(s) }
@@ -54,10 +58,15 @@ class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
                 .doOnNext { b: Boolean -> isVisible.set(b) }
                 .subscribe()
 
-        jorb.finishedCompletable().subscribe({  }, { throw it })
+        jorb.finishedCompletable()
+                .subscribe(Action {  }, Consumer { throwable = it })
+        if(throwable != null) {
+            throw throwable!!
+        }
+
     }
 
-    override fun getJobId(): UUID = UUID.fromString("1")
+    override fun getJobId(): UUID = jorb.jobUUID()!!
 
     public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 }

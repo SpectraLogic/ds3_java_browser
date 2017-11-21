@@ -61,6 +61,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import kotlin.Pair;
+import kotlin.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -451,10 +452,9 @@ public class Ds3PanelPresenter implements Initializable {
         final GetJobData getJobData = new GetJobData(localPath,
                 session.getClient(),
                 selectedItemsAtSourceLocationList.stream()
-                .map(treeItem -> new Pair<>(treeItem.getFullName(), treeItem.getType()))
+                .map(treeItem -> new Triple<>(treeItem.getFullName(), treeItem.getParentDir(), treeItem.getType()))
                         .collect(GuavaCollectors.immutableList()),
                 selectedItemsAtSourceLocationList.stream().findFirst().get().getBucketName(),
-                "",
                 loggingService,
                 resourceBundle,
                 SettingsStore.loadSettingsStore(),
