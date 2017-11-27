@@ -27,6 +27,7 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -174,8 +175,8 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void hideTask(final T task, final TaskCell tc) {
-        if(task != null && task instanceof Ds3PutJob) {
-            tc.visibleProperty().bind(((Ds3PutJob) task).isVisible);
+        if(task != null && task instanceof JobTask) {
+            tc.visibleProperty().set(((JobTask) task).isVisible().getValue());
         }
     }
 

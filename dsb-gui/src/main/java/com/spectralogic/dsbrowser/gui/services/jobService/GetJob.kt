@@ -80,9 +80,7 @@ class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJo
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
         getJobData.setStartTime()
-        job.transfer {s: String? ->
-            getJobData.getObjectChannelBuilder(getJobData.prefixMap().get(s)).buildChannel(s)
-        }
+        job.transfer {s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap().get(s)).buildChannel(s) }
     }
 
     override fun tearDown() {

@@ -452,7 +452,7 @@ public class Ds3PanelPresenter implements Initializable {
         final GetJobData getJobData = new GetJobData(localPath,
                 session.getClient(),
                 selectedItemsAtSourceLocationList.stream()
-                .map(treeItem -> new Triple<>(treeItem.getFullName(), treeItem.getParentDir(), treeItem.getType()))
+                        .map(treeItem -> new Triple<>(treeItem.getFullName(), treeItem.getParentDir(), treeItem.getType()))
                         .collect(GuavaCollectors.immutableList()),
                 selectedItemsAtSourceLocationList.stream().findFirst().get().getBucketName(),
                 loggingService,
@@ -469,17 +469,16 @@ public class Ds3PanelPresenter implements Initializable {
         getJob.setOnFailed(SafeHandler.logHandle(e -> {
             LOG.error("Get Job failed", e.getSource().getException());
             loggingService.logMessage("Get Job failed with message: " + e.getSource().getException().getMessage(), LogType.ERROR);
+            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         }));
         getJob.setOnCancelled(SafeHandler.logHandle(e -> {
             LOG.info("Get Job {} cancelled.", getJob.getJobId());
-            if (getJob.getJobId() != null) {
-                try {
-                    session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    loggingService.logMessage(resourceBundle.getString("getJobCancelled"), LogType.ERROR);
-                } catch (final IOException e1) {
-                    LOG.error("Failed to cancel job " + getJob.getJobId(), e1);
-                }
+            try {
+                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                loggingService.logMessage(resourceBundle.getString("getJobCancelled"), LogType.ERROR);
+            } catch (final IOException e1) {
+                LOG.error("Failed to cancel job " + getJob.getJobId(), e1);
             }
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
         }));

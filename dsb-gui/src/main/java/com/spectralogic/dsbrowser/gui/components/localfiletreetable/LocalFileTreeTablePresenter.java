@@ -32,8 +32,12 @@ import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointIn
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
+import com.spectralogic.dsbrowser.gui.services.jobService.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -95,6 +99,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
+    private final SettingsStore settingsStore;
     private final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
@@ -114,9 +119,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
             final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory,
+            final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
+        this.settingsStore = settingsStore;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
@@ -421,7 +428,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param row         select row
      */
     private void selectMultipleItems(final List<String> rowNameList, final TreeTableRow<FileTreeModel> row) {
-        if(row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null || row.getTreeItem().getValue().getName() == null) {
+        if (row == null || row.getTreeItem() == null || row.getTreeItem().getValue() == null || row.getTreeItem().getValue().getName() == null) {
             return;
         }
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -474,36 +481,40 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3Client client = session.getClient();
-        final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
-        putJob.setOnSucceeded(SafeHandler.logHandle(event -> {
-            LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
+
+        final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
+        files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
+
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), remoteDestination.toString(), settingsStore, loggingService, dateTimeUtils, targetDir), client, bucket);
+        final JobTask jobTask = new JobTask(putJob);
+        //final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
+        jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+            LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
+
             refreshBlackPearlSideItem(remoteDestination);
         }));
-        putJob.setOnFailed(SafeHandler.logHandle(failEvent -> {
+        jobTask.setOnFailed(SafeHandler.logHandle(failEvent -> {
             final Throwable throwable = failEvent.getSource().getException();
             LOG.error("Put Job Failed", throwable);
             loggingService.logMessage("Put Job Failed with message: " + throwable.getClass().getName() + ": " + throwable.getMessage(), LogType.ERROR);
+            refreshBlackPearlSideItem(remoteDestination);
         }));
-        putJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
-            final UUID jobId = putJob.getJobId();
-            if (jobId != null) {
-                try {
-                    client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                } catch (final IOException e) {
-                    LOG.error("Failed to cancel job", e);
-                }
-                LOG.info("BULK_PUT job {} Cancelled.", jobId);
-                loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
-
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
-                        client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-
-                refreshBlackPearlSideItem(remoteDestination);
-            } else {
-                LOG.error("Failed to cancel job with invalid ID");
+        jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
+            final UUID jobId = putJob.jobUUID();
+            try {
+                client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.jobUUID()));
+            } catch (final IOException e) {
+                LOG.error("Failed to cancel job", e);
             }
+            LOG.info("BULK_PUT job {} Cancelled.", jobId);
+            loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
+
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
+                    client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+
+            refreshBlackPearlSideItem(remoteDestination);
         }));
-        jobWorkers.execute(putJob);
+        jobWorkers.execute(jobTask);
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {

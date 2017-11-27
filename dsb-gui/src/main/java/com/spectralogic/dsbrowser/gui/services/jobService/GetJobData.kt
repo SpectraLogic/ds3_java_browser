@@ -59,10 +59,7 @@ data class GetJobData(val localPath: Path,
         }
     }
 
-    fun getJob(): Ds3ClientHelpers.Job {
-        val buildDs3Objects = buildDs3Objects()
-        return Ds3ClientHelpers.wrap(client).startReadJob(bucket, buildDs3Objects)
-    }
+    fun getJob(): Ds3ClientHelpers.Job = Ds3ClientHelpers.wrap(client).startReadJob(bucket, buildDs3Objects())
 
     private fun buildDs3Objects(): List<Ds3Object> = doubles.flatMap({ dataToDs3Objects(it) }).distinct()
 

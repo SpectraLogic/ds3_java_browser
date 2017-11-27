@@ -32,7 +32,7 @@ abstract class JobService : JobFacade {
     protected val totalJob: LongProperty = SimpleLongProperty(0L)
     private val totalObservable: Observable<Number> = totalJob.toObservable()
 
-    protected val visible: BooleanProperty = SimpleBooleanProperty(true)
+    protected val visible: SimpleBooleanProperty = SimpleBooleanProperty(true)
     private val visibilityObservable: Observable<Boolean> = visible.toObservable()
 
     protected val sent: LongProperty = SimpleLongProperty(0L)
@@ -44,6 +44,7 @@ abstract class JobService : JobFacade {
     override fun jobSizeObservable(): Observable<Number> = totalObservable
     override fun sentObservable(): Observable<Number> = sentObservable
     override fun totalJob(): LongProperty = totalJob
+    override fun visibleProperty(): SimpleBooleanProperty = visible
 
     abstract override fun finishedCompletable(): Completable
 }
