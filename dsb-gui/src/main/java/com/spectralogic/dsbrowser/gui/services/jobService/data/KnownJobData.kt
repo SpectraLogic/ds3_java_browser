@@ -23,7 +23,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.util.*
 
-class KnownJob constructor(
+class KnownJobData constructor(
         private val jobData: JobData,
         private val ffm: FilesAndFolderMap,
         val jobId: UUID,

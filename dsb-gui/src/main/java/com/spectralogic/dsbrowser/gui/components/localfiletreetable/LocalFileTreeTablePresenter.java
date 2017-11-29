@@ -32,9 +32,11 @@ import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointIn
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
+import com.spectralogic.dsbrowser.gui.services.jobService.GetJob;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
+import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -64,6 +66,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -96,12 +99,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory;
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
     private final SettingsStore settingsStore;
-    private final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -116,10 +117,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final JobWorkers jobWorkers,
             final JobInterruptionStore jobInterruptionStore,
             final EndpointInfo endpointInfo,
-            final Ds3GetJob.Ds3GetJobFactory ds3GetJobFactory,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
-            final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory,
             final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
@@ -132,8 +131,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
-        this.ds3GetJobFactory = ds3GetJobFactory;
-        this.ds3PutJobFactory = ds3PutJobFactory;
         this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.alert = new LazyAlert(resourceBundle);
@@ -449,30 +446,43 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath) {
-        final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
-        getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
-            LOG.info("Get Job completed successfully");
-            refreshFileTreeView();
-        }));
-        getJob.setOnFailed(SafeHandler.logHandle(event -> {
-            final Throwable exception = event.getSource().getException();
-            LOG.error("Get Job failed", exception);
-            loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
-            refreshFileTreeView();
-        }));
-        getJob.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
-            //Cancellation of a job started
-            final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(getJob.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
-            ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
-            ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
-                LOG.info("Get Job cancelled");
-                loggingService.logMessage("GET Job Cancelled", LogType.INFO);
+            final Path localPath, final Session session) {
+        final ImmutableList<String> buckets = listFiles.stream()
+                .map(Ds3TreeTableValueCustom::getBucketName)
+                .distinct()
+                .collect(GuavaCollectors.immutableList());
+        buckets.forEach(bucket -> {
+            final ImmutableList<kotlin.Pair<String,String>> fileAndParent = listFiles.stream()
+                    .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
+                    .map(ds3 -> new kotlin.Pair<>(
+                            ds3.getFullName(),
+                            ds3.getParent()))
+                    .collect(GuavaCollectors.immutableList());
+            final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore);
+            final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
+            final JobTask jobTask = new JobTask(new GetJob(getJobData));
+            jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                LOG.info("Get Job completed successfully");
                 refreshFileTreeView();
             }));
-            workers.execute(ds3CancelSingleJobTask);
-        }));
-        jobWorkers.execute(getJob);
+            jobTask.setOnFailed(SafeHandler.logHandle(event -> {
+                final Throwable exception = event.getSource().getException();
+                LOG.error("Get Job failed", exception);
+                loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
+                refreshFileTreeView();
+            }));
+            jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobTask.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
+                ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
+                ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                    LOG.info("Get Job cancelled");
+                    loggingService.logMessage("GET Job Cancelled", LogType.INFO);
+                    refreshFileTreeView();
+                }));
+                workers.execute(ds3CancelSingleJobTask);
+            }));
+            jobWorkers.execute(jobTask);
+        });
     }
 
     private void startPutJob(final Session session,
@@ -488,7 +498,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
         final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore)));
         final JobTask jobTask = new JobTask(putJob);
-        //final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
 
@@ -550,7 +559,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Drop event contains files");
 
             @SuppressWarnings("unchecked") final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
-            startGetJob(list, localPath);
+            startGetJob(list, localPath, ds3Common.getCurrentSession());
         }
     }
 

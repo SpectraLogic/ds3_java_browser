@@ -16,13 +16,14 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
@@ -58,7 +59,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
-import kotlin.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +117,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final LoggingService loggingService;
     private final LazyAlert alert;
     private final SettingsStore settingsStore;
+    private final EndpointInfo endpointInfo;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -132,10 +133,12 @@ public class Ds3PanelPresenter implements Initializable {
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
             final SettingsStore settingsStore,
+            final EndpointInfo endpointInfo,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
+        this.endpointInfo = endpointInfo;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
@@ -445,36 +448,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final GetJobData getJobData = new GetJobData(selectedItemsAtSourceLocationList.stream()
-                        .map(treeItem -> new Pair<>(treeItem.getFullName(), treeItem.getParentDir()))
-                        .collect(GuavaCollectors.immutableList()),
-                localPath,
-                selectedItemsAtSourceLocationList.stream().findFirst().get().getBucketName(),
-                new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore));
-        final GetJob get = new GetJob(getJobData);
-        final JobTask getJob = new JobTask(get);
-        //final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
-        getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
-            LOG.info("Get Job {} succeeded.", getJob.getJobId());
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
-        }));
-        getJob.setOnFailed(SafeHandler.logHandle(e -> {
-            LOG.error("Get Job failed", e.getSource().getException());
-            loggingService.logMessage("Get Job failed with message: " + e.getSource().getException().getMessage(), LogType.ERROR);
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
-        }));
-        getJob.setOnCancelled(SafeHandler.logHandle(e -> {
-            LOG.info("Get Job {} cancelled.", getJob.getJobId());
-            try {
-                session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                loggingService.logMessage(resourceBundle.getString("getJobCancelled"), LogType.ERROR);
-            } catch (final IOException e1) {
-                LOG.error("Failed to cancel job " + getJob.getJobId(), e1);
-            }
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
-        }));
-        jobWorkers.execute(getJob);
+        startGetJob(selectedItemsAtSourceLocationListCustom, localPath);
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
@@ -699,6 +673,46 @@ public class Ds3PanelPresenter implements Initializable {
 
     public Label getCreateNewSessionLabel() {
         return createNewSessionLabel;
+    }
+
+    private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
+            final Path localPath) {
+        final ImmutableList<String> buckets = listFiles.stream()
+                .map(Ds3TreeTableValueCustom::getBucketName)
+                .distinct()
+                .collect(GuavaCollectors.immutableList());
+        buckets.forEach(bucket -> {
+            final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
+                    .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
+                    .map(ds3 -> new kotlin.Pair<>(
+                            ds3.getFullName(),
+                            ds3.getParent()))
+                    .collect(GuavaCollectors.immutableList());
+            final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore);
+            final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
+            final JobTask jobTask = new JobTask(new GetJob(getJobData));
+            jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                LOG.info("Get Job completed successfully");
+                getTreeTableView().refresh();
+            }));
+            jobTask.setOnFailed(SafeHandler.logHandle(event -> {
+                final Throwable exception = event.getSource().getException();
+                LOG.error("Get Job failed", exception);
+                loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
+                getTreeTableView().refresh();
+            }));
+            jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
+                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobTask.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
+                ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
+                ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                    LOG.info("Get Job cancelled");
+                    loggingService.logMessage("GET Job Cancelled", LogType.INFO);
+                    getTreeTableView().refresh();
+                }));
+                workers.execute(ds3CancelSingleJobTask);
+            }));
+            jobWorkers.execute(jobTask);
+        });
     }
 }
 

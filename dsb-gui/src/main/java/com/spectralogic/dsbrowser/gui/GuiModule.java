@@ -72,8 +72,6 @@ public class GuiModule extends AbstractModule {
 
         loadPresenters(this::bind);
 
-        install(new FactoryModuleBuilder().build(Ds3GetJob.Ds3GetJobFactory.class));
-        install(new FactoryModuleBuilder().build(Ds3PutJob.Ds3PutJobFactory.class));
         install(new FactoryModuleBuilder().build(RecoverInterruptedJob.RecoverInterruptedJobFactory.class));
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
     }

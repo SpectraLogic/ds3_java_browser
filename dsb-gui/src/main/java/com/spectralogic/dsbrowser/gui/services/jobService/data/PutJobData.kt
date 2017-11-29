@@ -62,7 +62,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     override fun getObjectChannelBuilder(prefix: String?): FileObjectPutter = FileObjectPutter(prefixMap.get(prefix)!!.parent)
 
 
-    public fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
+    private fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
 
     private fun dataToDs3Objects(item: Pair<String, Path>): Iterable<Ds3Object> {
         val localDelim = item.second.fileSystem.separator

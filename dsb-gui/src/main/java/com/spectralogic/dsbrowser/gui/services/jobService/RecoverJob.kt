@@ -19,8 +19,8 @@ import com.google.common.collect.ImmutableList
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo
 import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData
+import com.spectralogic.dsbrowser.gui.services.jobService.data.KnownJobData
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData
-import com.spectralogic.dsbrowser.gui.services.jobService.data.KnownJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -32,8 +32,8 @@ class RecoverJob(private val jobID: UUID, private val endpoint: EndpointInfo, pr
         val ffm: FilesAndFolderMap? = endpoint.jobIdAndFilesFoldersMap.get(jobID.toString())
         if(ffm !=null) {
             return when (ffm.type) {
-                "GET" -> GetJob(KnownJob(GetJobData(listOf(), Paths.get(ffm.targetLocation), ffm.bucket, jte), ffm, jobID, client, ffm.type))
-                "PUT" -> PutJob(KnownJob(PutJobData(ffm.toPairs(), ffm.targetLocation, ffm.bucket, jte), ffm, jobID, client, ffm.type))
+                "GET" -> GetJob(KnownJobData(GetJobData(listOf(), Paths.get(ffm.targetLocation), ffm.bucket, jte), ffm, jobID, client, ffm.type))
+                "PUT" -> PutJob(KnownJobData(PutJobData(ffm.toPairs(), ffm.targetLocation, ffm.bucket, jte), ffm, jobID, client, ffm.type))
                 else -> throw Exception("")
             }
         }
