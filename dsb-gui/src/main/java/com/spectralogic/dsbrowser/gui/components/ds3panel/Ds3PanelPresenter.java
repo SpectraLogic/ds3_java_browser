@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
@@ -34,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.jobService.*;
+import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -59,7 +59,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import kotlin.Pair;
-import kotlin.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +68,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter

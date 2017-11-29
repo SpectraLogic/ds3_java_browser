@@ -13,10 +13,8 @@
  * ***************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.services.jobService
+package com.spectralogic.dsbrowser.gui.services.jobService.data
 
-import com.google.common.collect.ImmutableMap
-import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
@@ -24,17 +22,14 @@ import com.spectralogic.ds3client.helpers.FileObjectPutter
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.GuavaCollectors
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.Instant
-import java.util.stream.Collectors
 
 data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,

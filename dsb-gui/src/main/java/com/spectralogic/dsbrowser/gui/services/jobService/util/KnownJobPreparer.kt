@@ -18,7 +18,7 @@ package com.spectralogic.dsbrowser.gui.services.jobService.util
 import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-import com.spectralogic.dsbrowser.gui.services.jobService.JobData
+import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.util.*

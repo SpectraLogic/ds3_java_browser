@@ -17,6 +17,7 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.spectralogic.ds3client.helpers.*
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
+import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage

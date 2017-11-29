@@ -16,16 +16,12 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
-import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
+import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData
+import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData
 import com.spectralogic.dsbrowser.gui.services.jobService.util.KnownJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
-import io.reactivex.Completable
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*

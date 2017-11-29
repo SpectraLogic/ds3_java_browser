@@ -35,7 +35,7 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.PutJobData;
+import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
