@@ -23,6 +23,7 @@ import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
+import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.GuavaCollectors
@@ -64,10 +65,11 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     public fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
 
     private fun dataToDs3Objects(item: Pair<String, Path>): Iterable<Ds3Object> {
+        val localDelim = item.second.fileSystem.separator
         val parent = item.second.parent
         var x = Files.walk(item.second)
                 .filter { !(Files.isDirectory(it) && Files.list(it).findAny().isPresent) }
-                .map { Ds3Object(targetDir + parent.relativize(it).toString(), if (Files.isDirectory(it)) 0L else Files.size(it)) }.collect(GuavaCollectors.immutableList())
+                .map { Ds3Object(targetDir + parent.relativize(it).toString().replace(localDelim, "/"), if (Files.isDirectory(it)) 0L else Files.size(it)) }.collect(GuavaCollectors.immutableList())
         x.forEach({ prefixMap.put(it.name, item.second) })
         return x
     }

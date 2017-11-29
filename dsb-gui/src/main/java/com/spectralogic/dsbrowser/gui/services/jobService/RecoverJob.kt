@@ -20,7 +20,7 @@ import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo
 import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData
-import com.spectralogic.dsbrowser.gui.services.jobService.util.KnownJob
+import com.spectralogic.dsbrowser.gui.services.jobService.data.KnownJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.nio.file.Paths

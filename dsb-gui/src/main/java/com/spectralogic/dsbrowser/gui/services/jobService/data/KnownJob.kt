@@ -13,7 +13,7 @@
  * ***************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.services.jobService.util
+package com.spectralogic.dsbrowser.gui.services.jobService.data
 
 import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
