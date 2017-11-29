@@ -14,76 +14,48 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
-import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.*
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
-import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil
+import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkWaiter
+import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import io.reactivex.Completable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.util.*
 
-class GetJob(private val getJobData: GetJobData) : JobService(), PrepStage<GetJobData>, TransferStage, TeardownStage {
-    override fun jobUUID(): UUID? = job?.jobId
-
+class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
+    override fun jobUUID(): UUID? = getJobData.job!!.jobId
     private val log: Logger = LoggerFactory.getLogger(GetJob::class.java)
+    private var chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private var stats: Stats = Stats()
 
-    private var job: Ds3ClientHelpers.Job? = null
-
-    override fun prepare(resources: GetJobData): Ds3ClientHelpers.Job {
+    override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set("Preparing Job")
-        val job = getJobData.getJob()
-        this.job = job
+        val job = getJobData.job!!
         title.set("Transferring Job " + job.jobId)
-        val getActiveJobSpectraS3Request = GetActiveJobSpectraS3Request(job.jobId)
-        totalJob.set(getJobData.client.getActiveJobSpectraS3(getActiveJobSpectraS3Request).activeJobResult.originalSizeInBytes)
-        if (getJobData.hasMetadata()) {
-            job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.localPath.toString()).metadataReceived(s, metadata) }
+        totalJob.set(getJobData.jobSize())
+        if (getJobData.shouldRestoreFileAttributes()) {
+            job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(s, metadata) }
         }
         job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
-        job.attachObjectCompletedListener(ObjectCompletedListener{ updateStatistics(it) })
-        job.attachWaitingForChunksListener(WaitingForChunksListener { waitForChunks(it) })
-        job.attachFailureEventListener { getJobData.loggingService.logMessage(it.withObjectNamed(), LogType.ERROR) }
+        job.attachObjectCompletedListener(ObjectCompletedListener{ stats.updateStatistics(it, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath()) })
+        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkWaiter.waitForChunks(it, getJobData.loggingService(), log) })
+        job.attachFailureEventListener { getJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
+        getJobData.saveJob(totalJob.get())
         return job
     }
 
-    private fun updateStatistics(s: String?) {
-        val elapsedSeconds = Instant.now().epochSecond - getJobData.getStartTime().epochSecond
-        val sent = sent.get()
-        val transferRate = sent / elapsedSeconds.toFloat()
-        val timeRemaining: Float = if (transferRate != 0F) {
-            totalJob.get().toFloat() / transferRate
-        } else {
-            0F
-        }
-        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent),
-                totalJob.longValue(), s, "").toString())
-        getJobData.loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, getJobData.localPath.toString(), getJobData.dateTimeUtils.nowAsString(), null).toString(), LogType.SUCCESS)
-    }
-
-    private fun waitForChunks(s: Int) {
-        try {
-            getJobData.loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(s.toLong()), LogType.INFO)
-            Thread.sleep(s.toLong() * 1000)
-        } catch (e: InterruptedException) {
-            log.error("Did not receive chunks before timeout", e)
-            getJobData.loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR)
-        }
-    }
-
-
     override fun transfer(job: Ds3ClientHelpers.Job) {
         getJobData.setStartTime()
-        job.transfer {s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap().get(s)).buildChannel(s) }
+        job.transfer {s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString()).buildChannel(s) }
     }
 
     override fun tearDown() {
+        getJobData.removeJob()
     }
 
     override fun finishedCompletable(): Completable {

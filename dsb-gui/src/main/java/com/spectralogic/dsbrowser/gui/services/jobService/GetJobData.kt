@@ -16,7 +16,7 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import com.spectralogic.ds3client.Ds3Client
+import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
@@ -24,33 +24,57 @@ import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyErrorChannelBuilder
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
+import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel.Type.*
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import javafx.beans.property.SimpleBooleanProperty
+import sun.java2d.pipe.SpanShapeRenderer
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 
-data class GetJobData(val localPath: Path,
-                      val client: Ds3Client,
-                      private val doubles: List<Triple<String, String, BaseTreeModel.Type>>,
+data class GetJobData(private val list: List<Pair<String, String>>,
+                      private val localPath: Path,
                       val bucket: String,
-                      val loggingService: LoggingService,
-                      val resourceBundle: ResourceBundle,
-                      private val settingStore: SettingsStore,
-                      val dateTimeUtils: DateTimeUtils) {
+                      private val jte: JobTaskElement) : JobData {
 
+    override var job: Ds3ClientHelpers.Job? = null
+        get() {
+            if (field == null) {
+                field = Ds3ClientHelpers.wrap(jte.client).startReadJob(bucket, buildDs3Objects())
+            }
+            return field!!
+        }
+        set(value) {
+            if (value != null) field = value
+        }
+
+    override fun showCachedJobProperty(): SimpleBooleanProperty = SimpleBooleanProperty(true)
+    override fun loggingService(): LoggingService = jte.loggingService
+    override fun targetPath(): String = localPath.toString()
+    override fun dateTimeUtils(): DateTimeUtils = jte.dateTimeUtils
     private var startTime = Instant.now()
-    private val last : String? = null
-    private var map : ImmutableMap<String,String>? = null
-    public fun getStartTime(): Instant = startTime
-    public fun setStartTime(): Instant {
+    private val last: String? = null
+    override var prefixMap: MutableMap<String, Path> = ImmutableMap.of()
+        get() {
+            if (field.isEmpty()) {
+                val b: ImmutableMap.Builder<String, Path> = ImmutableMap.builder()
+                list.forEach({ b.put(it.first, Paths.get(it.second)) })
+                field = b.build()
+            }
+            return field
+        }
+
+    override public fun getStartTime(): Instant = startTime
+    override public fun setStartTime(): Instant {
         startTime = Instant.now()
         return startTime
     }
 
-    fun getObjectChannelBuilder(prefix : String?): Ds3ClientHelpers.ObjectChannelBuilder {
+    override fun getObjectChannelBuilder(prefix: String?): Ds3ClientHelpers.ObjectChannelBuilder {
         val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(EmptyErrorChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
         return if (prefix == null || prefix.isEmpty()) {
             ocb
@@ -59,34 +83,32 @@ data class GetJobData(val localPath: Path,
         }
     }
 
-    fun getJob(): Ds3ClientHelpers.Job = Ds3ClientHelpers.wrap(client).startReadJob(bucket, buildDs3Objects())
+    private fun buildDs3Objects(): List<Ds3Object> = list.flatMap({ dataToDs3Objects(it) }).distinct()
 
-    private fun buildDs3Objects(): List<Ds3Object> = doubles.flatMap({ dataToDs3Objects(it) }).distinct()
-
-    private fun dataToDs3Objects(t: Triple<String, String, BaseTreeModel.Type>): Iterable<Ds3Object> = when (t.third) {
-        Directory -> {
+    private fun dataToDs3Objects(t: Pair<String, String>): Iterable<Ds3Object> = when (t.first.last()) {
+        '/' -> {
             folderToObjects(t)
         }
-        File -> {
+        else -> {
             ImmutableList.of(Ds3Object(t.first))
         }
-        else -> {
-            Collections.emptyList()
-        }
     }
 
-    private fun folderToObjects(t: Triple<String, String, BaseTreeModel.Type>) : Iterable<Ds3Object> =
-            Ds3ClientHelpers.wrap(client).listObjects(bucket, t.first).map { contents -> Ds3Object(contents.key) }
+    private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> =
+            Ds3ClientHelpers.wrap(jte.client).listObjects(bucket, t.first).map { contents -> Ds3Object(contents.key) }
 
-    fun prefixMap() : ImmutableMap<String,String> {
-        if (map == null) {
-            val b : ImmutableMap.Builder<String,String> = ImmutableMap.builder()
-            doubles.forEach({ b.put(it.first, it.second)})
-            map = b.build()
-        }
-        return map!!
+    override fun shouldRestoreFileAttributes() = jte.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun jobSize(): Long {
+        var x = jte.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
+        return x
     }
 
-    fun hasMetadata() = settingStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun isCompleted(): Boolean = true
+    override fun removeJob() {
+        ParseJobInterruptionMap.removeJobIdFromFile(jte.jobInterruptionStore, job!!.jobId.toString(), jte.client.connectionDetails.endpoint)
+    }
 
+    override fun saveJob(jobSize: Long) {
+        ParseJobInterruptionMap.saveValuesToFiles(jte.jobInterruptionStore, prefixMap, mapOf(), jte.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jte.dateTimeUtils, "GET", bucket)
+    }
 }

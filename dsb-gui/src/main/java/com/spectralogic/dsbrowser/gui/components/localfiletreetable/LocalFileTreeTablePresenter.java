@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
 import com.spectralogic.dsbrowser.gui.services.jobService.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -485,7 +486,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
         files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
 
-        final PutJob putJob = new PutJob(new PutJobData(builder.build(), remoteDestination.toString(), settingsStore, loggingService, dateTimeUtils, targetDir), client, bucket);
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore)));
         final JobTask jobTask = new JobTask(putJob);
         //final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {

@@ -15,32 +15,29 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.google.common.collect.ImmutableMap
-import com.spectralogic.ds3client.Ds3Client
-import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl
-import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
-import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil
+import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkWaiter
+import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class PutJob(private val putJobData: PutJobData, private val client: Ds3Client, private val bucket: String) : JobService(), PrepStage<PutJobData>, TransferStage, TeardownStage {
+class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
 
     private var job: Ds3ClientHelpers.Job? = null
-    private var startTime: Instant = Instant.now()
+    private var chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private var stats: Stats = Stats()
     private var log: Logger = LoggerFactory.getLogger(PutJob::class.java)
+    override fun jobUUID(): UUID = putJobData.job!!.jobId
 
     override fun finishedCompletable(): Completable {
         return Completable.fromAction {
@@ -50,47 +47,36 @@ class PutJob(private val putJobData: PutJobData, private val client: Ds3Client, 
         }
     }
 
-    override fun jobUUID(): UUID = getJob().jobId
-
-    private fun getJob(): Ds3ClientHelpers.Job {
-        if (job == null) {
-            job = Ds3ClientHelpers.wrap(client).startWriteJob(bucket, putJobData.buildDs3Objects())
-        }
-        return job!!
-    }
-
-
-    override fun prepare(resources: PutJobData): Ds3ClientHelpers.Job {
+    override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set("Preparing")
-        val job: Ds3ClientHelpers.Job = getJob()
-        val getActiveJobSpectraS3Request = GetActiveJobSpectraS3Request(job.jobId)
-        totalJob.set(client.getActiveJobSpectraS3(getActiveJobSpectraS3Request).activeJobResult.originalSizeInBytes)
-        if (putJobData.hasMetadata()) {
-            job.withMetadata(MetadataAccessImpl(putJobData.prefixMap()))
+        val job: Ds3ClientHelpers.Job = putJobData.job!!
+        totalJob.set(putJobData.jobSize())
+        if (putJobData.shouldRestoreFileAttributes()) {
+            job.withMetadata(MetadataAccessImpl(ImmutableMap.copyOf(putJobData.prefixMap)))
         }
-        job.attachFailureEventListener { putJobData.loggingService.logMessage(it.withObjectNamed(), LogType.ERROR) }
+        job.attachFailureEventListener { putJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
         job.attachDataTransferredListener { sent.set(it + sent.get()) }
-        job.attachWaitingForChunksListener { waitForChunks(it) }
-        job.attachObjectCompletedListener { updateStatistics(it) }
-
+        job.attachWaitingForChunksListener { chunkWaiter.waitForChunks(it, putJobData.loggingService(), log) }
+        job.attachObjectCompletedListener { stats.updateStatistics(it, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.targetPath()) }
+        putJobData.saveJob(totalJob.get())
         return job
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
         title.set("Transferring " + jobUUID())
-        startTime = Instant.now()
-        job.transfer { s: String? -> putJobData.getObjectChannelBuilder(s).buildChannel(s!!.removePrefix(putJobData.targetDir)) }
+        putJobData.setStartTime()
+        job.transfer { s: String? -> putJobData.getObjectChannelBuilder(s).buildChannel(s!!.removePrefix(putJobData.targetPath())) }
     }
 
     override fun tearDown() {
         message.set("In Cache, Waiting to complete")
         totalJob.set(1)
         sent.set(1)
-        visible.bind(putJobData.settingsStore.showCachedJobSettings.showCachedJobEnableProperty())
+        visible.bind(putJobData.showCachedJobProperty())
         val disposable: Disposable = Observable.interval(60, TimeUnit.SECONDS)
-                .takeUntil({ _ -> isCompleted() })
+                .takeUntil({ _ -> putJobData.isCompleted() })
                 .retry { throwable ->
-                    putJobData.loggingService.logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
+                    putJobData.loggingService().logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
                     log.error("Unable to check status of job " + jobUUID(), throwable)
                     true
                 }
@@ -99,31 +85,8 @@ class PutJob(private val putJobData: PutJobData, private val client: Ds3Client, 
         while (!disposable.isDisposed) {
             Thread.sleep(1000)
         }
+        totalJob.set(1)
+        sent.set(1)
+        putJobData.removeJob()
     }
-
-    private fun waitForChunks(s: Int) {
-        try {
-            putJobData.loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(s.toLong()), LogType.INFO)
-            Thread.sleep(s.toLong() * 1000)
-        } catch (e: InterruptedException) {
-            log.error("Did not receive chunks before timeout", e)
-            putJobData.loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR)
-        }
-    }
-
-    private fun updateStatistics(s: String?) {
-        val elapsedSeconds = Instant.now().epochSecond - putJobData.getStartTime().epochSecond
-        val sent = sent.get()
-        val transferRate = sent / elapsedSeconds.toFloat()
-        val timeRemaining: Float = if (transferRate != 0F) {
-            totalJob.get().toFloat() / transferRate
-        } else {
-            0F
-        }
-        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent),
-                totalJob.longValue(), s, "").toString())
-        putJobData.loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, putJobData.remotePath, putJobData.dateTimeUtils.nowAsString(), putJobData.remotePath).toString(), LogType.SUCCESS)
-    }
-
-    private fun isCompleted(): Boolean = client.getJobSpectraS3(GetJobSpectraS3Request(jobUUID())).masterObjectListResult.status == JobStatus.COMPLETED
 }

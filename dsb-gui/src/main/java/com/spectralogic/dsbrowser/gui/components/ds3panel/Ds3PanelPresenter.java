@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
@@ -32,10 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
-import com.spectralogic.dsbrowser.gui.services.jobService.GetJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.GetJobData;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobService;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.*;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -120,7 +118,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
     private final LazyAlert alert;
-    private final Ds3GetJob.Ds3GetJobFactory getJobFactory;
+    private final SettingsStore settingsStore;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -135,10 +133,9 @@ public class Ds3PanelPresenter implements Initializable {
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
-            final Ds3GetJob.Ds3GetJobFactory getJobFactory,
+            final SettingsStore settingsStore,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
-        this.getJobFactory = getJobFactory;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
@@ -150,6 +147,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.savedSessionStore = savedSessionStore;
         this.loggingService = loggingService;
         this.alert = new LazyAlert(resourceBundle);
+        this.settingsStore = settingsStore;
     }
 
     @Override
@@ -449,16 +447,12 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final GetJobData getJobData = new GetJobData(localPath,
-                session.getClient(),
-                selectedItemsAtSourceLocationList.stream()
-                        .map(treeItem -> new Triple<>(treeItem.getFullName(), treeItem.getParentDir(), treeItem.getType()))
+        final GetJobData getJobData = new GetJobData(selectedItemsAtSourceLocationList.stream()
+                        .map(treeItem -> new Pair<>(treeItem.getFullName(), treeItem.getParentDir()))
                         .collect(GuavaCollectors.immutableList()),
+                localPath,
                 selectedItemsAtSourceLocationList.stream().findFirst().get().getBucketName(),
-                loggingService,
-                resourceBundle,
-                SettingsStore.loadSettingsStore(),
-                dateTimeUtils);
+                new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore));
         final GetJob get = new GetJob(getJobData);
         final JobTask getJob = new JobTask(get);
         //final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
