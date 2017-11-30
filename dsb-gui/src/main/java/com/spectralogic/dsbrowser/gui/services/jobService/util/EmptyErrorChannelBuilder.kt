@@ -21,9 +21,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class EmptyErrorChannelBuilder(private val ocb : Ds3ClientHelpers.ObjectChannelBuilder, private val localPath : Path) :  Ds3ClientHelpers.ObjectChannelBuilder by ocb {
-    private val delim : String = localPath.fileSystem.separator
     override fun buildChannel(name: String?): SeekableByteChannel {
-        return if(name != null && name.endsWith(delim)) {
+        return if(Files.isDirectory(localPath.resolve(name))) {
             Files.createDirectories(localPath.resolve(name))
             ErrorByteChannel()
         } else {

@@ -24,6 +24,7 @@ import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
+import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyErrorChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.GuavaCollectors
@@ -59,7 +60,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         return startTime
     }
 
-    override fun getObjectChannelBuilder(prefix: String): FileObjectPutter = FileObjectPutter(prefixMap.get(prefix)!!.parent)
+    override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder = EmptyErrorChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
 
     private fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
 
