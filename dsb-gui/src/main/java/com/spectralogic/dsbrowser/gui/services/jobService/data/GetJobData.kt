@@ -22,16 +22,20 @@ import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.ds3client.utils.Guard
+import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyErrorChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import com.spectralogic.dsbrowser.util.GuavaCollectors
 import javafx.beans.property.SimpleBooleanProperty
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
+import java.util.function.Consumer
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
@@ -85,12 +89,22 @@ data class GetJobData(private val list: List<Pair<String, String>>,
             folderToObjects(t)
         }
         else -> {
+            checkifOverWriting(t.first, t.second)
             ImmutableList.of(Ds3Object(t.first))
         }
     }
 
-    private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> =
-            Ds3ClientHelpers.wrap(jte.client).listObjects(bucket, t.first).map { contents -> Ds3Object(contents.key) }
+    private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> {
+        var list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jte.client).listObjects(bucket, t.first)
+                .map { contents -> Ds3Object(contents.key) }
+                .stream()
+                .collect(GuavaCollectors.immutableList())
+        list.forEach {
+            prefixMap.put(it.name, Paths.get(t.second))
+            checkifOverWriting(it.name, t.second)
+        }
+        return list
+    }
 
     override fun shouldRestoreFileAttributes() = jte.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
@@ -105,4 +119,12 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     override fun saveJob(jobSize: Long) {
         ParseJobInterruptionMap.saveValuesToFiles(jte.jobInterruptionStore, prefixMap, mapOf(), jte.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jte.dateTimeUtils, "GET", bucket)
     }
+
+    private fun checkifOverWriting(name: String, path: String) {
+        val filePath = Paths.get(targetPath(), name.removePrefix(path))
+        if(Files.exists(filePath)) {
+            loggingService().logMessage("Overwriting file ${filePath.toString()}", LogType.INFO)
+        }
+    }
+
 }

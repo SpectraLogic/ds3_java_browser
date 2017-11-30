@@ -26,6 +26,8 @@ import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import io.reactivex.Completable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
@@ -42,7 +44,12 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         val job = getJobData.job!!
         totalJob.set(getJobData.jobSize())
         if (getJobData.shouldRestoreFileAttributes()) {
-            job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(s, metadata) }
+            job.attachMetadataReceivedListener { s, metadata ->
+                var localFile: String = s.removePrefix(getJobData.prefixMap.get(s).toString())
+                if (localFile.startsWith("/"))
+                    localFile = localFile.removePrefix("/")
+                MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(localFile, metadata)
+            }
         }
         job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
         job.attachObjectCompletedListener(ObjectCompletedListener { stats.updateStatistics(it, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath()) })
@@ -55,8 +62,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     override fun transfer(job: Ds3ClientHelpers.Job) {
         title.set("Transferring GET Job ${job.jobId}")
         getJobData.setStartTime()
-        job.transfer { s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s)
-        }
+        job.transfer { s -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s) }
     }
 
     override fun tearDown() {
