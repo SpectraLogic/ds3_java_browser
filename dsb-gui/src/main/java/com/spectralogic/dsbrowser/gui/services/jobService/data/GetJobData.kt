@@ -15,7 +15,6 @@
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
 import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
@@ -26,7 +25,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
-import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyErrorChannelBuilder
+import com.spectralogic.dsbrowser.gui.services.jobService.util.DirectoryChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.GuavaCollectors
@@ -35,7 +34,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
-import java.util.function.Consumer
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
@@ -74,7 +72,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     }
 
     override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder {
-        val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(EmptyErrorChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
+        val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(DirectoryChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
         return if (Guard.isStringNullOrEmpty(prefix)) {
             ocb
         } else {
