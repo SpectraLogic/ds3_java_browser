@@ -68,7 +68,14 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         val parent = item.second.parent
         val ds3ObjectList = Files.walk(item.second)
                 .filter { !(Files.isDirectory(it) && Files.list(it).findAny().isPresent) }
-                .map { Ds3Object(targetDir + parent.relativize(it).toString().replace(localDelim, "/"), if (Files.isDirectory(it)) 0L else Files.size(it)) }.collect(GuavaCollectors.immutableList())
+                .map {
+                    Ds3Object(if (Files.isDirectory(it)) {
+                        targetDir + parent.relativize(it).toString().replace(localDelim, "/") + "/"
+                    } else {
+                        targetDir + parent.relativize(it).toString().replace(localDelim, "/")
+                    }
+                    , if (Files.isDirectory(it)) 0L else Files.size(it))
+                }.collect(GuavaCollectors.immutableList())
         ds3ObjectList.forEach({ prefixMap.put(it.name, item.second) })
         return ds3ObjectList
     }
