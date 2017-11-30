@@ -435,7 +435,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
+        final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath, null);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job {} succeeded.", getJob.getJobId());
             refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);

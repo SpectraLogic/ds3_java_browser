@@ -15,11 +15,15 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.GuiModule;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
+import com.spectralogic.dsbrowser.gui.injector.GuicePresenterInjector;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -29,9 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredential
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
+import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -73,6 +75,7 @@ public class RecoverInterruptedJobTest {
 
     @BeforeClass
     public static void setConnection() {
+        final Injector injector = GuicePresenterInjector.injector;
         new JFXPanel();
         Platform.runLater(() -> {
             try {
@@ -118,7 +121,7 @@ public class RecoverInterruptedJobTest {
                         final TaskProgressView<Ds3JobTask> taskProgressView = new TaskProgressView<>();
                         Mockito.when(deepStorageBrowserPresenter.getJobProgressView()).thenReturn(taskProgressView);
                         Mockito.when(ds3Common.getDeepStorageBrowserPresenter().getJobProgressView()).thenReturn(taskProgressView);
-                        recoverInterruptedJob = new RecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, client, null, SettingsStore.createDefaultSettingStore(), DTU, resourceBundle, jobInterruptionStore, session);
+                        recoverInterruptedJob = injector.getInstance(RecoverInterruptedJob.RecoverInterruptedJobFactory.class).createRecoverInterruptedJob(UUID.fromString(jobIdKey), endPointInfo, jobWorkers);
                         taskProgressView.getTasks().add(recoverInterruptedJob);
                     } else {
                         LOG.info("No job available to recover");

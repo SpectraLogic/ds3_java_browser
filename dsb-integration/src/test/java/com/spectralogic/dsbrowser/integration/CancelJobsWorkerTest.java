@@ -151,7 +151,7 @@ public class CancelJobsWorkerTest {
 
                 //Initiating a put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pairs, bucketName, StringConstants.EMPTY_STRING,
+                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pairs, bucketName, StringConstants.EMPTY_STRING, null,
                 JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle, settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task
@@ -200,7 +200,7 @@ public class CancelJobsWorkerTest {
                 //Initiating put job which to be cancelled
                 final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
                 final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pairs, bucketName, "",
-                        JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5,
+                        null, JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5,
                         resourceBundle , settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
 
                 //Starting put job task

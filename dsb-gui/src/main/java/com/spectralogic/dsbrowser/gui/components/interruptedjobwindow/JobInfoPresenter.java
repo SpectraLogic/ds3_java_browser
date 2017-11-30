@@ -236,7 +236,7 @@ public class JobInfoPresenter implements Initializable {
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
 
-                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(jobId), endpointInfo);
+                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(jobId), endpointInfo, jobWorkers);
                 recoverInterruptedJob.setOnSucceeded(SafeHandler.logHandle(recoverInterruptedJobSucceededEvent -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
@@ -302,7 +302,7 @@ public class JobInfoPresenter implements Initializable {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null) {
             jobIDMap.forEach((key, value) -> {
-                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(key), endpointInfo);
+                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(key), endpointInfo, jobWorkers);
                 recoverInterruptedJob.setOnSucceeded(SafeHandler.logHandle(event -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);

@@ -442,7 +442,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
             final Path localPath) {
-        final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath);
+        final Ds3GetJob getJob = ds3GetJobFactory.createDs3GetJob(listFiles, localPath, null);
         getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("Get Job completed successfully");
             refreshFileTreeView();
@@ -474,7 +474,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3Client client = session.getClient();
-        final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination);
+        final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(files, bucket, targetDir, remoteDestination, null);
         putJob.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.getJobId());
             refreshBlackPearlSideItem(remoteDestination);
