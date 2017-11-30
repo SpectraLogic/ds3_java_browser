@@ -40,7 +40,6 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set("Preparing Job")
         val job = getJobData.job!!
-        title.set("Transferring GET Job ${job.jobId}")
         totalJob.set(getJobData.jobSize())
         if (getJobData.shouldRestoreFileAttributes()) {
             job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(s, metadata) }
@@ -54,8 +53,9 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
+        title.set("Transferring GET Job ${job.jobId}")
         getJobData.setStartTime()
-        job.transfer { s: String -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s)
+        job.transfer { s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s)
         }
     }
 

@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
 
+    private var job: Ds3ClientHelpers.Job? = null
     private val chunkWaiter: ChunkWaiter = ChunkWaiter()
     private val stats: Stats = Stats()
     private companion object {

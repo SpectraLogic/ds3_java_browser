@@ -27,7 +27,7 @@ import java.time.Instant
 interface JobData {
     fun getStartTime(): Instant
     fun setStartTime(): Instant
-    fun getObjectChannelBuilder(prefix: String?): Ds3ClientHelpers.ObjectChannelBuilder
+    fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder
     fun shouldRestoreFileAttributes(): Boolean
     fun isCompleted(): Boolean
     fun jobSize(): Long
