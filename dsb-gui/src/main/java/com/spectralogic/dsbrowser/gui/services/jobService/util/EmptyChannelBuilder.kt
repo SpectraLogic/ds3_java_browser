@@ -22,7 +22,7 @@ import java.nio.file.Path
 
 class EmptyChannelBuilder(private val ocb: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by ocb {
     override fun buildChannel(name: String): SeekableByteChannel {
-        val path = localPath.resolve(name)
+        val path = localPath.parent.resolve(name)
         return if (Files.isDirectory(path)) {
             ErrorByteChannel()
         } else {
