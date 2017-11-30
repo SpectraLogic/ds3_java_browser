@@ -113,6 +113,9 @@ public class Ds3TreeTableValueCustom implements Serializable {
         }
         if (fullName.endsWith("/")) {
             final int secondLast = fullName.substring(0, fullName.length() - 1).lastIndexOf('/');
+            if (secondLast < 0) {
+                return  StringConstants.EMPTY_STRING;
+            }
             return fullName.substring(0, secondLast);
         }
         return fullName.substring(0, index);
