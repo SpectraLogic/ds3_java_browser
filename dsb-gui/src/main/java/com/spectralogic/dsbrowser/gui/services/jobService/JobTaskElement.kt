@@ -25,5 +25,4 @@ data class JobTaskElement constructor(val settingsStore: SettingsStore,
                                       val loggingService: LoggingService,
                                       val dateTimeUtils: DateTimeUtils,
                                       val client: Ds3Client,
-                                      val jobInterruptionStore: JobInterruptionStore) {
-}
+                                      val jobInterruptionStore: JobInterruptionStore)

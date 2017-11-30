@@ -20,31 +20,35 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.StringBuilderUtil
 import javafx.beans.property.LongProperty
-import javafx.beans.property.SimpleLongProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import java.time.Instant
-import java.util.*
 
 class Stats {
-    fun updateStatistics(s: String?,
+    fun updateStatistics(name: String,
                          startTime: Instant,
                          sent: LongProperty,
                          total: LongProperty,
                          message: StringProperty,
                          loggingService: LoggingService,
-                         toPath:String,
+                         toPath: String,
                          dateTimeUtils: DateTimeUtils,
                          location: String) {
         val elapsedSeconds = Instant.now().epochSecond - startTime.epochSecond
-        val transferRate = sent.get() / elapsedSeconds.toFloat()
-        val timeRemaining: Float = if (transferRate != 0F) {
+        val transferRate = estimateTransferRate(sent, elapsedSeconds)
+        val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
+        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
+                total.longValue(), name, "").toString())
+        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, toPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)
+    }
+
+    private fun estimateTransferRate(sent: LongProperty, elapsedSeconds: Long) =
+            sent.get() / elapsedSeconds.toFloat()
+
+    private fun estimateTimeRemaning(transferRate: Float, total: LongProperty): Float {
+        return if (transferRate != 0F) {
             total.get().toFloat() / transferRate
         } else {
             0F
         }
-        message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
-                total.longValue(), s, "").toString())
-        loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(s, toPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)
     }
 }

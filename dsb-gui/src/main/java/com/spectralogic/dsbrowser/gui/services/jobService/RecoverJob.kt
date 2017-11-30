@@ -29,19 +29,19 @@ import java.util.*
 class RecoverJob(private val jobID: UUID, private val endpoint: EndpointInfo, private val jte: JobTaskElement, val client: Ds3Client) {
 
     fun getTask(): JobService {
-        val ffm: FilesAndFolderMap? = endpoint.jobIdAndFilesFoldersMap.get(jobID.toString())
-        if(ffm !=null) {
+        val ffm = endpoint.jobIdAndFilesFoldersMap.get(jobID.toString())
+        if (ffm != null) {
             return when (ffm.type) {
                 "GET" -> GetJob(KnownJobData(GetJobData(listOf(), Paths.get(ffm.targetLocation), ffm.bucket, jte), ffm, jobID, client, ffm.type))
                 "PUT" -> PutJob(KnownJobData(PutJobData(ffm.toPairs(), ffm.targetLocation, ffm.bucket, jte), ffm, jobID, client, ffm.type))
-                else -> throw Exception("")
+                else -> throw RuntimeException("Unknown Job type ${ffm.type} was encountered")
             }
         }
         throw Exception("")
     }
 
     private fun FilesAndFolderMap.toPairs(): List<Pair<String, Path>> {
-        val builder: ImmutableList.Builder<Pair<String,Path>> = ImmutableList.builder()
+        val builder: ImmutableList.Builder<Pair<String, Path>> = ImmutableList.builder()
         builder.addAll(this.files.entries.map { Pair(it.key, it.value) })
         builder.addAll(this.folders.entries.map { Pair(it.key, it.value) })
         return builder.build()

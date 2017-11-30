@@ -43,7 +43,7 @@ abstract class JobService : JobFacade {
     override fun visabilityObservable(): Observable<Boolean> = visibilityObservable
     override fun jobSizeObservable(): Observable<Number> = totalObservable
     override fun sentObservable(): Observable<Number> = sentObservable
-    override fun totalJob(): LongProperty = totalJob
+    override fun totalJobSizeAsProperty(): LongProperty = totalJob
     override fun visibleProperty(): SimpleBooleanProperty = visible
 
     abstract override fun finishedCompletable(): Completable

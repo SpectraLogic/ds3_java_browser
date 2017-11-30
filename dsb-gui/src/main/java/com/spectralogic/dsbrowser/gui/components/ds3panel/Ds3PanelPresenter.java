@@ -201,7 +201,7 @@ public class Ds3PanelPresenter implements Initializable {
             try {
                 ds3TransferToLocal();
             } catch (final IOException e) {
-                e.printStackTrace();
+                LOG.error("Could not transfer to Local FIleSystem", e);
             }
         }));
         ds3NewBucket.setOnAction(SafeHandler.logHandle(event -> {
@@ -677,42 +677,41 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
             final Path localPath) {
-        final ImmutableList<String> buckets = listFiles.stream()
+        listFiles.stream()
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
-                .collect(GuavaCollectors.immutableList());
-        buckets.forEach(bucket -> {
-            final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
-                    .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
-                    .map(ds3 -> new kotlin.Pair<>(
-                            ds3.getFullName(),
-                            ds3.getParent()))
-                    .collect(GuavaCollectors.immutableList());
-            final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore);
-            final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
-            final JobTask jobTask = new JobTask(new GetJob(getJobData));
-            jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
-                LOG.info("Get Job completed successfully");
-                getTreeTableView().refresh();
-            }));
-            jobTask.setOnFailed(SafeHandler.logHandle(event -> {
-                final Throwable exception = event.getSource().getException();
-                LOG.error("Get Job failed", exception);
-                loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
-                getTreeTableView().refresh();
-            }));
-            jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
-                final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobTask.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
-                ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
-                ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
-                    LOG.info("Get Job cancelled");
-                    loggingService.logMessage("GET Job Cancelled", LogType.INFO);
-                    getTreeTableView().refresh();
-                }));
-                workers.execute(ds3CancelSingleJobTask);
-            }));
-            jobWorkers.execute(jobTask);
-        });
+                .forEach(bucket -> {
+                    final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
+                            .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
+                            .map(ds3 -> new kotlin.Pair<>(
+                                    ds3.getFullName(),
+                                    ds3.getParent() + "/"))
+                            .collect(GuavaCollectors.immutableList());
+                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore);
+                    final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
+                    final JobTask jobTask = new JobTask(new GetJob(getJobData));
+                    jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                        LOG.info("Get Job completed successfully");
+                        getTreeTableView().refresh();
+                    }));
+                    jobTask.setOnFailed(SafeHandler.logHandle(event -> {
+                        final Throwable exception = event.getSource().getException();
+                        LOG.error("Get Job failed", exception);
+                        loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
+                        getTreeTableView().refresh();
+                    }));
+                    jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
+                        final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobTask.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
+                        ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
+                        ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+                            LOG.info("Get Job cancelled");
+                            loggingService.logMessage("GET Job Cancelled", LogType.INFO);
+                            getTreeTableView().refresh();
+                        }));
+                        workers.execute(ds3CancelSingleJobTask);
+                    }));
+                    jobWorkers.execute(jobTask);
+                });
     }
 }
 

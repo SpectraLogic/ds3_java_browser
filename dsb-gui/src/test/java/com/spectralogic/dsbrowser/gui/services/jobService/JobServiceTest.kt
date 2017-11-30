@@ -34,7 +34,7 @@ class JobServiceTest {
     private var jobService: IncrementalJobService? = null
 
     protected class IncrementalJobService() : JobService() {
-        override fun jobUUID(): UUID? = UUID.randomUUID()
+        override fun jobUUID(): UUID = UUID.randomUUID()
 
         override fun finishedCompletable(): Completable {
             return Completable.fromAction {

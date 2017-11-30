@@ -29,22 +29,25 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
-    override fun jobUUID(): UUID? = getJobData.job!!.jobId
-    private val log: Logger = LoggerFactory.getLogger(GetJob::class.java)
-    private var chunkWaiter: ChunkWaiter = ChunkWaiter()
-    private var stats: Stats = Stats()
+    private val chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private val stats: Stats = Stats()
 
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(GetJob::class.java)
+    }
+
+    override fun jobUUID(): UUID = getJobData.job!!.jobId
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set("Preparing Job")
         val job = getJobData.job!!
-        title.set("Transferring Job " + job.jobId)
+        title.set("Transferring GET Job ${job.jobId}")
         totalJob.set(getJobData.jobSize())
         if (getJobData.shouldRestoreFileAttributes()) {
             job.attachMetadataReceivedListener { s, metadata -> MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(s, metadata) }
         }
         job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
-        job.attachObjectCompletedListener(ObjectCompletedListener{ stats.updateStatistics(it, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath()) })
-        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkWaiter.waitForChunks(it, getJobData.loggingService(), log) })
+        job.attachObjectCompletedListener(ObjectCompletedListener { stats.updateStatistics(it, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath()) })
+        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkWaiter.waitForChunks(it, getJobData.loggingService(), LOG) })
         job.attachFailureEventListener { getJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
         getJobData.saveJob(totalJob.get())
         return job
@@ -52,7 +55,8 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
         getJobData.setStartTime()
-        job.transfer {s: String? -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString()).buildChannel(s) }
+        job.transfer { s: String -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s)
+        }
     }
 
     override fun tearDown() {

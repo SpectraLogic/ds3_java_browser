@@ -161,7 +161,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         if (index < 0) {
             return StringConstants.EMPTY_STRING;
         }
-        final String sub = name.substring(0, index) + '/';
+        final String sub = name.substring(0, index);
         if (sub.equals(name)) {
             return "";
         } else {

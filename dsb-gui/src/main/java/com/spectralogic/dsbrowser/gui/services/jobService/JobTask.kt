@@ -14,17 +14,13 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
-import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
-import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.concurrent.Task
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 
 class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
@@ -49,7 +45,7 @@ class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
 
         jorb.sentObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { n: Number -> updateProgress(n.toLong(), jorb.totalJob().get()) }
+                .doOnNext { n: Number -> updateProgress(n.toLong(), jorb.totalJobSizeAsProperty().get()) }
                 .doOnError { t: Throwable -> throw t }
                 .subscribe()
 

@@ -67,11 +67,11 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     private fun dataToDs3Objects(item: Pair<String, Path>): Iterable<Ds3Object> {
         val localDelim = item.second.fileSystem.separator
         val parent = item.second.parent
-        var x = Files.walk(item.second)
+        val ds3ObjectList = Files.walk(item.second)
                 .filter { !(Files.isDirectory(it) && Files.list(it).findAny().isPresent) }
                 .map { Ds3Object(targetDir + parent.relativize(it).toString().replace(localDelim, "/"), if (Files.isDirectory(it)) 0L else Files.size(it)) }.collect(GuavaCollectors.immutableList())
-        x.forEach({ prefixMap.put(it.name, item.second) })
-        return x
+        ds3ObjectList.forEach({ prefixMap.put(it.name, item.second) })
+        return ds3ObjectList
     }
 
     override fun jobSize() = jte.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes

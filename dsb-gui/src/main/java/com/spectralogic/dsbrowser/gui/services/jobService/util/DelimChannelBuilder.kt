@@ -16,25 +16,16 @@
 package com.spectralogic.dsbrowser.gui.services.jobService.util
 
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-import com.spectralogic.ds3client.helpers.FileObjectGetter
-import com.spectralogic.ds3client.helpers.ObjectChannelBuilderLogger
-import com.spectralogic.dsbrowser.api.services.logging.LogType
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService
-import com.spectralogic.dsbrowser.gui.util.StringConstants
 import java.nio.channels.SeekableByteChannel
-import java.nio.file.FileSystem
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.*
 
 class DelimChannelBuilder(private val ocb: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by ocb {
     private val localDelim = localPath.fileSystem.separator
-    override fun buildChannel(p0: String): SeekableByteChannel {
+    override fun buildChannel(name: String): SeekableByteChannel {
         return ocb.buildChannel(if (localPath.fileSystem.separator != "/") {
-            p0.replace("/", localDelim)
+            name.replace("/", localDelim)
         } else {
-            p0
+            name
         })
     }
 }

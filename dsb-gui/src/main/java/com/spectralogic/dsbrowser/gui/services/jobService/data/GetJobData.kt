@@ -21,6 +21,7 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
 import com.spectralogic.ds3client.models.bulk.Ds3Object
+import com.spectralogic.ds3client.utils.Guard
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DelimChannelBuilder
@@ -54,12 +55,10 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     override fun dateTimeUtils(): DateTimeUtils = jte.dateTimeUtils
     private var startTime = Instant.now()
     private val last: String? = null
-    override var prefixMap: MutableMap<String, Path> = ImmutableMap.of()
+    override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {
             if (field.isEmpty()) {
-                val b: ImmutableMap.Builder<String, Path> = ImmutableMap.builder()
-                list.forEach({ b.put(it.first, Paths.get(it.second)) })
-                field = b.build()
+                list.forEach({ field.put(it.first, Paths.get(it.second)) })
             }
             return field
         }
@@ -72,7 +71,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     override fun getObjectChannelBuilder(prefix: String?): Ds3ClientHelpers.ObjectChannelBuilder {
         val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(EmptyErrorChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
-        return if (prefix == null || prefix.isEmpty()) {
+        return if (Guard.isStringNullOrEmpty(prefix)) {
             ocb
         } else {
             PrefixRemoverObjectChannelBuilder(ocb, prefix)
@@ -95,8 +94,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     override fun shouldRestoreFileAttributes() = jte.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
-        var x = jte.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
-        return x
+        return jte.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
     }
 
     override fun isCompleted(): Boolean = true

@@ -29,7 +29,7 @@ interface JobFacade {
     public fun visabilityObservable(): Observable<Boolean>
     public fun finishedCompletable(): Completable
     public fun sentObservable(): Observable<Number>
-    public fun totalJob(): LongProperty
+    public fun totalJobSizeAsProperty(): LongProperty
     public fun visibleProperty(): SimpleBooleanProperty
-    public fun jobUUID(): UUID?
+    public fun jobUUID(): UUID
 }

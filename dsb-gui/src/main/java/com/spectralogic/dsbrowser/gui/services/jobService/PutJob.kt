@@ -34,10 +34,12 @@ import java.util.concurrent.TimeUnit
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
 
-    private var job: Ds3ClientHelpers.Job? = null
-    private var chunkWaiter: ChunkWaiter = ChunkWaiter()
-    private var stats: Stats = Stats()
-    private var log: Logger = LoggerFactory.getLogger(PutJob::class.java)
+    private val chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private val stats: Stats = Stats()
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(GetJob::class.java)
+    }
+
     override fun jobUUID(): UUID = putJobData.job!!.jobId
 
     override fun finishedCompletable(): Completable {
@@ -57,16 +59,16 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         }
         job.attachFailureEventListener { putJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
         job.attachDataTransferredListener { sent.set(it + sent.get()) }
-        job.attachWaitingForChunksListener { chunkWaiter.waitForChunks(it, putJobData.loggingService(), log) }
+        job.attachWaitingForChunksListener { chunkWaiter.waitForChunks(it, putJobData.loggingService(), LOG) }
         job.attachObjectCompletedListener { stats.updateStatistics(it, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.targetPath()) }
         putJobData.saveJob(totalJob.get())
         return job
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
-        title.set("Transferring " + jobUUID())
+        title.set("Transferring PUT ${jobUUID()}")
         putJobData.setStartTime()
-        job.transfer { s: String? -> putJobData.getObjectChannelBuilder(s).buildChannel(s!!.removePrefix(putJobData.targetPath())) }
+        job.transfer { s: String -> putJobData.getObjectChannelBuilder(s).buildChannel(s.removePrefix(putJobData.targetPath())) }
     }
 
     override fun tearDown() {
@@ -78,7 +80,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
                 .takeUntil({ _ -> putJobData.isCompleted() })
                 .retry { throwable ->
                     putJobData.loggingService().logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
-                    log.error("Unable to check status of job " + jobUUID(), throwable)
+                    LOG.error("Unable to check status of job " + jobUUID(), throwable)
                     true
                 }
                 .ignoreElements()
