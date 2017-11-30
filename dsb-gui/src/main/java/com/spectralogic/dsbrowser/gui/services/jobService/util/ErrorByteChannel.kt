@@ -18,7 +18,7 @@ package com.spectralogic.dsbrowser.gui.services.jobService.util
 import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 
-class ErrorByteChannel() : SeekableByteChannel{
+class ErrorByteChannel() : SeekableByteChannel {
 
     override fun isOpen(): Boolean {
         return true

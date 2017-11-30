@@ -69,7 +69,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         return startTime
     }
 
-    override fun getObjectChannelBuilder(prefix: String?): Ds3ClientHelpers.ObjectChannelBuilder {
+    override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder {
         val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(EmptyErrorChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
         return if (Guard.isStringNullOrEmpty(prefix)) {
             ocb

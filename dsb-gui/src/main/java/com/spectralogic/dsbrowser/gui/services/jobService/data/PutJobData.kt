@@ -59,8 +59,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         return startTime
     }
 
-    override fun getObjectChannelBuilder(prefix: String?): FileObjectPutter = FileObjectPutter(prefixMap.get(prefix)!!.parent)
-
+    override fun getObjectChannelBuilder(prefix: String): FileObjectPutter = FileObjectPutter(prefixMap.get(prefix)!!.parent)
 
     private fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
 
