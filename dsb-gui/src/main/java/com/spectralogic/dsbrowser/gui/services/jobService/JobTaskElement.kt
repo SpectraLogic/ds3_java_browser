@@ -20,9 +20,10 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
+import javax.inject.Inject
 
-data class JobTaskElement constructor(val settingsStore: SettingsStore,
-                                      val loggingService: LoggingService,
-                                      val dateTimeUtils: DateTimeUtils,
-                                      val client: Ds3Client,
-                                      val jobInterruptionStore: JobInterruptionStore)
+data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
+                                                  val loggingService: LoggingService,
+                                                  val dateTimeUtils: DateTimeUtils,
+                                                  val client: Ds3Client,
+                                                  val jobInterruptionStore: JobInterruptionStore)
