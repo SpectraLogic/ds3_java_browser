@@ -22,36 +22,36 @@ import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import java.util.*
 
-class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
+class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
     override fun executeJob() {
         var throwable : Throwable? = null
-        jorb.titleObservable()
+        wrappedJob.titleObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { title: String -> updateTitle(title) }
                 .subscribe()
 
-        jorb.messageObservable()
+        wrappedJob.messageObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { message: String -> updateMessage(message) }
                 .subscribe()
 
-        jorb.jobSizeObservable()
+        wrappedJob.jobSizeObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { size: Number -> updateProgress(0L, size.toLong()) }
                 .subscribe()
 
-        jorb.sentObservable()
+        wrappedJob.sentObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { size: Number -> updateProgress(size.toLong(), jorb.totalJobSizeAsProperty().get()) }
+                .doOnNext { size: Number -> updateProgress(size.toLong(), wrappedJob.totalJobSizeAsProperty().get()) }
                 .subscribe()
 
-        jorb.visabilityObservable()
+        wrappedJob.visabilityObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        jorb.finishedCompletable()
+        wrappedJob.finishedCompletable()
                 .subscribe(Action {  }, Consumer { throwable = it })
         if(throwable != null) {
             throw throwable!!
@@ -59,7 +59,7 @@ class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
 
     }
 
-    override fun getJobId(): UUID = jorb.jobUUID()
+    override fun getJobId(): UUID = wrappedJob.jobUUID()
 
     public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 }
