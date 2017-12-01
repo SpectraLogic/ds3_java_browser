@@ -74,11 +74,11 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     }
 
     override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder {
-        val ocb: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(DirectoryChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
+        val objectChannelBuilder: Ds3ClientHelpers.ObjectChannelBuilder = DelimChannelBuilder(DirectoryChannelBuilder(FileObjectGetter(localPath), localPath), localPath)
         return if (Guard.isStringNullOrEmpty(prefix)) {
-            ocb
+            objectChannelBuilder
         } else {
-            PrefixRemoverObjectChannelBuilder(ocb, prefix.replace(localPath.fileSystem.separator, "/"))
+            PrefixRemoverObjectChannelBuilder(objectChannelBuilder, prefix.replace(localPath.fileSystem.separator, "/"))
         }
     }
 
