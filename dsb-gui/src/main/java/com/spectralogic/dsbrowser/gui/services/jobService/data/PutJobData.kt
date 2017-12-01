@@ -17,10 +17,13 @@ package com.spectralogic.dsbrowser.gui.services.jobService.data
 
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
+import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectPutter
 import com.spectralogic.ds3client.models.JobStatus
+import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
+import com.spectralogic.ds3client.utils.Guard
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.DirectoryChannelBuilder
@@ -37,6 +40,14 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       val bucket: String,
                       private val jte: JobTaskElement) : JobData {
+    override fun modifyJob(job: Ds3ClientHelpers.Job) {
+        job.withMaxParallelRequests(jte.settingsStore.processSettings.maximumNumberOfParallelThreads)
+        val putJobPriority = jte.savedJobPrioritiesStore.jobSettings.putJobPriority
+        if (Guard.isStringNullOrEmpty(putJobPriority)) {
+            jte.client.modifyJobSpectraS3(ModifyJobSpectraS3Request(job.jobId).withPriority(Priority.valueOf(putJobPriority)))
+        }
+    }
+
     override var job: Ds3ClientHelpers.Job? = null
         get() {
             if (field == null) {

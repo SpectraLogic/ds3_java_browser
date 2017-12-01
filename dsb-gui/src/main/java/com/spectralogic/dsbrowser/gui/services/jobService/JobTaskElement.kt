@@ -18,12 +18,14 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import javax.inject.Inject
 
 data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
-                                                  val loggingService: LoggingService,
-                                                  val dateTimeUtils: DateTimeUtils,
-                                                  val client: Ds3Client,
-                                                  val jobInterruptionStore: JobInterruptionStore)
+                                              val loggingService: LoggingService,
+                                              val dateTimeUtils: DateTimeUtils,
+                                              val client: Ds3Client,
+                                              val jobInterruptionStore: JobInterruptionStore,
+                                              val savedJobPrioritiesStore: SavedJobPrioritiesStore)

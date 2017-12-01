@@ -39,6 +39,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
 import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
@@ -102,6 +103,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final SettingsStore settingsStore;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
@@ -119,11 +121,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final EndpointInfo endpointInfo,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final SettingsStore settingsStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.settingsStore = settingsStore;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
@@ -457,7 +461,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     ds3.getFullName(),
                                     ds3.getParent()))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore);
+                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
@@ -495,7 +499,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final ImmutableList.Builder<kotlin.Pair<String, Path>> builder = ImmutableList.builder();
         files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
 
-        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore)));
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());

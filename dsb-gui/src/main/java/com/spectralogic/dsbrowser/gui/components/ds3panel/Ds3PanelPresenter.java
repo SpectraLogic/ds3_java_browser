@@ -37,6 +37,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.*;
 import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -118,6 +119,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final LazyAlert alert;
     private final SettingsStore settingsStore;
     private final EndpointInfo endpointInfo;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -134,10 +136,12 @@ public class Ds3PanelPresenter implements Initializable {
             final SavedSessionStore savedSessionStore,
             final SettingsStore settingsStore,
             final EndpointInfo endpointInfo,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.endpointInfo = endpointInfo;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -687,7 +691,7 @@ public class Ds3PanelPresenter implements Initializable {
                                     ds3.getFullName(),
                                     ds3.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore);
+                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {

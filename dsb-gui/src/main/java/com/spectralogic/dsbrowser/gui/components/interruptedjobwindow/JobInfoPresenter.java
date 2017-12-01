@@ -29,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
@@ -88,7 +89,7 @@ public class JobInfoPresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final SettingsStore settingsStore;
     private final JobTaskElement jte;
-
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private Stage stage;
 
     @Inject
@@ -102,10 +103,12 @@ public class JobInfoPresenter implements Initializable {
                             final DateTimeUtils dateTimeUtils,
                             final SettingsStore settingsStore,
                             final JobTaskElement jte,
+                            final SavedJobPrioritiesStore savedJobPrioritiesStore,
                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.jte = jte;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -242,7 +245,7 @@ public class JobInfoPresenter implements Initializable {
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
 
-                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore,loggingService,dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore),endpointInfo.getClient());
+                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore,loggingService,dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore, savedJobPrioritiesStore),endpointInfo.getClient());
                 final JobTask jobTask = new JobTask(recoverJob.getTask());
                 jobTask.setOnSucceeded(SafeHandler.logHandle(recoverInterruptedJobSucceededEvent -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);

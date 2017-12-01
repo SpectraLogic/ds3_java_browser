@@ -37,6 +37,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
@@ -108,6 +109,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final LazyAlert alert;
     private final SettingsStore settingsStore;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
 
     private ContextMenu contextMenu;
 
@@ -123,11 +125,13 @@ public class Ds3TreeTablePresenter implements Initializable {
             final JobInterruptionStore jobInterruptionStore,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final SettingsStore settingsStore) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.ds3Common = ds3Common;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.jobInterruptionStore = jobInterruptionStore;
@@ -712,7 +716,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
         files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
 
-        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore)));
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
