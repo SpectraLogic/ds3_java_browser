@@ -714,7 +714,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final Ds3Client client = session.getClient();
 
         final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
-        files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
+        files.forEach(file -> builder.add(new kotlin.Pair<>(file.getKey(), file.getValue())));
 
         final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
         final JobTask jobTask = new JobTask(putJob);
