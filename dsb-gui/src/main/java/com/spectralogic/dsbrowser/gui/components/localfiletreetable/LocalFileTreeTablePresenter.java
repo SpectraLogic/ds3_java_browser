@@ -478,8 +478,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                         final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(jobTask.getJobId().toString(), endpointInfo, jobInterruptionStore, JobRequestType.GET.toString(), loggingService);
                         ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle(event -> LOG.error("Failed to cancel job")));
                         ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
-                            LOG.info("Get Job cancelled");
-                            loggingService.logMessage("GET Job Cancelled", LogType.INFO);
+                            LOG.info("Get Job canceled");
+                            loggingService.logMessage("GET Job Canceled", LogType.INFO);
                             refreshFileTreeView();
                         }));
                         workers.execute(ds3CancelSingleJobTask);
@@ -517,7 +517,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 LOG.error("Failed to cancel job", e);
                 loggingService.logMessage("Could not cancel job", LogType.ERROR);
             }
-            LOG.info("BULK_PUT job {} Cancelled.", jobId);
+            LOG.info("BULK_PUT job {} Canceled.", jobId);
             loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
 
             ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),

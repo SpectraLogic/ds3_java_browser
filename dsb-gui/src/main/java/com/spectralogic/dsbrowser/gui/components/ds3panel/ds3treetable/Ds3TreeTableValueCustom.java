@@ -42,6 +42,7 @@ public class Ds3TreeTableValueCustom implements Serializable {
         this.searchOn = searchOn;
     }
 
+    //I'm not sure what this method does, it isn't called anywhere
     public boolean isContainer() {
         return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File);
     }

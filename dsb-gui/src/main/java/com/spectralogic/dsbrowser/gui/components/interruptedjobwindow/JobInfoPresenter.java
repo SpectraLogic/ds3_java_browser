@@ -159,7 +159,7 @@ public class JobInfoPresenter implements Initializable {
                     loggingService.logMessage("Initiating job cancel for " + key, LogType.INFO);
                     try {
                         endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(key));
-                        LOG.info("Cancelled job.");
+                        LOG.info("Canceled job.");
                     } catch (final IOException e) {
                         LOG.error("Unable to cancel job ", e);
                     } finally {
@@ -173,9 +173,9 @@ public class JobInfoPresenter implements Initializable {
         cancelJobId.setOnSucceeded(SafeHandler.logHandle(event -> {
             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
             if (cancelJobId.getValue() != null) {
-                LOG.info("Cancelled job {}", cancelJobId.getValue());
+                LOG.info("Canceled job {}", cancelJobId.getValue());
             } else {
-                LOG.info("Cancelled to cancel job ");
+                LOG.info("Canceled to cancel job ");
             }
         }));
         workers.execute(cancelJobId);
