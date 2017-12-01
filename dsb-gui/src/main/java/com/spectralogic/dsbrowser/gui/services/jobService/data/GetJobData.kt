@@ -40,12 +40,12 @@ import java.time.Instant
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       val bucket: String,
-                      private val jte: JobTaskElement) : JobData {
+                      private val jobTaskElement: JobTaskElement) : JobData {
 
     override var job: Ds3ClientHelpers.Job? = null
         get() {
             if (field == null) {
-                field = Ds3ClientHelpers.wrap(jte.client).startReadJob(bucket, buildDs3Objects())
+                field = Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects())
             }
             return field!!
         }
@@ -54,9 +54,9 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         }
 
     override fun showCachedJobProperty(): SimpleBooleanProperty = SimpleBooleanProperty(true)
-    override fun loggingService(): LoggingService = jte.loggingService
+    override fun loggingService(): LoggingService = jobTaskElement.loggingService
     override fun targetPath(): String = localPath.toString()
-    override fun dateTimeUtils(): DateTimeUtils = jte.dateTimeUtils
+    override fun dateTimeUtils(): DateTimeUtils = jobTaskElement.dateTimeUtils
     private var startTime = Instant.now()
     private val last: String? = null
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
@@ -95,7 +95,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     }
 
     private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> {
-        var list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jte.client).listObjects(bucket, t.first)
+        var list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jobTaskElement.client).listObjects(bucket, t.first)
                 .map { contents -> Ds3Object(contents.key) }
                 .stream()
                 .collect(GuavaCollectors.immutableList())
@@ -106,18 +106,18 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         return list
     }
 
-    override fun shouldRestoreFileAttributes() = jte.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
-        return jte.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
+        return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
     }
 
     override fun isCompleted(): Boolean = true
     override fun removeJob() {
-        ParseJobInterruptionMap.removeJobIdFromFile(jte.jobInterruptionStore, job!!.jobId.toString(), jte.client.connectionDetails.endpoint)
+        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job!!.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
     }
 
     override fun saveJob(jobSize: Long) {
-        ParseJobInterruptionMap.saveValuesToFiles(jte.jobInterruptionStore, prefixMap, mapOf(), jte.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jte.dateTimeUtils, "GET", bucket)
+        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "GET", bucket)
     }
 
     private fun checkifOverWriting(name: String, path: String) {
@@ -128,10 +128,10 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     }
 
     override fun modifyJob(job: Ds3ClientHelpers.Job) {
-        job.withMaxParallelRequests(jte.settingsStore.processSettings.maximumNumberOfParallelThreads)
-        val putJobPriority = jte.savedJobPrioritiesStore.jobSettings.getJobPriority
+        job.withMaxParallelRequests(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
+        val putJobPriority = jobTaskElement.savedJobPrioritiesStore.jobSettings.getJobPriority
         if (Guard.isStringNullOrEmpty(putJobPriority)) {
-            jte.client.modifyJobSpectraS3(ModifyJobSpectraS3Request(job.jobId).withPriority(Priority.valueOf(putJobPriority)))
+            jobTaskElement.client.modifyJobSpectraS3(ModifyJobSpectraS3Request(job.jobId).withPriority(Priority.valueOf(putJobPriority)))
         }
     }
 

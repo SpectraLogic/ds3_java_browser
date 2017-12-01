@@ -1,9 +1,3 @@
-package com.spectralogic.dsbrowser.gui.services.jobService.stage
-
-import com.google.common.collect.ImmutableMap
-import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-import java.nio.file.Path
-
 /*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
@@ -18,6 +12,12 @@ import java.nio.file.Path
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
+
+import com.google.common.collect.ImmutableMap
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
+import java.nio.file.Path
+
 interface PrepStage<T> {
     fun prepare(resources : T) : Ds3ClientHelpers.Job
 }

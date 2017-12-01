@@ -88,7 +88,7 @@ public class JobInfoPresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final DateTimeUtils dateTimeUtils;
     private final SettingsStore settingsStore;
-    private final JobTaskElement jte;
+    private final JobTaskElement jobTaskElement;
     private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private Stage stage;
 
@@ -102,12 +102,12 @@ public class JobInfoPresenter implements Initializable {
                             final LoggingService loggingService,
                             final DateTimeUtils dateTimeUtils,
                             final SettingsStore settingsStore,
-                            final JobTaskElement jte,
+                            final JobTaskElement jobTaskElement,
                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
                             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
-        this.jte = jte;
+        this.jobTaskElement = jobTaskElement;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
@@ -312,7 +312,7 @@ public class JobInfoPresenter implements Initializable {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null) {
             jobIDMap.forEach((key, value) -> {
-                final JobTask recoverInterruptedJob = new JobTask(new RecoverJob(UUID.fromString(key), endpointInfo, jte, jte.getClient()).getTask());
+                final JobTask recoverInterruptedJob = new JobTask(new RecoverJob(UUID.fromString(key), endpointInfo, jobTaskElement, jobTaskElement.getClient()).getTask());
                 recoverInterruptedJob.setOnSucceeded(SafeHandler.logHandle(event -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);

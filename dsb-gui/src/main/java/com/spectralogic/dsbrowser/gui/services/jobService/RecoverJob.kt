@@ -26,18 +26,18 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
-class RecoverJob(private val jobID: UUID, private val endpoint: EndpointInfo, private val jte: JobTaskElement, val client: Ds3Client) {
+class RecoverJob(private val jobID: UUID, private val endpoint: EndpointInfo, private val jobTaskElement: JobTaskElement, val client: Ds3Client) {
 
     fun getTask(): JobService {
-        val ffm = endpoint.jobIdAndFilesFoldersMap.get(jobID.toString())
-        if (ffm != null) {
-            return when (ffm.type) {
-                "GET" -> GetJob(KnownJobData(GetJobData(listOf(), Paths.get(ffm.targetLocation), ffm.bucket, jte), ffm, jobID, client, ffm.type))
-                "PUT" -> PutJob(KnownJobData(PutJobData(ffm.toPairs(), ffm.targetLocation, ffm.bucket, jte), ffm, jobID, client, ffm.type))
-                else -> throw RuntimeException("Unknown Job type ${ffm.type} was encountered")
+        val filesAndFolderMap = endpoint.jobIdAndFilesFoldersMap.get(jobID.toString())
+        if (filesAndFolderMap != null) {
+            return when (filesAndFolderMap.type) {
+                "GET" -> GetJob(KnownJobData(GetJobData(emptyList(), Paths.get(filesAndFolderMap.targetLocation), filesAndFolderMap.bucket, jobTaskElement), filesAndFolderMap, jobID, client, filesAndFolderMap.type))
+                "PUT" -> PutJob(KnownJobData(PutJobData(filesAndFolderMap.toPairs(), filesAndFolderMap.targetLocation, filesAndFolderMap.bucket, jobTaskElement), filesAndFolderMap, jobID, client, filesAndFolderMap.type))
+                else -> throw RuntimeException("Unknown Job type ${filesAndFolderMap.type} was encountered")
             }
         }
-        throw Exception("")
+        throw Exception("Could not recover interrupted jobs from disk")
     }
 
     private fun FilesAndFolderMap.toPairs(): List<Pair<String, Path>> {

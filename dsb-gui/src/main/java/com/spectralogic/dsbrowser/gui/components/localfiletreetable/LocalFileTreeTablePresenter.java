@@ -461,8 +461,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     ds3.getFullName(),
                                     ds3.getParent()))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore);
-                    final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
+                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore);
+                    final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         LOG.info("Get Job completed successfully");
@@ -515,6 +515,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.jobUUID()));
             } catch (final IOException e) {
                 LOG.error("Failed to cancel job", e);
+                loggingService.logMessage("Could not cancel job", LogType.ERROR);
             }
             LOG.info("BULK_PUT job {} Cancelled.", jobId);
             loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);

@@ -1,7 +1,3 @@
-package com.spectralogic.dsbrowser.gui.services.jobService.stage
-
-import io.reactivex.Completable
-
 /*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
@@ -16,6 +12,10 @@ import io.reactivex.Completable
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
+
+import io.reactivex.Completable
+
 interface TeardownStage {
     fun tearDown()
 }

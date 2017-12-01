@@ -45,7 +45,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         totalJob.set(getJobData.jobSize())
         if (getJobData.shouldRestoreFileAttributes()) {
             job.attachMetadataReceivedListener { s, metadata ->
-                var localFile: String = s.removePrefix(getJobData.prefixMap.get(s).toString())
+                var localFile = s.removePrefix(getJobData.prefixMap.get(s).toString())
                 if (localFile.startsWith("/"))
                     localFile = localFile.removePrefix("/")
                 MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(localFile, metadata)

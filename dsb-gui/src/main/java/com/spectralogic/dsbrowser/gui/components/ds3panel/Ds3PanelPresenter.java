@@ -687,12 +687,12 @@ public class Ds3PanelPresenter implements Initializable {
                 .forEach(bucket -> {
                     final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
-                            .map(ds3 -> new kotlin.Pair<>(
-                                    ds3.getFullName(),
-                                    ds3.getParent() + "/"))
+                            .map(ds3TreeTableValueCustom -> new kotlin.Pair<>(
+                                    ds3TreeTableValueCustom.getFullName(),
+                                    ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jte = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore);
-                    final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jte);
+                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore);
+                    final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         LOG.info("Get Job completed successfully");

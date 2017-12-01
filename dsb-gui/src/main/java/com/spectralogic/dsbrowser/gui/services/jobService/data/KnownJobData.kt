@@ -18,14 +18,14 @@ package com.spectralogic.dsbrowser.gui.services.jobService.data
 import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.util.*
 
+private const val RETRY_TIME = 100
 class KnownJobData constructor(
         private val jobData: JobData,
-        private val ffm: FilesAndFolderMap,
+        private val filesAndFolderMap: FilesAndFolderMap,
         val jobId: UUID,
         val client: Ds3Client,
         private val jobType: String
@@ -35,9 +35,9 @@ class KnownJobData constructor(
         get() {
             if (field == null) {
                 if (jobType == "GET") {
-                    field = Ds3ClientHelpers.wrap(client, 100).recoverReadJob(jobId)
+                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
                 } else if (jobType == "PUT") {
-                    field = Ds3ClientHelpers.wrap(client, 100).recoverWriteJob(jobId)
+                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
                 }
             }
             jobData.job = field
@@ -47,8 +47,8 @@ class KnownJobData constructor(
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {
             val builder: ImmutableMap.Builder<String, Path> = ImmutableMap.builder()
-            builder.putAll(ffm.files)
-            builder.putAll(ffm.folders)
+            builder.putAll(filesAndFolderMap.files)
+            builder.putAll(filesAndFolderMap.folders)
             jobData.prefixMap = builder.build()
             return jobData.prefixMap
         }

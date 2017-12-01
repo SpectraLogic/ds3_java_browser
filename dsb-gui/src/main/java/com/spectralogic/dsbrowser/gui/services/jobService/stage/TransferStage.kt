@@ -1,7 +1,3 @@
-package com.spectralogic.dsbrowser.gui.services.jobService.stage
-
-import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-
 /*
  * ****************************************************************************
  *    Copyright 2014-2017 Spectra Logic Corporation. All Rights Reserved.
@@ -16,6 +12,10 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
  *    specific language governing permissions and limitations under the License.
  *  ****************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.services.jobService.stage
+
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
+
 interface TransferStage {
     fun transfer(job : Ds3ClientHelpers.Job)
 }
