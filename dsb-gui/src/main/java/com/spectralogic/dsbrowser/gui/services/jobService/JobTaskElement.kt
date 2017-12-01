@@ -21,6 +21,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
+import java.util.*
 import javax.inject.Inject
 
 data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
@@ -28,4 +29,5 @@ data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
                                               val dateTimeUtils: DateTimeUtils,
                                               val client: Ds3Client,
                                               val jobInterruptionStore: JobInterruptionStore,
-                                              val savedJobPrioritiesStore: SavedJobPrioritiesStore)
+                                              val savedJobPrioritiesStore: SavedJobPrioritiesStore,
+                                              val resourceBundle: ResourceBundle)

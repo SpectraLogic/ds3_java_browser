@@ -716,7 +716,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
         files.forEach(file -> builder.add(new kotlin.Pair<>(file.getKey(), file.getValue())));
 
-        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());

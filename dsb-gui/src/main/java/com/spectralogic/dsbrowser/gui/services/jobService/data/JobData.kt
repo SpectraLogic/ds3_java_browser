@@ -38,6 +38,7 @@ interface JobData {
     fun saveJob(jobSize: Long)
     fun removeJob()
     fun modifyJob(job :Ds3ClientHelpers.Job)
+    fun internationalize(labelName: String): String
     var job: Ds3ClientHelpers.Job?
     var prefixMap: MutableMap<String, Path>
 }

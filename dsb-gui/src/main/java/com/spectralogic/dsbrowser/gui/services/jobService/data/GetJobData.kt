@@ -41,6 +41,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+    override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
 
     override var job: Ds3ClientHelpers.Job? = null
         get() {

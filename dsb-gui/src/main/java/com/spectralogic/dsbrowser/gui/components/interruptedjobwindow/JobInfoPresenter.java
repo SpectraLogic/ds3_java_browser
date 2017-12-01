@@ -245,7 +245,7 @@ public class JobInfoPresenter implements Initializable {
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
 
-                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore,loggingService,dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore, savedJobPrioritiesStore),endpointInfo.getClient());
+                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore,loggingService,dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle),endpointInfo.getClient());
                 final JobTask jobTask = new JobTask(recoverJob.getTask());
                 jobTask.setOnSucceeded(SafeHandler.logHandle(recoverInterruptedJobSucceededEvent -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);

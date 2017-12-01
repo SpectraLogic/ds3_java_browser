@@ -52,7 +52,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
-        title.set("Preparing")
+        title.set(putJobData.internationalize("preparingJob"))
         val job: Ds3ClientHelpers.Job = putJobData.job!!
         totalJob.set(putJobData.jobSize())
         if (putJobData.shouldRestoreFileAttributes()) {

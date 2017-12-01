@@ -691,7 +691,7 @@ public class Ds3PanelPresenter implements Initializable {
                                     ds3TreeTableValueCustom.getFullName(),
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore);
+                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {

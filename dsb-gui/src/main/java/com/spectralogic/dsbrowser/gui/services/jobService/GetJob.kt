@@ -40,7 +40,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
 
     override fun jobUUID(): UUID = getJobData.job!!.jobId
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
-        title.set("Preparing Job")
+        title.set(getJobData.internationalize("preparingJob"))
         val job = getJobData.job!!
         totalJob.set(getJobData.jobSize())
         if (getJobData.shouldRestoreFileAttributes()) {

@@ -39,6 +39,8 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+
+    override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
     override fun modifyJob(job: Ds3ClientHelpers.Job) {
         job.withMaxParallelRequests(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
         val putJobPriority = jobTaskElement.savedJobPrioritiesStore.jobSettings.putJobPriority

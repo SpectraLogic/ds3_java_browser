@@ -461,7 +461,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     ds3.getFullName(),
                                     ds3.getParent()))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore);
+                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
@@ -496,7 +496,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3Client client = session.getClient();
 
-        final PutJob putJob = new PutJob(new PutJobData(files, targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
+        final PutJob putJob = new PutJob(new PutJobData(files, targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
