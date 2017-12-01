@@ -122,7 +122,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     private fun checkifOverWriting(name: String, path: String) {
         val filePath = Paths.get(targetPath(), name.removePrefix(path))
-        if(Files.exists(filePath)) {
+        if (Files.exists(filePath)) {
             loggingService().logMessage("Overwriting file ${filePath.toString()}", LogType.INFO)
         }
     }

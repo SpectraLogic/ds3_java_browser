@@ -284,14 +284,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private ImmutableList<Pair<String, Path>> getLocalFilesToPut() {
+    private ImmutableList<kotlin.Pair<String, Path>> getLocalFilesToPut() {
         final ObservableList<TreeItem<FileTreeModel>> currentLocalSelection = treeTable.getSelectionModel().getSelectedItems();
-        final ImmutableList<Pair<String, Path>> files = currentLocalSelection
+        final ImmutableList<kotlin.Pair<String, Path>> files = currentLocalSelection
                 .stream()
                 .filter(Objects::nonNull)
                 .map(TreeItem::getValue)
                 .filter(Objects::nonNull)
-                .map(i -> new Pair<>(i.getName(), i.getPath()))
+                .map(i -> new kotlin.Pair<>(i.getName(), i.getPath()))
                 .collect(GuavaCollectors.immutableList());
         if (files.isEmpty()) {
             ds3Common.getDs3TreeTableView().refresh();
@@ -347,7 +347,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         LOG.info("Passing new Ds3PutJob to jobWorkers thread pool to be scheduled");
 
         // Get local files to PUT
-        final ImmutableList<Pair<String, Path>> filesToPut = getLocalFilesToPut();
+        final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
             alert.info("fileSelect");
             return;
@@ -489,17 +489,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startPutJob(final Session session,
-            final List<Pair<String, Path>> files,
+            final List<kotlin.Pair<String, Path>> files,
             final String bucket,
             final String targetDir,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         final Ds3Client client = session.getClient();
 
-        final ImmutableList.Builder<kotlin.Pair<String, Path>> builder = ImmutableList.builder();
-        files.forEach(f -> builder.add(new kotlin.Pair<>(f.getKey(), f.getValue())));
-
-        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
+        final PutJob putJob = new PutJob(new PutJobData(files, targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
