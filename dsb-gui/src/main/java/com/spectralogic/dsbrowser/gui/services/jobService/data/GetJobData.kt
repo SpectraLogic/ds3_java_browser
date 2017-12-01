@@ -78,7 +78,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         return if (Guard.isStringNullOrEmpty(prefix)) {
             ocb
         } else {
-            PrefixRemoverObjectChannelBuilder(ocb, prefix)
+            PrefixRemoverObjectChannelBuilder(ocb, prefix.replace(localPath.fileSystem.separator, "/"))
         }
     }
 
