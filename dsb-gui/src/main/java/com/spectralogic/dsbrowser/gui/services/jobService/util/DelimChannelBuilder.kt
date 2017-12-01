@@ -19,10 +19,10 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import java.nio.channels.SeekableByteChannel
 import java.nio.file.Path
 
-class DelimChannelBuilder(private val ocb: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by ocb {
+class DelimChannelBuilder(private val objectChannelBuilder: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by objectChannelBuilder {
     private val localDelim = localPath.fileSystem.separator
     override fun buildChannel(name: String): SeekableByteChannel {
-        return ocb.buildChannel(if (localPath.fileSystem.separator != "/") {
+        return objectChannelBuilder.buildChannel(if (localPath.fileSystem.separator != "/") {
             name.replace("/", localDelim)
         } else {
             name

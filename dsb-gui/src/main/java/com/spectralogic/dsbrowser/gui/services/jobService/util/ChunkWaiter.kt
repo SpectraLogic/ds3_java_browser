@@ -21,10 +21,10 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import org.slf4j.Logger
 
 class ChunkWaiter {
-    fun waitForChunks(s: Int, loggingService: LoggingService, logger: Logger) {
+    fun waitForChunks(seconds: Int, loggingService: LoggingService, logger: Logger) {
         try {
-            loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(s.toLong()), LogType.INFO)
-            Thread.sleep(s.toLong() * 1000)
+            loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(seconds.toLong()), LogType.INFO)
+            Thread.sleep(seconds.toLong() * 1000)
         } catch (e: InterruptedException) {
             logger.error("Did not receive chunks before timeout", e)
             loggingService.logMessage("Did not receive chunks before timeout", LogType.ERROR)

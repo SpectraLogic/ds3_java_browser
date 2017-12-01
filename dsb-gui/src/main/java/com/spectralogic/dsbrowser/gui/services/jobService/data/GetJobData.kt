@@ -84,13 +84,13 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     private fun buildDs3Objects(): List<Ds3Object> = list.flatMap({ dataToDs3Objects(it) }).distinct()
 
-    private fun dataToDs3Objects(t: Pair<String, String>): Iterable<Ds3Object> = when (t.first.last()) {
+    private fun dataToDs3Objects(filePair: Pair<String, String>): Iterable<Ds3Object> = when (filePair.first.last()) {
         '/' -> {
-            folderToObjects(t)
+            folderToObjects(filePair)
         }
         else -> {
-            checkifOverWriting(t.first, t.second)
-            ImmutableList.of(Ds3Object(t.first))
+            checkifOverWriting(filePair.first, filePair.second)
+            ImmutableList.of(Ds3Object(filePair.first))
         }
     }
 
