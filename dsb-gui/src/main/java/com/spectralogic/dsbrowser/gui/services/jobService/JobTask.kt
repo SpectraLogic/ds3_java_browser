@@ -28,27 +28,27 @@ class JobTask(private val jorb: JobFacade) : Ds3JobTask() {
         var throwable : Throwable? = null
         jorb.titleObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { s: String -> updateTitle(s) }
+                .doOnNext { title: String -> updateTitle(title) }
                 .subscribe()
 
         jorb.messageObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { s: String -> updateMessage(s) }
+                .doOnNext { message: String -> updateMessage(message) }
                 .subscribe()
 
         jorb.jobSizeObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { n: Number -> updateProgress(0L, n.toLong()) }
+                .doOnNext { size: Number -> updateProgress(0L, size.toLong()) }
                 .subscribe()
 
         jorb.sentObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { n: Number -> updateProgress(n.toLong(), jorb.totalJobSizeAsProperty().get()) }
+                .doOnNext { size: Number -> updateProgress(size.toLong(), jorb.totalJobSizeAsProperty().get()) }
                 .subscribe()
 
         jorb.visabilityObservable()
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext { b: Boolean -> isVisible.set(b) }
+                .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
         jorb.finishedCompletable()

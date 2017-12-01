@@ -69,7 +69,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
     override fun transfer(job: Ds3ClientHelpers.Job) {
         title.set("Transferring PUT ${jobUUID()}")
         putJobData.setStartTime()
-        job.transfer { s: String -> putJobData.getObjectChannelBuilder(s).buildChannel(s.removePrefix(putJobData.targetPath())) }
+        job.transfer { transferName: String -> putJobData.getObjectChannelBuilder(transferName).buildChannel(transferName.removePrefix(putJobData.targetPath())) }
     }
 
     override fun tearDown() {
