@@ -79,7 +79,6 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         putJobData.loggingService().logMessage(putJobData.internationalize("starting") + " PUT " + job.jobId, LogType.SUCCESS)
         putJobData.setStartTime()
         job.transfer { transferName: String ->
-            putJobData.loggingService().logMessage(putJobData.internationalize("starting") + transferName, LogType.SUCCESS)
             putJobData.getObjectChannelBuilder(transferName).buildChannel(transferName.removePrefix(putJobData.targetPath()))
         }
     }

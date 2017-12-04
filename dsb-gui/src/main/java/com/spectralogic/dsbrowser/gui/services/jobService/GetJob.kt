@@ -70,7 +70,6 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         getJobData.setStartTime()
         job.transfer { transferName ->
-            getJobData.loggingService().logMessage(getJobData.internationalize("starting") + transferName, LogType.SUCCESS)
             getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(transferName).toString() + "/").buildChannel(transferName)
         }
     }
