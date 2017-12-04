@@ -21,17 +21,14 @@ import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
-import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkWaiter
+import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkManagment
 import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import io.reactivex.Completable
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.*
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
-    private val chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private val chunkManagment: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats()
 
     private companion object {
@@ -59,7 +56,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
             getJobData.lastFile = it
             stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), true)
         })
-        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkWaiter.waitForChunks(it, getJobData.loggingService(), LOG) })
+        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkManagment.waitForChunks(it, getJobData.loggingService(), LOG) })
         job.attachFailureEventListener { getJobData.loggingService().logMessage(it.toString(), LogType.ERROR) }
         getJobData.saveJob(totalJob.get())
         return job

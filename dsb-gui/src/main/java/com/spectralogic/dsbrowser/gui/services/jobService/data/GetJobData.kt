@@ -65,7 +65,6 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     override fun targetPath(): String = localPath.toString()
     override fun dateTimeUtils(): DateTimeUtils = jobTaskElement.dateTimeUtils
     private var startTime = Instant.now()
-    private val last: String? = null
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {
             if (field.isEmpty()) {

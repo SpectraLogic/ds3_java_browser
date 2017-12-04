@@ -353,7 +353,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             return;
         }
 
-        startPutJob(session, filesToPut, bucket, targetDir, jobInterruptionStore, remoteDestination);
+        startPutJob(session.getClient(), filesToPut, bucket, targetDir, jobInterruptionStore, remoteDestination);
     }
 
     static private void refreshBlackPearlSideItem(final TreeItem<Ds3TreeTableValue> treeItem) {
@@ -450,7 +450,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
      * @param localPath path where selected files need to transfer
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath, final Session session) {
+            final Path localPath, final Ds3Client client) {
         listFiles.stream()
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
@@ -461,7 +461,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                                     ds3.getFullName(),
                                     ds3.getParent()))
                             .collect(GuavaCollectors.immutableList());
-                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, session.getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
+                    final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
                     final JobTask jobTask = new JobTask(new GetJob(getJobData));
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
@@ -488,14 +488,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 });
     }
 
-    private void startPutJob(final Session session,
+    private void startPutJob(final Ds3Client client,
             final List<kotlin.Pair<String, Path>> files,
             final String bucket,
             final String targetDir,
             final JobInterruptionStore jobInterruptionStore,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
-        final Ds3Client client = session.getClient();
-
         final PutJob putJob = new PutJob(new PutJobData(files, targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle)));
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
@@ -560,7 +558,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             LOG.info("Drop event contains files");
 
             @SuppressWarnings("unchecked") final List<Ds3TreeTableValueCustom> list = (List<Ds3TreeTableValueCustom>) db.getContent(dataFormat);
-            startGetJob(list, localPath, ds3Common.getCurrentSession());
+            startGetJob(list, localPath, ds3Common.getCurrentSession().getClient());
         }
     }
 

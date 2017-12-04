@@ -22,12 +22,11 @@ import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
-import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkWaiter
+import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkManagment
 import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
 
     private var job: Ds3ClientHelpers.Job? = null
-    private val chunkWaiter: ChunkWaiter = ChunkWaiter()
+    private val chunkManagment: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats()
     private companion object {
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
@@ -65,7 +64,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
             sent.set(it + sent.get())
             stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.bucket, false)
         }
-        job.attachWaitingForChunksListener { chunkWaiter.waitForChunks(it, putJobData.loggingService(), LOG) }
+        job.attachWaitingForChunksListener { chunkManagment.waitForChunks(it, putJobData.loggingService(), LOG) }
         job.attachObjectCompletedListener {
             putJobData.lastFile = it
             stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.bucket, true)

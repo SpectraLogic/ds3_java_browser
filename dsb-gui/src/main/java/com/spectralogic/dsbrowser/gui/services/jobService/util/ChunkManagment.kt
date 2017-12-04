@@ -20,7 +20,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import org.slf4j.Logger
 
-class ChunkWaiter {
+class ChunkManagment {
     fun waitForChunks(seconds: Int, loggingService: LoggingService, logger: Logger) {
         try {
             loggingService.logMessage("Waiting for chunks, will try again in " + DateTimeUtils.timeConversion(seconds.toLong()), LogType.INFO)
