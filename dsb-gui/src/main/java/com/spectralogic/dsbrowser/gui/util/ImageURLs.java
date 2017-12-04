@@ -25,6 +25,7 @@ public interface ImageURLs {
     String STORAGE_TAPES = "/images/tape.png";
     String EJECTED_TAPES = "/images/tapeEjected.png";
     String BLACKPEARL_CACHE = "/images/blackPearlCache.png";
+    String NO_BLACKPEARL_CACHE = "/images/noBlackPearlCache.png";
     String REPLICATION = "/images/bpReplicate.png";
     String CLOUD = "/images/publicCloud.png";
 

@@ -73,8 +73,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final TaskProgressView<Ds3JobTask> jobProgressView = new TaskProgressView<>();
     private final ImageView interruptedJobImageView = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
     private final ImageView cancelAllJobsImageView = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
-    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
-    private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.STORAGE_TAPES);
+    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.NO_BLACKPEARL_CACHE);
+    private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
 
     private final StackPane stackpane = new StackPane();
     private final AnchorPane anchorPane = new AnchorPane();

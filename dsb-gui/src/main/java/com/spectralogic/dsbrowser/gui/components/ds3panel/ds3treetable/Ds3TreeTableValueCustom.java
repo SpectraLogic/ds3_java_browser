@@ -42,7 +42,10 @@ public class Ds3TreeTableValueCustom implements Serializable {
         this.searchOn = searchOn;
     }
 
-    public boolean isContainer() { return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File); }
+    //I'm not sure what this method does, it isn't called anywhere
+    public boolean isContainer() {
+        return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File);
+    }
 
     public boolean isSearchOn() {
         return searchOn;
@@ -100,6 +103,21 @@ public class Ds3TreeTableValueCustom implements Serializable {
         final int index = fullName.lastIndexOf('/');
         if (index < 0) {
             return StringConstants.EMPTY_STRING;
+        }
+        return fullName.substring(0, index);
+    }
+
+    public String getParent() {
+        final int index = fullName.lastIndexOf('/');
+        if (index < 0) {
+            return StringConstants.EMPTY_STRING;
+        }
+        if (fullName.endsWith("/")) {
+            final int secondLast = fullName.substring(0, fullName.length() - 1).lastIndexOf('/');
+            if (secondLast < 0) {
+                return  StringConstants.EMPTY_STRING;
+            }
+            return fullName.substring(0, secondLast);
         }
         return fullName.substring(0, index);
     }

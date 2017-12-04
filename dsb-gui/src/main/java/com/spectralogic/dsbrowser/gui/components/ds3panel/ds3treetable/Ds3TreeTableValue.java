@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.layout.HBox;
@@ -35,13 +36,13 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     private long logicalCapacity;
 
     public Ds3TreeTableValue(final String bucketName,
-                             final String name,
-                             final Type type,
-                             final long size,
-                             final String lastModified,
-                             final String owner,
-                             final boolean searchOn,
-                             final HBox physicalPlacementHBox) {
+            final String name,
+            final Type type,
+            final long size,
+            final String lastModified,
+            final String owner,
+            final boolean searchOn,
+            final HBox physicalPlacementHBox) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -56,14 +57,14 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
 
     //constructor with marker
     public Ds3TreeTableValue(final String bucketName,
-                             final String name,
-                             final Type type,
-                             final long size,
-                             final String lastModified,
-                             final String owner,
-                             final boolean searchOn,
-                             final HBox physicalPlacementHBox,
-                             final String marker) {
+            final String name,
+            final Type type,
+            final long size,
+            final String lastModified,
+            final String owner,
+            final boolean searchOn,
+            final HBox physicalPlacementHBox,
+            final String marker) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -152,11 +153,22 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     }
 
     private String getParentDir(final String fullName) {
-        final int index = fullName.lastIndexOf('/');
+        String name = fullName;
+        if(name.endsWith("/")) {
+            name = name.substring(0, name.length() - 1);
+        }
+        final int index = name.lastIndexOf('/');
         if (index < 0) {
             return StringConstants.EMPTY_STRING;
         }
-        return fullName.substring(0, index) + '/';
+        final String sub = name.substring(0, index);
+        if (sub.equals(name)) {
+            return StringConstants.EMPTY_STRING;
+        } else {
+            return sub;
+        }
+
+
     }
 
     public String getOwner() {
@@ -179,5 +191,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         this.logicalCapacity = logicalCapacity;
     }
 
-
+    public String getParentDir() {
+        return getParentDir(this.getFullName());
+    }
 }
