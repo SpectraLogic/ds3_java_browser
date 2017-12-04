@@ -20,6 +20,7 @@ import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectPutter
+import com.spectralogic.ds3client.helpers.options.WriteJobOptions
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
@@ -37,22 +38,24 @@ import java.time.Instant
 
 data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
-                      val bucket: String,
+                      override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
 
+    override public var lastFile = ""
     override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
     override fun modifyJob(job: Ds3ClientHelpers.Job) {
         job.withMaxParallelRequests(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
-        val putJobPriority = jobTaskElement.savedJobPrioritiesStore.jobSettings.putJobPriority
-        if (Guard.isStringNullOrEmpty(putJobPriority)) {
-            jobTaskElement.client.modifyJobSpectraS3(ModifyJobSpectraS3Request(job.jobId).withPriority(Priority.valueOf(putJobPriority)))
-        }
     }
 
     override var job: Ds3ClientHelpers.Job? = null
         get() {
             if (field == null) {
-                field = Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, buildDs3Objects())
+                field = if (writeJobOptions() == null) {
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, buildDs3Objects())
+                } else {
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, buildDs3Objects(), writeJobOptions())
+                }
+
             }
             return field!!
         }
@@ -104,5 +107,15 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
 
     override fun saveJob(jobSize: Long) {
         ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "PUT", bucket)
+    }
+
+    private fun writeJobOptions(): WriteJobOptions? {
+        val writeJobOptions = WriteJobOptions.create()
+        val priority = jobTaskElement.savedJobPrioritiesStore.jobSettings.putJobPriority
+        return if (Guard.isStringNullOrEmpty(priority) || priority.equals("Data Policy Default (no change)")) {
+            null
+        } else {
+            writeJobOptions.withPriority(Priority.valueOf(priority))
+        }
     }
 }

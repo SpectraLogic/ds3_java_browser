@@ -51,18 +51,28 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
                 MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(localFile, metadata)
             }
         }
-        job.attachDataTransferredListener(DataTransferredListener { sent.set(it + sent.get()) })
-        job.attachObjectCompletedListener(ObjectCompletedListener { stats.updateStatistics(it, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath()) })
+        job.attachDataTransferredListener(DataTransferredListener {
+            sent.set(it + sent.get())
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), false)
+        })
+        job.attachObjectCompletedListener(ObjectCompletedListener {
+            getJobData.lastFile = it
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), true)
+        })
         job.attachWaitingForChunksListener(WaitingForChunksListener { chunkWaiter.waitForChunks(it, getJobData.loggingService(), LOG) })
-        job.attachFailureEventListener { getJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
+        job.attachFailureEventListener { getJobData.loggingService().logMessage(it.toString(), LogType.ERROR) }
         getJobData.saveJob(totalJob.get())
         return job
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
         title.set("Transferring GET Job ${job.jobId}")
+        getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         getJobData.setStartTime()
-        job.transfer { s -> getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(s).toString() + "/").buildChannel(s) }
+        job.transfer { transferName ->
+            getJobData.loggingService().logMessage(getJobData.internationalize("starting") + transferName, LogType.SUCCESS)
+            getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(transferName).toString() + "/").buildChannel(transferName)
+        }
     }
 
     override fun tearDown() {

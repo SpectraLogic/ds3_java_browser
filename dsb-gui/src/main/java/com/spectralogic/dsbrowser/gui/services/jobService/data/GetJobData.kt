@@ -20,6 +20,7 @@ import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
+import com.spectralogic.ds3client.helpers.options.ReadJobOptions
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.ds3client.utils.Guard
@@ -39,14 +40,19 @@ import java.time.Instant
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
-                      val bucket: String,
+                      override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
-    override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
+    override public var lastFile: String = ""
+    override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
 
     override var job: Ds3ClientHelpers.Job? = null
         get() {
             if (field == null) {
-                field = Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects())
+                field = if (readJobOptions() == null) {
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects())
+                } else {
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects(), readJobOptions())
+                }
             }
             return field!!
         }
@@ -130,9 +136,15 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     override fun modifyJob(job: Ds3ClientHelpers.Job) {
         job.withMaxParallelRequests(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
-        val putJobPriority = jobTaskElement.savedJobPrioritiesStore.jobSettings.getJobPriority
-        if (Guard.isStringNullOrEmpty(putJobPriority)) {
-            jobTaskElement.client.modifyJobSpectraS3(ModifyJobSpectraS3Request(job.jobId).withPriority(Priority.valueOf(putJobPriority)))
+    }
+
+    private fun readJobOptions(): ReadJobOptions? {
+        val readJobOptions = ReadJobOptions.create()
+        val priority = jobTaskElement.savedJobPrioritiesStore.jobSettings.getJobPriority
+        return if (Guard.isStringNullOrEmpty(priority) || priority.equals("Data Policy Default (no change)")) {
+            null
+        } else {
+            readJobOptions.withPriority(Priority.valueOf(priority))
         }
     }
 

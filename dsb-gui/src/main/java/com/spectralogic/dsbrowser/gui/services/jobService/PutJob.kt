@@ -58,18 +58,30 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         if (putJobData.shouldRestoreFileAttributes()) {
             job.withMetadata(MetadataAccessImpl(ImmutableMap.copyOf(putJobData.prefixMap)))
         }
-        job.attachFailureEventListener { putJobData.loggingService().logMessage(it.withObjectNamed(), LogType.ERROR) }
-        job.attachDataTransferredListener { sent.set(it + sent.get()) }
+        job.attachFailureEventListener { event ->
+            putJobData.loggingService().logMessage(event.toString(), LogType.ERROR)
+        }
+        job.attachDataTransferredListener {
+            sent.set(it + sent.get())
+            stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.bucket, false)
+        }
         job.attachWaitingForChunksListener { chunkWaiter.waitForChunks(it, putJobData.loggingService(), LOG) }
-        job.attachObjectCompletedListener { stats.updateStatistics(it, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.targetPath()) }
+        job.attachObjectCompletedListener {
+            putJobData.lastFile = it
+            stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, message, putJobData.loggingService(), putJobData.targetPath(), putJobData.dateTimeUtils(), putJobData.bucket, true)
+        }
         putJobData.saveJob(totalJob.get())
         return job
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
         title.set("Transferring PUT ${jobUUID()}")
+        putJobData.loggingService().logMessage(putJobData.internationalize("starting") + " PUT " + job.jobId, LogType.SUCCESS)
         putJobData.setStartTime()
-        job.transfer { transferName: String -> putJobData.getObjectChannelBuilder(transferName).buildChannel(transferName.removePrefix(putJobData.targetPath())) }
+        job.transfer { transferName: String ->
+            putJobData.loggingService().logMessage(putJobData.internationalize("starting") + transferName, LogType.SUCCESS)
+            putJobData.getObjectChannelBuilder(transferName).buildChannel(transferName.removePrefix(putJobData.targetPath()))
+        }
     }
 
     override fun tearDown() {
