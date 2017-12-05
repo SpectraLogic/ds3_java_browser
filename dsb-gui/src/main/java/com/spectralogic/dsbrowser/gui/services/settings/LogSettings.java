@@ -55,7 +55,7 @@ public class LogSettings {
     private static LogSettings createDefault() {
         final String logPath = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH),
                 StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.LOG).toString();
-        return new LogSettings(logPath, 1, 10, true, false);
+        return new LogSettings(logPath, 10, 10, true, false);
     }
 
     public String getLogLocation() {
