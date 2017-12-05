@@ -27,7 +27,9 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -47,7 +49,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
 
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
 
-    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor) {
+    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor, final BooleanProperty showCache) {
         super(monitor);
 
         final BorderPane borderPane = new BorderPane();
@@ -57,7 +59,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         final ListView<T> listView = new ListView<>();
         listView.setPrefSize(500, 400);
         listView.setPlaceholder(new Label(resourceBundle.getString("noTaskRunning")));
-        listView.setCellFactory(param -> new TaskCell(listView));
+        listView.setCellFactory(param -> new TaskCell(listView, showCache));
         listView.setFocusTraversable(false);
 
         Bindings.bindContent(listView.getItems(), monitor.getTasks());
@@ -75,7 +77,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         private T task;
         private final BorderPane borderPane;
 
-        public TaskCell(final ListView<T> listView) {
+        public TaskCell(final ListView<T> listView, final BooleanProperty showCache) {
             final VBox vbox = new VBox();
 
             titleText = new Label();
@@ -95,6 +97,10 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
             cancelButton.setTooltip(new Tooltip(resourceBundle.getString("cancelTask")));
             cancelButton.setOnAction(evt -> {
                 popupCancelTask(task, evt);
+            });
+
+            showCache.addListener((observable, oldValue, newValue) -> {
+                hideTask(task, this);
             });
 
             vbox.setSpacing(4);
@@ -164,6 +170,12 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
 
                 setGraphic(borderPane);
             }
+        }
+    }
+
+    private void hideTask(final T task, final TaskCell tc) {
+        if (task != null && task instanceof JobTask) {
+            tc.visibleProperty().set(((JobTask) task).isVisible().getValue());
         }
     }
 

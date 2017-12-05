@@ -41,6 +41,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -57,6 +58,7 @@ import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javafx.scene.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -71,8 +73,8 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final TaskProgressView<Ds3JobTask> jobProgressView = new TaskProgressView<>();
     private final ImageView interruptedJobImageView = new ImageView(ImageURLs.INTERRUPTED_JOB_IMAGE);
     private final ImageView cancelAllJobsImageView = new ImageView(ImageURLs.CANCEL_ALL_JOB_IMAGE);
-    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
-    private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.STORAGE_TAPES);
+    private final ImageView showCachedJobsImageView = new ImageView(ImageURLs.NO_BLACKPEARL_CACHE);
+    private final ImageView showPersistedJobsImageView = new ImageView(ImageURLs.BLACKPEARL_CACHE);
 
     private final StackPane stackpane = new StackPane();
     private final AnchorPane anchorPane = new AnchorPane();
@@ -99,7 +101,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private Tab jobsTab, logsTab;
 
     @FXML
-    private InlineCssTextArea inlineCssTextArea;
+    private ListView<Text> logView;
 
     @FXML
     private ScrollPane scrollPane;
@@ -155,15 +157,23 @@ public class DeepStorageBrowserPresenter implements Initializable {
             setToolTipBehavior.setToolTipBehaviors(Constants.OPEN_DELAY, Constants.DURATION, Constants.CLOSE_DELAY); //To set the time interval of tooltip
 
             initLocalTreeTableView();
-            initDs3TreeTableView();
 
             initRecoverInterruptedJobsButton();
             initCancelInterruptedJobsButton();
             initToggleShowCachedJobsButton();
             initJobsPane();
+            initDs3TreeTableView();
 
-            inlineCssTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
-
+            logView.focusedProperty().addListener((observable, oldValue, newValue) -> selectAllItem.setDisable(oldValue));
+            logView.setFocusTraversable(false);
+            logView.getItems().addListener((ListChangeListener<? super Text>) c -> {
+                final ObservableList<? extends Text> cList = c.getList();
+                final int size = cList.size();
+                logView.scrollTo(size);
+                if (size >= 1000) {
+                    cList.remove(0, 100);
+                }
+            });
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
             loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
@@ -197,7 +207,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         anchorPane.setMinHeight(35);
 
         Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
-        jobProgressView.setSkin(new DeepStorageTaskProgressViewSkin<>(jobProgressView));
+        jobProgressView.setSkin(new DeepStorageTaskProgressViewSkin<>(jobProgressView, showCachedJobSettings.showCachedJobEnableProperty()));
 
         jobProgressView.setPrefHeight(1000);
         jobProgressVBox.getChildren().add(anchorPane);
@@ -388,32 +398,26 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     //set the same color for all the lines of string log separated by \n
     private void logTextForParagraph(final String log, final LogType type) {
-        final int previousSize = inlineCssTextArea.getParagraphs().size() - 2;
-        inlineCssTextArea.appendText(formattedString(log));
-        final int size = inlineCssTextArea.getParagraphs().size() - 2;
-
-        for (int i = previousSize + 1; i <= size; i++) {
-            setStyleForLogMessage(type, i);
-        }
+        final Text area = new Text(log);
+        area.setWrappingWidth(logView.getWidth());
+        setStyleForLogMessage(area, type);
+        logView.getItems().add(area);
         scrollPane.setVvalue(1.0);
     }
 
-    private void setStyleForLogMessage(final LogType type, final int i) {
+    private void setStyleForLogMessage(final Text logItem, final LogType type) {
         switch (type) {
             case SUCCESS:
-                inlineCssTextArea.setStyle(i, "-fx-fill: GREEN;");
+                logItem.setFill(Color.GREEN);
                 break;
             case ERROR:
-                inlineCssTextArea.setStyle(i, "-fx-fill: RED;");
+                logItem.setFill(Color.RED);
                 break;
             default:
-                inlineCssTextArea.setStyle(i, "-fx-fill: BLACK;");
+                logItem.setFill(Color.BLACK);
         }
     }
 
-    private static String formattedString(final String log) {
-        return StringConstants.FORWARD_OPR + StringConstants.SPACE + log + "\n";
-    }
 
     public MenuItem getSelectAllMenuItem() {
         return selectAllItem;
