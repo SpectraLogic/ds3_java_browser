@@ -53,7 +53,7 @@ public class CancelAllRunningJobsTask extends Task {
                     final Ds3Client ds3Client = job.getDs3Client();
                     final String jobId = job.getJobId().toString();
                     job.cancel();
-                    LOG.info("Cancelled job:{} " , jobId);
+                    LOG.info("Canceled job:{} " , jobId);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId,
                             ds3Client.getConnectionDetails().getEndpoint(), null, loggingService);
                     ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));

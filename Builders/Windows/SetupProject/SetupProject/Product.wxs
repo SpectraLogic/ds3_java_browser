@@ -64,12 +64,13 @@
       <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
     </InstallUISequence>
 
+    <CustomAction Id="MixInstallCheck" Return="check" Execute="immediate" BinaryKey="CustomAction.CA.dll" DllEntry="MixInstallCheck" />
+    
     <InstallExecuteSequence>
+      <Custom Action="MixInstallCheck" After="OverwriteWixSetDefaultPerMachineFolder"/>
       <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
       <Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"/>
     </InstallExecuteSequence>
-
-
 
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
@@ -100,7 +101,6 @@
     </InstallExecuteSequence>
 
     <CustomAction Id="DeleteLogFile" Return="check" Execute="immediate" BinaryKey="CustomAction.CA.dll" DllEntry="DeleteLogFile"/>
-
 
     <Feature Id="ProductFeature" Title="$(var.Name)" Level="1">
       <ComponentRef Id="ApplicationShortcut" />

@@ -2,3 +2,4 @@
 !Java/**/*.exe
 !Java/**/*.dll
 !Java/**/bin/
+!SetupProject/**/*.exe

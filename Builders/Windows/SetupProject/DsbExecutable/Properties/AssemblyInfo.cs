@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("dsb-gui")]
+[assembly: AssemblyTitle("DsbExecutable.Properties")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Spectra Logic Corporation")]
-[assembly: AssemblyProduct("dsb-gui")]
+[assembly: AssemblyProduct("DsbExecutable.Properties")]
 [assembly: AssemblyCopyright("Copyright © Spectra Logic Corporation 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,17 +20,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5c0b65a4-18fb-485c-a35b-203d5faa97d6")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.1.3.22")]
-[assembly: AssemblyFileVersion("2.1.3.22")]
+[assembly: Guid("10ee79a3-e802-4b42-8445-53d370805c02")]

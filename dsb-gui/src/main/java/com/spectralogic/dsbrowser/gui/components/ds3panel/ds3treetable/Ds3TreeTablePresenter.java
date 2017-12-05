@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
@@ -30,10 +31,15 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
+import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
+import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -102,12 +108,12 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
     private final LazyAlert alert;
+    private final SettingsStore settingsStore;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
 
     private ContextMenu contextMenu;
 
     private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
-
-    final private Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory;
 
     @Inject
     public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
@@ -119,17 +125,19 @@ public class Ds3TreeTablePresenter implements Initializable {
             final JobInterruptionStore jobInterruptionStore,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
-            final Ds3PutJob.Ds3PutJobFactory ds3PutJobFactory) {
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final SettingsStore settingsStore) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.ds3Common = ds3Common;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
+        this.settingsStore = settingsStore;
         this.dateTimeUtils = dateTimeUtils;
-        this.ds3PutJobFactory = ds3PutJobFactory;
         this.alert = new LazyAlert(resourceBundle);
     }
 
@@ -413,38 +421,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     Ds3PanelService.refresh(selectedItem);
                     return;
                 }
-                final Ds3PutJob putJob = ds3PutJobFactory.createDs3PutJob(pairs, bucket, targetDir, selectedItem);
-                putJob.setOnSucceeded(SafeHandler.logHandle(e -> {
-                    LOG.info("Put Job Succeed");
-                    Ds3PanelService.refresh(selectedItem);
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3TreeTable.getSelectionModel().select(selectedItem);
-
-                }));
-                putJob.setOnFailed(SafeHandler.logHandle(e -> {
-                    final Throwable exception = e.getSource().getException();
-                    LOG.error("Put Job Failed", exception);
-                    loggingService.logMessage("Put job failed with message: " + exception.getMessage(), LogType.ERROR);
-                    Ds3PanelService.refresh(selectedItem);
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3TreeTable.getSelectionModel().select(selectedItem);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                }));
-                putJob.setOnCancelled(SafeHandler.logHandle(e -> {
-                    LOG.info("setOnCancelled");
-                    if (putJob.getJobId() != null) {
-                        try {
-                            session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.getJobId()));
-                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, putJob.getJobId().toString(), putJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                        } catch (final IOException e1) {
-                            LOG.error("Failed to cancel job", e1);
-                        }
-                    }
-                    Ds3PanelService.refresh(selectedItem);
-                    ds3TreeTable.getSelectionModel().clearSelection();
-                    ds3TreeTable.getSelectionModel().select(selectedItem);
-                }));
-                jobWorkers.execute(putJob);
+                startPutJob(session.getClient(), pairs, bucket, targetDir, jobInterruptionStore);
             } else {
                 alert.warning("operationNotAllowedHere");
             }
@@ -728,5 +705,44 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
         event.consume();
     }
+
+    private void startPutJob(final Ds3Client client,
+            final List<Pair<String, Path>> files,
+            final String bucket,
+            final String targetDir,
+            final JobInterruptionStore jobInterruptionStore) {
+
+        final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
+        files.forEach(file -> builder.add(new kotlin.Pair<>(file.getKey(), file.getValue())));
+
+        final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle)));
+        final JobTask jobTask = new JobTask(putJob);
+        jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
+            LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
+            ds3TreeTable.refresh();
+        }));
+        jobTask.setOnFailed(SafeHandler.logHandle(failEvent -> {
+            final Throwable throwable = failEvent.getSource().getException();
+            LOG.error("Put Job Failed", throwable);
+            loggingService.logMessage("Put Job Failed with message: " + throwable.getClass().getName() + ": " + throwable.getMessage(), LogType.ERROR);
+            ds3TreeTable.refresh();
+        }));
+        jobTask.setOnCancelled(SafeHandler.logHandle(cancelEvent -> {
+            final UUID jobId = putJob.jobUUID();
+            try {
+                client.cancelJobSpectraS3(new CancelJobSpectraS3Request(putJob.jobUUID()));
+            } catch (final IOException e) {
+                LOG.error("Failed to cancel job", e);
+            }
+            LOG.info("BULK_PUT job {} Cancelled.", jobId);
+            loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS);
+
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId.toString(),
+                    client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+            ds3TreeTable.refresh();
+        }));
+        jobWorkers.execute(jobTask);
+    }
+
 
 }

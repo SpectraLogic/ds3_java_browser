@@ -42,7 +42,6 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
 import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
@@ -246,44 +245,4 @@ public class CloseConfirmationHandlerTest {
         assertTrue(showCachedJobSettingsNew.getShowCachedJob());
     }
 
-    @Test
-    public void cancelAllRunningTasks() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            final TreeItem<Ds3TreeTableValue> destination = new TreeItem<>();
-            final ImmutableList<Pair<String,Path>> pair = ImmutableList.of(new Pair<>("files/", path));
-            try {
-                final Ds3Client ds3Client = session.getClient();
-                final DeepStorageBrowserPresenter deepStorageBrowserPresenter = Mockito.mock(DeepStorageBrowserPresenter.class);
-                final SettingsStore settingsStore = SettingsStore.loadSettingsStore();
-                final Ds3Common ds3Common = new Ds3Common();
-                ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
-                final Ds3PutJob ds3PutJob = new Ds3PutJob(ds3Client, pair, "cancelAllTasksBucket", "",
-                        JobInterruptionStore.loadJobIds(), Priority.URGENT.toString(), 5, resourceBundle,
-                        settingsStore, Mockito.mock(LoggingService.class), deepStorageBrowserPresenter, DTU, destination);
-                ds3PutJob.setOnSucceeded(event -> {
-                    System.out.println("Put job success");
-                });
-                jobWorkers.execute(ds3PutJob);
-                Thread.sleep(5000);
-                final Task task = handler.cancelAllRunningTasks(jobWorkers, workers, JobInterruptionStore.loadJobIds(), Mockito.mock(LoggingService.class));
-                task.setOnSucceeded(event -> {
-                    successFlag = true;
-                    latch.countDown();
-                });
-                task.setOnFailed(event -> {
-                    latch.countDown();
-                });
-                task.setOnCancelled(event -> {
-                    latch.countDown();
-                });
-            } catch (final InterruptedException | IOException e) {
-                e.printStackTrace();
-                latch.countDown();
-                fail();
-            }
-        });
-        latch.await();
-        assertTrue(successFlag);
-    }
 }
