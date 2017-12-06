@@ -15,6 +15,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.google.common.collect.ImmutableMap
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
@@ -32,6 +33,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
+    override fun getDs3Client(): Ds3Client = putJobData.client()
 
     private var job: Ds3ClientHelpers.Job? = null
     private val chunkManagment: ChunkManagment = ChunkManagment()
@@ -84,8 +86,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
 
     override fun tearDown() {
         message.set("In Cache, Waiting to complete")
-        totalJob.set(1)
-        sent.set(1)
+        sent.set(totalJob.value)
         visible.bind(putJobData.showCachedJobProperty())
         val disposable: Disposable = Observable.interval(60, TimeUnit.SECONDS)
                 .takeUntil({ _ -> putJobData.isCompleted() })
@@ -99,8 +100,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         while (!disposable.isDisposed) {
             Thread.sleep(1000)
         }
-        totalJob.set(1)
-        sent.set(1)
+        sent.set(totalJob.value)
         putJobData.removeJob()
     }
 }

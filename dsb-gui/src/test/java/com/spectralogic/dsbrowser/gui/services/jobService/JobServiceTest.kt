@@ -15,11 +15,13 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
 import io.reactivex.functions.Consumer
 import org.junit.Before
 import org.junit.Test
 import org.assertj.core.api.Assertions.*
+import org.mockito.Mockito
 import java.util.*
 
 const val INITIAL_MESSAGE: String = ""
@@ -34,6 +36,10 @@ class JobServiceTest {
     private var jobService: IncrementalJobService? = null
 
     protected class IncrementalJobService() : JobService() {
+        override fun getDs3Client(): Ds3Client {
+            return Mockito.mock(Ds3Client::class.java)
+        }
+
         override fun jobUUID(): UUID = UUID.randomUUID()
 
         override fun finishedCompletable(): Completable {

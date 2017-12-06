@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
 import com.google.common.collect.ImmutableMap
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
@@ -39,6 +40,7 @@ interface JobData {
     fun removeJob()
     fun modifyJob(job :Ds3ClientHelpers.Job)
     fun internationalize(labelName: String): String
+    fun client(): Ds3Client
     var job: Ds3ClientHelpers.Job?
     val bucket: String
     var prefixMap: MutableMap<String, Path>

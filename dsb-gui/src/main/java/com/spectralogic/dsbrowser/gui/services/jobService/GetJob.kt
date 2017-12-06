@@ -14,6 +14,7 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.*
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
+    override fun getDs3Client(): Ds3Client = getJobData.client()
+
     private val chunkManagment: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats()
 
