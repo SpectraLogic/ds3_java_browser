@@ -67,7 +67,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -82,10 +81,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private TreeTableColumn<FileTreeModel, Number> sizeColumn;
 
     @FXML
-    private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton;
+    private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton, createFolderButton;
 
     @FXML
-    private Tooltip homeButtonTooltip, refreshButtonTooltip, toMyComputerTooltip, transferButtonTooltip, parentDirectoryButtonTooltip;
+    private Tooltip homeButtonTooltip, refreshButtonTooltip, toMyComputerTooltip, transferButtonTooltip, parentDirectoryButtonTooltip, createFolderButtonTooltip;
 
     @FXML
     private Label localPathIndicator;
@@ -159,6 +158,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         refreshButtonTooltip.setText(resourceBundle.getString("refreshButtonTooltip"));
         toMyComputerTooltip.setText(resourceBundle.getString("toMyComputerTooltip"));
         parentDirectoryButtonTooltip.setText(resourceBundle.getString("parentDirectoryButtonTooltip"));
+        createFolderButtonTooltip.setText(resourceBundle.getString("ds3NewFolderToolTip"));
     }
 
     private void initTableView() {
@@ -254,6 +254,36 @@ public class LocalFileTreeTablePresenter implements Initializable {
         toMyComputer.setOnAction(SafeHandler.logHandle(event -> changeRootDir(StringConstants.ROOT_LOCATION)));
         transferButton.setOnAction(SafeHandler.logHandle(event -> transferToBlackPearl()));
         parentDirectoryButton.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
+        createFolderButton.setOnAction(SafeHandler.logHandle(event -> createFolder()));
+    }
+
+    private void createFolder() {
+        if (fileRootItem.equals("My Computer")) {
+            alert.error("specifyDirectory");
+            return;
+        }
+        final Path rootPath = Paths.get(fileRootItem);
+        final TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setContentText(resourceBundle.getString("createLocalFolder"));
+        inputDialog.setGraphic(null);
+        inputDialog.setHeaderText(StringConstants.EMPTY_STRING);
+        inputDialog.setTitle(resourceBundle.getString("createFolder"));
+        final Optional<String> results = inputDialog.showAndWait();
+        if (results.isPresent()) {
+            final String folderName = results.get();
+            if (Guard.isStringNullOrEmpty(folderName)) {
+                alert.error("cannotCreateFolderWithoutName");
+                return;
+            }
+            try {
+                Files.createDirectories(rootPath.resolve(folderName));
+                refreshFileTreeView();
+            } catch (final IOException e) {
+                alert.error("couldNotCreateLocalDirectory");
+                loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
+                LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
+            }
+        }
     }
 
     private void initProgressAndPathIndicators() {
@@ -349,7 +379,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.info("fileSelect");
+            alert.info("fieSelect");
             return;
         }
 
