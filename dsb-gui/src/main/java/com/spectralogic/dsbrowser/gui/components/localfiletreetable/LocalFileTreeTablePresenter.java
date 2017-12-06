@@ -263,12 +263,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
             return;
         }
         final Path rootPath = Paths.get(fileRootItem);
-        final TextInputDialog tid = new TextInputDialog();
-        tid.setContentText(resourceBundle.getString("createLocalFolder"));
-        tid.setGraphic(null);
-        tid.setHeaderText("");
-        tid.setTitle(resourceBundle.getString("createFolder"));
-        final Optional<String> results = tid.showAndWait();
+        final TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setContentText(resourceBundle.getString("createLocalFolder"));
+        inputDialog.setGraphic(null);
+        inputDialog.setHeaderText(StringConstants.EMPTY_STRING);
+        inputDialog.setTitle(resourceBundle.getString("createFolder"));
+        final Optional<String> results = inputDialog.showAndWait();
         if (results.isPresent()) {
             final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
