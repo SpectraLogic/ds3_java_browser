@@ -25,6 +25,7 @@ import java.util.*
 class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
     override fun executeJob() {
+        ds3Client = wrappedJob.getDs3Client()
         var throwable : Throwable? = null
         wrappedJob.titleObservable()
                 .observeOn(JavaFxScheduler.platform())
@@ -52,7 +53,8 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .subscribe()
 
         wrappedJob.finishedCompletable()
-                .subscribe(Action {  }, Consumer { throwable = it })
+                .subscribe(Action {
+                }, Consumer { throwable = it })
         if(throwable != null) {
             throw throwable!!
         }

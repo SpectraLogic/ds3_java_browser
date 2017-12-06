@@ -14,6 +14,7 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Observer
@@ -33,4 +34,5 @@ interface JobFacade {
     public fun totalJobSizeAsProperty(): LongProperty
     public fun visibleProperty(): SimpleBooleanProperty
     public fun jobUUID(): UUID
+    public fun getDs3Client(): Ds3Client
 }

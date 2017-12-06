@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
@@ -40,6 +41,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+    override fun client(): Ds3Client = jobTaskElement.client
 
     override public var lastFile = ""
     override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
