@@ -268,21 +268,21 @@ public class LocalFileTreeTablePresenter implements Initializable {
         tid.setGraphic(null);
         tid.setHeaderText("");
         tid.setTitle(resourceBundle.getString("createFolder"));
-        tid.showAndWait().ifPresent(folderName -> {
+        final Optional<String> results = tid.showAndWait();
+        if (results.isPresent()) {
+            final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
-                loggingService.logMessage(resourceBundle.getString("willNotCreateDirectory") + folderName, LogType.INFO);
                 alert.error("cannotCreateFolderWithoutName");
-            } else {
-                try {
-                    Files.createDirectories(rootPath.resolve(folderName));
-                } catch (final IOException e) {
-                    loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
-                    LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
-                }
+                return;
             }
-        });
-        refreshFileTreeView();
-
+            try {
+                Files.createDirectories(rootPath.resolve(folderName));
+                refreshFileTreeView();
+            } catch (final IOException e) {
+                loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
+                LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
+            }
+        }
     }
 
     private void initProgressAndPathIndicators() {
