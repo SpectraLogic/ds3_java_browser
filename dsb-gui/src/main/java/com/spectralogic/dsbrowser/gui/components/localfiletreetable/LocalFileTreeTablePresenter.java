@@ -279,6 +279,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 Files.createDirectories(rootPath.resolve(folderName));
                 refreshFileTreeView();
             } catch (final IOException e) {
+                alert.error("couldNotCreateLocalDirectory");
                 loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                 LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
             }
