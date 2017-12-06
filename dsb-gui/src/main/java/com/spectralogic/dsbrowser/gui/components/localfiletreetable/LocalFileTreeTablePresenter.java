@@ -24,7 +24,6 @@ import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -68,7 +67,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -260,18 +258,23 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void createFolder() {
+        if (fileRootItem.equals("My Computer")) {
+            alert.error("specifyDirectory");
+            return;
+        }
         final Path rootPath = Paths.get(fileRootItem);
         final TextInputDialog tid = new TextInputDialog();
         tid.setContentText(resourceBundle.getString("createLocalFolder"));
         tid.setGraphic(null);
         tid.setHeaderText("");
         tid.setTitle(resourceBundle.getString("createFolder"));
-        tid.showAndWait().ifPresent(s -> {
-            if (Guard.isStringNullOrEmpty(s)) {
-                loggingService.logMessage(resourceBundle.getString("willNotCreateDirectory"), LogType.INFO);
+        tid.showAndWait().ifPresent(folderName -> {
+            if (Guard.isStringNullOrEmpty(folderName)) {
+                loggingService.logMessage(resourceBundle.getString("willNotCreateDirectory") + folderName, LogType.INFO);
+                alert.error("cannotCreateFolderWithoutName");
             } else {
                 try {
-                    Files.createDirectories(rootPath.resolve(s));
+                    Files.createDirectories(rootPath.resolve(folderName));
                 } catch (final IOException e) {
                     loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                     LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
