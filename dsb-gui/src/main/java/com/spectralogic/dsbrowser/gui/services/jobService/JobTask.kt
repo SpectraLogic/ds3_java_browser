@@ -61,7 +61,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
 
     }
 
-    override fun getJobId(): UUID = wrappedJob.jobUUID()
+    override fun getJobId(): UUID? = wrappedJob.jobUUID()
 
     public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 }

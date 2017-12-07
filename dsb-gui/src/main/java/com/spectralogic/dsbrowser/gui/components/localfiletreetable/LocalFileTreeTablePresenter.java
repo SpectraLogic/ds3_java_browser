@@ -493,12 +493,18 @@ public class LocalFileTreeTablePresenter implements Initializable {
                             .collect(GuavaCollectors.immutableList());
                     final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
-                    final JobTask jobTask = new JobTask(new GetJob(getJobData));
+
+                    final GetJob getJob = new GetJob(getJobData);
+                    final JobTask jobTask = new JobTask(getJob);
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         LOG.info("Get Job completed successfully");
                         refreshFileTreeView();
                     }));
                     jobTask.setOnFailed(SafeHandler.logHandle(event -> {
+                        final UUID uuid = getJob.jobUUID();
+                        if (uuid != null) {
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                        }
                         final Throwable exception = event.getSource().getException();
                         LOG.error("Get Job failed", exception);
                         loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);
@@ -528,10 +534,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final JobTask jobTask = new JobTask(putJob);
         jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             LOG.info("BULK_PUT job {} Succeed.", putJob.jobUUID());
-
             refreshBlackPearlSideItem(remoteDestination);
         }));
         jobTask.setOnFailed(SafeHandler.logHandle(failEvent -> {
+            final UUID uuid = putJob.jobUUID();
+            if (uuid != null) {
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+            }
             final Throwable throwable = failEvent.getSource().getException();
             LOG.error("Put Job Failed", throwable);
             loggingService.logMessage("Put Job Failed with message: " + throwable.getClass().getName() + ": " + throwable.getMessage(), LogType.ERROR);

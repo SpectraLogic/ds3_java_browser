@@ -43,7 +43,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
-    override fun jobUUID(): UUID = putJobData.job!!.jobId
+    override fun jobUUID(): UUID? = putJobData.jobId
 
     override fun finishedCompletable(): Completable {
         return Completable.fromAction {

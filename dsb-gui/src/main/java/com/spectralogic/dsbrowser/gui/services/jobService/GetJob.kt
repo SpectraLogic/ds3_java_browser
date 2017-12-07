@@ -39,7 +39,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
-    override fun jobUUID(): UUID = getJobData.job!!.jobId
+    override fun jobUUID(): UUID? = getJobData.jobId
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set(getJobData.internationalize("preparingJob"))
         val job = getJobData.job!!

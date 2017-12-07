@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobService;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob;
@@ -94,17 +95,17 @@ public class JobInfoPresenter implements Initializable {
 
     @Inject
     public JobInfoPresenter(final ResourceBundle resourceBundle,
-                            final Ds3Common ds3Common,
-                            final Workers workers,
-                            final JobWorkers jobWorkers,
-                            final JobInterruptionStore jobInterruptionStore,
-                            final ButtonCell.ButtonCellFactory buttonCellFactory,
-                            final LoggingService loggingService,
-                            final DateTimeUtils dateTimeUtils,
-                            final SettingsStore settingsStore,
-                            final JobTaskElement jobTaskElement,
-                            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-                            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final Ds3Common ds3Common,
+            final Workers workers,
+            final JobWorkers jobWorkers,
+            final JobInterruptionStore jobInterruptionStore,
+            final ButtonCell.ButtonCellFactory buttonCellFactory,
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils,
+            final SettingsStore settingsStore,
+            final JobTaskElement jobTaskElement,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.jobTaskElement = jobTaskElement;
@@ -245,13 +246,18 @@ public class JobInfoPresenter implements Initializable {
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
                 final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
 
-                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore,loggingService,dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle),endpointInfo.getClient());
-                final JobTask jobTask = new JobTask(recoverJob.getTask());
+                final RecoverJob recoverJob = new RecoverJob(UUID.fromString(jobId), endpointInfo, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, endpointInfo.getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle), endpointInfo.getClient());
+                final JobService task = recoverJob.getTask();
+                final JobTask jobTask = new JobTask(task);
                 jobTask.setOnSucceeded(SafeHandler.logHandle(recoverInterruptedJobSucceededEvent -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                 }));
                 jobTask.setOnFailed(SafeHandler.logHandle(recoverInterruptedJobFailedEvent -> {
+                    final UUID uuid = task.jobUUID();
+                    if (uuid != null) {
+                        ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                    }
                     LOG.error("Failed to recover", jobTask.getException());
                     loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);

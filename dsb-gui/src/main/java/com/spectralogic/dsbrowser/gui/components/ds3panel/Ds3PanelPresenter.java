@@ -693,12 +693,17 @@ public class Ds3PanelPresenter implements Initializable {
                             .collect(GuavaCollectors.immutableList());
                     final JobTaskElement jobTaskElement = new JobTaskElement(settingsStore, loggingService, dateTimeUtils, getSession().getClient(), jobInterruptionStore, savedJobPrioritiesStore, resourceBundle);
                     final GetJobData getJobData = new GetJobData(fileAndParent, localPath, bucket, jobTaskElement);
-                    final JobTask jobTask = new JobTask(new GetJob(getJobData));
+                    final GetJob getJob = new GetJob(getJobData);
+                    final JobTask jobTask = new JobTask(getJob);
                     jobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                         LOG.info("Get Job completed successfully");
                         getTreeTableView().refresh();
                     }));
                     jobTask.setOnFailed(SafeHandler.logHandle(event -> {
+                        final UUID uuid = getJob.jobUUID();
+                        if (uuid != null) {
+                            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), getSession().getClient().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+                        }
                         final Throwable exception = event.getSource().getException();
                         LOG.error("Get Job failed", exception);
                         loggingService.logMessage("Get Job failed with message: " + exception.getMessage(), LogType.ERROR);

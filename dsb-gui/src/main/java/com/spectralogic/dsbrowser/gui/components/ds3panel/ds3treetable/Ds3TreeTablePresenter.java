@@ -709,6 +709,10 @@ public class Ds3TreeTablePresenter implements Initializable {
             ds3TreeTable.refresh();
         }));
         jobTask.setOnFailed(SafeHandler.logHandle(failEvent -> {
+            final UUID uuid = putJob.jobUUID();
+            if (uuid != null) {
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
+            }
             final Throwable throwable = failEvent.getSource().getException();
             LOG.error("Put Job Failed", throwable);
             loggingService.logMessage("Put Job Failed with message: " + throwable.getClass().getName() + ": " + throwable.getMessage(), LogType.ERROR);
