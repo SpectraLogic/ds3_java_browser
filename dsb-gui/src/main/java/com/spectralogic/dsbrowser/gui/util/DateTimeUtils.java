@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.util;
 
 import com.google.common.base.Preconditions;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -37,7 +36,7 @@ public final class DateTimeUtils {
         this.formatter = DEFAULT_FORMAT;
     }
 
-    public DateTimeUtils(@Nonnull final DateTimeFormatter formatter) {
+    public DateTimeUtils(final DateTimeFormatter formatter) {
         Preconditions.checkNotNull(formatter);
         this.formatter = formatter;
 

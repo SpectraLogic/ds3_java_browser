@@ -37,7 +37,6 @@ import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
-
 class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
                                             private val jobWorkers: JobWorkers,
                                             private val loggingService: LoggingService,
@@ -57,8 +56,6 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                 .apply {
                     setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
                     setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
-                    setOnRunning(onRunning())
-                    setOnScheduled(onScheduled())
                     setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }

@@ -62,9 +62,7 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { JobTask(it) }
                 .apply {
                     setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
-                    setOnRunning(onRunning())
                     setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
-                    setOnScheduled(onScheduled())
                     setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }

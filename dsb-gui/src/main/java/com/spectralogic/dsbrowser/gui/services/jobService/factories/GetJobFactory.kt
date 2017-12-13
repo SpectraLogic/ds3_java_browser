@@ -42,7 +42,6 @@ import java.nio.file.Path
 import java.util.*
 import javax.inject.Inject
 
-
 class GetJobFactory @Inject constructor(private val loggingService: LoggingService,
                                         private val jobInterruptionStore: JobInterruptionStore,
                                         private val resourceBundle: ResourceBundle,
@@ -61,8 +60,6 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { JobTask(it) }
                 .apply {
                     setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
-                    setOnScheduled(onScheduled())
-                    setOnRunning(onRunning())
                     setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
                     setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
                 }
