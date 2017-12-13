@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import com.spectralogic.dsbrowser.util.exists
 import javafx.application.Platform
 import javafx.concurrent.WorkerStateEvent
 import org.slf4j.Logger
@@ -36,6 +37,7 @@ import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
+
 class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
                                             private val jobWorkers: JobWorkers,
                                             private val loggingService: LoggingService,
@@ -43,6 +45,7 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                                             private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(this::class.java)
+        private const val TYPE: String = "Recover"
     }
 
     public fun create(uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
@@ -52,51 +55,13 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                 .let { it.getTask() }
                 .let { JobTask(it) }
                 .apply {
-                    setOnCancelled(onCancelled(client).andThen(refreshBehavior))
-                    setOnFailed(onFailed(client).andThen(refreshBehavior))
+                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
+                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
                     setOnRunning(onRunning())
                     setOnScheduled(onScheduled())
-                    setOnSucceeded(onSucceeded().andThen(refreshBehavior))
+                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }
     }
 
-    private fun JobTask.onSucceeded(): (WorkerStateEvent) -> Unit = {
-        LOG.info("Recovery Job completed successfully")
-    }
-
-    private fun JobTask.onCancelled(client: Ds3Client): (WorkerStateEvent) -> Unit = {
-        val uuid: UUID? = this.jobId
-        if (uuid != null) {
-            try {
-                Platform.runLater {
-                    client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
-                }
-            } catch (e: IOException) {
-                LOG.error("Failed to cancel job", e)
-                loggingService.logMessage("Could not cancel job", LogType.ERROR)
-            }
-            LOG.info("Get Job cancelled")
-            loggingService.logMessage("GET Job Cancelled", LogType.INFO)
-            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
-        }
-    }
-
-    private fun JobTask.onFailed(client: Ds3Client): (WorkerStateEvent) -> Unit = {
-        val uuid = jobId
-        if (uuid != null) {
-            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
-        }
-        LOG.error("Failed to recover $uuid", it.source.exception)
-        loggingService.logMessage("Failed to recover ${uuid.toString()} on ${client.connectionDetails.endpoint}", LogType.ERROR)
-
-    }
-
-    private fun JobTask.onRunning(): (WorkerStateEvent) -> Unit = {
-
-    }
-
-    private fun JobTask.onScheduled(): (WorkerStateEvent) -> Unit = {
-
-    }
 }

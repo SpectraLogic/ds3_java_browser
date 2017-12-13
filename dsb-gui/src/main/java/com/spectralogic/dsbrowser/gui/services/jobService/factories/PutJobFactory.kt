@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.andThen
+import com.spectralogic.dsbrowser.util.exists
 import javafx.application.Platform
 import javafx.concurrent.WorkerStateEvent
 import javafx.scene.control.TreeItem
@@ -51,6 +52,7 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(PutJobFactory::class.java)
+        private const val TYPE: String = "BULK_PUT"
     }
 
     fun create(files: List<Pair<String, Path>>, bucket: String, targetDir: String, client: Ds3Client, refreshBehavior: () -> Unit = {}) {
@@ -58,52 +60,13 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { PutJobData(files, targetDir, bucket, it) }
                 .let { PutJob(it) }
                 .let { JobTask(it) }
-                .apply { setOnCancelled(onCancelled(client).andThen(refreshBehavior)) }
-                .apply { setOnRunning(onRunning()) }
-                .apply { setOnFailed(onFailed(client).andThen(refreshBehavior)) }
-                .apply { setOnScheduled(onScheduled()) }
-                .apply { setOnSucceeded(onSuccess().andThen(refreshBehavior)) }
-                .also { jobWorkers.execute(it) }
-    }
-
-    private fun onRunning() = { _: WorkerStateEvent -> LOG.info("BULK_PUT job now running.") }
-
-    private fun onScheduled() = { _: WorkerStateEvent -> LOG.info("BULK_PUT job scheduled.") }
-
-    private fun JobTask.onCancelled(client: Ds3Client): (WorkerStateEvent) -> Unit {
-        return { _: WorkerStateEvent ->
-            val uuid: UUID? = this.jobId
-            if (uuid != null) {
-                try {
-                    Platform.runLater {
-                        client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
-                    }
-                } catch (e: IOException) {
-                    LOG.error("Failed to cancel job", e)
-                    loggingService.logMessage("Could not cancel job", LogType.ERROR)
+                .apply {
+                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
+                    setOnRunning(onRunning())
+                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
+                    setOnScheduled(onScheduled())
+                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
                 }
-                LOG.info("BULK_PUT job {} Canceled.", uuid)
-                loggingService.logMessage(resourceBundle.getString("putJobCancelled"), LogType.SUCCESS)
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
-            }
-        }
-    }
-
-    private fun JobTask.onSuccess(): (WorkerStateEvent) -> Unit {
-        return { _: WorkerStateEvent ->
-            LOG.info("BULK_PUT job {} Succeed.", this.jobId)
-        }
-    }
-
-    private fun JobTask.onFailed(client: Ds3Client): (WorkerStateEvent) -> Unit {
-        return { workerState: WorkerStateEvent ->
-            val uuid: UUID? = this.jobId
-            if (uuid != null) {
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
-            }
-            val throwable: Throwable = workerState.source.exception
-            LOG.error("Put Job Failed", throwable)
-            loggingService.logMessage("Put Job Failed with message: " + throwable.javaClass.name + ": " + throwable.message, LogType.ERROR)
-        }
+                .also { jobWorkers.execute(it) }
     }
 }

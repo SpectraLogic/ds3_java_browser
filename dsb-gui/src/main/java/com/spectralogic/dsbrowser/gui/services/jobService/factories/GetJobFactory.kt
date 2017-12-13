@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.andThen
+import com.spectralogic.dsbrowser.util.exists
 import javafx.application.Platform
 import javafx.concurrent.WorkerStateEvent
 import org.slf4j.Logger
@@ -41,6 +42,7 @@ import java.nio.file.Path
 import java.util.*
 import javax.inject.Inject
 
+
 class GetJobFactory @Inject constructor(private val loggingService: LoggingService,
                                         private val jobInterruptionStore: JobInterruptionStore,
                                         private val resourceBundle: ResourceBundle,
@@ -49,6 +51,7 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                                         private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(GetJobFactory::class.java)
+        private const val TYPE = "Get"
     }
 
     public fun create(files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit) {
@@ -57,55 +60,12 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { GetJob(it) }
                 .let { JobTask(it) }
                 .apply {
-                    setOnSucceeded(onSucceeded().andThen(refreshBehavior))
+                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
                     setOnScheduled(onScheduled())
                     setOnRunning(onRunning())
-                    setOnFailed(onFailed(client).andThen(refreshBehavior))
-                    setOnCancelled(onCancelled(client).andThen(refreshBehavior))
+                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
+                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }
-    }
-
-    private fun JobTask.onSucceeded(): (WorkerStateEvent) -> Unit = {
-        LOG.info("Get Job completed successfully")
-    }
-
-    private fun JobTask.onScheduled(): (WorkerStateEvent) -> Unit = {
-    }
-
-    private fun JobTask.onRunning(): (WorkerStateEvent) -> Unit = {}
-
-    private fun JobTask.onFailed(client: Ds3Client): (WorkerStateEvent) -> Unit {
-        return { worker: WorkerStateEvent ->
-            val uuid: UUID? = this.jobId
-            if (uuid != null) {
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService)
-            }
-            val throwable: Throwable = worker.source.exception
-            LOG.error("Get Job failed", throwable)
-            loggingService.logMessage("Get Job failed with message: ${throwable.message}", LogType.ERROR)
-
-        }
-    }
-
-    private fun JobTask.onCancelled(client: Ds3Client): (WorkerStateEvent) -> Unit {
-        return { _: WorkerStateEvent ->
-            val uuid: UUID? = this.jobId
-            if (uuid != null) {
-                try {
-                    Platform.runLater {
-                        client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
-                    }
-                } catch (e: IOException) {
-                    LOG.error("Failed to cancel job", e)
-                    loggingService.logMessage("Could not cancel job", LogType.ERROR)
-                }
-                LOG.info("Get Job cancelled")
-                loggingService.logMessage("GET Job Cancelled", LogType.INFO)
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
-            }
-
-        }
-
     }
 }
