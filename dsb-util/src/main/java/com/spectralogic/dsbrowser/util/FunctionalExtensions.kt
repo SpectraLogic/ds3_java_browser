@@ -23,7 +23,7 @@ inline fun <T, R> ((T) -> R).andThen(crossinline block: () -> Unit): (T) -> R {
     }
 }
 
-inline fun <T> T?.exists(block: (T) -> Any) {
+inline fun <T> T?.exists(crossinline block: (T) -> Any) {
     if (this != null) {
         block.invoke(this)
     }

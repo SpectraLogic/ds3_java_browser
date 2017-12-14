@@ -55,11 +55,13 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
 
     public fun create(files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit) {
         jobTaskElementFactory.create(client)
-                .let { JobTask(GetJob(GetJobData(files, targetDir, bucket, it))) }
+                .let { GetJobData(files, targetDir, bucket, it) }
+                .let { GetJob(it) }
+                .let { JobTask(it) }
                 .apply {
-                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
-                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
-                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
+                    setOnSucceeded(SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior)))
+                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior)))
+                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior)))
                 }
                 .also { jobWorkers.execute(it) }
     }

@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.exists
 import javafx.application.Platform
 import javafx.concurrent.WorkerStateEvent
@@ -54,9 +55,9 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                 .let { it.getTask() }
                 .let { JobTask(it) }
                 .apply {
-                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
-                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
-                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
+                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior)))
+                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior)))
+                    setOnSucceeded(SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior)))
                 }
                 .also { jobWorkers.execute(it) }
     }

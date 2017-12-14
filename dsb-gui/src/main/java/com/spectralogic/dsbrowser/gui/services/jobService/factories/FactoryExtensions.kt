@@ -34,8 +34,8 @@ fun removeJob(uuid: UUID, client: Ds3Client, jobInterruptionStore: JobInterrupti
     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService)
 }
 
-fun JobTask.onSucceeded(type: String, jobId: UUID?, log: Logger): (WorkerStateEvent) -> Unit = {
-    log.info("$type Job $jobId completed successfully")
+fun JobTask.onSucceeded(type: String, log: Logger): (WorkerStateEvent) -> Unit = {
+    log.info("$type Job completed successfully")
 }
 
 fun JobTask.onFailed(client: Ds3Client,

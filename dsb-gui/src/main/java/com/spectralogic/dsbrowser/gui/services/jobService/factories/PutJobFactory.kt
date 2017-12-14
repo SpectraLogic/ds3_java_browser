@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioriti
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.util.exists
 import javafx.application.Platform
@@ -49,7 +50,6 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
                                         private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
                                         private val jobWorkers: JobWorkers,
                                         private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory) {
-
     private companion object {
         private val LOG = LoggerFactory.getLogger(PutJobFactory::class.java)
         private const val TYPE: String = "BULK_PUT"
@@ -61,9 +61,9 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { PutJob(it) }
                 .let { JobTask(it) }
                 .apply {
-                    setOnCancelled(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
-                    setOnFailed(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior))
-                    setOnSucceeded(onSucceeded(TYPE, jobId, LOG).andThen(refreshBehavior))
+                    setOnSucceeded(SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior)))
+                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior)))
+                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior)))
                 }
                 .also { jobWorkers.execute(it) }
     }
