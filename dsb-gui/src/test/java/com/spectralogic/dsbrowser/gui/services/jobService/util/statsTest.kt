@@ -13,20 +13,17 @@
  * ***************************************************************************
  */
 
-package com.spectralogic.dsbrowser.util
+package com.spectralogic.dsbrowser.gui.services.jobService.util
 
-inline fun <T, R> ((T) -> R).andThen(crossinline block: () -> Unit): (T) -> R {
-    return { t: T ->
-        val r: R = this.invoke(t)
-        block.invoke()
-        r
-    }
-}
+import org.junit.Before
+import org.junit.Test
 
-inline fun <T> T?.exists(crossinline block: (T) -> Any?): Any? {
-    return if (this == null) {
-        null
-    } else {
-        block.invoke(this)
+class StatsTest {
+
+    private val stats: Stats = Stats()
+
+    //TODO stats needs to not rely on the previous mechanism to be testable in isolation.
+    @Test
+    fun updateStatistics() {
     }
 }
