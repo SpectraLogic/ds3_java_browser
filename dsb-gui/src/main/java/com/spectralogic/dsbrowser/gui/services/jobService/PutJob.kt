@@ -87,6 +87,10 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun tearDown() {
+        if (totalJob.get() < 1) {
+            totalJob.set(1L)
+            sent.set(1L)
+        }
         message.set("In Cache, Waiting to complete")
         sent.set(totalJob.value)
         visible.bind(putJobData.showCachedJobProperty())
