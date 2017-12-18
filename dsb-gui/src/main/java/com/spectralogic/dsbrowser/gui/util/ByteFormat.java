@@ -26,6 +26,6 @@ public final class ByteFormat {
         final int exp = (int) (Math.log(bytes) / Math.log(unit));
         final String pre = (flag ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (flag ? "" : "i");
 
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        return String.format("%.2f %sB", bytes / Math.pow(unit, exp), pre);
     }
 }
