@@ -52,6 +52,18 @@ class FunctionalExtensionsTest {
     }
 
     @Test
+    fun existsInlineAssignment() {
+        val b = "H".exists { it }
+        assertThat(b).isEqualTo("H")
+    }
+
+    @Test
+    fun existsNull() {
+        val b = null.exists { "Hello World" }
+        assertThat(b).isNull()
+    }
+
+    @Test
     fun notExistingAssignment() {
         val h: String? = null
         val b = h.exists { it }
