@@ -15,6 +15,16 @@
 
 package com.spectralogic.dsbrowser.util
 
+/**
+ * andThen executes some lambda after executing the source lambda, but preserves
+ * the return type of the first lambda
+ * @param T input of the calller
+ * @param R return type of caller
+ * @property block the lambda to be included in the composed lambda
+ * @return A new lambda with both behaviors, but returning the same value as the origional lambda
+ * Note the crossinline keyword on block
+ * The block will not be inlined into the function but the body of the new lambda
+ */
 inline fun <T, R> ((T) -> R).andThen(crossinline block: () -> Unit): (T) -> R {
     return { t: T ->
         val r: R = this.invoke(t)
@@ -23,7 +33,14 @@ inline fun <T, R> ((T) -> R).andThen(crossinline block: () -> Unit): (T) -> R {
     }
 }
 
-inline fun <T> T?.exists(crossinline block: (T) -> Any?): Any? {
+/**
+ * exists conditionally executes a lambda if the calling object is not null
+ * @param T the type of the object that we will be checking
+ * @property block the lambda that will be executed if the object exists
+ * @return The results oƒ invoking block on T or null
+ * The exist method will be inlined into the call site, including block
+ */
+inline fun <T> T?.exists(block: (T) -> Any?): Any? {
     return if (this == null) {
         null
     } else {

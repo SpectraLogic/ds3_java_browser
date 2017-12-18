@@ -47,6 +47,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,7 +252,7 @@ public class JobInfoPresenter implements Initializable {
                 recoverJobFactory.create(UUID.fromString(jobId), endpointInfo, () -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
-                    return null;
+                    return Unit.INSTANCE;
                 });
 
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(),
@@ -292,7 +293,7 @@ public class JobInfoPresenter implements Initializable {
                 recoverJobFactory.create(UUID.fromString(key), endpointInfo, () -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                    return null;
+                    return Unit.INSTANCE;
                 });
 
                 final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);

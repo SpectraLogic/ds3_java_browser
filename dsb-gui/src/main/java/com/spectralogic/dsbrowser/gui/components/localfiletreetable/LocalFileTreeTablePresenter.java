@@ -497,7 +497,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
                             .map(ds3 -> new kotlin.Pair<>( ds3.getFullName(), ds3.getParent())) .collect(GuavaCollectors.immutableList());
-                    getJobFactory.create(fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return null; });
+                    getJobFactory.create(fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return Unit.INSTANCE; });
                 });
     }
 
@@ -508,7 +508,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
         putJobFactory.create(files, bucket, targetDir, client, () -> {
             refreshBlackPearlSideItem(remoteDestination);
-            return null;
+            return Unit.INSTANCE;
         });
     }
 

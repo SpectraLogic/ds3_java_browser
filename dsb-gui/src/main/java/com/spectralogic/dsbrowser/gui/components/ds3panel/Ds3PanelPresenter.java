@@ -61,6 +61,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -697,7 +698,7 @@ public class Ds3PanelPresenter implements Initializable {
                             .collect(GuavaCollectors.immutableList());
                     getJobFactory.create(fileAndParent, bucket, localPath, getSession().getClient(), () -> {
                         getTreeTableView().refresh();
-                        return null;
+                        return Unit.INSTANCE;
                     });
                 });
     }

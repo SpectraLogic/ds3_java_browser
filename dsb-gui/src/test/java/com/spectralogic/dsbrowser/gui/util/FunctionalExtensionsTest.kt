@@ -60,7 +60,7 @@ class FunctionalExtensionsTest {
 
     @Test
     fun andThenTest() {
-        val a = {b: Int ->  b + 2}
+        val a = { b: Int -> b + 2 }
         var f = false
         val c = a.andThen { f = true }.invoke(1)
         assertThat(f).isTrue()
