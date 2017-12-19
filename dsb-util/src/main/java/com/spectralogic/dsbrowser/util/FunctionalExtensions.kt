@@ -23,7 +23,7 @@ fun <T, R> ((T) -> R).andThen(block: () -> Unit): (T) -> R {
     }
 }
 
-fun <T> T?.exists(block: (T) -> Unit) {
+fun <T> T?.exists(block: (T) -> Any) {
     if (this != null) {
         block.invoke(this)
     }

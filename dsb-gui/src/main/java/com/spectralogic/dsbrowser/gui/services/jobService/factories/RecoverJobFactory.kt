@@ -60,5 +60,4 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                 }
                 .also { jobWorkers.execute(it) }
     }
-
 }

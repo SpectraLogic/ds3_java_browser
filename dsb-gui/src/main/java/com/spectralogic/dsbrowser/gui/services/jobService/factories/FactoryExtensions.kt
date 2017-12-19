@@ -58,11 +58,10 @@ fun JobTask.onCancelled(client: Ds3Client,
                         loggingService: LoggingService,
                         jobInterruptionStore: JobInterruptionStore,
                         deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
-    val uuid: UUID? = this.jobId
-    if (uuid != null) {
+    jobId.exists {
         try {
             Platform.runLater {
-                client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
+                client.cancelJobSpectraS3(CancelJobSpectraS3Request(it))
             }
         } catch (e: IOException) {
             log.error("Failed to cancel $type job", e)
@@ -70,7 +69,7 @@ fun JobTask.onCancelled(client: Ds3Client,
         }
         log.info("$type Job cancelled")
         loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-        removeJob(uuid, client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService)
+        removeJob(it, client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService)
     }
 
 }
