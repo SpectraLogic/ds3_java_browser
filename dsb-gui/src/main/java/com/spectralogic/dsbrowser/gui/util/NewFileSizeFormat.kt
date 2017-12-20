@@ -15,7 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.util
 
-const val bigger = 1024
+const val bigger = 1024.0
 const val bytes = "Bytes"
 const val kilo = "KB"
 const val mega = "MB"
@@ -27,11 +27,10 @@ val listOfPrefixs = arrayOf(bytes, kilo, mega, giga, tera, peta, exa)
 
 
 public fun Long.toByteRepresentation(): String {
-    var value = this
-    var timesReduced = 0
-    while (timesReduced < listOfPrefixs.size && value >= bigger) {
-        value = value.shr(10)
-        timesReduced++
+    return if (this == 0L) {
+        "0 Bytes"
+    } else {
+        val i = Math.floor(Math.log(this.toDouble()) / Math.log(bigger))
+        "${String.format("%.2f", this/ Math.pow(bigger, i))} ${listOfPrefixs[i.toInt()]}"
     }
-   return "$value ${listOfPrefixs[timesReduced]}"
 }

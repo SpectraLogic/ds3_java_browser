@@ -27,7 +27,7 @@ import java.util.*
 class NewFileSizeFormatTest {
     @Test
     fun tenBytes() {
-        assertThat(10L.toByteRepresentation()).isEqualTo("10 Bytes")
+        assertThat(10L.toByteRepresentation()).isEqualTo("10.00 Bytes")
     }
 
     @Test
@@ -37,36 +37,36 @@ class NewFileSizeFormatTest {
 
     @Test
     fun oneKB() {
-        assertThat(1024L.toByteRepresentation()).isEqualTo("1 KB")
+        assertThat(1024L.toByteRepresentation()).isEqualTo("1.00 KB")
     }
 
     @Test
     fun tenKB() {
-        assertThat(10240L.toByteRepresentation()).isEqualTo("10 KB")
+        assertThat(10240L.toByteRepresentation()).isEqualTo("10.00 KB")
     }
 
     @Test
     fun tenMB() {
-        assertThat((1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10 MB")
+        assertThat((1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10.00 MB")
     }
 
     @Test
     fun tenGB() {
-        assertThat((1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10 GB")
+        assertThat((1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10.00 GB")
     }
 
     @Test
     fun tenTB() {
-        assertThat((1024L * 1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10 TB")
+        assertThat((1024L * 1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10.00 TB")
     }
 
     @Test
     fun tenPB() {
-        assertThat((1024L * 1024L * 1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10 PB")
+        assertThat((1024L * 1024L * 1024L * 1024L * 1024L * 10L).toByteRepresentation()).isEqualTo("10.00 PB")
     }
 
     @Test
     fun tenEB() {
-        assertThat((1024L * 1024L * 1024L * 1024L * 1024L * 1024L).toByteRepresentation()).isEqualTo("1 EB")
+        assertThat((1024L * 1024L * 1024L * 1024L * 1024L * 1024L).toByteRepresentation()).isEqualTo("1.00 EB")
     }
 }
