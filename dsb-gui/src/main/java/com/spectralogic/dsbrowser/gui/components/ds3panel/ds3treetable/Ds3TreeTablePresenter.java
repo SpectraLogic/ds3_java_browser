@@ -632,7 +632,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             if (empty || item == null) {
                 setText(null);
             } else {
-                setText(FileSizeFormat.getFileSizeType(item.longValue()));
+                setText(NewFileSizeFormatKt.toByteRepresentation(item.longValue()));
             }
         }
 

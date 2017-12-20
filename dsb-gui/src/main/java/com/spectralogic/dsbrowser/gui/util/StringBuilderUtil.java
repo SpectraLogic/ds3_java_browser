@@ -120,12 +120,12 @@ public class StringBuilderUtil {
         if (transferRate != 0) {
             return new StringBuilder().append(SPACE)
                     .append(resourceBundle.getString("transferRate")).append(SPACE)
-                    .append(FileSizeFormat.getFileSizeType(transferRate))
+                    .append(NewFileSizeFormatKt.toByteRepresentation(transferRate))
                     .append(resourceBundle.getString("perSecond")).append(SPACE)
                     .append(resourceBundle.getString("timeRemaining")).append(SPACE)
                     .append(DateTimeUtils.timeConversion(timeRemaining))
-                    .append(FileSizeFormat.getFileSizeType(totalSent))
-                    .append(FORWARD_SLASH).append(FileSizeFormat.getFileSizeType(totalJobSize)).append(SPACE)
+                    .append(NewFileSizeFormatKt.toByteRepresentation(totalSent))
+                    .append(FORWARD_SLASH).append(NewFileSizeFormatKt.toByteRepresentation(totalJobSize)).append(SPACE)
                     .append(resourceBundle.getString("transferredFile")).append(SPACE)
                     .append(FORWARD_ARROW).append(SPACE)
                     .append(fromPath).append(SPACE)
@@ -134,13 +134,13 @@ public class StringBuilderUtil {
         } else {
             return new StringBuilder()
                     .append(resourceBundle.getString("transferRate")).append(SPACE)
-                    .append(FileSizeFormat.getFileSizeType(transferRate))
+                    .append(NewFileSizeFormatKt.toByteRepresentation(transferRate))
                     .append(resourceBundle.getString("perSecond")).append(SPACE)
                     .append(resourceBundle.getString("timeRemaining")).append(SPACE).append(COLON)
                     .append(resourceBundle.getString("calculating")).append(DOUBLE_DOTS).append(SPACE)
-                    .append(FileSizeFormat.getFileSizeType(totalSent))
+                    .append(NewFileSizeFormatKt.toByteRepresentation(totalSent))
                     .append(FORWARD_SLASH)
-                    .append(FileSizeFormat.getFileSizeType(totalJobSize)).append(SPACE)
+                    .append(NewFileSizeFormatKt.toByteRepresentation(totalJobSize)).append(SPACE)
                     .append(resourceBundle.getString("transferredFile")).append(SPACE)
                     .append(FORWARD_ARROW).append(SPACE)
                     .append(fromPath).append(SPACE)
@@ -252,12 +252,12 @@ public class StringBuilderUtil {
         if (type.equals(Ds3TreeTableValue.Type.Bucket)) {
             return new StringBuilder()
                     .append(resourceBundle.getString("bucket("))
-                    .append(FileSizeFormat.getFileSizeType(totalCapacity))
+                    .append(NewFileSizeFormatKt.toByteRepresentation(totalCapacity))
                     .append(StringConstants.CLOSING_BRACE);
         } else {
             return new StringBuilder()
                     .append(resourceBundle.getString("folder("))
-                    .append(FileSizeFormat.getFileSizeType(totalCapacity))
+                    .append(NewFileSizeFormatKt.toByteRepresentation(totalCapacity))
                     .append(StringConstants.CLOSING_BRACE);
         }
     }
@@ -273,7 +273,7 @@ public class StringBuilderUtil {
     public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client, final String formattedString) {
         return new StringBuilder()
                 .append(resourceBundle.getString("getJobSize")).append(StringConstants.SPACE)
-                .append(FileSizeFormat.getFileSizeType(totalJobSize))
+                .append(NewFileSizeFormatKt.toByteRepresentation(totalJobSize))
                 .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
                 .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
                 .append(formattedString);

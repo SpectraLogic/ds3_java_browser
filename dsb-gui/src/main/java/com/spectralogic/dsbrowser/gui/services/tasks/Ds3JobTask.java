@@ -83,7 +83,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
                     LOG.error("Failed attempting to updateMessage while waiting for chunks to become available for job: " + job.getJobId(), e);
                 }
             }
-            updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDir).toString());
+            updateMessage(StringBuilderUtil.transferringTotalJobString(NewFileSizeFormatKt.toByteRepresentation(totalJobSize), targetDir).toString());
         });
     }
 
