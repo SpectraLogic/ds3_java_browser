@@ -78,5 +78,6 @@ class FileSizeFormatTest {
     @Test
     fun twoAndAQuarter() {
         assertThat(2359296L.toByteRepresentation()).isEqualTo("2.25 MB")
+        assertThat(2359295L.toByteRepresentation()).isEqualTo("2.25 MB")
     }
 }

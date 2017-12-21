@@ -625,23 +625,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         }
     }
 
-    private static class ValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Number> {
-        @Override
-        protected void updateItem(final Number item, final boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText(null);
-            } else {
-                if (item.longValue() == 0L) {
-                    setText("");
-                } else {
-                    setText(FileSizeFormatKt.toByteRepresentation(item.longValue()));
-                }
-            }
-        }
-
-    }
-
     private static class TreeTableValueTreeTableCell extends TreeTableCell<Ds3TreeTableValue, Ds3TreeTableValue.Type> {
 
         @Override
