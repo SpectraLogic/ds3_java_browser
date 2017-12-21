@@ -233,7 +233,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             if (!Guard.isNullOrEmpty(selectedItems)) {
 
                 final KeyCode keyCode = event.getCode();
-                if (keyCode == KeyCode.DELETE || keyCode == KeyCode.BACK_SPACE ) {
+                if (keyCode == KeyCode.DELETE || keyCode == KeyCode.BACK_SPACE) {
                     ds3Common.getDs3PanelPresenter().ds3DeleteObject();
                     event.consume();
                 }
@@ -632,7 +632,11 @@ public class Ds3TreeTablePresenter implements Initializable {
             if (empty || item == null) {
                 setText(null);
             } else {
-                setText(NewFileSizeFormatKt.toByteRepresentation(item.longValue()));
+                if (item.longValue() == 0L) {
+                    setText("");
+                } else {
+                    setText(NewFileSizeFormatKt.toByteRepresentation(item.longValue()));
+                }
             }
         }
 
@@ -712,7 +716,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             final String targetDir,
             final JobInterruptionStore jobInterruptionStore) {
 
-        final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
+        final ImmutableList.Builder<kotlin.Pair<String, Path>> builder = ImmutableList.builder();
         files.forEach(file -> builder.add(new kotlin.Pair<>(file.getKey(), file.getValue())));
 
         final PutJob putJob = new PutJob(new PutJobData(builder.build(), targetDir, bucket, new JobTaskElement(settingsStore, loggingService, dateTimeUtils, client, jobInterruptionStore, savedJobPrioritiesStore, resourceBundle)));

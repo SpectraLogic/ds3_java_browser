@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
 import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkManagment
 import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
+import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -32,7 +33,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     override fun getDs3Client(): Ds3Client = getJobData.client()
 
     private val chunkManagment: ChunkManagment = ChunkManagment()
-    private val stats: Stats = Stats()
+    private val stats: Stats = Stats(message, getJobData.loggingService(), getJobData.dateTimeUtils())
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
@@ -43,6 +44,7 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         title.set(getJobData.internationalize("preparingJob"))
         val job = getJobData.job!!
         totalJob.set(getJobData.jobSize())
+        val totalJobSizeDisplay: String = getJobData.jobSize().toByteRepresentation()
         if (getJobData.shouldRestoreFileAttributes()) {
             job.attachMetadataReceivedListener { s, metadata ->
                 var localFile = s.removePrefix(getJobData.prefixMap.get(s).toString())
@@ -53,11 +55,11 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         }
         job.attachDataTransferredListener(DataTransferredListener {
             sent.set(it + sent.get())
-            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), false)
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), false)
         })
         job.attachObjectCompletedListener(ObjectCompletedListener {
             getJobData.lastFile = it
-            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), true)
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), true)
         })
         job.attachWaitingForChunksListener(WaitingForChunksListener { chunkManagment.waitForChunks(it, getJobData.loggingService(), LOG) })
         job.attachFailureEventListener { getJobData.loggingService().logMessage(it.toString(), LogType.ERROR) }

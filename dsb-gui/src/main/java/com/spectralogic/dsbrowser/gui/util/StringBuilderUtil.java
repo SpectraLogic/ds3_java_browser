@@ -115,7 +115,7 @@ public class StringBuilderUtil {
      * @return get string for transfer rate
      */
     public static StringBuilder getTransferRateString(final long transferRate, final long timeRemaining,
-            final Long totalSent, final long totalJobSize,
+            final Long totalSent, final String totalJobSize,
             final String fromPath, final String topath) {
         if (transferRate != 0) {
             return new StringBuilder().append(SPACE)
@@ -125,7 +125,7 @@ public class StringBuilderUtil {
                     .append(resourceBundle.getString("timeRemaining")).append(SPACE)
                     .append(DateTimeUtils.timeConversion(timeRemaining))
                     .append(NewFileSizeFormatKt.toByteRepresentation(totalSent))
-                    .append(FORWARD_SLASH).append(NewFileSizeFormatKt.toByteRepresentation(totalJobSize)).append(SPACE)
+                    .append(FORWARD_SLASH).append(totalJobSize).append(SPACE)
                     .append(resourceBundle.getString("transferredFile")).append(SPACE)
                     .append(FORWARD_ARROW).append(SPACE)
                     .append(fromPath).append(SPACE)
@@ -140,7 +140,7 @@ public class StringBuilderUtil {
                     .append(resourceBundle.getString("calculating")).append(DOUBLE_DOTS).append(SPACE)
                     .append(NewFileSizeFormatKt.toByteRepresentation(totalSent))
                     .append(FORWARD_SLASH)
-                    .append(NewFileSizeFormatKt.toByteRepresentation(totalJobSize)).append(SPACE)
+                    .append(totalJobSize).append(SPACE)
                     .append(resourceBundle.getString("transferredFile")).append(SPACE)
                     .append(FORWARD_ARROW).append(SPACE)
                     .append(fromPath).append(SPACE)

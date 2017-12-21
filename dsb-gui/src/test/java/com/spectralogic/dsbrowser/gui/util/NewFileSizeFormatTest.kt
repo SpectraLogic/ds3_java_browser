@@ -69,4 +69,14 @@ class NewFileSizeFormatTest {
     fun tenEB() {
         assertThat((1024L * 1024L * 1024L * 1024L * 1024L * 1024L).toByteRepresentation()).isEqualTo("1.00 EB")
     }
+
+    @Test
+    fun threes() {
+        assertThat(3500L.toByteRepresentation()).isEqualTo("3.42 KB")
+    }
+
+    @Test
+    fun twoAndAQuarter() {
+        assertThat(2359296L.toByteRepresentation()).isEqualTo("2.25 MB")
+    }
 }

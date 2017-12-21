@@ -87,27 +87,6 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         });
     }
 
-    void getTransferRates(final Instant jobStartInstant, final AtomicLong totalSent, final long totalJobSize, final String sourceLocation, final String targetLocation) {
-        final Instant currentTime = Instant.now();
-        final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
-        long transferRate = 0;
-        if (timeElapsedInSeconds != 0) {
-            transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-        }
-
-        if (transferRate != 0) {
-            final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
-
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining, totalSent.get(),
-                    totalJobSize, sourceLocation, targetLocation).toString());
-        } else {
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent.get(),
-                    totalJobSize, sourceLocation, targetLocation).toString());
-        }
-
-        updateProgress(totalSent.get() / 2, totalJobSize);
-    }
-
     void hostNotAvailable() {
         final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
         ErrorUtils.dumpTheStack(msg);
@@ -115,7 +94,4 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         new LazyAlert(resourceBundle).error(msg);
     }
 
-
-
 }
-
