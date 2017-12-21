@@ -92,7 +92,7 @@ public class MetadataPresenter implements Initializable {
         metadataTableColName.setText(resourceBundle.getString("metadataTableColName"));
         metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
         objectName.setText(ds3Metadata.getName());
-        objectSize.setText( FileSizeFormatKt.toByteRepresentation(ds3Metadata.getSize()));
+        objectSize.setText(FileSizeFormatKt.toByteRepresentation(ds3Metadata.getSize()));
         lastModified.setText(ds3Metadata.getLastModified());
         nameTooltip.setText(ds3Metadata.getName());
     }
