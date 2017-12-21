@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.networking.Metadata;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.gui.util.NewFileSizeFormatKt;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -92,7 +92,7 @@ public class MetadataPresenter implements Initializable {
         metadataTableColName.setText(resourceBundle.getString("metadataTableColName"));
         metadataTableColValue.setText(resourceBundle.getString("metadataTableColValue"));
         objectName.setText(ds3Metadata.getName());
-        objectSize.setText( NewFileSizeFormatKt.toByteRepresentation(ds3Metadata.getSize()));
+        objectSize.setText( FileSizeFormatKt.toByteRepresentation(ds3Metadata.getSize()));
         lastModified.setText(ds3Metadata.getLastModified());
         nameTooltip.setText(ds3Metadata.getName());
     }

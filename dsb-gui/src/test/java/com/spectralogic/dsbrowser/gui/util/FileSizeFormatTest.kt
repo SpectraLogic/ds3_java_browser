@@ -24,7 +24,7 @@ import org.assertj.core.api.Assertions.*
 import org.mockito.Mockito
 import java.util.*
 
-class NewFileSizeFormatTest {
+class FileSizeFormatTest {
     @Test
     fun tenBytes() {
         assertThat(10L.toByteRepresentation()).isEqualTo("10.00 Bytes")

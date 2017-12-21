@@ -26,10 +26,8 @@ import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ResourceBundle;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
@@ -83,7 +81,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
                     LOG.error("Failed attempting to updateMessage while waiting for chunks to become available for job: " + job.getJobId(), e);
                 }
             }
-            updateMessage(StringBuilderUtil.transferringTotalJobString(NewFileSizeFormatKt.toByteRepresentation(totalJobSize), targetDir).toString());
+            updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormatKt.toByteRepresentation(totalJobSize), targetDir).toString());
         });
     }
 
