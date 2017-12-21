@@ -42,6 +42,14 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+
+    override fun runningTitle(): String {
+        val transferringGet = jobTaskElement.resourceBundle.getString("transferringPut")
+        val jobId = job?.jobId
+        val startedAt = jobTaskElement.resourceBundle.getString("startedAt")
+        val started = jobTaskElement.dateTimeUtils.format(getStartTime())
+        return "$transferringGet $jobId $startedAt $started"
+    }
     override var jobId: UUID? = null
 
     override fun client(): Ds3Client = jobTaskElement.client
