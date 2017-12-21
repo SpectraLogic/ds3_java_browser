@@ -566,7 +566,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
         }));
         workers.execute(getMediaDeviceTask);
-
     }
 
     /**
