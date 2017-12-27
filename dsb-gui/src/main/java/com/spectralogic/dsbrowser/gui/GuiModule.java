@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
@@ -70,6 +71,7 @@ public class GuiModule extends AbstractModule {
         loadPresenters(this::bind);
 
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
+        install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
     }
 
     @Singleton
