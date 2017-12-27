@@ -703,13 +703,17 @@ public class Ds3TreeTablePresenter implements Initializable {
             final List<Pair<String, Path>> files,
             final String bucket,
             final String targetDir) {
-        final ImmutableList.Builder<kotlin.Pair<String,Path>> builder = ImmutableList.builder();
-        files.forEach(file -> builder.add(new kotlin.Pair<>(file.getKey(), file.getValue())));
-        putJobFactory.create(builder.build(),
+        final ImmutableList<kotlin.Pair<String, Path>> filePairs = files.stream()
+                .map(p -> new kotlin.Pair<>(p.getKey(), p.getValue()))
+                .collect(GuavaCollectors.immutableList());
+        putJobFactory.create(filePairs,
                 bucket,
                 targetDir,
                 client,
-                () -> {ds3TreeTable.refresh(); return Unit.INSTANCE;});
+                () -> {
+                    ds3TreeTable.refresh();
+                    return Unit.INSTANCE;
+                });
     }
 
 
