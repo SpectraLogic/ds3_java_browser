@@ -43,7 +43,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
-    override fun jobUUID(): UUID = putJobData.job!!.jobId
+    override fun jobUUID(): UUID? = putJobData.jobId
 
     override fun finishedCompletable(): Completable {
         return Completable.fromAction {
@@ -87,6 +87,10 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun tearDown() {
+        if (totalJob.get() < 1) {
+            totalJob.set(1L)
+            sent.set(1L)
+        }
         message.set("In Cache, Waiting to complete")
         sent.set(totalJob.value)
         visible.bind(putJobData.showCachedJobProperty())

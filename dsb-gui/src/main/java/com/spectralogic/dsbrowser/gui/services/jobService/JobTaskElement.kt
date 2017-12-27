@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.google.inject.assistedinject.Assisted
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
@@ -27,7 +28,11 @@ import javax.inject.Inject
 data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
                                               val loggingService: LoggingService,
                                               val dateTimeUtils: DateTimeUtils,
-                                              val client: Ds3Client,
+                                              @Assisted val client: Ds3Client,
                                               val jobInterruptionStore: JobInterruptionStore,
                                               val savedJobPrioritiesStore: SavedJobPrioritiesStore,
-                                              val resourceBundle: ResourceBundle)
+                                              val resourceBundle: ResourceBundle) {
+    public interface JobTaskElementFactory {
+        fun create(client: Ds3Client): JobTaskElement
+    }
+}

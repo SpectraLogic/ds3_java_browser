@@ -89,9 +89,9 @@ class JobServiceTest {
     fun totalJobTest() {
         var total = 100.00
         jobService!!.jobSizeObservable().subscribe(Consumer { t: Number -> total = t.toDouble() })
-        assertThat(total).isEqualTo(PERCENT_INITIAL)
+        assertThat(total).isEqualTo(0.0)
         jobService!!.finishedCompletable().blockingGet()
-        assertThat(total).isEqualTo(PERCENT_RAN)
+        assertThat(total).isEqualTo(1.0)
     }
 
 }

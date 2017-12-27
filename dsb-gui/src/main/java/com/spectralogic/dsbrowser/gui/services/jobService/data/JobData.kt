@@ -24,6 +24,7 @@ import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Path
 import java.time.Instant
+import java.util.*
 
 interface JobData {
     fun getStartTime(): Instant
@@ -45,4 +46,5 @@ interface JobData {
     val bucket: String
     var prefixMap: MutableMap<String, Path>
     public var lastFile: String
+    public var jobId: UUID?
 }

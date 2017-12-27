@@ -38,11 +38,14 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
+import java.util.*
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+
+    override var jobId: UUID? = null
     override fun client(): Ds3Client = jobTaskElement.client
 
     override public var lastFile: String = ""
@@ -57,6 +60,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects(), readJobOptions())
                 }
             }
+            jobId = field?.jobId
             return field!!
         }
         set(value) {

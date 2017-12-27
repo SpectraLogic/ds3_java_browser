@@ -33,6 +33,6 @@ interface JobFacade {
     public fun sentObservable(): Observable<Number>
     public fun totalJobSizeAsProperty(): LongProperty
     public fun visibleProperty(): SimpleBooleanProperty
-    public fun jobUUID(): UUID
+    public fun jobUUID(): UUID?
     public fun getDs3Client(): Ds3Client
 }

@@ -26,7 +26,7 @@ private const val RETRY_TIME = 100
 class KnownJobData constructor(
         private val jobData: JobData,
         private val filesAndFolderMap: FilesAndFolderMap,
-        val jobId: UUID,
+        override var jobId: UUID?,
         val client: Ds3Client,
         private val jobType: String
 ) : JobData by jobData {

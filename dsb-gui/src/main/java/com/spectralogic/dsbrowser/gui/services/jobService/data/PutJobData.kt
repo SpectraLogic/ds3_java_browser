@@ -36,11 +36,14 @@ import javafx.beans.property.BooleanProperty
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
+import java.util.*
 
 data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+    override var jobId: UUID? = null
+
     override fun client(): Ds3Client = jobTaskElement.client
 
     override public var lastFile = ""
@@ -59,6 +62,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                 }
 
             }
+            jobId = field?.jobId
             return field!!
         }
         set(value) {
