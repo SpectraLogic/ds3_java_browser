@@ -52,7 +52,7 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
                                         private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory) {
     private companion object {
         private val LOG = LoggerFactory.getLogger(PutJobFactory::class.java)
-        private const val TYPE: String = "BULK_PUT"
+        private const val TYPE: String = "Put"
     }
 
     fun create(files: List<Pair<String, Path>>, bucket: String, targetDir: String, client: Ds3Client, refreshBehavior: () -> Unit = {}) {

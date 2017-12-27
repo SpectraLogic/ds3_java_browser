@@ -19,9 +19,9 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
-import com.spectralogic.dsbrowser.gui.services.jobService.factories.removeJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
+import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.exists
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
@@ -94,7 +94,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
             }
             log.info("{} Job cancelled", type)
             loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-            removeJob(it, client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService)
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
         }
     }
 
@@ -106,7 +106,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                  type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
         jobId.exists {
-            removeJob(it, client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService)
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
         }
         log.error("$type Job failed", throwable)
         loggingService.logMessage("$type Job failed with message: ${throwable.message}", LogType.ERROR)

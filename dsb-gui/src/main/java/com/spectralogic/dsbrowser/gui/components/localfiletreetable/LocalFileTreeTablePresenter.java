@@ -364,7 +364,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void transferToBlackPearl() {
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
-            LOG.error("No valid session to initiate BULK_PUT");
+            LOG.error("No valid session to initiate Put");
             alert.error("noSession");
             return;
         }
