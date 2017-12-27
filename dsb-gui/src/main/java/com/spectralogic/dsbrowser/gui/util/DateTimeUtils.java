@@ -28,8 +28,6 @@ import java.util.Date;
 public final class DateTimeUtils {
 
     private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final int SECONDS_IN_DAY = (60 * 60 * 24);
     private static final int SECONDS_IN_HOUR = 60 * 60;
     private static final int SECONDS_IN_MINUTE = 60;
