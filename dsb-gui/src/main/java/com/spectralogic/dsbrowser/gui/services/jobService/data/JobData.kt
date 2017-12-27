@@ -42,6 +42,7 @@ interface JobData {
     fun modifyJob(job :Ds3ClientHelpers.Job)
     fun internationalize(labelName: String): String
     fun client(): Ds3Client
+    fun runningTitle(): String
     var job: Ds3ClientHelpers.Job?
     val bucket: String
     var prefixMap: MutableMap<String, Path>

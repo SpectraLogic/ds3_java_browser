@@ -38,7 +38,6 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
     override fun executeJob() {
         ds3Client = wrappedJob.getDs3Client()
-        var throwable: Throwable? = null
         wrappedJob.titleObservable()
                 .observeOn(JavaFxScheduler.platform())
                 .doOnNext { title: String -> updateTitle(title) }
@@ -64,13 +63,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable()
-                .subscribe(Action {
-                }, Consumer { throwable = it })
-        if (throwable != null) {
-            throw throwable!!
-        }
-
+        wrappedJob.finishedCompletable().blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()

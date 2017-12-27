@@ -68,9 +68,9 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
-        title.set("Transferring GET Job ${job.jobId}")
-        getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         getJobData.setStartTime()
+        title.set(getJobData.runningTitle())
+        getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         job.transfer { transferName ->
             getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(transferName).toString() + "/").buildChannel(transferName)
         }
