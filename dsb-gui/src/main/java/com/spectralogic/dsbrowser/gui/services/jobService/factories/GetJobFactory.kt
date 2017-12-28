@@ -22,6 +22,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
 import com.spectralogic.dsbrowser.gui.services.JobWorkers
+import com.spectralogic.dsbrowser.gui.services.Workers
 import com.spectralogic.dsbrowser.gui.services.jobService.GetJob
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
@@ -47,6 +48,7 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                                         private val resourceBundle: ResourceBundle,
                                         private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
                                         private val jobWorkers: JobWorkers,
+                                        private val workers: Workers,
                                         private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(GetJobFactory::class.java)
@@ -60,8 +62,8 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { JobTask(it) }
                 .apply {
                     setOnSucceeded(SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior)))
-                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior)))
-                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior)))
+                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, workers, TYPE).andThen(refreshBehavior)))
+                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, workers, deepStorageBrowserPresenter).andThen(refreshBehavior)))
                 }
                 .also { jobWorkers.execute(it) }
     }

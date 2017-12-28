@@ -22,6 +22,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo
 import com.spectralogic.dsbrowser.gui.services.JobWorkers
+import com.spectralogic.dsbrowser.gui.services.Workers
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.util.andThen
@@ -42,6 +43,7 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                                             private val jobWorkers: JobWorkers,
                                             private val loggingService: LoggingService,
                                             private val jobInterruptionStore: JobInterruptionStore,
+                                            private val workers: Workers,
                                             private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(this::class.java)
@@ -55,8 +57,8 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
                 .let { it.getTask() }
                 .let { JobTask(it) }
                 .apply {
-                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior)))
-                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, TYPE).andThen(refreshBehavior)))
+                    setOnCancelled(SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, workers, deepStorageBrowserPresenter).andThen(refreshBehavior)))
+                    setOnFailed(SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, workers, TYPE).andThen(refreshBehavior)))
                     setOnSucceeded(SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior)))
                 }
                 .also { jobWorkers.execute(it) }
