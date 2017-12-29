@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -457,7 +458,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        startGetJob(selectedItemsAtSourceLocationListCustom, localPath);
+        startGetJob(selectedItemsAtSourceLocationListCustom, localPath, selectedItemsAtDestination);
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
@@ -685,7 +686,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath) {
+            final Path localPath, final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination) {
         listFiles.stream()
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
@@ -697,7 +698,7 @@ public class Ds3PanelPresenter implements Initializable {
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
                     getJobFactory.create(fileAndParent, bucket, localPath, getSession().getClient(), () -> {
-                        getTreeTableView().refresh();
+                        ds3Common.getLocalFileTreeTablePresenter().refreshFileTreeView();
                         return Unit.INSTANCE;
                     });
                 });
