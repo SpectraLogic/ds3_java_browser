@@ -17,19 +17,17 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Observer
 import javafx.beans.property.LongProperty
 import javafx.beans.property.SimpleBooleanProperty
-import java.time.Instant
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
+import kotlin.reflect.KFunction0
 
 interface JobFacade {
     public fun titleObservable(): Observable<String>
     public fun jobSizeObservable(): Observable<Number>
     public fun messageObservable(): Observable<String>
     public fun visabilityObservable(): Observable<Boolean>
-    public fun finishedCompletable(): Completable
+    public fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable
     public fun sentObservable(): Observable<Number>
     public fun totalJobSizeAsProperty(): LongProperty
     public fun visibleProperty(): SimpleBooleanProperty

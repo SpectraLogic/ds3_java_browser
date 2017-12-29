@@ -25,6 +25,8 @@ import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
+import kotlin.reflect.KFunction
+import kotlin.reflect.KFunction0
 
 interface JobData {
     fun getStartTime(): Instant
@@ -48,4 +50,5 @@ interface JobData {
     var prefixMap: MutableMap<String, Path>
     public var lastFile: String
     public var jobId: UUID?
+    public var cancelled: KFunction0<Boolean>?
 }

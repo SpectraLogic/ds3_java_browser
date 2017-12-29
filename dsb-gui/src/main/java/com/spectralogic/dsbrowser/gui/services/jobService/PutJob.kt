@@ -32,6 +32,7 @@ import io.reactivex.disposables.Disposable
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.KFunction0
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
     override fun getDs3Client(): Ds3Client = putJobData.client()
@@ -39,17 +40,23 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
     private var job: Ds3ClientHelpers.Job? = null
     private val chunkManagment: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats(message, putJobData.loggingService(), putJobData.dateTimeUtils())
+
     private companion object {
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
     override fun jobUUID(): UUID? = putJobData.jobId
 
-    override fun finishedCompletable(): Completable {
+    override fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable {
+        putJobData.cancelled = cancelled
         return Completable.fromAction {
             val resources = prepare(putJobData)
-            transfer(resources)
-            tearDown()
+            if (cancelled.invoke() == false) {
+                transfer(resources)
+            }
+            if (cancelled.invoke() == false) {
+                tearDown()
+            }
         }
     }
 

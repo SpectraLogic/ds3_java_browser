@@ -14,6 +14,7 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.github.thomasnield.rxkotlinfx.observeOnFx
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
 import com.spectralogic.dsbrowser.api.services.logging.LogType
@@ -24,10 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.exists
-import io.reactivex.functions.Action
-import io.reactivex.functions.Consumer
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
-import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
@@ -60,11 +58,11 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .subscribe()
 
         wrappedJob.visabilityObservable()
-                .observeOn(JavaFxScheduler.platform())
+                .observeOnFx()
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable().blockingAwait()
+        wrappedJob.finishedCompletable(this::isCancelled).blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()

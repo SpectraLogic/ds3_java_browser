@@ -39,11 +39,14 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
+import kotlin.reflect.KFunction
+import kotlin.reflect.KFunction0
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
+    override var cancelled: KFunction0<Boolean>? = null
 
     override fun runningTitle(): String {
         val transferringGet = jobTaskElement.resourceBundle.getString("transferringGet")
@@ -53,6 +56,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         return "$transferringGet $jobId $startedAt $started"
 
     }
+
 
 
     override var jobId: UUID? = null
