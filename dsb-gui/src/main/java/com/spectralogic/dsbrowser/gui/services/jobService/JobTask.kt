@@ -32,6 +32,7 @@ import javafx.concurrent.WorkerStateEvent
 import org.slf4j.Logger
 import java.io.IOException
 import java.util.*
+import java.util.function.Supplier
 
 class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
@@ -62,7 +63,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable(this::isCancelled).blockingAwait()
+        wrappedJob.finishedCompletable(Supplier { isCancelled }).blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()

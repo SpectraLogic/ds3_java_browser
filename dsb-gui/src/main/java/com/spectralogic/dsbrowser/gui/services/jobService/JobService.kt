@@ -18,6 +18,7 @@ import com.github.thomasnield.rxkotlinfx.toObservable
 import io.reactivex.Completable
 import io.reactivex.Observable
 import javafx.beans.property.*
+import java.util.function.Supplier
 import kotlin.reflect.KFunction0
 
 abstract class JobService : JobFacade {
@@ -44,5 +45,5 @@ abstract class JobService : JobFacade {
     override fun totalJobSizeAsProperty(): LongProperty = totalJob
     override fun visibleProperty(): SimpleBooleanProperty = visible
 
-    abstract override fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable
+    abstract override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
 }

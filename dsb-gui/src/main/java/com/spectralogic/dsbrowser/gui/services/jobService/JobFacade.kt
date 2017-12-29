@@ -20,6 +20,7 @@ import io.reactivex.Observable
 import javafx.beans.property.LongProperty
 import javafx.beans.property.SimpleBooleanProperty
 import java.util.*
+import java.util.function.Supplier
 import kotlin.reflect.KFunction0
 
 interface JobFacade {
@@ -27,7 +28,7 @@ interface JobFacade {
     public fun jobSizeObservable(): Observable<Number>
     public fun messageObservable(): Observable<String>
     public fun visabilityObservable(): Observable<Boolean>
-    public fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable
+    public fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
     public fun sentObservable(): Observable<Number>
     public fun totalJobSizeAsProperty(): LongProperty
     public fun visibleProperty(): SimpleBooleanProperty

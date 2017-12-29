@@ -28,6 +28,8 @@ import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.function.Consumer
+import java.util.function.Supplier
 import kotlin.reflect.KFunction0
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
@@ -81,11 +83,15 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         getJobData.removeJob()
     }
 
-    override fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable {
+    override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
         return Completable.fromAction {
             val prep = prepare(getJobData)
-            transfer(prep)
-            tearDown()
+            if (!cancelled.get()) {
+                transfer(prep)
+            }
+            if (!cancelled.get()) {
+                tearDown()
+            }
         }
     }
 }

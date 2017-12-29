@@ -40,6 +40,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
+import java.util.function.Supplier
 import java.util.stream.Stream
 import kotlin.reflect.KFunction0
 
@@ -57,7 +58,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     }
 
     override var jobId: UUID? = null
-    public override var cancelled: KFunction0<Boolean>? = null
+    public override var cancelled: Supplier<Boolean>? = null
     override fun client(): Ds3Client = jobTaskElement.client
 
     override public var lastFile = ""
@@ -106,7 +107,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         val parent = item.second.parent
         val paths = Files.walk(item.second).use { stream: Stream<Path> ->
             stream.iterator().asSequence()
-                    .takeWhile { !cancelled!!.invoke() }
+                    .takeWhile { !cancelled!!.get() }
                     .filter { !(Files.isDirectory(it) && Files.list(it).use { f -> f.findAny().isPresent }) }
                     .map {
                         Ds3Object(if (Files.isDirectory(it)) {

@@ -32,6 +32,7 @@ import io.reactivex.disposables.Disposable
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.function.Supplier
 import kotlin.reflect.KFunction0
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
@@ -47,14 +48,14 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
 
     override fun jobUUID(): UUID? = putJobData.jobId
 
-    override fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable {
+    override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
         putJobData.cancelled = cancelled
         return Completable.fromAction {
             val resources = prepare(putJobData)
-            if (cancelled.invoke() == false) {
+            if (cancelled.get() == false) {
                 transfer(resources)
             }
-            if (cancelled.invoke() == false) {
+            if (cancelled.get() == false) {
                 tearDown()
             }
         }

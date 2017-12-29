@@ -23,6 +23,7 @@ import org.junit.Test
 import org.assertj.core.api.Assertions.*
 import org.mockito.Mockito
 import java.util.*
+import java.util.function.Supplier
 import kotlin.reflect.KFunction0
 
 const val INITIAL_MESSAGE: String = ""
@@ -35,8 +36,8 @@ const val VISIBLE_RAN: Boolean = false
 
 class JobServiceTest {
 
-    fun t(): Boolean = false
-    private val cancelled = this::t
+    private val cancelled =  Supplier<Boolean> { false }
+    private val reallyCancelled = Supplier { true }
     private var jobService: IncrementalJobService? = null
 
     protected class IncrementalJobService() : JobService() {
@@ -46,12 +47,15 @@ class JobServiceTest {
 
         override fun jobUUID(): UUID = UUID.randomUUID()
 
-        override fun finishedCompletable(cancelled: KFunction0<Boolean>): Completable {
+        override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
             return Completable.fromAction {
-                message.set(RAN_MESSAGE)
-                totalJob.set(PERCENT_RAN)
-                title.set(RAN_MESSAGE)
-                visible.set(false)
+                //Simplified example, just skips the whole thing if cancelled is true
+                if(!cancelled.get()) {
+                    message.set(RAN_MESSAGE)
+                    totalJob.set(PERCENT_RAN)
+                    title.set(RAN_MESSAGE)
+                    visible.set(false)
+                }
             }
 
 
@@ -98,6 +102,15 @@ class JobServiceTest {
         assertThat(total).isEqualTo(0.0)
         jobService!!.finishedCompletable(cancelled).blockingGet()
         assertThat(total).isEqualTo(1.0)
+    }
+
+    @Test
+    fun cancelTest() {
+        var total = 100.00
+        jobService!!.jobSizeObservable().subscribe(Consumer {t: Number -> total = t.toDouble()})
+        assertThat(total).isEqualTo(0.0)
+        jobService!!.finishedCompletable(reallyCancelled).blockingGet()
+        assertThat(total).isEqualTo(0.0)
     }
 
 }
