@@ -119,7 +119,7 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                     .toList()
         }
         paths.forEach { prefixMap.put(it.name, item.second) }
-        return paths.asIterable()
+        return paths
     }
 
     override fun jobSize() = jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
