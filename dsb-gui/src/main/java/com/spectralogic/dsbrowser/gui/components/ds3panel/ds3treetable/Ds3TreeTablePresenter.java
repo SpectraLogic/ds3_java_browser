@@ -427,7 +427,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                     Ds3PanelService.refresh(selectedItem);
                     return;
                 }
-                startPutJob(session.getClient(), pairs, bucket, targetDir);
+                startPutJob(session.getClient(), pairs, bucket, targetDir, selectedItem);
             } else {
                 alert.warning("operationNotAllowedHere");
             }
@@ -702,7 +702,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void startPutJob(final Ds3Client client,
             final List<Pair<String, Path>> files,
             final String bucket,
-            final String targetDir) {
+            final String targetDir, final TreeItem<Ds3TreeTableValue> selectedItem) {
         final ImmutableList<kotlin.Pair<String, Path>> filePairs = files.stream()
                 .map(p -> new kotlin.Pair<>(p.getKey(), p.getValue()))
                 .collect(GuavaCollectors.immutableList());
@@ -711,7 +711,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 targetDir,
                 client,
                 () -> {
-                    ds3TreeTable.refresh();
+                    Ds3PanelService.refresh(selectedItem);
                     return Unit.INSTANCE;
                 });
     }
