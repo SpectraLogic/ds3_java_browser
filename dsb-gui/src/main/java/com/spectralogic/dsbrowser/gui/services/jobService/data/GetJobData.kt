@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.services.jobService.data
 import com.google.common.collect.ImmutableList
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
@@ -40,8 +39,6 @@ import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 import java.util.function.Supplier
-import kotlin.reflect.KFunction
-import kotlin.reflect.KFunction0
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
@@ -58,12 +55,10 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     }
 
-
-
     override var jobId: UUID? = null
     override fun client(): Ds3Client = jobTaskElement.client
 
-    override public var lastFile: String = ""
+    override var lastFile: String = ""
     override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
 
     override var job: Ds3ClientHelpers.Job? = null
@@ -168,5 +163,4 @@ data class GetJobData(private val list: List<Pair<String, String>>,
             readJobOptions.withPriority(Priority.valueOf(priority))
         }
     }
-
 }

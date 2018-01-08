@@ -24,15 +24,11 @@ import org.assertj.core.api.Assertions.*
 import org.mockito.Mockito
 import java.util.*
 import java.util.function.Supplier
-import kotlin.reflect.KFunction0
 
 const val INITIAL_MESSAGE: String = ""
 const val RAN_MESSAGE: String = "ran"
-const val PERCENT_INITIAL: Long = 0L
 const val PERCENT_RAN: Long = 1L
 const val VISIBLE: Boolean = true
-const val VISIBLE_RAN: Boolean = false
-
 
 class JobServiceTest {
 
@@ -40,7 +36,7 @@ class JobServiceTest {
     private val reallyCancelled = Supplier { true }
     private var jobService: IncrementalJobService? = null
 
-    protected class IncrementalJobService() : JobService() {
+    private class IncrementalJobService() : JobService() {
         override fun getDs3Client(): Ds3Client {
             return Mockito.mock(Ds3Client::class.java)
         }

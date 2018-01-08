@@ -19,7 +19,6 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import javafx.beans.property.*
 import java.util.function.Supplier
-import kotlin.reflect.KFunction0
 
 abstract class JobService : JobFacade {
     protected val title: StringProperty = SimpleStringProperty("")

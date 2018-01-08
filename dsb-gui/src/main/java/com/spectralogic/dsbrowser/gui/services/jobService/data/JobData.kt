@@ -15,19 +15,15 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
-import com.google.common.collect.ImmutableMap
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
 import java.util.function.Supplier
-import kotlin.reflect.KFunction
-import kotlin.reflect.KFunction0
 
 interface JobData {
     fun getStartTime(): Instant
