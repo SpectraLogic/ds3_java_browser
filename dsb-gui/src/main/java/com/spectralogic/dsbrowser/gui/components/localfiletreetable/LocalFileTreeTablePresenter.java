@@ -171,6 +171,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initTableView() {
+        ds3Common.setLocalFileTreeTablePresenter(this);
         treeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         treeTable.setOnDragEntered(SafeHandler.logHandle(event -> event.acceptTransferModes(TransferMode.COPY)));
         treeTable.setOnDragOver(SafeHandler.logHandle(event -> event.acceptTransferModes(TransferMode.COPY)));
@@ -424,7 +425,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
     }
 
-    private void refreshFileTreeView() {
+    public void refreshFileTreeView() {
         LOG.info("Starting refreshing local file tree");
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
