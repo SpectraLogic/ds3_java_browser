@@ -38,7 +38,6 @@ import kotlin.reflect.KFunction0
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
     override fun getDs3Client(): Ds3Client = putJobData.client()
 
-    private var job: Ds3ClientHelpers.Job? = null
     private val chunkManagment: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats(message, putJobData.loggingService(), putJobData.dateTimeUtils())
 
@@ -52,12 +51,14 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         putJobData.cancelled = cancelled
         return Completable.fromAction {
             val resources = prepare(putJobData)
-            if (cancelled.get() == false) {
-                transfer(resources)
+            if (cancelled.get()) {
+                return@fromAction
             }
-            if (cancelled.get() == false) {
-                tearDown()
+            transfer(resources)
+            if (cancelled.get()) {
+                return@fromAction
             }
+            tearDown()
         }
     }
 

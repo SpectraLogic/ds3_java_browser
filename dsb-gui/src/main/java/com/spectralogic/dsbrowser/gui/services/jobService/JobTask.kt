@@ -83,7 +83,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                     client.cancelJobSpectraS3(CancelJobSpectraS3Request(it))
                     log.info("{} Job cancelled", type)
                     loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-                } catch (e: IOException) {
+                } catch (e: Throwable) {
                     log.error("Failed to cancel $type job", e)
                     loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
                 }
