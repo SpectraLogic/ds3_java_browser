@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.function.Supplier
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
     override fun getDs3Client(): Ds3Client = getJobData.client()
@@ -80,10 +81,16 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         getJobData.removeJob()
     }
 
-    override fun finishedCompletable(): Completable {
+    override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
         return Completable.fromAction {
             val prep = prepare(getJobData)
+            if (cancelled.get()) {
+                return@fromAction
+            }
             transfer(prep)
+            if (cancelled.get()) {
+                return@fromAction
+            }
             tearDown()
         }
     }

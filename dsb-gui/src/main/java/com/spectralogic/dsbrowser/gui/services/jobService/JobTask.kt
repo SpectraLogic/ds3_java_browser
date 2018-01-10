@@ -14,25 +14,25 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.github.thomasnield.rxkotlinfx.observeOnFx
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
+import com.spectralogic.dsbrowser.gui.services.Workers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import com.spectralogic.dsbrowser.util.exists
-import io.reactivex.functions.Action
-import io.reactivex.functions.Consumer
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
-import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
 import org.slf4j.Logger
 import java.io.IOException
 import java.util.*
+import java.util.function.Supplier
 
 class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     @Throws(Throwable::class)
@@ -59,11 +59,11 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .subscribe()
 
         wrappedJob.visabilityObservable()
-                .observeOn(JavaFxScheduler.platform())
+                .observeOnFx()
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable().blockingAwait()
+        wrappedJob.finishedCompletable(Supplier { isCancelled }).blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()
@@ -75,19 +75,20 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                            log: Logger,
                            loggingService: LoggingService,
                            jobInterruptionStore: JobInterruptionStore,
+                           workers: Workers,
                            deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
         jobId.exists {
-            try {
-                Platform.runLater {
+            workers.execute {
+                try {
                     client.cancelJobSpectraS3(CancelJobSpectraS3Request(it))
+                    log.info("{} Job cancelled", type)
+                    loggingService.logMessage("$type Job Cancelled", LogType.INFO)
+                } catch (e: IOException) {
+                    log.error("Failed to cancel $type job", e)
+                    loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
                 }
-                log.info("{} Job cancelled", type)
-                loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-            } catch (e: IOException) {
-                log.error("Failed to cancel $type job", e)
-                loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
             }
-            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
         }
     }
 
@@ -96,10 +97,13 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                  deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
                  loggingService: LoggingService,
                  log: Logger,
+                 workers: Workers,
                  type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
         jobId.exists {
-            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+            workers.execute {
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+            }
         }
         log.error("$type Job failed", throwable)
         loggingService.logMessage("$type Job failed with message: ${throwable.message}", LogType.ERROR)
