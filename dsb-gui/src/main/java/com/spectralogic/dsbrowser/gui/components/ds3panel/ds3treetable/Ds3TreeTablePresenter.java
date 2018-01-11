@@ -685,16 +685,18 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void handleDragDetectedEvent(final Event event) {
         LOG.info("Drag detected...");
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
-        final ImmutableList<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
-        final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
-        if (!Guard.isNullOrEmpty(selectedI)) {
-            LOG.info("Starting drag and drop event");
-            final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
-            final ClipboardContent content = new ClipboardContent();
-            content.put(dataFormat, selected);
-            content.putString(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint());
-            content.putFilesByPath(selected.stream().map(Ds3TreeTableValueCustom::getName).collect(GuavaCollectors.immutableList()));
-            db.setContent(content);
+        if (selectedItems != null) {
+            final ImmutableList<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
+            final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
+            if (!Guard.isNullOrEmpty(selectedI)) {
+                LOG.info("Starting drag and drop event");
+                final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
+                final ClipboardContent content = new ClipboardContent();
+                content.put(dataFormat, selected);
+                content.putString(session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint());
+                content.putFilesByPath(selected.stream().map(Ds3TreeTableValueCustom::getName).collect(GuavaCollectors.immutableList()));
+                db.setContent(content);
+            }
         }
         event.consume();
     }
