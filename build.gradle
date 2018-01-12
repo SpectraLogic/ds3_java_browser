@@ -30,7 +30,7 @@ buildscript {
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.4'
+    version = '2.1.5'
 }
 
 subprojects {
@@ -86,5 +86,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.3'
+    gradleVersion = '4.4.1'
 }
