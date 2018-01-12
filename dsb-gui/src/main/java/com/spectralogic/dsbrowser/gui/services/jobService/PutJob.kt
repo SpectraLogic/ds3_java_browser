@@ -33,13 +33,11 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.function.Supplier
-import kotlin.reflect.KFunction0
 
 class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
     override fun getDs3Client(): Ds3Client = putJobData.client()
 
-    private var job: Ds3ClientHelpers.Job? = null
-    private val chunkManagment: ChunkManagment = ChunkManagment()
+    private val chunkManagement: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats(message, putJobData.loggingService(), putJobData.dateTimeUtils())
 
     private companion object {
@@ -52,12 +50,14 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         putJobData.cancelled = cancelled
         return Completable.fromAction {
             val resources = prepare(putJobData)
-            if (cancelled.get() == false) {
-                transfer(resources)
+            if (cancelled.get()) {
+                return@fromAction
             }
-            if (cancelled.get() == false) {
-                tearDown()
+            transfer(resources)
+            if (cancelled.get()) {
+                return@fromAction
             }
+            tearDown()
         }
     }
 
@@ -76,7 +76,7 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
             sent.set(it + sent.get())
             stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, false)
         }
-        job.attachWaitingForChunksListener { chunkManagment.waitForChunks(it, putJobData.loggingService(), LOG) }
+        job.attachWaitingForChunksListener { chunkManagement.waitForChunks(it, putJobData.loggingService(), LOG) }
         job.attachObjectCompletedListener {
             putJobData.lastFile = it
             stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, true)
