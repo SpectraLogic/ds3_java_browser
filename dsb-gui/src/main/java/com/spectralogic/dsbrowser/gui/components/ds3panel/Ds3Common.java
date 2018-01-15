@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTablePresenter;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
@@ -46,6 +47,7 @@ public class Ds3Common {
     private DeepStorageBrowserPresenter deepStorageBrowserPresenter;
 
     private Ds3PanelPresenter ds3PanelPresenter;
+    private LocalFileTreeTablePresenter localFileTreeTablePresenter;
 
     public Ds3Common() {
     }
@@ -117,5 +119,13 @@ public class Ds3Common {
 
     public void setDs3TreeTableView(final  TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
         this.ds3TreeTableView = ds3TreeTableView;
+    }
+
+    public void setLocalFileTreeTablePresenter(final LocalFileTreeTablePresenter localFileTreeTablePresenter) {
+        this.localFileTreeTablePresenter = localFileTreeTablePresenter;
+    }
+
+    public LocalFileTreeTablePresenter getLocalFileTreeTablePresenter() {
+        return localFileTreeTablePresenter;
     }
 }

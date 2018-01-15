@@ -15,9 +15,9 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectPutter
 import com.spectralogic.ds3client.helpers.options.WriteJobOptions
@@ -30,19 +30,33 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
-import com.spectralogic.dsbrowser.util.GuavaCollectors
 import javafx.beans.property.BooleanProperty
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
+import java.util.*
+import java.util.function.Supplier
+import java.util.stream.Stream
 
 data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
 
+    override fun runningTitle(): String {
+        val transferringPut = jobTaskElement.resourceBundle.getString("transferringPut")
+        val jobId = job?.jobId
+        val startedAt = jobTaskElement.resourceBundle.getString("startedAt")
+        val started = jobTaskElement.dateTimeUtils.format(getStartTime())
+        return "$transferringPut $jobId $startedAt $started"
+    }
+
+    override var jobId: UUID? = null
+    public override var cancelled: Supplier<Boolean>? = null
+    override fun client(): Ds3Client = jobTaskElement.client
+
     override public var lastFile = ""
-    override fun internationalize(labelName: String): String =  jobTaskElement.resourceBundle.getString(labelName)
+    override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
     override fun modifyJob(job: Ds3ClientHelpers.Job) {
         job.withMaxParallelRequests(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
     }
@@ -57,10 +71,13 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                 }
 
             }
+            jobId = field?.jobId
             return field!!
         }
         set(value) {
-            if (value != null) { field = value }
+            if (value != null) {
+                field = value
+            }
         }
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
 
@@ -82,18 +99,22 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     private fun dataToDs3Objects(item: Pair<String, Path>): Iterable<Ds3Object> {
         val localDelim = item.second.fileSystem.separator
         val parent = item.second.parent
-        val ds3ObjectList = Files.walk(item.second)
-                .filter { !(Files.isDirectory(it) && Files.list(it).findAny().isPresent) }
-                .map {
-                    Ds3Object(if (Files.isDirectory(it)) {
-                        targetDir + parent.relativize(it).toString().replace(localDelim, "/") + "/"
-                    } else {
-                        targetDir + parent.relativize(it).toString().replace(localDelim, "/")
+        val paths = Files.walk(item.second).use { stream: Stream<Path> ->
+            stream.iterator().asSequence()
+                    .takeWhile { !cancelled!!.get() }
+                    .filter { !(Files.isDirectory(it) && Files.list(it).use { f -> f.findAny().isPresent }) }
+                    .map {
+                        Ds3Object(if (Files.isDirectory(it)) {
+                            targetDir + parent.relativize(it).toString().replace(localDelim, "/") + "/"
+                        } else {
+                            targetDir + parent.relativize(it).toString().replace(localDelim, "/")
+                        }
+                                , if (Files.isDirectory(it)) 0L else Files.size(it))
                     }
-                            , if (Files.isDirectory(it)) 0L else Files.size(it))
-                }.collect(GuavaCollectors.immutableList())
-        ds3ObjectList.forEach({ prefixMap.put(it.name, item.second) })
-        return ds3ObjectList
+                    .toList()
+        }
+        paths.forEach { prefixMap.put(it.name, item.second) }
+        return paths
     }
 
     override fun jobSize() = jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes

@@ -76,6 +76,18 @@
                         </ImageView>
                     </graphic>
                 </com.spectralogic.dsbrowser.gui.util.Ds3Button>
+                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="createFolderButton">
+                    <tooltip>
+                        <Tooltip fx:id="createFolderButtonTooltip"/>
+                    </tooltip>
+                    <graphic>
+                        <ImageView fitHeight="50.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image requestedHeight="20" requestedWidth="20" url="@/images/folder.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </com.spectralogic.dsbrowser.gui.util.Ds3Button>
                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="transferButton">
                     <tooltip>
                         <Tooltip fx:id="transferButtonTooltip"/>

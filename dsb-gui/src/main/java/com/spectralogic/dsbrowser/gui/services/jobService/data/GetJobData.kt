@@ -15,8 +15,8 @@
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
 import com.google.common.collect.ImmutableList
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.ModifyJobSpectraS3Request
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectGetter
 import com.spectralogic.ds3client.helpers.channelbuilders.PrefixRemoverObjectChannelBuilder
@@ -37,12 +37,28 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
+import java.util.*
+import java.util.function.Supplier
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement) : JobData {
-    override public var lastFile: String = ""
+    override var cancelled: Supplier<Boolean>? = null
+
+    override fun runningTitle(): String {
+        val transferringGet = jobTaskElement.resourceBundle.getString("transferringGet")
+        val jobId = job?.jobId
+        val startedAt = jobTaskElement.resourceBundle.getString("startedAt")
+        val started = jobTaskElement.dateTimeUtils.format(getStartTime())
+        return "$transferringGet $jobId $startedAt $started"
+
+    }
+
+    override var jobId: UUID? = null
+    override fun client(): Ds3Client = jobTaskElement.client
+
+    override var lastFile: String = ""
     override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
 
     override var job: Ds3ClientHelpers.Job? = null
@@ -54,6 +70,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects(), readJobOptions())
                 }
             }
+            jobId = field?.jobId
             return field!!
         }
         set(value) {
@@ -146,5 +163,4 @@ data class GetJobData(private val list: List<Pair<String, String>>,
             readJobOptions.withPriority(Priority.valueOf(priority))
         }
     }
-
 }

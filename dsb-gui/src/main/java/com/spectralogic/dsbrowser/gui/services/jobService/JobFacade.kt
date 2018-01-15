@@ -14,23 +14,23 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Observer
 import javafx.beans.property.LongProperty
 import javafx.beans.property.SimpleBooleanProperty
-import java.time.Instant
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
+import java.util.function.Supplier
 
 interface JobFacade {
-    public fun titleObservable(): Observable<String>
-    public fun jobSizeObservable(): Observable<Number>
-    public fun messageObservable(): Observable<String>
-    public fun visabilityObservable(): Observable<Boolean>
-    public fun finishedCompletable(): Completable
-    public fun sentObservable(): Observable<Number>
-    public fun totalJobSizeAsProperty(): LongProperty
-    public fun visibleProperty(): SimpleBooleanProperty
-    public fun jobUUID(): UUID
+    fun titleObservable(): Observable<String>
+    fun jobSizeObservable(): Observable<Number>
+    fun messageObservable(): Observable<String>
+    fun visabilityObservable(): Observable<Boolean>
+    fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
+    fun sentObservable(): Observable<Number>
+    fun totalJobSizeAsProperty(): LongProperty
+    fun visibleProperty(): SimpleBooleanProperty
+    fun jobUUID(): UUID?
+    fun getDs3Client(): Ds3Client
 }

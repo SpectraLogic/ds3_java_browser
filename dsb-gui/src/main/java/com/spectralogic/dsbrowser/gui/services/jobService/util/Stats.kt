@@ -23,22 +23,20 @@ import javafx.beans.property.LongProperty
 import javafx.beans.property.StringProperty
 import java.time.Instant
 
-class Stats {
+class Stats(val message: StringProperty, val loggingService: LoggingService, val dateTimeUtils: DateTimeUtils) {
     fun updateStatistics(name: String,
                          startTime: Instant,
                          sent: LongProperty,
                          total: LongProperty,
-                         message: StringProperty,
-                         loggingService: LoggingService,
+                         totalMessage: String,
                          toPath: String,
-                         dateTimeUtils: DateTimeUtils,
                          location: String,
                          finished: Boolean) {
         val elapsedSeconds = Instant.now().epochSecond - startTime.epochSecond
         val transferRate = estimateTransferRate(sent, elapsedSeconds)
         val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
-                total.longValue(), name, location).toString())
+                totalMessage, name, location).toString())
         if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, toPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
     }
 

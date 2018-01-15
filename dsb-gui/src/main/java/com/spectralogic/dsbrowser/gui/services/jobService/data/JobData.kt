@@ -15,14 +15,15 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.data
 
-import com.google.common.collect.ImmutableMap
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
 import java.nio.file.Path
 import java.time.Instant
+import java.util.*
+import java.util.function.Supplier
 
 interface JobData {
     fun getStartTime(): Instant
@@ -39,8 +40,12 @@ interface JobData {
     fun removeJob()
     fun modifyJob(job :Ds3ClientHelpers.Job)
     fun internationalize(labelName: String): String
+    fun client(): Ds3Client
+    fun runningTitle(): String
     var job: Ds3ClientHelpers.Job?
     val bucket: String
     var prefixMap: MutableMap<String, Path>
     public var lastFile: String
+    public var jobId: UUID?
+    public var cancelled: Supplier<Boolean>?
 }

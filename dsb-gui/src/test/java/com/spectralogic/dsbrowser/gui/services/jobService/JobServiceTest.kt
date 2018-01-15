@@ -15,34 +15,46 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
 import io.reactivex.functions.Consumer
 import org.junit.Before
 import org.junit.Test
 import org.assertj.core.api.Assertions.*
+import org.mockito.Mockito
 import java.util.*
+import java.util.function.Supplier
 
 const val INITIAL_MESSAGE: String = ""
 const val RAN_MESSAGE: String = "ran"
-const val PERCENT_INITIAL: Long = 0L
 const val PERCENT_RAN: Long = 1L
 const val VISIBLE: Boolean = true
-const val VISIBLE_RAN: Boolean = false
-
 
 class JobServiceTest {
+
+    private val cancelled =  Supplier<Boolean> { false }
+    private val reallyCancelled = Supplier { true }
     private var jobService: IncrementalJobService? = null
 
-    protected class IncrementalJobService() : JobService() {
+    private class IncrementalJobService() : JobService() {
+        override fun getDs3Client(): Ds3Client {
+            return Mockito.mock(Ds3Client::class.java)
+        }
+
         override fun jobUUID(): UUID = UUID.randomUUID()
 
-        override fun finishedCompletable(): Completable {
+        override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
             return Completable.fromAction {
-                message.set(RAN_MESSAGE)
-                totalJob.set(PERCENT_RAN)
-                title.set(RAN_MESSAGE)
-                visible.set(false)
+                //Simplified example, just skips the whole thing if cancelled is true
+                if(!cancelled.get()) {
+                    message.set(RAN_MESSAGE)
+                    totalJob.set(PERCENT_RAN)
+                    title.set(RAN_MESSAGE)
+                    visible.set(false)
+                }
             }
+
+
         }
     }
 
@@ -56,7 +68,7 @@ class JobServiceTest {
         var message = "N/A"
         jobService!!.messageObservable().subscribe(Consumer { t: String -> message = t })
         assertThat(message).isEqualTo(INITIAL_MESSAGE)
-        jobService!!.finishedCompletable().blockingGet()
+        jobService!!.finishedCompletable(cancelled).blockingGet()
         assertThat(message).isEqualTo(RAN_MESSAGE)
     }
 
@@ -66,16 +78,16 @@ class JobServiceTest {
         var title = "N/A"
         jobService!!.titleObservable().subscribe(Consumer { t: String -> title = t })
         assertThat(title).isEqualTo(INITIAL_MESSAGE)
-        jobService!!.finishedCompletable().blockingGet()
+        jobService!!.finishedCompletable(cancelled).blockingGet()
         assertThat(title).isEqualTo(RAN_MESSAGE)
     }
 
     @Test
     fun visibleTest() {
-        var visible = false;
+        var visible = false
         jobService!!.visabilityObservable().subscribe(Consumer { t: Boolean -> visible = t })
         assertThat(visible).isEqualTo(VISIBLE)
-        jobService!!.finishedCompletable().blockingGet()
+        jobService!!.finishedCompletable(cancelled).blockingGet()
         assertThat(visible).isEqualTo(false)
     }
 
@@ -83,9 +95,18 @@ class JobServiceTest {
     fun totalJobTest() {
         var total = 100.00
         jobService!!.jobSizeObservable().subscribe(Consumer { t: Number -> total = t.toDouble() })
-        assertThat(total).isEqualTo(PERCENT_INITIAL)
-        jobService!!.finishedCompletable().blockingGet()
-        assertThat(total).isEqualTo(PERCENT_RAN)
+        assertThat(total).isEqualTo(0.0)
+        jobService!!.finishedCompletable(cancelled).blockingGet()
+        assertThat(total).isEqualTo(1.0)
+    }
+
+    @Test
+    fun cancelTest() {
+        var total = 100.00
+        jobService!!.jobSizeObservable().subscribe(Consumer {t: Number -> total = t.toDouble()})
+        assertThat(total).isEqualTo(0.0)
+        jobService!!.finishedCompletable(reallyCancelled).blockingGet()
+        assertThat(total).isEqualTo(0.0)
     }
 
 }

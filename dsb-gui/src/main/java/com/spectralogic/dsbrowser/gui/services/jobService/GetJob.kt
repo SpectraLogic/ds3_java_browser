@@ -14,6 +14,7 @@
  */
 package com.spectralogic.dsbrowser.gui.services.jobService
 
+import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.*
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
@@ -23,23 +24,28 @@ import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
 import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
 import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkManagment
 import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
+import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.function.Supplier
 
 class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
+    override fun getDs3Client(): Ds3Client = getJobData.client()
+
     private val chunkManagment: ChunkManagment = ChunkManagment()
-    private val stats: Stats = Stats()
+    private val stats: Stats = Stats(message, getJobData.loggingService(), getJobData.dateTimeUtils())
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
-    override fun jobUUID(): UUID = getJobData.job!!.jobId
+    override fun jobUUID(): UUID? = getJobData.jobId
     override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
         title.set(getJobData.internationalize("preparingJob"))
         val job = getJobData.job!!
         totalJob.set(getJobData.jobSize())
+        val totalJobSizeDisplay: String = getJobData.jobSize().toByteRepresentation()
         if (getJobData.shouldRestoreFileAttributes()) {
             job.attachMetadataReceivedListener { s, metadata ->
                 var localFile = s.removePrefix(getJobData.prefixMap.get(s).toString())
@@ -50,11 +56,11 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         }
         job.attachDataTransferredListener(DataTransferredListener {
             sent.set(it + sent.get())
-            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), false)
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), false)
         })
         job.attachObjectCompletedListener(ObjectCompletedListener {
             getJobData.lastFile = it
-            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, message, getJobData.loggingService(), getJobData.targetPath(), getJobData.dateTimeUtils(), getJobData.targetPath(), true)
+            stats.updateStatistics(getJobData.lastFile, getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), true)
         })
         job.attachWaitingForChunksListener(WaitingForChunksListener { chunkManagment.waitForChunks(it, getJobData.loggingService(), LOG) })
         job.attachFailureEventListener { getJobData.loggingService().logMessage(it.toString(), LogType.ERROR) }
@@ -63,9 +69,9 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
     }
 
     override fun transfer(job: Ds3ClientHelpers.Job) {
-        title.set("Transferring GET Job ${job.jobId}")
-        getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         getJobData.setStartTime()
+        title.set(getJobData.runningTitle())
+        getJobData.loggingService().logMessage(getJobData.internationalize("starting") + " GET " + job.jobId, LogType.SUCCESS)
         job.transfer { transferName ->
             getJobData.getObjectChannelBuilder(getJobData.prefixMap.get(transferName).toString() + "/").buildChannel(transferName)
         }
@@ -75,10 +81,16 @@ class GetJob(private val getJobData: JobData) : JobService(), PrepStage<JobData>
         getJobData.removeJob()
     }
 
-    override fun finishedCompletable(): Completable {
+    override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
         return Completable.fromAction {
             val prep = prepare(getJobData)
+            if (cancelled.get()) {
+                return@fromAction
+            }
             transfer(prep)
+            if (cancelled.get()) {
+                return@fromAction
+            }
             tearDown()
         }
     }
