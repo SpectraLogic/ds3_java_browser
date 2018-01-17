@@ -19,16 +19,28 @@ import java.nio.file.Path
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:4.6.0"
     }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+/*As a workaround mainClassName must be set before shadowJar is applied
+  Otherwise shadow:2.0.2 displays the following error:
+  A problem was found with the configuration of task ':dsb-gui:shadowJar'.
+  Registering invalid inputs and outputs via TaskInputs and TaskOutputs methods has been deprecated and is scheduled to be removed in Gradle 5.0.
+ - No value has been specified for property 'mainClassName'.
+ */
 apply plugin: 'application'
-
 mainClassName = 'com.spectralogic.dsbrowser.gui.Main'
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: "nebula.ospackage"
+
 
 dependencies {
     compile project(":dsb-api")
@@ -58,3 +70,35 @@ task genConfigProperties {
 }
 
 classes.dependsOn genConfigProperties
+
+ospackage {
+    packageName = 'eonbrowser'
+    version = '2.1.5'
+    release = '1'
+    os = LINUX
+
+    from(distTar.outputs.files) {
+        into '/opt/eonbrowser'
+    }
+    postInstall('tar xf /opt/eonbrowser/dsb-gui-2.1.5.tar -C /opt/eonbrowser/')
+    postInstall('ln -s  /opt/eonbrowser/dsb-gui-2.1.5/bin/dsb-gui /sbin/eonbrowser')
+    postInstall('rm -f  /opt/eonbrowser/dsb-gui-2.1.5.tar')
+
+}
+
+buildRpm {
+    requires('java-1.8.0-openjdk')
+    requires('openjfx')
+    requires('gtk+')
+    requires('gtk2')
+    requires('libXtst')
+    requires('libxslt')
+    requires('java-1.8.0-openjdk-openjfx')
+}
+
+buildDeb {
+    requires('openjdk-8-jre')
+    requires('libopenjfx-java')
+    requires('openjfx')
+}
+
