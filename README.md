@@ -9,6 +9,42 @@ Spectra Logic’s BlackPearl Eon Browser is a free and open-source Spectra® Bla
 ## Releases
 The latest release can be found at [Releases](https://github.com/SpectraLogic/ds3_java_browser/releases) and includes pre-built installers for Windows, Mac, and Ubuntu.  For other Operating Systems and Platforms, please see the guide on building it [manually](BUILD.md).
 
+## Yum repository
+Create a file named spectralogic.repo in /etc/yum.repos.d containing the following:
+```
+#Bintray-spectralogic
+[bintray-spectralogic-eon_browser_rpm]
+name=spectralogic-eon_browser
+baseurl=https://dl.bintray.com/spectralogic/eon_browser_rpm
+gpgcheck=0
+enabled=1
+```
+Now you can install Eon Browser via Yum:
+```
+sudo yum install eonbrowser
+```
+To run Eon Browser simply invoke it:
+```
+eonbrowser
+```
+
+## Apt repository
+Add the following to the bottom of /etc/apt/sources.list
+```
+deb [trusted=yes] https://dl.bintray.com/spectralogic/eon_browser_deb stable main
+```
+Update the list of available packages:
+```
+sudo apt-get update
+```
+Install Eon Browser:
+```
+sudo apt-get install eonbrowser
+```
+To run Eon Browser simply invoke it from the command line:
+```
+eonbrowser
+```
 ## Contact Us
 Join us at our [Google Groups](https://groups.google.com/d/forum/spectralogicds3-sdks) forum to ask questions, or see frequently asked questions.
 

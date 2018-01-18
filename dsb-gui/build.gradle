@@ -74,7 +74,7 @@ classes.dependsOn genConfigProperties
 ospackage {
     packageName = 'eonbrowser'
     version = '2.1.5'
-    release = '1'
+    release = '3'
     os = LINUX
 
     from(distTar.outputs.files) {
@@ -82,7 +82,8 @@ ospackage {
     }
     postInstall('tar xf /opt/eonbrowser/dsb-gui-2.1.5.tar -C /opt/eonbrowser/')
     postInstall('ln -s  /opt/eonbrowser/dsb-gui-2.1.5/bin/dsb-gui /sbin/eonbrowser')
-    postInstall('rm -f  /opt/eonbrowser/dsb-gui-2.1.5.tar')
+    preUninstall('unlink /sbin/eonbrowser')
+    preUninstall('rm -rf /opt/eonbrowser/*')
 
 }
 
