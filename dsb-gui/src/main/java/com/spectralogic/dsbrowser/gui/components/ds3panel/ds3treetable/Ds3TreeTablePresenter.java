@@ -549,7 +549,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         case File:
                             deleteFile.setDisable(false);
                             metaData.setDisable(false);
-                            createFolder.setDisable(false);
+                            createFolder.setDisable(true);
                             break;
                         default:
                             break;
