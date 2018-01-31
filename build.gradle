@@ -30,7 +30,7 @@ buildscript {
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.5'
+    version = '2.1.6'
 }
 
 subprojects {
