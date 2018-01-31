@@ -24,7 +24,7 @@ public class ValueTreeTableCell<T> extends TreeTableCell<T, Number> {
         if (empty || item == null) {
             setText(null);
         } else {
-            if (item.longValue() == 0L) {
+            if (item.longValue() <= 0L) {
                 setText("");
             } else {
                 setText(FileSizeFormatKt.toByteRepresentation(item.longValue()));
