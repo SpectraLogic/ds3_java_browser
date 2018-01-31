@@ -55,7 +55,7 @@
                         <TreeItemPropertyValueFactory property="type"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn maxWidth="600" minWidth="80.0" prefWidth="70.0" text="Date Modified">
+                <TreeTableColumn maxWidth="600" minWidth="80.0" prefWidth="70.0" text="Date Created">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="lastModified"/>
                     </cellValueFactory>
