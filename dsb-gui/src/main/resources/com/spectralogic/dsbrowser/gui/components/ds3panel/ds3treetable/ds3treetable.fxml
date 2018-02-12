@@ -23,7 +23,7 @@
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTablePresenter">
     <children>
-        <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css">
+        <TreeTableView fx:id="ds3TreeTable" prefHeight="650.0" stylesheets="@../../../common.css" VBox.vgrow="ALWAYS">
             <columns>
                 <TreeTableColumn fx:id="fileName" maxWidth="800" minWidth="70.0" prefWidth="125.0">
                     <cellValueFactory>

@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -22,6 +22,8 @@ import javafx.beans.property.*;
 import java.nio.file.Paths;
 
 public class LogSettings {
+    private static final int LOG_SIZE_IN_MB = 10;
+    private static final int MAXIMUM_NUMBER_OF_LOG_FILES = 10;
 
     public static final LogSettings DEFAULT = createDefault();
 
@@ -55,7 +57,7 @@ public class LogSettings {
     private static LogSettings createDefault() {
         final String logPath = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH),
                 StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.LOG).toString();
-        return new LogSettings(logPath, 1, 10, true, false);
+        return new LogSettings(logPath, LOG_SIZE_IN_MB, MAXIMUM_NUMBER_OF_LOG_FILES, true, false);
     }
 
     public String getLogLocation() {

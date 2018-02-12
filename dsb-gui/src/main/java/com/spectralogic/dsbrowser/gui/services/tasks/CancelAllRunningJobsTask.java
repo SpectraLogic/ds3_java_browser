@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -53,7 +53,7 @@ public class CancelAllRunningJobsTask extends Task {
                     final Ds3Client ds3Client = job.getDs3Client();
                     final String jobId = job.getJobId().toString();
                     job.cancel();
-                    LOG.info("Cancelled job:{} " , jobId);
+                    LOG.info("Canceled job:{} " , jobId);
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId,
                             ds3Client.getConnectionDetails().getEndpoint(), null, loggingService);
                     ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));

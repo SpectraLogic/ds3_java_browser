@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
@@ -37,9 +38,6 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
@@ -72,10 +70,8 @@ public class GuiModule extends AbstractModule {
 
         loadPresenters(this::bind);
 
-        install(new FactoryModuleBuilder().build(Ds3GetJob.Ds3GetJobFactory.class));
-        install(new FactoryModuleBuilder().build(Ds3PutJob.Ds3PutJobFactory.class));
-        install(new FactoryModuleBuilder().build(RecoverInterruptedJob.RecoverInterruptedJobFactory.class));
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
+        install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
     }
 
     @Singleton

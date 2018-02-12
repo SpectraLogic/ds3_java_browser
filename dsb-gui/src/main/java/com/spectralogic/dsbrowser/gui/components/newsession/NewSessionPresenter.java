@@ -33,6 +33,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,18 +276,27 @@ public class NewSessionPresenter implements Initializable {
             }
             final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
             if (session != null) {
+                final String message = buildSessionAlert(session);
                 final int i = savedSessionStore.addSession(session);
                 try {
                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     savedSessions.getSelectionModel().select(i);
                     savedSessions.getFocusModel().focus(i);
-                    alert.info("sessionUpdatedSuccessfully");
+                    alert.info(message);
                 } catch (final IOException e) {
                     LOG.error("Failed to save session: ", e);
                     alert.error("sessionNotUpdatedSuccessfully");
                 }
             }
         }
+    }
+
+    @NotNull
+    private String buildSessionAlert(final Session session) {
+        return savedSessionStore.getSessions().stream()
+                .map(SavedSession::getName)
+                .anyMatch(s -> s.equals(session.getSessionName()))
+                ? "sessionUpdatedSuccessfully" : "sessionSavedSuccessfully";
     }
 
     public void closeDialog() {

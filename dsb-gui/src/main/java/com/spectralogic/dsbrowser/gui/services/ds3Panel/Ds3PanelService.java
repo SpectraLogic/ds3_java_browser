@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -136,7 +136,7 @@ public final class Ds3PanelService {
     }
 
     public static void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
-        if (lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
+        if (modifiedTreeItem != null && lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
             lastRefresh = Instant.now();
             refresh(modifiedTreeItem);
         }

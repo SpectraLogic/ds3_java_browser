@@ -24,10 +24,16 @@ import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobService;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
+import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob;
+import com.spectralogic.dsbrowser.gui.services.jobService.factories.RecoverJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.application.Platform;
@@ -41,6 +47,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,31 +87,39 @@ public class JobInfoPresenter implements Initializable {
     private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
     private final LoggingService loggingService;
-    private final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory;
     private final ButtonCell.ButtonCellFactory buttonCellFactory;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final DateTimeUtils dateTimeUtils;
-
+    private final SettingsStore settingsStore;
+    private final RecoverJobFactory recoverJobFactory;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final JobTaskElement.JobTaskElementFactory jobTaskElementFactory;
     private Stage stage;
 
     @Inject
     public JobInfoPresenter(final ResourceBundle resourceBundle,
-                            final Ds3Common ds3Common,
-                            final Workers workers,
-                            final JobWorkers jobWorkers,
-                            final JobInterruptionStore jobInterruptionStore,
-                            final RecoverInterruptedJob.RecoverInterruptedJobFactory recoverInterruptedJobFactory,
-                            final ButtonCell.ButtonCellFactory buttonCellFactory,
-                            final LoggingService loggingService,
-                            final DateTimeUtils dateTimeUtils,
-                            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final Ds3Common ds3Common,
+            final Workers workers,
+            final JobWorkers jobWorkers,
+            final JobInterruptionStore jobInterruptionStore,
+            final ButtonCell.ButtonCellFactory buttonCellFactory,
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils,
+            final SettingsStore settingsStore,
+            final RecoverJobFactory recoverJobFactory,
+            final JobTaskElement.JobTaskElementFactory jobTaskElementFactory,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
-        this.recoverInterruptedJobFactory = recoverInterruptedJobFactory;
+        this.recoverJobFactory = recoverJobFactory;
+        this.jobTaskElementFactory = jobTaskElementFactory;
+        this.settingsStore = settingsStore;
         this.dateTimeUtils = dateTimeUtils;
         this.buttonCellFactory = buttonCellFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
@@ -150,7 +165,7 @@ public class JobInfoPresenter implements Initializable {
                     loggingService.logMessage("Initiating job cancel for " + key, LogType.INFO);
                     try {
                         endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(key));
-                        LOG.info("Cancelled job.");
+                        LOG.info("Canceled job.");
                     } catch (final IOException e) {
                         LOG.error("Unable to cancel job ", e);
                     } finally {
@@ -164,9 +179,9 @@ public class JobInfoPresenter implements Initializable {
         cancelJobId.setOnSucceeded(SafeHandler.logHandle(event -> {
             refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
             if (cancelJobId.getValue() != null) {
-                LOG.info("Cancelled job {}", cancelJobId.getValue());
+                LOG.info("Canceled job {}", cancelJobId.getValue());
             } else {
-                LOG.info("Cancelled to cancel job ");
+                LOG.info("Canceled to cancel job ");
             }
         }));
         workers.execute(cancelJobId);
@@ -234,38 +249,11 @@ public class JobInfoPresenter implements Initializable {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
 
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
-                final FilesAndFolderMap filesAndFolderMap = endpointInfo.getJobIdAndFilesFoldersMap().get(jobId);
-
-                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(jobId), endpointInfo);
-                recoverInterruptedJob.setOnSucceeded(SafeHandler.logHandle(recoverInterruptedJobSucceededEvent -> {
+                recoverJobFactory.create(UUID.fromString(jobId), endpointInfo, () -> {
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
-                }));
-                recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(recoverInterruptedJobFailedEvent -> {
-                    LOG.error("Failed to recover", recoverInterruptedJob.getException());
-                    loggingService.logMessage("Failed to recover " + filesAndFolderMap.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
-                    refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
-                }));
-                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle(recoverInterruptedJobCancelledEvent -> {
-                    final Ds3CancelSingleJobTask ds3CancelSingleJobTask = new Ds3CancelSingleJobTask(
-                            jobId,
-                            endpointInfo,
-                            jobInterruptionStore,
-                            resourceBundle.getString("recover"),
-                            loggingService);
-                    ds3CancelSingleJobTask.setOnSucceeded(SafeHandler.logHandle(eventCancel -> {
-                        LOG.info("Cancellation of recovered job success");
-                        refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
-                    }));
-                    ds3CancelSingleJobTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
-                        LOG.error("Cancellation of recovered job failed", event.getSource().getException());
-                        loggingService.logMessage("Cancellation of recoved job failed", LogType.ERROR);
-                    }));
-
-                    workers.execute(ds3CancelSingleJobTask);
-                }));
-
-                jobWorkers.execute(recoverInterruptedJob);
+                    return Unit.INSTANCE;
+                });
 
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(),
                         endpointInfo.getEndpoint(),
@@ -302,34 +290,11 @@ public class JobInfoPresenter implements Initializable {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null) {
             jobIDMap.forEach((key, value) -> {
-                final RecoverInterruptedJob recoverInterruptedJob = recoverInterruptedJobFactory.createRecoverInterruptedJob(UUID.fromString(key), endpointInfo);
-                recoverInterruptedJob.setOnSucceeded(SafeHandler.logHandle(event -> {
+                recoverJobFactory.create(UUID.fromString(key), endpointInfo, () -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                }));
-                recoverInterruptedJob.setOnFailed(SafeHandler.logHandle(event -> {
-                    loggingService.logMessage("Failed to recover " + value.getType() + " job " + endpointInfo.getEndpoint(), LogType.ERROR);
-                    LOG.error("Failed to recover Job", event.getSource().getException());
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, key, endpointInfo.getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                }));
-                recoverInterruptedJob.setOnCancelled(SafeHandler.logHandle(event -> {
-                    try {
-                        endpointInfo.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(key));
-                        loggingService.logMessage("Cancel job status : 200", LogType.SUCCESS);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                    } catch (final IOException e) {
-                        loggingService.logMessage("Failed to cancel job: " + e, LogType.ERROR);
-                        LOG.error("Failed to cancedl job", e);
-                    } finally {
-                        final Map<String, FilesAndFolderMap> jobIDMapSecond = ParseJobInterruptionMap.removeJobID(jobInterruptionStore, key, endpointInfo.getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                        ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSecond, deepStorageBrowserPresenter);
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
-                    }
-                }));
-
-                jobWorkers.execute(recoverInterruptedJob);
+                    return Unit.INSTANCE;
+                });
 
                 final Map<String, FilesAndFolderMap> jobIDMapSec = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
                 ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMapSec, deepStorageBrowserPresenter);

@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -20,24 +20,16 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
-import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.spectralogic.dsbrowser.gui.util.StringConstants.COLON;
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
 
 public abstract class Ds3JobTask extends Task<Boolean> {
@@ -89,29 +81,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
                     LOG.error("Failed attempting to updateMessage while waiting for chunks to become available for job: " + job.getJobId(), e);
                 }
             }
-            updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormat.getFileSizeType(totalJobSize), targetDir).toString());
+            updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormatKt.toByteRepresentation(totalJobSize), targetDir).toString());
         });
-    }
-
-    void getTransferRates(final Instant jobStartInstant, final AtomicLong totalSent, final long totalJobSize, final String sourceLocation, final String targetLocation) {
-        final Instant currentTime = Instant.now();
-        final long timeElapsedInSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime.toEpochMilli() - jobStartInstant.toEpochMilli());
-        long transferRate = 0;
-        if (timeElapsedInSeconds != 0) {
-            transferRate = (totalSent.get() / 2) / timeElapsedInSeconds;
-        }
-
-        if (transferRate != 0) {
-            final long timeRemaining = (totalJobSize - (totalSent.get() / 2)) / transferRate;
-
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, timeRemaining, totalSent,
-                    totalJobSize, sourceLocation, targetLocation).toString());
-        } else {
-            updateMessage(StringBuilderUtil.getTransferRateString(transferRate, 0, totalSent,
-                    totalJobSize, sourceLocation, targetLocation).toString());
-        }
-
-        updateProgress(totalSent.get() / 2, totalJobSize);
     }
 
     void hostNotAvailable() {
@@ -121,7 +92,4 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         new LazyAlert(resourceBundle).error(msg);
     }
 
-
-
 }
-

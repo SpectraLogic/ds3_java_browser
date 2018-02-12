@@ -25,9 +25,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.ButtonCell;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3PutJob;
-import com.spectralogic.dsbrowser.gui.services.tasks.RecoverInterruptedJob;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.scene.control.TreeItem;
 import javafx.util.Pair;
@@ -35,7 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -46,7 +42,6 @@ public class FactoryTest {
     private static TestModlue testModlue;
     private static GuiModule guiModule;
     private final static EndpointInfo endpointInfo = mock(EndpointInfo.class);
-    private final static Path path = mock(Path.class);
 
     private static class TestModlue implements Module {
         public void configure(final Binder binder) {
@@ -83,42 +78,6 @@ public class FactoryTest {
         testModlue = new TestModlue();
         guiModule = new GuiModule();
         injector = Guice.createInjector(Modules.override(guiModule).with(testModlue));
-    }
-
-    @Test
-    public void buildDs3PutJob() {
-        final Ds3PutJob.Ds3PutJobFactory f = injector.getInstance(Ds3PutJob.Ds3PutJobFactory.class);
-        Ds3PutJob ds3PutJob = null;
-        try {
-            ds3PutJob = f.createDs3PutJob(ImmutableList.of(new Pair<>("", path)), "bucket", "", mock(TreeItem.class));
-        } catch (final ProvisionException pe) {
-            fail("Provision Exception was thrown");
-        }
-        assert (ds3PutJob != null);
-    }
-
-    @Test
-    public void buildDs3GetJob() {
-        final Ds3GetJob.Ds3GetJobFactory f = injector.getInstance(Ds3GetJob.Ds3GetJobFactory.class);
-        Ds3GetJob ds3GetJob = null;
-        try {
-            ds3GetJob = f.createDs3GetJob(ImmutableList.of(mock(Ds3TreeTableValueCustom.class)), path);
-        } catch (final ProvisionException pe) {
-            fail("Provision Exception was thrown");
-        }
-        assert (ds3GetJob != null);
-    }
-
-    @Test
-    public void buildRecoverInterruptedJob() {
-        final RecoverInterruptedJob.RecoverInterruptedJobFactory f = injector.getInstance(RecoverInterruptedJob.RecoverInterruptedJobFactory.class);
-        RecoverInterruptedJob rij = null;
-        try {
-            rij = f.createRecoverInterruptedJob(new UUID(0,0), endpointInfo);
-        } catch (final ProvisionException pe) {
-            fail("Provision Exception was thrown");
-        }
-        assert (rij != null);
     }
 
     @Test

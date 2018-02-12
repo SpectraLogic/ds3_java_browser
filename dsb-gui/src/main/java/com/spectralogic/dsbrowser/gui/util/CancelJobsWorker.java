@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -36,17 +36,17 @@ public final class CancelJobsWorker {
     private static final Logger LOG = LoggerFactory.getLogger(CancelJobsWorker.class);
 
     public static void cancelAllRunningJobs(final JobWorkers jobWorkers,
-                                            final JobInterruptionStore jobInterruptionStore,
-                                            final Workers workers,
-                                            final Ds3Common ds3Common,
-                                            final DateTimeUtils dateTimeUtils,
-                                            final LoggingService loggingService) {
+            final JobInterruptionStore jobInterruptionStore,
+            final Workers workers,
+            final Ds3Common ds3Common,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService) {
         if (jobWorkers.getTasks().size() != 0) {
             final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore, workers, loggingService);
             cancelAllRunningJobsTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                 refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
                 if (cancelAllRunningJobsTask.getValue() != null) {
-                    LOG.info("Cancelled job. {}", cancelAllRunningJobsTask.getValue());
+                    LOG.info("Canceled job. {}", cancelAllRunningJobsTask.getValue());
                 }
             }));
 
@@ -54,25 +54,25 @@ public final class CancelJobsWorker {
     }
 
     public static CancelAllRunningJobsTask cancelTasks(final JobWorkers jobWorkers,
-                                                       final JobInterruptionStore jobInterruptionStore,
-                                                       final Workers workers,
-                                                       final LoggingService loggingService) {
+            final JobInterruptionStore jobInterruptionStore,
+            final Workers workers,
+            final LoggingService loggingService) {
         final CancelAllRunningJobsTask cancelAllRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore, loggingService);
         workers.execute(cancelAllRunningJobsTask);
         return cancelAllRunningJobsTask;
     }
 
     public static CancelAllTaskBySession cancelAllRunningJobsBySession(final JobWorkers jobWorkers,
-                                                                       final JobInterruptionStore jobInterruptionStore,
-                                                                       final Workers workers,
-                                                                       final LoggingService loggingService) {
+            final JobInterruptionStore jobInterruptionStore,
+            final Workers workers,
+            final LoggingService loggingService) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
         if (tasks.size() != 0) {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks,
                     jobInterruptionStore, loggingService);
             cancelAllRunningJobs.setOnSucceeded(SafeHandler.logHandle(event -> {
                 if (cancelAllRunningJobs.getValue() != null) {
-                    LOG.info("Cancelled job. {}", cancelAllRunningJobs.getValue());
+                    LOG.info("Canceled job. {}", cancelAllRunningJobs.getValue());
                 }
             }));
             workers.execute(cancelAllRunningJobs);

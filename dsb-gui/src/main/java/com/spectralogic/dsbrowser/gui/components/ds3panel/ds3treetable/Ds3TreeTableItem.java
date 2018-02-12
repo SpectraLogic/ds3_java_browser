@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
+import com.google.common.collect.ImmutableSet;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
@@ -34,10 +35,12 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.spectralogic.dsbrowser.gui.util.BaseTreeModel.Type.*;
 
 
 public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final static Logger LOG = LoggerFactory.getLogger(Ds3TreeTableItem.class);
+    private final static ImmutableSet<BaseTreeModel.Type> VALID_LEAVES = ImmutableSet.of(File, Loader);
 
     private final String bucket;
     private final Session session;
@@ -51,12 +54,12 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     private final BaseTreeModel.Type type;
 
     public Ds3TreeTableItem(final String bucket,
-                            final Session session,
-                            final Ds3TreeTableValue value,
-                            final Workers workers,
-                            final Ds3Common ds3Common,
-                            final DateTimeUtils dateTimeUtils,
-                            final LoggingService loggingService) {
+            final Session session,
+            final Ds3TreeTableValue value,
+            final Workers workers,
+            final Ds3Common ds3Common,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService) {
         super(value);
         this.bucket = bucket;
         this.session = session;
@@ -81,6 +84,8 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 return new ImageView(ImageURLs.FOLDER_ICON);
             case File:
                 return new ImageView(ImageURLs.FILE_ICON);
+            case Loader:
+                return new ImageView(ImageURLs.TRANSPARENT_ICON);
             default:
                 return null;
         }
@@ -94,7 +99,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     public void refresh() {
         if (super.getValue() != null) {
             String path = super.getValue().getFullName();
-            if (!super.getValue().getType().equals(Ds3TreeTableValue.Type.Bucket))
+            if (!super.getValue().getType().equals(Bucket))
                 path = super.getValue().getBucketName() + StringConstants.FORWARD_SLASH + path;
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicatorTooltip().setText(path);
             this.ds3Common.getDs3PanelPresenter().getDs3PathIndicator().setText(path);
@@ -106,7 +111,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
     }
 
     /**
-     * @param ds3TreeTable                used to clear all selection in case of load moreused to save bucket selection
+     * @param ds3TreeTable used to clear all selection in case of load moreused to save bucket selection
      */
     public void loadMore(final TreeTableView ds3TreeTable) {
         this.ds3TreeTable = ds3TreeTable;
@@ -134,8 +139,9 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
                 dateTimeUtils, this, ds3TreeTable, ds3Common, loggingService);
         getBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             super.setGraphic(previousGraphics);
-            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null)
+            if (ds3Common != null && ds3Common.getDs3PanelPresenter() != null && ds3Common.getDs3TreeTableView() != null) {
                 ds3Common.getDs3TreeTableView().setPlaceholder(null);
+            }
         }));
         getBucketTask.setOnCancelled(SafeHandler.logHandle(event -> super.setGraphic(previousGraphics)));
         getBucketTask.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
@@ -148,7 +154,7 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
 
     @Override
     public boolean isLeaf() {
-        return type == BaseTreeModel.Type.File || getChildren().isEmpty();
+        return VALID_LEAVES.contains(type) || getChildren().isEmpty();
     }
 
 }

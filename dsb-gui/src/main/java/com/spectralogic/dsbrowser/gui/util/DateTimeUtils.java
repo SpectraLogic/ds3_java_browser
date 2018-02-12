@@ -27,7 +27,10 @@ import java.util.Date;
 
 public final class DateTimeUtils {
 
-    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter DEFAULT_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+    private static final int SECONDS_IN_DAY = (60 * 60 * 24);
+    private static final int SECONDS_IN_HOUR = 60 * 60;
+    private static final int SECONDS_IN_MINUTE = 60;
     private final DateTimeFormatter formatter;
 
     public DateTimeUtils() {
@@ -67,7 +70,7 @@ public final class DateTimeUtils {
      * @return
      */
     public static String timeConversion(final long seconds) {
-        final long day = (seconds / (60 * 60 * 24));
+        final long day = (seconds / SECONDS_IN_DAY);
         if (day >= 1) {
             if (day == 1) {
 
@@ -76,7 +79,7 @@ public final class DateTimeUtils {
                 return day + " days ";
             }
         }
-        final long hour = (seconds / (60 * 60));
+        final long hour = (seconds / SECONDS_IN_HOUR);
         if (hour >= 1) {
             if (hour == 1) {
                 return hour + " hour ";
@@ -84,7 +87,7 @@ public final class DateTimeUtils {
                 return hour + " hours ";
             }
         }
-        final long minute = (seconds / 60);
+        final long minute = (seconds / SECONDS_IN_MINUTE);
         if (minute >= 1) {
             if (minute == 1) {
                 return minute + " minute ";

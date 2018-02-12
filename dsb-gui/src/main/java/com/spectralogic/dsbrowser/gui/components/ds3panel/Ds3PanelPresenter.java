@@ -16,15 +16,17 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
+import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
+import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -32,11 +34,16 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
+import com.spectralogic.dsbrowser.gui.services.jobService.*;
+import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
+import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
+import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -55,6 +62,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +120,10 @@ public class Ds3PanelPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
     private final LazyAlert alert;
-    private final Ds3GetJob.Ds3GetJobFactory getJobFactory;
+    private final SettingsStore settingsStore;
+    private final EndpointInfo endpointInfo;
+    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
+    private final GetJobFactory getJobFactory;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -127,21 +138,27 @@ public class Ds3PanelPresenter implements Initializable {
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
-            final Ds3GetJob.Ds3GetJobFactory getJobFactory,
+            final SettingsStore settingsStore,
+            final EndpointInfo endpointInfo,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final GetJobFactory getJobFactory,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
-        this.getJobFactory = getJobFactory;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
+        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.endpointInfo = endpointInfo;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.getJobFactory = getJobFactory;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
         this.loggingService = loggingService;
         this.alert = new LazyAlert(resourceBundle);
+        this.settingsStore = settingsStore;
     }
 
     @Override
@@ -190,7 +207,13 @@ public class Ds3PanelPresenter implements Initializable {
         ds3Refresh.setOnAction(SafeHandler.logHandle(event -> RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService)));
         ds3ParentDir.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
         ds3NewFolder.setOnAction(SafeHandler.logHandle(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle)));
-        ds3TransferLeft.setOnAction(SafeHandler.logHandle(event -> ds3TransferToLocal()));
+        ds3TransferLeft.setOnAction(SafeHandler.logHandle(event -> {
+            try {
+                ds3TransferToLocal();
+            } catch (final IOException e) {
+                LOG.error("Could not transfer to Local FIleSystem", e);
+            }
+        }));
         ds3NewBucket.setOnAction(SafeHandler.logHandle(event -> {
             LOG.debug("Attempting to create bucket...");
             CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle);
@@ -366,7 +389,7 @@ public class Ds3PanelPresenter implements Initializable {
         return ds3Common.getCurrentSession();
     }
 
-    private void ds3TransferToLocal() {
+    private void ds3TransferToLocal() throws IOException {
         final Session session = getSession();
         if ((session == null) || (ds3Common == null)) {
             alert.error("invalidSession");
@@ -435,29 +458,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        final Ds3GetJob getJob = getJobFactory.createDs3GetJob(selectedItemsAtSourceLocationListCustom, localPath);
-        getJob.setOnSucceeded(SafeHandler.logHandle(event -> {
-            LOG.info("Get Job {} succeeded.", getJob.getJobId());
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
-        }));
-        getJob.setOnFailed(SafeHandler.logHandle(e -> {
-            LOG.error("Get Job failed", e.getSource().getException());
-            loggingService.logMessage("Get Job failed with message: " + e.getSource().getException().getMessage(), LogType.ERROR);
-        }));
-        getJob.setOnCancelled(SafeHandler.logHandle(e -> {
-            LOG.info("Get Job {} cancelled.", getJob.getJobId());
-            if (getJob.getJobId() != null) {
-                try {
-                    session.getClient().cancelJobSpectraS3(new CancelJobSpectraS3Request(getJob.getJobId()));
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, getJob.getJobId().toString(), getJob.getDs3Client().getConnectionDetails().getEndpoint(), deepStorageBrowserPresenter, loggingService);
-                    loggingService.logMessage(resourceBundle.getString("getJobCancelled"), LogType.ERROR);
-                } catch (final IOException e1) {
-                    LOG.error("Failed to cancel job " + getJob.getJobId(), e1);
-                }
-            }
-            refreshLocalSideView(selectedItemsAtDestination, localTreeTableView, localFilePathIndicator, fileRootItem);
-        }));
-        jobWorkers.execute(getJob);
+        startGetJob(selectedItemsAtSourceLocationListCustom, localPath, selectedItemsAtDestination);
     }
 
     private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
@@ -682,6 +683,25 @@ public class Ds3PanelPresenter implements Initializable {
 
     public Label getCreateNewSessionLabel() {
         return createNewSessionLabel;
+    }
+
+    private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
+            final Path localPath, final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination) {
+        listFiles.stream()
+                .map(Ds3TreeTableValueCustom::getBucketName)
+                .distinct()
+                .forEach(bucket -> {
+                    final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
+                            .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
+                            .map(ds3TreeTableValueCustom -> new kotlin.Pair<>(
+                                    ds3TreeTableValueCustom.getFullName(),
+                                    ds3TreeTableValueCustom.getParent() + "/"))
+                            .collect(GuavaCollectors.immutableList());
+                    getJobFactory.create(fileAndParent, bucket, localPath, getSession().getClient(), () -> {
+                        ds3Common.getLocalFileTreeTablePresenter().refreshFileTreeView();
+                        return Unit.INSTANCE;
+                    });
+                });
     }
 }
 

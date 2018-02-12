@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Copyright 2016-2018 Spectra Logic Corporation. All Rights Reserved.
  *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
  *    this file except in compliance with the License. A copy of the License is located at
  *
@@ -25,6 +25,7 @@ public interface ImageURLs {
     String STORAGE_TAPES = "/images/tape.png";
     String EJECTED_TAPES = "/images/tapeEjected.png";
     String BLACKPEARL_CACHE = "/images/blackPearlCache.png";
+    String NO_BLACKPEARL_CACHE = "/images/noBlackPearlCache.png";
     String REPLICATION = "/images/bpReplicate.png";
     String CLOUD = "/images/publicCloud.png";
 
@@ -38,6 +39,7 @@ public interface ImageURLs {
     String JOB_ICON = "/images/job.png";
     String FOLDER_ICON = "/images/folder.png";
     String FILE_ICON = "/images/file.png";
+    String TRANSPARENT_ICON = "/images/transparent.png";
     String CHILD_LOADER = "/images/loading.gif";
     String DEEP_STORAGE_BROWSER = "/images/deep_storage_browser.png";
     String BUCKET_ICON="/images/bucket.png";
