@@ -156,7 +156,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         }
                     } else {
                         final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(modelValue.getBucket()).withIncludePhysicalPlacement(true);
-                        request.withName(modelValue.getName() + StringConstants.PERCENT).withFolder(modelValue.getName());
+                        request.withName(modelValue.getName() + StringConstants.PERCENT);
                         try {
                             final GetObjectsWithFullDetailsSpectraS3Response objectsWithFullDetailsSpectraS3 = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
                             final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();
