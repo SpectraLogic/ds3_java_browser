@@ -14,7 +14,7 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.2.20'
+    ext.kotlin_version = '1.2.31'
 
     repositories {
         maven {
@@ -30,7 +30,7 @@ buildscript {
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.6'
+    version = '5.0.0'
 }
 
 subprojects {
@@ -86,5 +86,5 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4.1'
+    gradleVersion = '4.6'
 }

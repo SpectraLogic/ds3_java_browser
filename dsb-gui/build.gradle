@@ -73,8 +73,8 @@ classes.dependsOn genConfigProperties
 
 ospackage {
     packageName = 'eonbrowser'
-    version = '2.1.5'
-    release = '3'
+    version = '5.0.0'
+    release = '1'
     os = LINUX
 
     from(distTar.outputs.files) {
