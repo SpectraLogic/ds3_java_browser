@@ -465,26 +465,29 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeTableView<FileTreeModel> treeTable,
             final Label fileRootItemLabel,
             final String fileRootItem) {
+        final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
         if (first.isPresent()) {
             final TreeItem<FileTreeModel> selectedItem = first.get();
             if (selectedItem instanceof FileTreeTableItem) {
                 final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
-                fileTreeTableItem.refresh();
-                treeTable.getSelectionModel().clearSelection();
-                treeTable.getSelectionModel().select(selectedItem);
+                try {
+                    fileTreeTableItem.refresh();
+                    treeTable.getSelectionModel().clearSelection();
+                    treeTable.getSelectionModel().select(selectedItem);
+                } catch (final IOException e) {
+                    treeTable.setRoot(rootTreeItem);
+                }
             }
         } else {
-            final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
             fileRootItemLabel.setText(fileRootItem);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
-
             treeTable.setRoot(rootTreeItem);
         }
     }
