@@ -20,7 +20,6 @@ import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -32,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
@@ -85,7 +85,7 @@ public class SearchJobTaskTest {
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
                 final String searchText = "11";
                 final SearchJobTask searchJobTask = new SearchJobTask(buckets, searchText, session,
-                        workers, Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
+                        workers, Mockito.mock(Ds3Common.class), DTU, new LoggingServiceFake());
                 workers.execute(searchJobTask);
                 latch.countDown();
                 successFlag = searchJobTask.get() != null;

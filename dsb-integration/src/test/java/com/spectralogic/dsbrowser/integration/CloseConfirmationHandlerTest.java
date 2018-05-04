@@ -15,21 +15,15 @@
 
 package com.spectralogic.dsbrowser.integration;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -45,13 +39,9 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.control.TreeItem;
-import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,7 +51,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -70,7 +59,6 @@ import static org.junit.Assert.*;
 
 public class CloseConfirmationHandlerTest {
     private static final JobWorkers jobWorkers = new JobWorkers();
-    private static final Workers workers = new Workers();
     private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
@@ -80,7 +68,6 @@ public class CloseConfirmationHandlerTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Path path;
-    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     @BeforeClass
     public static void setConnection() {

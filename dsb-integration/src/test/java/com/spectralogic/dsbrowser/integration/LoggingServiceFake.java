@@ -1,4 +1,4 @@
-package com.spectralogic.dsbrowser.gui;
+package com.spectralogic.dsbrowser.integration;
 
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;

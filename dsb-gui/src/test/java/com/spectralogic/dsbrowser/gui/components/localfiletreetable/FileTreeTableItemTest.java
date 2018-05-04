@@ -17,7 +17,7 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
+import com.spectralogic.dsbrowser.gui.LoggingServiceFake;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
@@ -45,7 +45,7 @@ import static org.junit.Assert.fail;
 public class FileTreeTableItemTest {
 
     final private DateTimeUtils dateTimeUtils = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    final private LoggingService loggingService = new LoggingServiceImpl();
+    final private LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag =  false;
 
     @Test

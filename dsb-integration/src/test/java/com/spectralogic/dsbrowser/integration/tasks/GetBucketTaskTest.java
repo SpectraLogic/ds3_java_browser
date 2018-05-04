@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -99,7 +100,7 @@ public class GetBucketTaskTest {
                                                                       Mockito.mock(Ds3TreeTableItem.class),
                                                                       Mockito.mock(TreeTableView.class),
                                                                       Mockito.mock(Ds3Common.class),
-                                                                      Mockito.mock(LoggingService.class));
+                                                                      new LoggingServiceFake());
                 workers.execute(getBucketTask);
                 getBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

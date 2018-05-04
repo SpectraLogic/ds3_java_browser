@@ -17,11 +17,11 @@ package com.spectralogic.dsbrowser.integration.tasks;
 
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
-import com.spectralogic.dsbrowser.gui.services.LoggingServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
+import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class GetMediaDeviceTaskTest {
 
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    private final LoggingService loggingService = new LoggingServiceImpl();
+    private final LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag = false;
 
     @Test

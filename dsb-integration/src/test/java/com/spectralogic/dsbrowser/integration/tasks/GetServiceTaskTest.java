@@ -34,6 +34,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
+import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -117,7 +118,7 @@ public class GetServiceTaskTest {
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
             final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                    Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
+                    Mockito.mock(Ds3Common.class), DTU, new LoggingServiceFake());
             workers.execute(getServiceTask);
             getServiceTask.setOnSucceeded(event -> {
                 successFlag=true;
