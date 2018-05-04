@@ -30,7 +30,7 @@ public class LogServiceTest {
         final LogSettings defaultLogSettings = LogSettings.DEFAULT;
         assertEquals(defaultLogSettings.logLocationProperty().getValue(),
                 Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.LOG).toString());
-        assertEquals(defaultLogSettings.getLogSize(), 1);
+        assertEquals(defaultLogSettings.getLogSize(), 10);
         assertEquals(defaultLogSettings.getNumRollovers(), 10);
         assertTrue(defaultLogSettings.getDebugLogging());
         assertFalse(defaultLogSettings.getConsoleLogging());

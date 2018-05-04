@@ -17,8 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
@@ -28,22 +26,11 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
-import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
-import com.spectralogic.dsbrowser.gui.services.jobService.GetJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
-import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.PutJobFactory;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -97,16 +84,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final FileTreeTableProvider fileTreeTableProvider;
     private final DataFormat dataFormat;
     private final Workers workers;
-    private final JobWorkers jobWorkers;
-    private final JobInterruptionStore jobInterruptionStore;
-    private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private final SettingsStore settingsStore;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
 
@@ -120,26 +102,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final FileTreeTableProvider fileTreeTableProvider,
             final DataFormat dataFormat,
             final Workers workers,
-            final JobWorkers jobWorkers,
-            final JobInterruptionStore jobInterruptionStore,
-            final EndpointInfo endpointInfo,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-            final SettingsStore settingsStore,
             final PutJobFactory putJobFactory,
             final GetJobFactory getJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
-        this.settingsStore = settingsStore;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
-        this.jobWorkers = jobWorkers;
-        this.jobInterruptionStore = jobInterruptionStore;
-        this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
@@ -415,7 +387,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
             treeTable.setRoot(rootTreeItem);
@@ -433,7 +405,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
         treeTable.setRoot(rootTreeItem);
@@ -514,7 +486,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers);
+        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers, loggingService);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);

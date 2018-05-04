@@ -15,11 +15,10 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.ImageURLs;
-import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -29,10 +28,8 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Paint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +37,6 @@ import javax.swing.filechooser.FileSystemView;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -60,8 +56,9 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final LoggingService loggingService;
 
-    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils, final Workers workers) {
+    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils, final Workers workers, final LoggingService loggingService) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = getLeaf(fileTreeModel.getPath());
@@ -69,6 +66,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
+        this.loggingService = loggingService;
     }
 
     private boolean getLeaf(final Path path) {
@@ -121,7 +119,10 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             }));
             buildChildren.setOnFailed(SafeHandler.logHandle((WorkerStateEvent event) -> {
                 LOG.error("Failed to build children", event.getSource().getException());
-                super.setGraphic(previousGraphics);
+                loggingService.logMessage(
+                        resourceBundle.getString("unableToReadFileSystem") + " " + event.getSource().getException().getMessage(),
+                        LogType.ERROR);
+                super.getParent().getChildren().clear();
             }));
             buildChildren.setOnCancelled(SafeHandler.logHandle(event -> {
                 LOG.info("Success");
@@ -148,42 +149,26 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         return leaf;
     }
 
-    public void refresh() {
+    public void refresh() throws IOException {
         final ObservableList<TreeItem<FileTreeModel>> list = super.getChildren();
         list.remove(0, list.size());
         buildChildren(list);
     }
 
-    private void buildChildren(final ObservableList<TreeItem<FileTreeModel>> children) {
+    private void buildChildren(final ObservableList<TreeItem<FileTreeModel>> children) throws IOException {
         if (fileTreeModel == null) {
             return;
         }
         final Path path = fileTreeModel.getPath();
         if (path != null && !getLeaf(path)) {
-            try {
-                final List<FileTreeTableItem> fileChildren = provider
-                        .getListForDir(fileTreeModel, dateTimeUtils)
-                        .map(ftm -> new FileTreeTableItem(provider, ftm, dateTimeUtils, workers))
-                        .collect(Collectors.toList());
-                fileChildren.sort(Comparator.comparing(t -> t.getValue().getType().toString()
-                ));
-                children.setAll(fileChildren);
-
-
-            } catch (final AccessDeniedException ae) {
-                LOG.error("Could not access file", ae);
-                setError(resourceBundle.getString("invalidPermission"));
-            } catch (final IOException e) {
-                LOG.error("Failed to get children for " + path.toString(), e);
-                setError(resourceBundle.getString("failedToGetChildren"));
-            }
+            final List<FileTreeTableItem> fileChildren = provider
+                    .getListForDir(fileTreeModel, dateTimeUtils)
+                    .filter(ftm -> ftm.getType() != BaseTreeModel.Type.Error)
+                    .map(ftm -> new FileTreeTableItem(provider, ftm, dateTimeUtils, workers, loggingService))
+                    .sorted(Comparator.comparing(t -> t.getValue().getType().toString()))
+                    .collect(Collectors.toList());
+            children.setAll(fileChildren);
         }
     }
 
-    private void setError(final String errorMessage) {
-        final Node node = Icon.getIcon(FontAwesomeIcon.EXCLAMATION_CIRCLE, Paint.valueOf("RED"));
-        final Tooltip errorTip = new Tooltip(errorMessage);
-        Tooltip.install(node, errorTip);
-        this.setGraphic(node);
-    }
 }

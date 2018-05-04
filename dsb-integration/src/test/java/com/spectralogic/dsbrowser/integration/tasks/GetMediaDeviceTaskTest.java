@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
@@ -37,6 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class GetMediaDeviceTaskTest {
 
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private final LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag = false;
 
     @Test
@@ -51,7 +54,7 @@ public class GetMediaDeviceTaskTest {
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();
 
-                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, DTU, workers);
+                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, DTU, workers, loggingService);
                 workers.execute(task);
                 task.setOnSucceeded(event -> {
                     successFlag = true;

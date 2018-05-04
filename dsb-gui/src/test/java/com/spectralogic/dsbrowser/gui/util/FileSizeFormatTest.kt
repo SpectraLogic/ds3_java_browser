@@ -15,14 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.util
 
-import com.spectralogic.ds3client.Ds3Client
-import io.reactivex.Completable
-import io.reactivex.functions.Consumer
-import org.junit.Before
 import org.junit.Test
 import org.assertj.core.api.Assertions.*
-import org.mockito.Mockito
-import java.util.*
 
 class FileSizeFormatTest {
     @Test

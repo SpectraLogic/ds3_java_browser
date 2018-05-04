@@ -15,12 +15,12 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
@@ -117,7 +117,7 @@ public class GetServiceTaskTest {
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
             final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                    Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
+                    Mockito.mock(Ds3Common.class), DTU, new LoggingServiceFake());
             workers.execute(getServiceTask);
             getServiceTask.setOnSucceeded(event -> {
                 successFlag=true;

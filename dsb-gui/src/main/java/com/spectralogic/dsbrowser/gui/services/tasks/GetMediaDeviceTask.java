@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
@@ -32,20 +33,22 @@ public class GetMediaDeviceTask extends Task{
     private final FileTreeTableProvider provider;
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
+    private final LoggingService loggingService;
 
-    public GetMediaDeviceTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final FileTreeTableProvider provider, final DateTimeUtils dateTimeUtils, final Workers workers) {
+    public GetMediaDeviceTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final FileTreeTableProvider provider, final DateTimeUtils dateTimeUtils, final Workers workers, final LoggingService loggingService) {
         this.rootItems = rootItems;
         this.rootTreeItem = rootTreeItem;
         this.provider = provider;
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
+        this.loggingService = loggingService;
     }
 
     @Override
     protected Optional<Object> call() throws Exception {
         rootItems.forEach(ftm ->
                 {
-                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, dateTimeUtils, workers);
+                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, dateTimeUtils, workers, loggingService);
                     rootTreeItem.getChildren().add(newRootTreeItem);
                 }
         );

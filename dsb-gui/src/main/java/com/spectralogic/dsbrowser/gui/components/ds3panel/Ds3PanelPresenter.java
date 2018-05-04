@@ -16,17 +16,14 @@
 package com.spectralogic.dsbrowser.gui.components.ds3panel;
 
 import com.google.common.collect.ImmutableList;
-import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
-import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTreeTableView;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -34,16 +31,12 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
-import com.spectralogic.dsbrowser.gui.services.jobService.*;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -120,9 +113,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final SavedSessionStore savedSessionStore;
     private final LoggingService loggingService;
     private final LazyAlert alert;
-    private final SettingsStore settingsStore;
-    private final EndpointInfo endpointInfo;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final GetJobFactory getJobFactory;
 
     private GetNumberOfItemsTask itemsTask;
@@ -138,16 +128,11 @@ public class Ds3PanelPresenter implements Initializable {
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
-            final SettingsStore settingsStore,
-            final EndpointInfo endpointInfo,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
             final GetJobFactory getJobFactory,
             final LoggingService loggingService) {
         this.resourceBundle = resourceBundle;
         this.ds3SessionStore = ds3SessionStore;
         this.workers = workers;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
-        this.endpointInfo = endpointInfo;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
@@ -158,7 +143,6 @@ public class Ds3PanelPresenter implements Initializable {
         this.savedSessionStore = savedSessionStore;
         this.loggingService = loggingService;
         this.alert = new LazyAlert(resourceBundle);
-        this.settingsStore = settingsStore;
     }
 
     @Override
@@ -465,26 +449,29 @@ public class Ds3PanelPresenter implements Initializable {
             final TreeTableView<FileTreeModel> treeTable,
             final Label fileRootItemLabel,
             final String fileRootItem) {
+        final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
         if (first.isPresent()) {
             final TreeItem<FileTreeModel> selectedItem = first.get();
             if (selectedItem instanceof FileTreeTableItem) {
                 final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
-                fileTreeTableItem.refresh();
-                treeTable.getSelectionModel().clearSelection();
-                treeTable.getSelectionModel().select(selectedItem);
+                try {
+                    fileTreeTableItem.refresh();
+                    treeTable.getSelectionModel().clearSelection();
+                    treeTable.getSelectionModel().select(selectedItem);
+                } catch (final IOException e) {
+                    treeTable.setRoot(rootTreeItem);
+                }
             }
         } else {
-            final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
             fileRootItemLabel.setText(fileRootItem);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
-
             treeTable.setRoot(rootTreeItem);
         }
     }
