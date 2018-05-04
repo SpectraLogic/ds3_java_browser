@@ -15,12 +15,12 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
@@ -34,7 +34,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
-import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

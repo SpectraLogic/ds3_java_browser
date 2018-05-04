@@ -15,9 +15,9 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.LoggingServiceFake;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;

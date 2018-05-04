@@ -15,9 +15,9 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -32,12 +32,9 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
-import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.HBox;
 import org.junit.BeforeClass;

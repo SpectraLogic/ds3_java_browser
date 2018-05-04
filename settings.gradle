@@ -1,1 +1,3 @@
-include 'dsb-api', 'dsb-gui', 'dsb-util', 'dsb-integration'
+include 'dsb-api', 'dsb-gui', 'dsb-util', 'dsb-integration', 'dbs-test-util'
+include 'dsb-test-util'
+

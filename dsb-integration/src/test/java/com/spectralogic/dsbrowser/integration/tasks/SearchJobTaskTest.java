@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
@@ -31,7 +32,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;

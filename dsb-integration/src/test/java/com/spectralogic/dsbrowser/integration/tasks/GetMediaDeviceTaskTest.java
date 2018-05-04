@@ -15,13 +15,13 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.FileTreeTableProvider;
-import com.spectralogic.dsbrowser.integration.LoggingServiceFake;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
