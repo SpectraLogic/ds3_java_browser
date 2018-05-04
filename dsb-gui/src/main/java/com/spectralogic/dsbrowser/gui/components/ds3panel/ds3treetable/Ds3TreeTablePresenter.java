@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
@@ -26,21 +25,14 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.CreateService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
-import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.PutJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -51,7 +43,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -67,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,7 +92,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private Session session;
 
     private final Workers workers;
-    private final JobWorkers jobWorkers;
     private final ResourceBundle resourceBundle;
     private final DataFormat dataFormat;
     private final Ds3Common ds3Common;
@@ -111,8 +100,6 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
     private final LazyAlert alert;
-    private final SettingsStore settingsStore;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
     private final PutJobFactory putJobFactory;
 
     private ContextMenu contextMenu;
@@ -123,26 +110,20 @@ public class Ds3TreeTablePresenter implements Initializable {
     public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
             final DataFormat dataFormat,
             final Workers workers,
-            final JobWorkers jobWorkers,
             final Ds3Common ds3Common,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final JobInterruptionStore jobInterruptionStore,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-            final PutJobFactory putJobFactory,
-            final SettingsStore settingsStore) {
+            final PutJobFactory putJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
         this.putJobFactory = putJobFactory;
         this.workers = workers;
-        this.jobWorkers = jobWorkers;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.ds3Common = ds3Common;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
-        this.settingsStore = settingsStore;
         this.dateTimeUtils = dateTimeUtils;
         this.alert = new LazyAlert(resourceBundle);
     }

@@ -25,7 +25,7 @@ const val peta = "PB"
 const val exa = "EB"
 val listOfPrefixs = arrayOf(bytes, kilo, mega, giga, tera, peta, exa)
 
-public fun Long.toByteRepresentation(): String {
+fun Long.toByteRepresentation(): String {
     return if (this == 0L) {
         "0 Bytes"
     } else {
