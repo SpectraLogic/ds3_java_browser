@@ -162,7 +162,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         final Path path = fileTreeModel.getPath();
         if (path != null && !getLeaf(path)) {
             final List<FileTreeTableItem> fileChildren = provider
-                    .getListForDir(fileTreeModel, dateTimeUtils)
+                    .getListForDir(fileTreeModel)
                     .filter(ftm -> ftm.getType() != BaseTreeModel.Type.Error)
                     .map(ftm -> new FileTreeTableItem(provider, ftm, dateTimeUtils, workers, loggingService))
                     .sorted(Comparator.comparing(t -> t.getValue().getType().toString()))

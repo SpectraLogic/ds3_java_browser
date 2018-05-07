@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
+import com.spectralogic.ds3client.models.delete.Delete;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
@@ -68,20 +69,21 @@ public class DeleteItemPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
-    private final DateTimeUtils dateTimeUtils;
     private final LazyAlert alert;
+    private final DeleteService deleteService;
 
     @Inject
     public DeleteItemPresenter(final Workers workers,
                                final Ds3Common ds3Common,
                                final ResourceBundle resourceBundle,
                                final DateTimeUtils dateTimeUtils,
+                               final DeleteService deleteService,
                                final LoggingService loggingService) {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
+        this.deleteService = deleteService;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
         this.alert = new LazyAlert(resourceBundle);
     }
 
@@ -146,7 +148,7 @@ public class DeleteItemPresenter implements Initializable {
             loggingService.logMessage(resourceBundle.getString("deleteSuccess"), LogType.SUCCESS);
             LOG.info("Successfully deleted selected item(s).");
 
-            DeleteService.managePathIndicator(ds3Common, workers, dateTimeUtils, loggingService);
+            deleteService.managePathIndicator();
         }));
         workers.execute(deleteTask);
     }

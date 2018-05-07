@@ -82,7 +82,7 @@ public class FileTreeTableItemTest {
                 final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER);
                 final File testFolder = path.toFile();
                 final int numFiles = testFolder.list().length;
-                final FileTreeTableProvider fileTreeTableProvider = new FileTreeTableProvider();
+                final FileTreeTableProvider fileTreeTableProvider = new FileTreeTableProvider(new DateTimeUtils());
                 final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
                 final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, new Workers(), loggingService);
                 fileTreeTableItem.refresh();

@@ -45,13 +45,16 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -60,7 +63,27 @@ public final class Ds3PanelService {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ds3PanelService.class);
 
-    private static Instant lastRefresh = Instant.now();
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final ResourceBundle resourceBundle;
+    private final DateTimeUtils dateTimeUtils;
+    private final LoggingService loggingService;
+    private Instant lastRefresh = Instant.now();
+
+    @Inject
+    public Ds3PanelService(
+            ResourceBundle resourceBundle,
+            DateTimeUtils dateTimeUtils,
+            Ds3Common ds3Common,
+            Workers workers,
+            LoggingService loggingService
+    ) {
+        this.ds3Common = ds3Common;
+        this.workers = workers;
+        this.resourceBundle =resourceBundle;
+        this.dateTimeUtils = dateTimeUtils;
+        this.loggingService = loggingService;
+    }
 
     /**
      * check if bucket contains or folders
@@ -68,7 +91,7 @@ public final class Ds3PanelService {
      * @param bucketName bucketName
      * @return true if bucket is empty else return false
      */
-    public static boolean checkIfBucketEmpty(final String bucketName, final Session session) {
+    public boolean checkIfBucketEmpty(final String bucketName, final Session session) {
         try {
             final GetBucketRequest request = new GetBucketRequest(bucketName).withMaxKeys(1);
             final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
@@ -81,7 +104,7 @@ public final class Ds3PanelService {
         }
     }
 
-    public static Optional<ImmutableList<Bucket>> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem,
+    public Optional<ImmutableList<Bucket>> setSearchableBucket(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem,
             final Session session,
             final TreeTableView<Ds3TreeTableValue> treeTableView) {
         try {
@@ -113,7 +136,7 @@ public final class Ds3PanelService {
         }
     }
 
-    public static void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+    public void refresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
         LOG.info("Running refresh of row");
         if (modifiedTreeItem instanceof Ds3TreeTableItem) {
             final Ds3TreeTableItem item;
@@ -135,15 +158,15 @@ public final class Ds3PanelService {
         }
     }
 
-    public static void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
+    public void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
         if (modifiedTreeItem != null && lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
             lastRefresh = Instant.now();
             refresh(modifiedTreeItem);
         }
     }
 
-    public static void showPhysicalPlacement(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
-        ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
+    public void showPhysicalPlacement() {
+        ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
@@ -172,9 +195,9 @@ public final class Ds3PanelService {
     }
 
     @SuppressWarnings("unchecked")
-    public static void showMetadata(final Ds3Common ds3Common, final Workers workers, final ResourceBundle resourceBundle) {
-        final TreeTableView ds3TreeTableView = ds3Common.getDs3TreeTableView();
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = (ImmutableList<TreeItem<Ds3TreeTableValue>>) ds3TreeTableView.getSelectionModel().getSelectedItems().stream().collect(GuavaCollectors.immutableList());
+    public void showMetadata() {
+
+        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.info(resourceBundle.getString("noFiles"));
             new LazyAlert(resourceBundle).info(resourceBundle.getString("noFiles"));
@@ -195,7 +218,7 @@ public final class Ds3PanelService {
         })));
     }
 
-    public static void filterChanged(final Ds3Common ds3Common, final Workers workers, final LoggingService loggingService, final ResourceBundle resourceBundle, final DateTimeUtils dateTimeUtils) {
+    public void filterChanged() {
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
         final String newValue = ds3PanelPresenter.getSearchedText();
         ds3PanelPresenter.getDs3PathIndicator().setText(resourceBundle.getString("searching"));
@@ -203,23 +226,22 @@ public final class Ds3PanelService {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
         final Session session = ds3Common.getCurrentSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
-            setVisibilityOfItemsInfo(true, ds3Common);
+            setVisibilityOfItemsInfo(true);
             RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
         } else {
             try {
-                ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = ds3TreeTableView.getSelectionModel().getSelectedItems();
+                ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = getSelectedItems();
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
                 if (Guard.isNullOrEmpty(selectedItem) && (root != null && root.getValue() != null)) {
                     selectedItem = FXCollections.observableArrayList();
                     selectedItem.add(root);
                 }
 
-                final Optional<ImmutableList<Bucket>> searchableBuckets = Ds3PanelService.setSearchableBucket(selectedItem, session,
-                        ds3TreeTableView);
+                final Optional<ImmutableList<Bucket>> searchableBuckets = setSearchableBucket(selectedItem, session, ds3TreeTableView);
                 final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
                 rootTreeItem.setExpanded(true);
                 ds3TreeTableView.setShowRoot(false);
-                setVisibilityOfItemsInfo(false, ds3Common);
+                setVisibilityOfItemsInfo(false);
 
                 final SearchJobTask searchJobTask = new SearchJobTask(searchableBuckets.get(), newValue, session, workers, ds3Common, dateTimeUtils, loggingService);
                 workers.execute(searchJobTask);
@@ -256,9 +278,20 @@ public final class Ds3PanelService {
         }
     }
 
-    private static void setVisibilityOfItemsInfo(final boolean visibility, final Ds3Common ds3Common) {
+    private void setVisibilityOfItemsInfo(final boolean visibility) {
         ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(visibility);
         ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(visibility);
 
+    }
+
+    public void showVersions() {
+        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = getSelectedItems();
+        selectedItems.stream();
+    }
+
+    private ObservableList<TreeItem<Ds3TreeTableValue>> getSelectedItems() {
+        final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
+        final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
+        return selectionModel.getSelectedItems();
     }
 }

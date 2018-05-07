@@ -48,8 +48,8 @@ public class GetMediaDeviceTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final FileTreeTableProvider provider = new FileTreeTableProvider();
-                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer", DTU);
+                final FileTreeTableProvider provider = new FileTreeTableProvider(DTU);
+                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer");
                 final TreeItem treeItem = Mockito.mock(TreeItem.class);
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();

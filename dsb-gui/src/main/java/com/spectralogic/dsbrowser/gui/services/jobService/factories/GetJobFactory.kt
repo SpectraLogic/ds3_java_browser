@@ -35,7 +35,6 @@ import javax.inject.Inject
 
 class GetJobFactory @Inject constructor(private val loggingService: LoggingService,
                                         private val jobInterruptionStore: JobInterruptionStore,
-                                        private val resourceBundle: ResourceBundle,
                                         private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
                                         private val jobWorkers: JobWorkers,
                                         private val workers: Workers,

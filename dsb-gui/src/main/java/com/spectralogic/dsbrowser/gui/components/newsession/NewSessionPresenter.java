@@ -78,7 +78,6 @@ public class NewSessionPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final Ds3SessionStore ds3SessionStore;
     private final SavedSessionStore savedSessionStore;
-    private final CreateConnectionTask createConnectionTask;
     private final BuildInfoService buildInfoService;
     private final LazyAlert alert;
 
@@ -86,12 +85,10 @@ public class NewSessionPresenter implements Initializable {
     public NewSessionPresenter(final ResourceBundle resourceBundle,
             final Ds3SessionStore ds3SessionStore,
             final SavedSessionStore savedSessionStore,
-            final CreateConnectionTask createConnectionTask,
             final BuildInfoService buildInfoService) {
         this.resourceBundle = resourceBundle;
         this.ds3SessionStore = ds3SessionStore;
         this.savedSessionStore = savedSessionStore;
-        this.createConnectionTask = createConnectionTask;
         this.buildInfoService = buildInfoService;
         this.alert = new LazyAlert(resourceBundle);
     }

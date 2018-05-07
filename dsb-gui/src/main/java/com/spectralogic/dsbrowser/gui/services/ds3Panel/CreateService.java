@@ -37,6 +37,7 @@ import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -44,11 +45,30 @@ public final class CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateService.class);
 
-    public static void createBucketPrompt(final Ds3Common ds3Common,
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3PanelService ds3PanelService;
+    private final DateTimeUtils dateTimeUtils;
+
+    @Inject
+    public CreateService(
+            final Ds3Common ds3Common,
             final Workers workers,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
-            final ResourceBundle resourceBundle) {
+            final ResourceBundle resourceBundle,
+            final Ds3PanelService ds3PanelService) {
+       this.ds3Common = ds3Common;
+       this.workers = workers;
+       this.loggingService = loggingService;
+       this.resourceBundle = resourceBundle;
+       this.dateTimeUtils = dateTimeUtils;
+       this.ds3PanelService = ds3PanelService;
+    }
+
+    public void createBucketPrompt() {
         final LazyAlert alert = new LazyAlert(resourceBundle);
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
@@ -79,10 +99,7 @@ public final class CreateService {
         workers.execute(getDataPoliciesTask);
     }
 
-    public static void createFolderPrompt(
-            final Ds3Common ds3Common,
-            final LoggingService loggingService,
-            final ResourceBundle resourceBundle) {
+    public void createFolderPrompt() {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
@@ -119,7 +136,7 @@ public final class CreateService {
             bucketElement.ifPresent(bucket -> CreateFolderPopup.show(
                     new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), resourceBundle));
 
-            Ds3PanelService.refresh(ds3TreeTableValueTreeItem);
+            ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }
     }
 

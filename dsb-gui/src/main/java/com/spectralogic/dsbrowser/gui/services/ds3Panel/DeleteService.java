@@ -40,23 +40,44 @@ import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class DeleteService {
     private static final Logger LOG = LoggerFactory.getLogger(DeleteService.class);
+
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
+    private final ResourceBundle resourceBundle;
+    private final Ds3PanelService ds3PanelService;
+
+    @Inject
+    public DeleteService(
+            final Ds3Common ds3Common,
+            final Workers workers,
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils,
+            final ResourceBundle resourceBundle,
+            final Ds3PanelService ds3PanelService
+    ) {
+        this.ds3Common = ds3Common;
+        this.workers = workers;
+        this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
+        this.resourceBundle = resourceBundle;
+        this.ds3PanelService = ds3PanelService;
+
+    }
+
     /**
      * Delete a Single Selected Spectra S3 bucket
      *
-     * @param ds3Common ds3Common object
      * @param values    list of objects to be deleted
      */
-    public static void deleteBucket(final Ds3Common ds3Common,
-                                    final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
-                                    final Workers workers,
-                                    final LoggingService loggingService,
-                                    final DateTimeUtils dateTimeUtils,
-                                    final ResourceBundle resourceBundle) {
+    public void deleteBucket(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         LOG.info("Got delete bucket event");
         final LazyAlert alert = new LazyAlert(resourceBundle);
 
@@ -75,7 +96,7 @@ public final class DeleteService {
             if (first.isPresent()) {
                 final TreeItem<Ds3TreeTableValue> value = first.get();
                 final String bucketName = value.getValue().getBucketName();
-                if (!Ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
+                if (!ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
                     alert.error("failedToDeleteBucket");
                 } else {
@@ -95,11 +116,9 @@ public final class DeleteService {
     /**
      * Delete folder(s)
      *
-     * @param ds3Common ds3Common object
      * @param values    list of folders to be deleted
      */
-    public static void deleteFolders(final Ds3Common ds3Common,
-                                     final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void deleteFolders(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         LOG.info("Got delete folder event");
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
@@ -107,11 +126,9 @@ public final class DeleteService {
 
         if (currentSession != null) {
             final ImmutableMultimap.Builder<String, String> deleteFoldersMap = ImmutableMultimap.builder();
-            values.forEach(folder -> {
-                deleteFoldersMap.put(folder.getValue().getBucketName(), folder.getValue().getFullName());
-            });
+            values.forEach(folder -> deleteFoldersMap.put(folder.getValue().getBucketName(), folder.getValue().getFullName()));
             final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(currentSession.getClient(),
-            deleteFoldersMap.build());
+                    deleteFoldersMap.build());
 
             DeleteFilesPopup.show(deleteFolderTask, ds3Common);
             ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
@@ -122,10 +139,9 @@ public final class DeleteService {
     /**
      * Delete files from BlackPearl bucket/folder
      *
-     * @param ds3Common ds3Common object
      * @param values    list of objects to be deleted
      */
-    public static void deleteFiles(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void deleteFiles(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         LOG.info("Got delete file(s) event");
 
         final ImmutableList<String> buckets = getBuckets(values);
@@ -143,10 +159,7 @@ public final class DeleteService {
         DeleteFilesPopup.show(ds3DeleteFilesTask, ds3Common);
     }
 
-    public static void managePathIndicator(final Ds3Common ds3Common,
-                                           final Workers workers,
-                                           final DateTimeUtils dateTimeUtils,
-                                           final LoggingService loggingService) {
+    public void managePathIndicator() {
         Platform.runLater(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
@@ -157,7 +170,7 @@ public final class DeleteService {
             } else {
                 final Optional<TreeItem<Ds3TreeTableValue>> optionalItem = ds3TreeTable.getSelectionModel().getSelectedItems().stream()
                         .findFirst();
-                optionalItem.ifPresent( item -> {
+                optionalItem.ifPresent(item -> {
                     final TreeItem<Ds3TreeTableValue> selectedItem = item.getParent();
                     if (ds3TreeTable.getRoot() == null || ds3TreeTable.getRoot().getValue() == null) {
                         ds3TreeTable.setRoot(ds3TreeTable.getRoot().getParent());
@@ -176,7 +189,7 @@ public final class DeleteService {
         });
     }
 
-    private static ImmutableList<String> getBuckets(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    private ImmutableList<String> getBuckets(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         return values.stream().map(TreeItem::getValue).map(Ds3TreeTableValue::getBucketName).distinct().collect
                 (GuavaCollectors.immutableList());
     }

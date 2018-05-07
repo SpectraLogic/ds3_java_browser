@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.util.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +35,14 @@ public class FileTreeTableProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(FileTreeTableProvider.class);
 
-    public Stream<FileTreeModel> getRoot(final String rootDir, final DateTimeUtils dateTimeUtils) {
+    private final DateTimeUtils dateTimeUtils;
+
+    @Inject
+    public FileTreeTableProvider(final DateTimeUtils dateTimeUtils) {
+        this.dateTimeUtils = dateTimeUtils;
+    }
+
+    public Stream<FileTreeModel> getRoot(final String rootDir) {
         final File[] files;
         if (rootDir.equals(StringConstants.ROOT_LOCATION)) {
             files = File.listRoots();
@@ -45,7 +53,7 @@ public class FileTreeTableProvider {
         if (files == null) {
             return null;
         }
-        return getDirectChildren(files , rootDir, dateTimeUtils);
+        return getDirectChildren(files, rootDir);
     }
 
     private FileTreeModel.Type getRootType(final File file) {
@@ -64,7 +72,7 @@ public class FileTreeTableProvider {
         }
     }
 
-    public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils) throws IOException {
+    public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel) throws IOException {
         LOG.info("Get Childern of a Directory {}", fileTreeModel.getPath());
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
@@ -84,16 +92,14 @@ public class FileTreeTableProvider {
         });
     }
 
-    private Stream<FileTreeModel> getDirectChildren(final File[] files , final String rootDir, final DateTimeUtils dateTimeUtils) {
-         return Arrays.stream(files).map(file -> {
+    private Stream<FileTreeModel> getDirectChildren(final File[] files, final String rootDir) {
+        return Arrays.stream(files).map(file -> {
             final FileTreeModel.Type type = getRootType(file);
             final Path path = file.toPath();
             long size = 0;
             String lastModified = StringConstants.EMPTY_STRING;
             try {
-                if ((type == FileTreeModel.Type.Media_Device) || (type == FileTreeModel.Type.Directory)) {
-                    size = 0;
-                } else {
+                if ((type != FileTreeModel.Type.Media_Device) && (type != FileTreeModel.Type.Directory)) {
                     size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);

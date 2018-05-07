@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.integration.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
@@ -59,6 +60,7 @@ public class Ds3PanelServiceTest {
     private static final String DS3_PANEL_SERVICE_TEST_BUCKET_NAME = "Ds3PanelServiceTest_Bucket";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(null, null, null, workers, new LoggingServiceFake());
 
     @BeforeClass
     public static void setUp() {
@@ -99,7 +101,7 @@ public class Ds3PanelServiceTest {
                 workers.execute(createBucketTask);
 
                 //Checking is bucket empty
-                successFlag = Ds3PanelService.checkIfBucketEmpty(bucketName, session);
+                successFlag = ds3PanelService.checkIfBucketEmpty(bucketName, session);
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -118,7 +120,7 @@ public class Ds3PanelServiceTest {
             try {
                 HELPERS.ensureBucketExists(DS3_PANEL_SERVICE_TEST_BUCKET_NAME, envDataPolicyId);
 
-                final Optional<ImmutableList<Bucket>> searchableBuckets = Ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
+                final Optional<ImmutableList<Bucket>> searchableBuckets = ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
 
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
