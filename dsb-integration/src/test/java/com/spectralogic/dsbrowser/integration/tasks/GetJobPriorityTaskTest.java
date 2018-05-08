@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -29,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -49,6 +51,8 @@ public class GetJobPriorityTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "GetJobPriorityTaskTest";
+    private final LazyAlert lazyAlert = new LazyAlert(resourceBundle);
+    private final CreateConnectionTask createConnectionTask = new CreateConnectionTask(lazyAlert, resourceBundle, buildInfoService);
 
     @Before
     public void setUp() throws Exception {
@@ -64,8 +68,8 @@ public class GetJobPriorityTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(
+                    SessionModelService.setSessionModel(savedSession, false));
         });
     }
 

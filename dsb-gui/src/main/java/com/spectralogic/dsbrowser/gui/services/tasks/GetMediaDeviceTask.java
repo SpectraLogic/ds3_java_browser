@@ -32,15 +32,13 @@ public class GetMediaDeviceTask extends Task{
     private final TreeItem<FileTreeModel> rootTreeItem;
     private final FileTreeTableProvider provider;
     private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
 
-    public GetMediaDeviceTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final FileTreeTableProvider provider, final DateTimeUtils dateTimeUtils, final Workers workers, final LoggingService loggingService) {
+    public GetMediaDeviceTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final FileTreeTableProvider provider, final Workers workers, final LoggingService loggingService) {
         this.rootItems = rootItems;
         this.rootTreeItem = rootTreeItem;
         this.provider = provider;
         this.workers = workers;
-        this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
     }
 
@@ -48,7 +46,7 @@ public class GetMediaDeviceTask extends Task{
     protected Optional<Object> call() throws Exception {
         rootItems.forEach(ftm ->
                 {
-                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, dateTimeUtils, workers, loggingService);
+                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers, loggingService);
                     rootTreeItem.getChildren().add(newRootTreeItem);
                 }
         );

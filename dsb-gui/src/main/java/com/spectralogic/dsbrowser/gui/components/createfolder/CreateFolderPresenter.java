@@ -64,11 +64,12 @@ public class CreateFolderPresenter implements Initializable {
     @Inject
     public CreateFolderPresenter(final Workers workers,
                                  final ResourceBundle resourceBundle,
-                                 final LoggingService loggingService) {
+                                 final LoggingService loggingService,
+                                 final LazyAlert lazyAlert) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -112,7 +113,7 @@ public class CreateFolderPresenter implements Initializable {
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
-            alert.error(CREATE_FOLDER_ERR_LOGS);
+            alert.errorRaw(resourceBundle.getString(CREATE_FOLDER_ERR_LOGS));
             this.closeDialog();
         }));
         workers.execute(createFolderTask);

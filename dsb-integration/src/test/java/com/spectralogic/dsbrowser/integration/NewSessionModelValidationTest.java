@@ -17,7 +17,12 @@ package com.spectralogic.dsbrowser.integration;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import org.junit.Test;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +30,7 @@ public class NewSessionModelValidationTest {
 
     @Test
     public void validationNewSession() throws Exception {
+        final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
         final NewSessionModel model = new NewSessionModel();
         model.setSessionName("TestSession");
         model.setProxyServer(null);
@@ -33,7 +39,7 @@ public class NewSessionModelValidationTest {
         model.setAccessKey("testAccessId");
         model.setSecretKey("testSecretKey");
         model.setDefaultSession(true);
-        assertTrue(NewSessionModelValidation.validationNewSession(model));
+        assertTrue(new NewSessionModelValidation(resourceBundle, new LazyAlert(resourceBundle)).validationNewSession(model));
     }
 
 }

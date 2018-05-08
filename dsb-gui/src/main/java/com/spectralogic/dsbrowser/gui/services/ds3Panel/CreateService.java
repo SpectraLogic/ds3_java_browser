@@ -50,31 +50,33 @@ public final class CreateService {
     private final LoggingService loggingService;
     private final ResourceBundle resourceBundle;
     private final Ds3PanelService ds3PanelService;
-    private final DateTimeUtils dateTimeUtils;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final LazyAlert alert;
 
     @Inject
     public CreateService(
             final Ds3Common ds3Common,
             final Workers workers,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
             final ResourceBundle resourceBundle,
-            final Ds3PanelService ds3PanelService) {
+            final Ds3PanelService ds3PanelService,
+            final LazyAlert lazyAlert,
+            final RefreshCompleteViewWorker refreshCompleteViewWorker) {
        this.ds3Common = ds3Common;
        this.workers = workers;
        this.loggingService = loggingService;
        this.resourceBundle = resourceBundle;
-       this.dateTimeUtils = dateTimeUtils;
        this.ds3PanelService = ds3PanelService;
+       this.refreshCompleteViewWorker = refreshCompleteViewWorker;
+       this.alert = lazyAlert;
     }
 
     public void createBucketPrompt() {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("Invalid Session");
-            alert.error("invalidSession");
+            alert.errorRaw(resourceBundle.getString("invalidSession"));
             return;
         }
         loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
@@ -85,16 +87,16 @@ public final class CreateService {
                 LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
                 Platform.runLater(() -> {
                     CreateBucketPopup.show(value.get(), resourceBundle);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });
             } else {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                alert.error("dataPolicyNotFoundErr");
+                alert.errorRaw(resourceBundle.getString("dataPolicyNotFoundErr"));
             }
         }));
         getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
             LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-            alert.error("dataPolicyNotFoundErr");
+            alert.errorRaw(resourceBundle.getString("dataPolicyNotFoundErr"));
         }));
         workers.execute(getDataPoliciesTask);
     }
@@ -103,22 +105,21 @@ public final class CreateService {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        final LazyAlert alert = new LazyAlert(resourceBundle);
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not create folder here. Please refresh your view");
-            alert.info("cantCreateFolderHere");
+            alert.infoRaw(resourceBundle.getString("cantCreateFolderHere"));
             return;
         } else if (values.isEmpty() && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (values.isEmpty()) {
             loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.info("locationNotSelected");
+            alert.infoRaw(resourceBundle.getString("locationNotSelected"));
             return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            alert.info("selectSingleLocation");
+            alert.infoRaw(resourceBundle.getString("selectSingleLocation"));
             return;
         }
 

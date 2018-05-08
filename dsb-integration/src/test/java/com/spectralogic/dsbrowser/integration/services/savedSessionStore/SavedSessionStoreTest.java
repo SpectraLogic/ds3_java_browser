@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
@@ -48,6 +49,8 @@ public class SavedSessionStoreTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     final private static String testSessionName = "SavedSesionsToResest";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private final static LazyAlert lazyAlert = new LazyAlert(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(lazyAlert, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -64,7 +67,7 @@ public class SavedSessionStoreTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             latch.countDown();
         });
         latch.await();
@@ -72,13 +75,13 @@ public class SavedSessionStoreTest {
 
     @Test
     public void loadSavedSessionStoreTest() throws Exception {
-        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
         assertNotNull(savedSessionStore);
     }
 
     @Test
     public void saveSavedSessionStoreTest() throws Exception {
-        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
         savedSession = new SavedSession(
                 "NewSession1",
                 client.getConnectionDetails().getEndpoint(),
@@ -101,9 +104,9 @@ public class SavedSessionStoreTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final SavedSessionStore savedSessionStore1 = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                final SavedSessionStore savedSessionStore1 = SavedSessionStore.loadSavedSessionStore();
                 savedSessionStore1.addSession(session);
-                final SavedSessionStore savedSessionStore2 = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                final SavedSessionStore savedSessionStore2 = SavedSessionStore.loadSavedSessionStore();
                 final Optional<SavedSession> session = savedSessionStore2.getSessions().stream().filter(savedSession ->
                         savedSession.getName().equals(testSessionName)).findFirst();
                 successFlag = null != session;
@@ -119,14 +122,14 @@ public class SavedSessionStoreTest {
 
     @Test
     public void isSessionUpdatedTest() throws IOException {
-        final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService).getSessions();
-        session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+        final ObservableList<SavedSession> savedSessions = SavedSessionStore.loadSavedSessionStore().getSessions();
+        session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
         assertFalse(SavedSessionStore.containsSessionName(savedSessions, session.getSessionName()));
     }
 
     @Test
     public void containsSessionNameTest() throws IOException {
-        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+        final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
         assertTrue(SavedSessionStore.containsSessionName(savedSessionStore.getSessions(), testSessionName));
     }
 
@@ -142,7 +145,7 @@ public class SavedSessionStoreTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                final SavedSessionStore savedSessionStore = SavedSessionStore.loadSavedSessionStore();
                 savedSessionStore.removeSession(savedSession);
                 successFlag = !savedSessionStore.getSessions().contains(savedSession.getName());
                 latch.countDown();

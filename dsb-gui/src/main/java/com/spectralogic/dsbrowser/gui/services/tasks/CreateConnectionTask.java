@@ -29,18 +29,30 @@ import javafx.scene.control.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public final class CreateConnectionTask {
-
+public class CreateConnectionTask {
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    public static Session createConnection(final NewSessionModel newSessionModel,
-                                           final ResourceBundle resourceBundle,
-                                           final BuildInfoService buildInfoService) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+    private final LazyAlert alert;
+    private final ResourceBundle resourceBundle;
+    private final BuildInfoService buildInfoService;
+
+    @Inject
+    public CreateConnectionTask(
+            final LazyAlert lazyAlert,
+            final ResourceBundle resourceBundle,
+            final BuildInfoService buildInfoService
+    ) {
+        this.alert = lazyAlert;
+        this.resourceBundle = resourceBundle;
+        this.buildInfoService = buildInfoService;
+    }
+
+    public Session createConnection(final NewSessionModel newSessionModel) {
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().isEmpty()) {
                 newSessionModel.setProxyServer(null);
@@ -58,32 +70,32 @@ public final class CreateConnectionTask {
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
-            alert.error("invalidEndpointMessage");
+            alert.errorRaw(resourceBundle.getString("invalidEndpointMessage"));
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
-            alert.error("checkEndpoint");
+            alert.errorRaw(resourceBundle.getString("checkEndpoint"));
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    alert.error("failToAuthenticateMessage");
+                    alert.errorRaw(resourceBundle.getString("failToAuthenticateMessage"));
                 } else {
                     LOG.error("Invalid Access ID or Secret Key", e);
-                    alert.error("invalidIDKEYMessage");
+                    alert.errorRaw(resourceBundle.getString("invalidIDKEYMessage"));
                 }
             } else if (e.getStatusCode() == 301) {
                 LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
-                alert.error("invalidEndpointMessage");
+                alert.errorRaw(resourceBundle.getString("invalidEndpointMessage"));
             } else {
                 LOG.error("BlackPearl returned an unexpected status code", e);
-                alert.error("unexpectedStatusMessage");
+                alert.errorRaw(resourceBundle.getString("unexpectedStatusMessage"));
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
-            alert.error("networkErrorMessage");
+            alert.errorRaw(resourceBundle.getString("networkErrorMessage"));
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong", rte);
-            alert.error("authenticationAlert");
+            alert.errorRaw(resourceBundle.getString("authenticationAlert"));
         }
         return null;
     }

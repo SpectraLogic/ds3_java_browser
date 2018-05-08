@@ -29,7 +29,6 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTre
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -117,10 +116,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
     private final ShowCachedJobSettings showCachedJobSettings;
-    private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
     private final ShutdownService shutdownService;
+    private final CancelJobsWorker cancelJobsWorker;
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
@@ -128,19 +126,17 @@ public class DeepStorageBrowserPresenter implements Initializable {
                                        final Ds3Common ds3Common,
                                        final JobInterruptionStore jobInterruptionStore,
                                        final SettingsStore settingsStore,
-                                       final Workers workers,
                                        final LoggingService loggingService,
-                                       final DateTimeUtils dateTimeUtils,
+                                       final CancelJobsWorker cancelJobsWorker,
                                        final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.jobInterruptionStore = jobInterruptionStore;
         this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
-        this.workers = workers;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
         this.shutdownService = shutdownService;
+        this.cancelJobsWorker = cancelJobsWorker;
     }
 
     @Override
@@ -274,7 +270,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
             closeResponse.ifPresent(cR -> {
                 if (cR.equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
+                    cancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore);
                 }
             });
             event.consume();

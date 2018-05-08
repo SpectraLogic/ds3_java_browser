@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.deletefiles;
 
-import com.spectralogic.ds3client.models.delete.Delete;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
@@ -28,7 +27,6 @@ import com.spectralogic.dsbrowser.gui.services.ds3Panel.DeleteService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -74,17 +72,17 @@ public class DeleteItemPresenter implements Initializable {
 
     @Inject
     public DeleteItemPresenter(final Workers workers,
-                               final Ds3Common ds3Common,
-                               final ResourceBundle resourceBundle,
-                               final DateTimeUtils dateTimeUtils,
-                               final DeleteService deleteService,
-                               final LoggingService loggingService) {
+            final Ds3Common ds3Common,
+            final ResourceBundle resourceBundle,
+            final DeleteService deleteService,
+            final LoggingService loggingService,
+            final LazyAlert lazyAlert) {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
         this.deleteService = deleteService;
         this.loggingService = loggingService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -125,7 +123,7 @@ public class DeleteItemPresenter implements Initializable {
 
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems) {
         final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
-        if(first.isPresent()) {
+        if (first.isPresent()) {
             final TreeItem<Ds3TreeTableValue> valueTreeItem = first.get();
             if (valueTreeItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
                 deleteLabel.setText(resourceBundle.getString("deleteFiles"));

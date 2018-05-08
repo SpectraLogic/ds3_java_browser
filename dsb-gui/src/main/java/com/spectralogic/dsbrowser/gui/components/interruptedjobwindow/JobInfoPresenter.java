@@ -82,45 +82,30 @@ public class JobInfoPresenter implements Initializable {
     private EndpointInfo endpointInfo;
 
     private final ResourceBundle resourceBundle;
-    private final Ds3Common ds3Common;
     private final Workers workers;
-    private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
     private final LoggingService loggingService;
     private final ButtonCell.ButtonCellFactory buttonCellFactory;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final DateTimeUtils dateTimeUtils;
-    private final SettingsStore settingsStore;
     private final RecoverJobFactory recoverJobFactory;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private final JobTaskElement.JobTaskElementFactory jobTaskElementFactory;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private Stage stage;
 
     @Inject
     public JobInfoPresenter(final ResourceBundle resourceBundle,
-            final Ds3Common ds3Common,
             final Workers workers,
-            final JobWorkers jobWorkers,
             final JobInterruptionStore jobInterruptionStore,
             final ButtonCell.ButtonCellFactory buttonCellFactory,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
-            final SettingsStore settingsStore,
             final RecoverJobFactory recoverJobFactory,
-            final JobTaskElement.JobTaskElementFactory jobTaskElementFactory,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final RefreshCompleteViewWorker refreshCompleteViewWorker,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
         this.resourceBundle = resourceBundle;
-        this.ds3Common = ds3Common;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.workers = workers;
-        this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
         this.recoverJobFactory = recoverJobFactory;
-        this.jobTaskElementFactory = jobTaskElementFactory;
-        this.settingsStore = settingsStore;
-        this.dateTimeUtils = dateTimeUtils;
         this.buttonCellFactory = buttonCellFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
     }
@@ -250,7 +235,7 @@ public class JobInfoPresenter implements Initializable {
 
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
                 recoverJobFactory.create(UUID.fromString(jobId), endpointInfo, () -> {
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                     return Unit.INSTANCE;
                 });
@@ -292,7 +277,7 @@ public class JobInfoPresenter implements Initializable {
             jobIDMap.forEach((key, value) -> {
                 recoverJobFactory.create(UUID.fromString(key), endpointInfo, () -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     return Unit.INSTANCE;
                 });
 

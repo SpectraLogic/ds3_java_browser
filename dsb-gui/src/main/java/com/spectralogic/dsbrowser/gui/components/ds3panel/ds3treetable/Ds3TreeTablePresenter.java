@@ -119,6 +119,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             final DateTimeUtils dateTimeUtils,
             final Ds3PanelService ds3PanelService,
             final CreateService createService,
+            final LazyAlert lazyAlert,
             final PutJobFactory putJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
@@ -131,7 +132,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3PanelService = ds3PanelService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -416,7 +417,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
                 startPutJob(session.getClient(), pairs, bucket, targetDir, selectedItem);
             } else {
-                alert.warning("operationNotAllowedHere");
+                alert.warningRaw(resourceBundle.getString("operationNotAllowedHere"));
             }
             event.consume();
         } catch (final Throwable t) {
@@ -681,7 +682,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
         if (selectedItems != null) {
             final ImmutableList<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
-            final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
+            final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified())).collect(GuavaCollectors.immutableList());
             if (!Guard.isNullOrEmpty(selectedI)) {
                 LOG.info("Starting drag and drop event");
                 final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);

@@ -45,7 +45,6 @@ import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -68,6 +66,8 @@ public final class Ds3PanelService {
     private final ResourceBundle resourceBundle;
     private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final LazyAlert alert;
     private Instant lastRefresh = Instant.now();
 
     @Inject
@@ -76,13 +76,17 @@ public final class Ds3PanelService {
             DateTimeUtils dateTimeUtils,
             Ds3Common ds3Common,
             Workers workers,
-            LoggingService loggingService
+            LoggingService loggingService,
+            RefreshCompleteViewWorker refreshCompleteViewWorker,
+            LazyAlert lazyAlert
     ) {
         this.ds3Common = ds3Common;
         this.workers = workers;
+        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.resourceBundle =resourceBundle;
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
+        this.alert = lazyAlert;
     }
 
     /**
@@ -171,7 +175,7 @@ public final class Ds3PanelService {
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
             LOG.info(resourceBundle.getString("nothingSelected"));
-            new LazyAlert(resourceBundle).info(resourceBundle.getString("nothingSelected"));
+            alert.infoRaw(resourceBundle.getString("nothingSelected"));
             return;
         } else if (tempValues.isEmpty()) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -181,7 +185,7 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
-            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
+            alert.infoRaw(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
             return;
         }
 
@@ -200,12 +204,12 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.info(resourceBundle.getString("noFiles"));
-            new LazyAlert(resourceBundle).info(resourceBundle.getString("noFiles"));
+            alert.infoRaw(resourceBundle.getString("noFiles"));
             return;
         }
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
-            new LazyAlert(resourceBundle).info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
+            alert.infoRaw(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
             return;
         }
 
@@ -227,7 +231,7 @@ public final class Ds3PanelService {
         final Session session = ds3Common.getCurrentSession();
         if (Guard.isStringNullOrEmpty(newValue)) {
             setVisibilityOfItemsInfo(true);
-            RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+            refreshCompleteViewWorker.refreshCompleteTreeTableView();
         } else {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = getSelectedItems();

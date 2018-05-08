@@ -17,10 +17,19 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
-public final class NewSessionPopup {
-    public static void show(final ResourceBundle resourceBundle) {
+@Singleton
+public class NewSessionPopup {
+    private final ResourceBundle resourceBundle;
+
+    @Inject
+    public NewSessionPopup(final ResourceBundle resourceBundle) {
+       this.resourceBundle = resourceBundle;
+    }
+    public void show() {
         final NewSessionView view = new NewSessionView();
         Popup.show(view.getView(), resourceBundle.getString("sessionsMenuItem"));
     }

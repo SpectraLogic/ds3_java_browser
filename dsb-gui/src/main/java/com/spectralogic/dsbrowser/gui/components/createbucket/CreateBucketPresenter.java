@@ -19,11 +19,9 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -67,21 +65,22 @@ public class CreateBucketPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
     private final LoggingService loggingService;
-    private final DateTimeUtils dateTimeUtils;
     private final LazyAlert alert;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
 
     @Inject
     public CreateBucketPresenter(final Workers workers,
                                  final ResourceBundle resourceBundle,
                                  final Ds3Common ds3Common,
-                                 final DateTimeUtils dateTimeUtils,
+                                 final RefreshCompleteViewWorker refreshCompleteViewWorker,
+                                 final LazyAlert lazyAlert,
                                  final LoggingService loggingService) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
-        this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -139,25 +138,25 @@ public class CreateBucketPresenter implements Initializable {
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
                     Platform.runLater(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                        RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                        refreshCompleteViewWorker.refreshCompleteTreeTableView();
                         closeDialog();
                     });
                 }));
                 createBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
-                    alert.error(CREATE_BUCKET_ERROR_ALERT);
+                    alert.errorRaw(resourceBundle.getString(CREATE_BUCKET_ERROR_ALERT));
                 }));
                 workers.execute(createBucketTask);
             } else {
                 LOG.info("Data policy not found");
                 loggingService.logMessage(resourceBundle.getString(DATA_POLICY_NOT_FOUND_ERR), LogType.INFO);
-                alert.error(DATA_POLICY_NOT_FOUND_ERR);
+                alert.errorRaw(resourceBundle.getString(DATA_POLICY_NOT_FOUND_ERR));
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
             loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
-            alert.error(CREATE_BUCKET_ERROR_ALERT);
+            alert.errorRaw(resourceBundle.getString(CREATE_BUCKET_ERROR_ALERT));
         }
     }
 

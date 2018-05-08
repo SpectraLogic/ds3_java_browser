@@ -137,13 +137,14 @@ public class SettingPresenter implements Initializable {
                             final JobWorkers jobWorkers,
                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
                             final SettingsStore settingsStore,
+                            final LazyAlert lazyAlert,
                             final ApplicationLoggerSettings applicationLoggerSettings) {
         this.resourceBundle = resourceBundle;
         this.jobWorkers = jobWorkers;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.settingsStore = settingsStore;
         this.applicationLoggerSettings = applicationLoggerSettings;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -168,7 +169,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.info("filePropertiesSettingsUpdated");
+            alert.infoRaw(resourceBundle.getString("filePropertiesSettingsUpdated"));
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -178,14 +179,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.info("performanceSettingsUpdated");
+        alert.infoRaw(resourceBundle.getString("performanceSettingsUpdated"));
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.info("loggingSettingsUpdated");
+        alert.infoRaw(resourceBundle.getString("loggingSettingsUpdated"));
     }
 
     public void saveJobSettings() {
@@ -194,7 +195,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.info("jobsSettingsUpdated");
+            alert.infoRaw(resourceBundle.getString("jobsSettingsUpdated"));
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }

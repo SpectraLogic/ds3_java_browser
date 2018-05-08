@@ -31,6 +31,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -55,8 +56,10 @@ public class GetBucketTaskTest {
     private static Session session;
     private boolean successFlag = false;
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
-    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private final static String bucketName = "TestGetBucketTask";
+    private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private final static LazyAlert lazyAlert = new LazyAlert(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(lazyAlert, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setUp() {
@@ -71,7 +74,7 @@ public class GetBucketTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
         });
     }
 
@@ -79,25 +82,24 @@ public class GetBucketTaskTest {
     public void getBucket() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
-            try{
+            try {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(bucketName,
                         bucketName,
                         Ds3TreeTableValue.Type.Bucket,
                         0L,
                         StringConstants.EMPTY_STRING,
                         StringConstants.TWO_DASH,
-                        false,
-                        Mockito.mock(HBox.class));
+                        false);
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
-                                                                      bucketName,
-                                                                      session,
-                                                                      ds3TreeTableValue,
-                                                                      workers,
-                                                                      DTU,
-                                                                      Mockito.mock(Ds3TreeTableItem.class),
-                                                                      Mockito.mock(TreeTableView.class),
-                                                                      Mockito.mock(Ds3Common.class),
-                                                                      new LoggingServiceFake());
+                        bucketName,
+                        session,
+                        ds3TreeTableValue,
+                        workers,
+                        DTU,
+                        Mockito.mock(Ds3TreeTableItem.class),
+                        Mockito.mock(TreeTableView.class),
+                        Mockito.mock(Ds3Common.class),
+                        new LoggingServiceFake());
                 workers.execute(getBucketTask);
                 getBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

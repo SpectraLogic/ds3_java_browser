@@ -97,8 +97,7 @@ public final class BucketUtil {
                                     content.getSize(),
                                     dateTimeUtils.format(content.getLastModified()),
                                     content.getOwner().getDisplayName(),
-                                    false,
-                                    addPlacementIconsAndTooltip(objectPhysicalPlacement.getPhysicalPlacement(), objectPhysicalPlacement.getInCache()));
+                                    false);
                         } else {
                             LOG.warn("No PhysicalPlacement found for [{}]", objectPhysicalPlacement.getName());
                             return null;
@@ -125,7 +124,7 @@ public final class BucketUtil {
         final HBox hbox = new HBox();
         hbox.getChildren().add(new Label(StringConstants.FOUR_DASH));
         hbox.setAlignment(Pos.CENTER);
-        return new Ds3TreeTableValue(bucket, cP.getPrefix(), Ds3TreeTableValue.Type.Directory, 0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, hbox);
+        return new Ds3TreeTableValue(bucket, cP.getPrefix(), Ds3TreeTableValue.Type.Directory, 0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false);
     }
 
     //function for distinction on the basis of some property

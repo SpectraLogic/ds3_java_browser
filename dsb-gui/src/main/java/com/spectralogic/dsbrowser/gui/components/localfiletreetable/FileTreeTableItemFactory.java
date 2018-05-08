@@ -11,23 +11,20 @@ public class FileTreeTableItemFactory {
 
     private final LoggingService loggingService;
     private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final FileTreeTableProvider fileTreeTableProvider;
 
     @Inject
     public FileTreeTableItemFactory(
             final LoggingService loggingService,
             final Workers workers,
-            final DateTimeUtils dateTimeUtils,
             final FileTreeTableProvider fileTreeTableProvider
     ) {
         this.loggingService = loggingService;
         this.workers = workers;
-        this.dateTimeUtils = dateTimeUtils;
         this.fileTreeTableProvider = fileTreeTableProvider;
     }
 
     public FileTreeTableItem create(FileTreeModel fileTreeModel) {
-        return new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, workers, loggingService);
+        return new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, workers, loggingService);
     }
 }

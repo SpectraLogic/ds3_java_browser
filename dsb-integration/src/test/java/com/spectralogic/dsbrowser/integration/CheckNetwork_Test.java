@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.CheckNetwork;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.BeforeClass;
@@ -45,6 +46,8 @@ public class CheckNetwork_Test {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private final static LazyAlert lazyAlert = new LazyAlert(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(lazyAlert, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setConnection() {
@@ -60,7 +63,7 @@ public class CheckNetwork_Test {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
         });
     }
 

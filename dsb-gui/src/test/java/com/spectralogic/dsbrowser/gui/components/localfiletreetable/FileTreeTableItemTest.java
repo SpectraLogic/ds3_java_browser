@@ -44,7 +44,6 @@ import static org.junit.Assert.fail;
 
 public class FileTreeTableItemTest {
 
-    final private DateTimeUtils dateTimeUtils = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     final private LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag =  false;
 
@@ -53,7 +52,7 @@ public class FileTreeTableItemTest {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
-        final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, new Workers(), loggingService);
+        final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers(), loggingService);
         Assert.assertNotNull(fileTreeTableItem.getGraphicType(fileTreeModel));
     }
 
@@ -62,7 +61,7 @@ public class FileTreeTableItemTest {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.File, Files.size(path), 0, "");
-        Assert.assertTrue(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, new Workers(), loggingService).isLeaf());
+        Assert.assertTrue(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers(), loggingService).isLeaf());
     }
 
     @Test
@@ -70,7 +69,7 @@ public class FileTreeTableItemTest {
         final Path path = ResourceUtils.loadFileResource(SessionConstants.LOCAL_FOLDER + SessionConstants.LOCAL_FILE);
         final FileTreeTableProvider fileTreeTableProvider = Mockito.mock(FileTreeTableProvider.class);
         final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
-        Assert.assertNotNull(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, new Workers(), loggingService).getGraphicFont(fileTreeModel));
+        Assert.assertNotNull(new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers(), loggingService).getGraphicFont(fileTreeModel));
     }
 
     @Test
@@ -84,7 +83,7 @@ public class FileTreeTableItemTest {
                 final int numFiles = testFolder.list().length;
                 final FileTreeTableProvider fileTreeTableProvider = new FileTreeTableProvider(new DateTimeUtils());
                 final FileTreeModel fileTreeModel = new FileTreeModel(path, FileTreeModel.Type.Directory, 0, 0, "");
-                final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, dateTimeUtils, new Workers(), loggingService);
+                final FileTreeTableItem fileTreeTableItem = new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, new Workers(), loggingService);
                 fileTreeTableItem.refresh();
                 final ObservableList<TreeItem<FileTreeModel>> children = fileTreeTableItem.getChildren();
                 if (children.size() == numFiles) {

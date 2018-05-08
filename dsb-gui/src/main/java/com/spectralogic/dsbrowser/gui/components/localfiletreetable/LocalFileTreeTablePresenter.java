@@ -86,7 +86,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final Workers workers;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
     private final PutJobFactory putJobFactory;
@@ -104,11 +103,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final DataFormat dataFormat,
             final Workers workers,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
             final PutJobFactory putJobFactory,
             final FileTreeTableItemFactory fileTreeTableItemFactory,
             final GetJobFactory getJobFactory,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final LazyAlert lazyAlert) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.fileTreeTableProvider = fileTreeTableProvider;
@@ -116,11 +115,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.workers = workers;
         this.loggingService = loggingService;
         this.fileTreeTableItemFactory = fileTreeTableItemFactory;
-        this.dateTimeUtils = dateTimeUtils;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.putJobFactory = putJobFactory;
         this.getJobFactory = getJobFactory;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = lazyAlert;
     }
 
     @Override
@@ -244,7 +242,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void createFolder() {
         if (fileRootItem.equals("My Computer")) {
-            alert.error("specifyDirectory");
+            alert.errorRaw(resourceBundle.getString("specifyDirectory"));
             return;
         }
         final Path rootPath = Paths.get(fileRootItem);
@@ -257,14 +255,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (results.isPresent()) {
             final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
-                alert.error("cannotCreateFolderWithoutName");
+                alert.errorRaw(resourceBundle.getString("cannotCreateFolderWithoutName"));
                 return;
             }
             try {
                 Files.createDirectories(rootPath.resolve(folderName));
                 refreshFileTreeView();
             } catch (final IOException e) {
-                alert.error("couldNotCreateLocalDirectory");
+                alert.errorRaw(resourceBundle.getString("couldNotCreateLocalDirectory"));
                 loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                 LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
             }
@@ -330,7 +328,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.error("multipleDestError");
+            alert.errorRaw(resourceBundle.getString("multipleDestError"));
             return null;
         }
 
@@ -341,16 +339,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("No valid session to initiate Put");
-            alert.error("noSession");
+            alert.errorRaw(resourceBundle.getString("noSession"));
             return;
         }
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.info("selectDestination");
+            alert.infoRaw(resourceBundle.getString("selectDestination"));
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.info("operationNotAllowed");
+            alert.infoRaw(resourceBundle.getString("operationNotAllowed"));
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -364,7 +362,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.info("fieSelect");
+            alert.infoRaw(resourceBundle.getString("fieSelect"));
             return;
         }
 
@@ -408,7 +406,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
+            final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
         treeTable.setRoot(rootTreeItem);
@@ -489,7 +487,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers, loggingService);
+        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, workers, loggingService);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);

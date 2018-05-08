@@ -23,6 +23,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -30,6 +32,8 @@ import java.util.ResourceBundle;
  * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
  * if this Alert is never encountered.
  */
+
+@Singleton
 public class LazyAlert {
     private static final String ERROR_TITLE = "errorTitle";
     private static final String ALERT_TITLE = "alertTitle";
@@ -38,6 +42,7 @@ public class LazyAlert {
     private final ResourceBundle resourceBundle;
     private Alert alert = null;
 
+    @Inject
     public LazyAlert(final ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
     }
@@ -49,6 +54,7 @@ public class LazyAlert {
         }
         alert.setTitle(title);
         alert.setHeaderText(null);
+        alert.setAlertType(alertType);
 
         //This prevents a null pointer when a dialog  is called right after startup
         final DialogPane dp = alert.getDialogPane();
@@ -77,18 +83,6 @@ public class LazyAlert {
 
     public void warningRaw(final String message) {
         showAlertInternal(message, resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
-    }
-
-    public void error(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
-    }
-
-    public void info(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
-    }
-
-    public void warning(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
     }
 
 }

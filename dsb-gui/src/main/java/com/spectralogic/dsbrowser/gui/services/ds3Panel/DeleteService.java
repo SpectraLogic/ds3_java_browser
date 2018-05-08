@@ -23,12 +23,10 @@ import com.spectralogic.dsbrowser.gui.components.deletefiles.DeleteFilesPopup;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.LazyAlert;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
@@ -48,27 +46,30 @@ public final class DeleteService {
     private static final Logger LOG = LoggerFactory.getLogger(DeleteService.class);
 
     private final Ds3Common ds3Common;
-    private final Workers workers;
     private final LoggingService loggingService;
-    private final DateTimeUtils dateTimeUtils;
     private final ResourceBundle resourceBundle;
     private final Ds3PanelService ds3PanelService;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final DeleteFilesPopup deleteFilesPopup;
+    private final LazyAlert alert;
 
     @Inject
     public DeleteService(
             final Ds3Common ds3Common,
-            final Workers workers,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
             final ResourceBundle resourceBundle,
-            final Ds3PanelService ds3PanelService
+            final Ds3PanelService ds3PanelService,
+            final RefreshCompleteViewWorker refreshCompleteViewWorker,
+            final DeleteFilesPopup deleteFilesPopup,
+            final LazyAlert lazyAlert
     ) {
         this.ds3Common = ds3Common;
-        this.workers = workers;
+        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
         this.resourceBundle = resourceBundle;
         this.ds3PanelService = ds3PanelService;
+        this.deleteFilesPopup = deleteFilesPopup;
+        this.alert = lazyAlert;
 
     }
 
@@ -79,7 +80,6 @@ public final class DeleteService {
      */
     public void deleteBucket(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
         LOG.info("Got delete bucket event");
-        final LazyAlert alert = new LazyAlert(resourceBundle);
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
 
@@ -89,7 +89,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                alert.error("multiBucketNotAllowed");
+                alert.errorRaw(resourceBundle.getString("multiBucketNotAllowed"));
                 return;
             }
             final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
@@ -98,12 +98,12 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                    alert.error("failedToDeleteBucket");
+                    alert.errorRaw(resourceBundle.getString("failedToDeleteBucket"));
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
-                    DeleteFilesPopup.show(ds3DeleteBucketTask, ds3Common);
+                    deleteFilesPopup.show(ds3DeleteBucketTask);
                     ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
                     ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
                 }
@@ -130,7 +130,7 @@ public final class DeleteService {
             final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(currentSession.getClient(),
                     deleteFoldersMap.build());
 
-            DeleteFilesPopup.show(deleteFolderTask, ds3Common);
+            deleteFilesPopup.show(deleteFolderTask);
             ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
         }
@@ -156,7 +156,7 @@ public final class DeleteService {
         final Ds3DeleteFilesTask ds3DeleteFilesTask = new Ds3DeleteFilesTask(
                 ds3Common.getCurrentSession().getClient(), buckets, bucketObjectsMap);
 
-        DeleteFilesPopup.show(ds3DeleteFilesTask, ds3Common);
+        deleteFilesPopup.show(ds3DeleteFilesTask);
     }
 
     public void managePathIndicator() {
@@ -183,7 +183,7 @@ public final class DeleteService {
                     ds3TreeTable.getSelectionModel().select(selectedItem);
 
                     ds3TreeTable.getSelectionModel().clearSelection();
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });
             }
         });

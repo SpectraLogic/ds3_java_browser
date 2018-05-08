@@ -54,7 +54,7 @@ public class GetMediaDeviceTaskTest {
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();
 
-                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, DTU, workers, loggingService);
+                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, workers, loggingService);
                 workers.execute(task);
                 task.setOnSucceeded(event -> {
                     successFlag = true;

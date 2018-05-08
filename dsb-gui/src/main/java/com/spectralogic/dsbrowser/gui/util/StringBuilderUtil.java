@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 
 import java.util.Locale;
@@ -27,72 +26,6 @@ public class StringBuilderUtil {
 
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang",
             new Locale(ConfigProperties.getInstance().getLanguage()));
-
-    /**
-     * update title when recover job starts
-     *
-     * @param type         type of Job
-     * @param endpointInfo endpointInfo
-     * @param date         date
-     * @return string
-     */
-    public static StringBuilder getRecoverJobTransferringForTitle(final String type, final String endpointInfo, final String date) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("recovering")).append(SPACE)
-                .append(type).append(SPACE)
-                .append(resourceBundle.getString("jobOf")).append(SPACE)
-                .append(endpointInfo).append(SPACE)
-                .append(date);
-    }
-
-    /**
-     * update title when recover job starts
-     *
-     * @param type type of job
-     * @param date date
-     * @return string
-     */
-    public static StringBuilder getRecoverJobTransferringForLogs(final String type, final String date) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("recovering")).append(SPACE)
-                .append(type).append(SPACE)
-                .append(resourceBundle.getString("jobOf")).append(SPACE)
-                .append(date);
-    }
-
-    /**
-     * get initiate string in case of put
-     *
-     * @param bucketName bucketName
-     * @return String
-     */
-    public static StringBuilder getRecoverJobInitiateTransferTo(final String bucketName) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("initiatingTransferTo")).append(SPACE)
-                .append(bucketName);
-    }
-
-    /**
-     * get initiate transfer String in case of get
-     *
-     * @param bucketName
-     * @return string
-     */
-    public static StringBuilder getRecoverJobInitiateTransferFrom(final String bucketName) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("initiatingTransferFrom")).append(SPACE)
-                .append(bucketName);
-    }
-
-    public static StringBuilder jobInitiatedString(final String type, final String date, final String endPointInfo) {
-        return new StringBuilder()
-                .append(type).append(SPACE)
-                .append(resourceBundle.getString("jobInitiated")).append(SPACE)
-                .append(resourceBundle.getString("withEndPoint")).append(SPACE)
-                .append(endPointInfo).append(SPACE)
-                .append(resourceBundle.getString("at")).append(SPACE)
-                .append(date);
-    }
 
     public static StringBuilder transferringTotalJobString(final String totalJobSize, final String targetDirectory) {
         return new StringBuilder()
@@ -162,32 +95,6 @@ public class StringBuilderUtil {
             builder.append(SPACE)
                     .append(resourceBundle.getString("location")).append(SPACE)
                     .append(location);
-        }
-        return builder;
-    }
-
-    public static StringBuilder jobSuccessfullyTransferredString(final String type,
-            final String jobSize,
-            final String toPath,
-            final String date,
-            final String location,
-            final boolean isCacheEnable) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(type).append(SPACE)
-                .append(resourceBundle.getString("job"))
-                .append(OPEN_BRACE).append(resourceBundle.getString("fileSize")).append(jobSize).append(CLOSING_BRACE).append(SPACE)
-                .append(resourceBundle.getString("successfullyTransferred")).append(SPACE)
-                .append(resourceBundle.getString("to")).append(SPACE)
-                .append(toPath).append(SPACE)
-                .append(resourceBundle.getString("at")).append(SPACE)
-                .append(date);
-        if (location != null) {
-            builder.append(SPACE)
-                    .append(resourceBundle.getString("location")).append(SPACE)
-                    .append(location);
-        }
-        if (isCacheEnable) {
-            builder.append(resourceBundle.getString("waiting"));
         }
         return builder;
     }
@@ -267,16 +174,6 @@ public class StringBuilderUtil {
                 .append(resourceBundle.getString("items")).append(StringConstants.COMMA).append(StringConstants.SPACE)
                 .append(selectedItemCount).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("itemsSelected"));
-    }
-
-    public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client, final String formattedString) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("getJobSize")).append(StringConstants.SPACE)
-                .append(FileSizeFormatKt.toByteRepresentation(totalJobSize))
-                .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
-                .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
-                .append(formattedString);
-
     }
 
     public static StringBuilder getPaneItemsString(final int expandedItemCount, final int size) {
