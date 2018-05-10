@@ -34,6 +34,8 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
+import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
+import com.spectralogic.dsbrowser.gui.services.versionpanelservice.VersionPanelService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.MetadataTask;
@@ -68,6 +70,7 @@ public final class Ds3PanelService {
     private final LoggingService loggingService;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final LazyAlert alert;
+    private final VersionPopup versionPopup;
     private Instant lastRefresh = Instant.now();
 
     @Inject
@@ -78,8 +81,10 @@ public final class Ds3PanelService {
             Workers workers,
             LoggingService loggingService,
             RefreshCompleteViewWorker refreshCompleteViewWorker,
-            LazyAlert lazyAlert
+            LazyAlert lazyAlert,
+            VersionPopup versionPopup
     ) {
+        this.versionPopup = versionPopup;
         this.ds3Common = ds3Common;
         this.workers = workers;
         this.refreshCompleteViewWorker = refreshCompleteViewWorker;
@@ -290,7 +295,11 @@ public final class Ds3PanelService {
 
     public void showVersions() {
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = getSelectedItems();
-        selectedItems.stream();
+        selectedItems.stream()
+                .findFirst()
+                .ifPresent(item -> {
+                    versionPopup.show(item.getValue());
+                });
     }
 
     private ObservableList<TreeItem<Ds3TreeTableValue>> getSelectedItems() {

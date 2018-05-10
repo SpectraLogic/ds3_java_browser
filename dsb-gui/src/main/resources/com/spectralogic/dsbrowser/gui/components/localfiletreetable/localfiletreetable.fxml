@@ -133,7 +133,7 @@
                         <TreeItemPropertyValueFactory property="size"/>
                     </cellValueFactory>
                 </TreeTableColumn>
-                <TreeTableColumn prefWidth="100.0" minWidth="70.0" text="Date Modified">
+                <TreeTableColumn prefWidth="100.0" minWidth="70.0" text="Date Modified" fx:id="dateModified">
                     <cellValueFactory>
                         <TreeItemPropertyValueFactory property="lastModified"/>
                     </cellValueFactory>

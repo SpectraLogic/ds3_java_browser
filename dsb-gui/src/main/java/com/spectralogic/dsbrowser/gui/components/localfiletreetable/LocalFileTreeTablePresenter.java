@@ -56,6 +56,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -69,6 +71,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     @FXML
     private TreeTableColumn<FileTreeModel, Number> sizeColumn;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, String> dateModified;
 
     @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton, createFolderButton;
@@ -88,6 +93,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final DataFormat local = new DataFormat("local");
     private final LazyAlert alert;
+    private final DateTimeUtils dateTimeUtils;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
     private final FileTreeTableItemFactory fileTreeTableItemFactory;
@@ -107,9 +113,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final FileTreeTableItemFactory fileTreeTableItemFactory,
             final GetJobFactory getJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final DateTimeUtils dateTimeUtils,
             final LazyAlert lazyAlert) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
@@ -152,6 +160,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             setDragDropEvent(null, event);
             event.consume();
         }));
+        dateModified.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
                     final List<String> rowNameList = new ArrayList<>();

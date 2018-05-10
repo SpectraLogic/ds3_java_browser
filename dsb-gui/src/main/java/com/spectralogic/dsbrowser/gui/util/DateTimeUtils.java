@@ -43,6 +43,10 @@ public final class DateTimeUtils {
 
     }
 
+    public LocalDateTime stringAsDate(final String stringDate) {
+        return LocalDateTime.parse(stringDate, formatter);
+    }
+
     public String nowAsString() {
         return formatter.format(LocalDateTime.now());
     }
