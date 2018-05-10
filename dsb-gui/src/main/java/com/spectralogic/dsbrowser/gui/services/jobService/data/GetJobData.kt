@@ -43,7 +43,8 @@ import java.util.function.Supplier
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
                       override val bucket: String,
-                      private val jobTaskElement: JobTaskElement) : JobData {
+                      private val jobTaskElement: JobTaskElement,
+                      private val versionId: String? = null) : JobData {
     override var cancelled: Supplier<Boolean>? = null
 
     override fun runningTitle(): String {
@@ -113,7 +114,11 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         }
         else -> {
             checkifOverWriting(filePair.first, filePair.second)
-            ImmutableList.of(Ds3Object(filePair.first))
+            if (versionId == null) {
+                ImmutableList.of(Ds3Object(filePair.first))
+            } else {
+                ImmutableList.of(Ds3Object(filePair.first, versionId))
+            }
         }
     }
 
@@ -146,7 +151,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     private fun checkifOverWriting(name: String, path: String) {
         val filePath = Paths.get(targetPath(), name.removePrefix(path))
         if (Files.exists(filePath)) {
-            loggingService().logMessage("Overwriting file ${filePath.toString()}", LogType.INFO)
+            loggingService().logMessage("Overwriting file $filePath", LogType.INFO)
         }
     }
 

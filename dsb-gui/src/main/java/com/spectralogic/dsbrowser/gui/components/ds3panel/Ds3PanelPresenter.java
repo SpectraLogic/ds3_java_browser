@@ -674,9 +674,10 @@ public class Ds3PanelPresenter implements Initializable {
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
                     getJobFactory.create(fileAndParent, bucket, localPath, getSession().getClient(), () -> {
-                        ds3Common.getLocalFileTreeTablePresenter().refreshFileTreeView();
-                        return Unit.INSTANCE;
-                    });
+                                ds3Common.getLocalFileTreeTablePresenter().refreshFileTreeView();
+                                return Unit.INSTANCE;
+                            },
+                            null);
                 });
     }
 }

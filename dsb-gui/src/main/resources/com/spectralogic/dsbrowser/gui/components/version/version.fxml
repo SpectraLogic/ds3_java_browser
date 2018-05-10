@@ -10,7 +10,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
       prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1
-" fx:controller="com.spectralogic.dsbrowser.gui.components.version.VersionPresenter">
+" fx:controller="com.spectralogic.dsbrowser.gui.components.version.VersionPresenter" fx:id="window">
     <VBox prefHeight="400.0" prefWidth="620.0">
         <TableView prefHeight="353.0" prefWidth="600.0" fx:id="versions">
             <columns>

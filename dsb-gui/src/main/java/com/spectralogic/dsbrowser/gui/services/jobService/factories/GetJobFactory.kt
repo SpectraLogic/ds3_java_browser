@@ -44,9 +44,9 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
         private const val TYPE = "Get"
     }
 
-    public fun create(files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit) {
+    public fun create(files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit, versionId: String? = null) {
         jobTaskElementFactory.create(client)
-                .let { GetJobData(files, targetDir, bucket, it) }
+                .let { GetJobData(files, targetDir, bucket, it, versionId) }
                 .let { GetJob(it) }
                 .let { JobTask(it) }
                 .apply {

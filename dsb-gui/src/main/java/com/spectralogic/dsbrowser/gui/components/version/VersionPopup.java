@@ -51,9 +51,9 @@ public class VersionPopup {
                 .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getSize(), contents.getVersionId()))
                 .collect(GuavaCollectors.immutableList());
 
-        final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions));
-
         final Stage popup = new Stage();
+        final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
+
         popup.initModality(Modality.APPLICATION_MODAL);
         final Scene popupScene = new Scene(view.getView());
         popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
