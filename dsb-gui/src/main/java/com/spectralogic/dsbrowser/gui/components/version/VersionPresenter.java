@@ -6,11 +6,13 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
+import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
 import kotlin.Pair;
 import kotlin.Unit;
 
@@ -41,13 +43,18 @@ public class VersionPresenter implements Initializable {
     private TableView<VersionItem> versions;
 
     @FXML
-    private HBox window;
+    private BorderPane window;
+
+    @FXML
+    TableColumn<VersionItem, String> created;
 
     @ModelContext
     private VersionModel versionModel;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
+        final DateTimeUtils dateTimeUtils = new DateTimeUtils();
+        created.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
         download.setDisable(true);
         versions.getItems().addAll(versionModel.getVersionItems());
         versions.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -62,16 +69,27 @@ public class VersionPresenter implements Initializable {
         final Path path;
         final VersionItem versionItem = versions.getSelectionModel().getSelectedItem();
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
+        path = getDirectoryOrRoot();
+        startJob(path, versionItem, client);
+        versionModel.closePopup();
+    }
+
+    private Path getDirectoryOrRoot() {
+        final Path path;
         final TreeTableView<FileTreeModel> localTreeTableView = ds3Common.getLocalTreeTableView();
         final TreeTableView.TreeTableViewSelectionModel<FileTreeModel> selectionModel = localTreeTableView.getSelectionModel();
         final TreeItem<FileTreeModel> selectedItem = selectionModel.getSelectedItem();
-        if (selectedItem == null) {
+        if (selectedItem == null || selectedItem.getValue().getType() != BaseTreeModel.Type.Directory) {
             path = Paths.get(ds3Common.getLocalFilePathIndicator().getText());
         } else {
             path = selectedItem.getValue().getPath();
         }
+        return path;
+    }
+
+    private void startJob(final Path path, final VersionItem versionItem, final Ds3Client client) {
         getJobFactory.create(
-                ImmutableList.of(new Pair<>(versionItem.getName(), getParent(versionItem.getName()))),
+                ImmutableList.of(new Pair<>(versionItem.getKey(), getParent(versionItem.getKey()))),
                 versionModel.getBucket(),
                 path,
                 client,
@@ -80,12 +98,15 @@ public class VersionPresenter implements Initializable {
                     return Unit.INSTANCE;
                 },
                 versionItem.getVersionId());
-        versionModel.closePopup();
     }
 
     private String getParent(String path) {
         final int lastIndex = path.lastIndexOf("/");
-        return path.substring(0, lastIndex);
+        if (lastIndex == -1) {
+            return "";
+        } else {
+            return path.substring(0, lastIndex);
+        }
     }
 
 }

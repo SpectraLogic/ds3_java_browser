@@ -3,6 +3,9 @@ package com.spectralogic.dsbrowser.gui.components.version;
 import java.util.Date;
 import java.util.UUID;
 
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
+
 public class VersionItem {
     private final String key;
     private final Date lastModified;
@@ -17,11 +20,16 @@ public class VersionItem {
     }
 
     public String getName() {
+        final int lastSlash = key.lastIndexOf("/");
+        return key.substring(lastSlash+1);
+    }
+
+    public String getKey() {
         return key;
     }
 
     public String getCreated() {
-        return lastModified.toString();
+        return new DateTimeUtils().format(lastModified);
     }
 
     public String getVersionId() {
@@ -29,7 +37,7 @@ public class VersionItem {
     }
 
     public String getSize() {
-        return size.toString();
+        return FileSizeFormatKt.toByteRepresentation(size);
     }
 
 

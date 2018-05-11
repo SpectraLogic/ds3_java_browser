@@ -51,17 +51,21 @@ public class VersionPopup {
                 .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getSize(), contents.getVersionId()))
                 .collect(GuavaCollectors.immutableList());
 
-        final Stage popup = new Stage();
-        final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
+        if (versions.isEmpty()) {
+            lazyAlert.warningRaw(resourceBundle.getString("unabletogetversions"));
+        } else {
+            final Stage popup = new Stage();
+            final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
+            final Scene popupScene = new Scene(view.getView());
 
-        popup.initModality(Modality.APPLICATION_MODAL);
-        final Scene popupScene = new Scene(view.getView());
-        popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
-        popup.setScene(popupScene);
-        popup.setTitle(resourceBundle.getString("versionView"));
-        popup.setAlwaysOnTop(false);
-        popup.setResizable(true);
-        popup.showAndWait();
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
+            popup.setScene(popupScene);
+            popup.setTitle(resourceBundle.getString("versionView"));
+            popup.setAlwaysOnTop(false);
+            popup.setResizable(true);
+            popup.showAndWait();
+        }
     }
 
     private List<Contents> getVersioned(final Ds3TreeTableValue item) {
