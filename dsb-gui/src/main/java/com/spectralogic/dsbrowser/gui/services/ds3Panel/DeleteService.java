@@ -27,7 +27,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
@@ -51,7 +51,7 @@ public final class DeleteService {
     private final Ds3PanelService ds3PanelService;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final DeleteFilesPopup deleteFilesPopup;
-    private final LazyAlert alert;
+    private final AlertService alert;
 
     @Inject
     public DeleteService(
@@ -61,7 +61,7 @@ public final class DeleteService {
             final Ds3PanelService ds3PanelService,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
             final DeleteFilesPopup deleteFilesPopup,
-            final LazyAlert lazyAlert
+            final AlertService alertService
     ) {
         this.ds3Common = ds3Common;
         this.refreshCompleteViewWorker = refreshCompleteViewWorker;
@@ -69,7 +69,7 @@ public final class DeleteService {
         this.resourceBundle = resourceBundle;
         this.ds3PanelService = ds3PanelService;
         this.deleteFilesPopup = deleteFilesPopup;
-        this.alert = lazyAlert;
+        this.alert = alertService;
 
     }
 
@@ -89,7 +89,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                alert.errorRaw(resourceBundle.getString("multiBucketNotAllowed"));
+                alert.error("multiBucketNotAllowed");
                 return;
             }
             final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
@@ -98,7 +98,7 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                    alert.errorRaw(resourceBundle.getString("failedToDeleteBucket"));
+                    alert.error("failedToDeleteBucket");
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
                     deleteFilesPopup.show(ds3DeleteBucketTask);

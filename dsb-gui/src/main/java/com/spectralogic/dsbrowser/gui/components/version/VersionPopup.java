@@ -22,7 +22,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.scene.Scene;
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class VersionPopup {
     private static final Logger LOG = LoggerFactory.getLogger(VersionPopup.class);
@@ -45,19 +44,19 @@ public class VersionPopup {
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
     private final LoggingService loggingService;
-    private final LazyAlert lazyAlert;
+    private final AlertService alertService;
 
     @Inject
     public VersionPopup(
             final ResourceBundle resourceBundle,
             final Ds3Common ds3Common,
             final LoggingService loggingService,
-            final LazyAlert lazyAlert
+            final AlertService alertService
     ) {
        this.resourceBundle = resourceBundle;
        this.ds3Common = ds3Common;
        this.loggingService = loggingService;
-       this.lazyAlert = lazyAlert;
+       this.alertService = alertService;
     }
 
     public void show(final Ds3TreeTableValue item) {
@@ -67,7 +66,7 @@ public class VersionPopup {
                 .collect(GuavaCollectors.immutableList());
 
         if (versions.isEmpty()) {
-            lazyAlert.warningRaw(resourceBundle.getString("unableToGetVersions"));
+            alertService.warning("unableToGetVersions");
         } else {
             final Stage popup = new Stage();
             final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));

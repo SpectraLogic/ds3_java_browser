@@ -35,7 +35,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
@@ -69,7 +69,7 @@ public class Ds3PanelServiceTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
-    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new LazyAlert(resourceBundle), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new LazyAlert(resourceBundle)));
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new AlertService(resourceBundle)));
 
     @BeforeClass
     public static void setUp() {

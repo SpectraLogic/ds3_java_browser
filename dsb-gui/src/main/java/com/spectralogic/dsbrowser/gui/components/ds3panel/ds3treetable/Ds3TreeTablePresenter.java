@@ -100,7 +100,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final PutJobFactory putJobFactory;
     private final CreateService createService;
 
@@ -119,7 +119,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             final DateTimeUtils dateTimeUtils,
             final Ds3PanelService ds3PanelService,
             final CreateService createService,
-            final LazyAlert lazyAlert,
+            final AlertService alertService,
             final PutJobFactory putJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
@@ -132,7 +132,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
         this.ds3PanelService = ds3PanelService;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     @Override
@@ -417,7 +417,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
                 startPutJob(session.getClient(), pairs, bucket, targetDir, selectedItem);
             } else {
-                alert.warningRaw(resourceBundle.getString("operationNotAllowedHere"));
+                alert.warning("operationNotAllowedHere");
             }
             event.consume();
         } catch (final Throwable t) {

@@ -16,11 +16,8 @@
 package com.spectralogic.dsbrowser.gui.services.newSessionService;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
-import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,12 +25,10 @@ import java.util.ResourceBundle;
 
 @Singleton
 public class NewSessionModelValidation {
-    private final ResourceBundle resourceBundle;
-    private final LazyAlert alert;
+    private final AlertService alert;
 
     @Inject
-    public NewSessionModelValidation(final ResourceBundle resourceBundle, final LazyAlert alert) {
-        this.resourceBundle = resourceBundle;
+    public NewSessionModelValidation(final AlertService alert) {
         this.alert = alert;
     }
 
@@ -41,19 +36,19 @@ public class NewSessionModelValidation {
 
     public boolean validationNewSession(final NewSessionModel model) {
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.errorRaw(resourceBundle.getString("enterSession"));
+            alert.error("enterSession");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.errorRaw(resourceBundle.getString("enterDataPathAddress"));
+            alert.error("enterDataPathAddress");
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.errorRaw(resourceBundle.getString("enterValidPort"));
+            alert.error("enterValidPort");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.errorRaw(resourceBundle.getString("enterAccessKey"));
+            alert.error("enterAccessKey");
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.errorRaw(resourceBundle.getString("enterSecretKey"));
+            alert.error("enterSecretKey");
             return false;
         }
         return true;

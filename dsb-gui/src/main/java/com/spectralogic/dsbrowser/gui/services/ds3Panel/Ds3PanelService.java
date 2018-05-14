@@ -68,7 +68,7 @@ public final class Ds3PanelService {
     private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final VersionPopup versionPopup;
     private Instant lastRefresh = Instant.now();
 
@@ -80,7 +80,7 @@ public final class Ds3PanelService {
             final Workers workers,
             final LoggingService loggingService,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
-            final LazyAlert lazyAlert,
+            final AlertService alertService,
             final VersionPopup versionPopup
     ) {
         this.versionPopup = versionPopup;
@@ -90,7 +90,7 @@ public final class Ds3PanelService {
         this.resourceBundle =resourceBundle;
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     /**
@@ -179,7 +179,7 @@ public final class Ds3PanelService {
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
         if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
             LOG.info(resourceBundle.getString("nothingSelected"));
-            alert.infoRaw(resourceBundle.getString("nothingSelected"));
+            alert.info("nothingSelected");
             return;
         } else if (tempValues.isEmpty()) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
@@ -189,7 +189,7 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
-            alert.infoRaw(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
+            alert.info("onlySingleObjectSelectForPhysicalPlacement");
             return;
         }
 
@@ -208,12 +208,12 @@ public final class Ds3PanelService {
         final ImmutableList<TreeItem<Ds3TreeTableValue>> values = getSelectedItems().stream().collect(GuavaCollectors.immutableList());
         if (values.isEmpty()) {
             LOG.info(resourceBundle.getString("noFiles"));
-            alert.infoRaw(resourceBundle.getString("noFiles"));
+            alert.info("noFiles");
             return;
         }
         if (values.size() > 1) {
             LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
-            alert.infoRaw(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
+            alert.info("onlySingleObjectSelectForMetadata");
             return;
         }
 

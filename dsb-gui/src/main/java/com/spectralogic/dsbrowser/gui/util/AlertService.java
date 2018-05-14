@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
  */
 
 @Singleton
-public class LazyAlert {
+public class AlertService {
     private static final String ERROR_TITLE = "errorTitle";
     private static final String ALERT_TITLE = "alertTitle";
     private static final String WARNING_TITLE = "warningTitle";
@@ -43,7 +43,7 @@ public class LazyAlert {
     private Alert alert = null;
 
     @Inject
-    public LazyAlert(final ResourceBundle resourceBundle) {
+    public AlertService(final ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
     }
 
@@ -73,16 +73,16 @@ public class LazyAlert {
         alert.showAndWait();
     }
 
-    public void errorRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
+    public void error(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
     }
 
-    public void infoRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
+    public void info(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
     }
 
-    public void warningRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
+    public void warning(final String message) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
     }
 
 }

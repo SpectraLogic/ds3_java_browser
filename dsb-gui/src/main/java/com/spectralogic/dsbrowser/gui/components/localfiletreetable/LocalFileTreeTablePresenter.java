@@ -56,8 +56,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -92,7 +90,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final DataFormat local = new DataFormat("local");
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final DateTimeUtils dateTimeUtils;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
@@ -114,7 +112,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final GetJobFactory getJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final DateTimeUtils dateTimeUtils,
-            final LazyAlert lazyAlert) {
+            final AlertService alertService) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
@@ -126,7 +124,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.putJobFactory = putJobFactory;
         this.getJobFactory = getJobFactory;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     @Override
@@ -251,7 +249,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void createFolder() {
         if (fileRootItem.equals("My Computer")) {
-            alert.errorRaw(resourceBundle.getString("specifyDirectory"));
+            alert.error("specifyDirectory");
             return;
         }
         final Path rootPath = Paths.get(fileRootItem);
@@ -264,14 +262,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (results.isPresent()) {
             final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
-                alert.errorRaw(resourceBundle.getString("cannotCreateFolderWithoutName"));
+                alert.error("cannotCreateFolderWithoutName");
                 return;
             }
             try {
                 Files.createDirectories(rootPath.resolve(folderName));
                 refreshFileTreeView();
             } catch (final IOException e) {
-                alert.errorRaw(resourceBundle.getString("couldNotCreateLocalDirectory"));
+                alert.error("couldNotCreateLocalDirectory");
                 loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                 LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
             }
@@ -337,7 +335,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.errorRaw(resourceBundle.getString("multipleDestError"));
+            alert.error("multipleDestError");
             return null;
         }
 
@@ -348,16 +346,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("No valid session to initiate Put");
-            alert.errorRaw(resourceBundle.getString("noSession"));
+            alert.error("noSession");
             return;
         }
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.infoRaw(resourceBundle.getString("selectDestination"));
+            alert.info("selectDestination");
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.infoRaw(resourceBundle.getString("operationNotAllowed"));
+            alert.info("operationNotAllowed");
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -371,7 +369,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.infoRaw(resourceBundle.getString("fieSelect"));
+            alert.info("fieSelect");
             return;
         }
 

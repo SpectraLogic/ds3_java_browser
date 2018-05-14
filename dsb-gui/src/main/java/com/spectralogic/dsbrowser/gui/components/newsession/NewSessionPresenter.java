@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
@@ -78,7 +77,7 @@ public class NewSessionPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final Ds3SessionStore ds3SessionStore;
     private final SavedSessionStore savedSessionStore;
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final NewSessionModelValidation newSessionModelValidation;
     private final CreateConnectionTask createConnectionTask;
 
@@ -88,13 +87,13 @@ public class NewSessionPresenter implements Initializable {
             final SavedSessionStore savedSessionStore,
             final NewSessionModelValidation newSessionModelValidation,
             final CreateConnectionTask createConnectionTask,
-            final LazyAlert lazyAlert) {
+            final AlertService alertService) {
         this.resourceBundle = resourceBundle;
         this.newSessionModelValidation = newSessionModelValidation;
         this.ds3SessionStore = ds3SessionStore;
         this.savedSessionStore = savedSessionStore;
         this.createConnectionTask = createConnectionTask;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     @Override
@@ -173,7 +172,7 @@ public class NewSessionPresenter implements Initializable {
                         final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession));
                         sessionValidates(connection);
                     } else {
-                        alert.infoRaw(resourceBundle.getString("alreadyExistSession"));
+                        alert.info("alreadyExistSession");
                     }
                 }
             }));
@@ -191,20 +190,20 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            alert.infoRaw(resourceBundle.getString("selectToDeleteSession"));
+            alert.info("selectToDeleteSession");
         } else {
             if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
                 ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
-                        alert.infoRaw(resourceBundle.getString("cannotdeletesession"));
+                        alert.info("cannotdeletesession");
                     } else {
                         savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                        alert.infoRaw(resourceBundle.getString("sessionDeletedSuccess"));
+                        alert.info("sessionDeletedSuccess");
                     }
                 });
             } else {
                 savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                alert.infoRaw(resourceBundle.getString("sessionDeletedSuccess"));
+                alert.info("sessionDeletedSuccess");
             }
         }
     }
@@ -236,7 +235,7 @@ public class NewSessionPresenter implements Initializable {
                 sessionValidates(session);
             }
         } else {
-            alert.infoRaw(resourceBundle.getString("alreadyExistSession"));
+            alert.info("alreadyExistSession");
         }
     }
 
@@ -282,10 +281,10 @@ public class NewSessionPresenter implements Initializable {
                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     savedSessions.getSelectionModel().select(i);
                     savedSessions.getFocusModel().focus(i);
-                    alert.infoRaw(resourceBundle.getString(message));
+                    alert.info(message);
                 } catch (final IOException e) {
                     LOG.error("Failed to save session: ", e);
-                    alert.errorRaw(resourceBundle.getString("sessionNotUpdatedSuccessfully"));
+                    alert.error("sessionNotUpdatedSuccessfully");
                 }
             }
         }

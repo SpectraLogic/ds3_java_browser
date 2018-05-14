@@ -18,7 +18,7 @@ package com.spectralogic.dsbrowser.integration;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import org.junit.Test;
 
 import java.util.Locale;
@@ -39,7 +39,7 @@ public class NewSessionModelValidationTest {
         model.setAccessKey("testAccessId");
         model.setSecretKey("testSecretKey");
         model.setDefaultSession(true);
-        assertTrue(new NewSessionModelValidation(resourceBundle, new LazyAlert(resourceBundle)).validationNewSession(model));
+        assertTrue(new NewSessionModelValidation(new AlertService(resourceBundle)).validationNewSession(model));
     }
 
 }

@@ -24,8 +24,7 @@ import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +36,17 @@ import java.util.ResourceBundle;
 public class CreateConnectionTask {
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final ResourceBundle resourceBundle;
     private final BuildInfoService buildInfoService;
 
     @Inject
     public CreateConnectionTask(
-            final LazyAlert lazyAlert,
+            final AlertService alertService,
             final ResourceBundle resourceBundle,
             final BuildInfoService buildInfoService
     ) {
-        this.alert = lazyAlert;
+        this.alert = alertService;
         this.resourceBundle = resourceBundle;
         this.buildInfoService = buildInfoService;
     }
@@ -70,32 +69,32 @@ public class CreateConnectionTask {
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
-            alert.errorRaw(resourceBundle.getString("invalidEndpointMessage"));
+            alert.error("invalidEndpointMessage");
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
-            alert.errorRaw(resourceBundle.getString("checkEndpoint"));
+            alert.error("checkEndpoint");
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    alert.errorRaw(resourceBundle.getString("failToAuthenticateMessage"));
+                    alert.error("failToAuthenticateMessage");
                 } else {
                     LOG.error("Invalid Access ID or Secret Key", e);
-                    alert.errorRaw(resourceBundle.getString("invalidIDKEYMessage"));
+                    alert.error("invalidIDKEYMessage");
                 }
             } else if (e.getStatusCode() == 301) {
                 LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
-                alert.errorRaw(resourceBundle.getString("invalidEndpointMessage"));
+                alert.error("invalidEndpointMessage");
             } else {
                 LOG.error("BlackPearl returned an unexpected status code", e);
-                alert.errorRaw(resourceBundle.getString("unexpectedStatusMessage"));
+                alert.error("unexpectedStatusMessage");
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
-            alert.errorRaw(resourceBundle.getString("networkErrorMessage"));
+            alert.error("networkErrorMessage");
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong", rte);
-            alert.errorRaw(resourceBundle.getString("authenticationAlert"));
+            alert.error("authenticationAlert");
         }
         return null;
     }

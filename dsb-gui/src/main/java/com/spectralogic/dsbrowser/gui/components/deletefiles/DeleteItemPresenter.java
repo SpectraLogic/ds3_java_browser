@@ -28,7 +28,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteBucketTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
@@ -67,7 +67,7 @@ public class DeleteItemPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final DeleteService deleteService;
 
     @Inject
@@ -76,13 +76,13 @@ public class DeleteItemPresenter implements Initializable {
             final ResourceBundle resourceBundle,
             final DeleteService deleteService,
             final LoggingService loggingService,
-            final LazyAlert lazyAlert) {
+            final AlertService alertService) {
         this.workers = workers;
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
         this.deleteService = deleteService;
         this.loggingService = loggingService;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     @Override
@@ -166,11 +166,11 @@ public class DeleteItemPresenter implements Initializable {
         String alertMessage = null;
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {
-            alertMessage = resourceBundle.getString("deleteBucketErr");
+            alertMessage = "deleteBucketErr";
         } else if (deleteTask instanceof Ds3DeleteFoldersTask) {
-            alertMessage = resourceBundle.getString("folderDeleteFailed");
+            alertMessage = "folderDeleteFailed";
         } else if (deleteTask instanceof Ds3DeleteFilesTask) {
-            alertMessage = resourceBundle.getString("deleteFailedError");
+            alertMessage = "deleteFailedError";
         }
         message = alertMessage + StringConstants.SPACE + deleteTask.getErrorMsg();
 
@@ -178,6 +178,6 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.errorRaw(alertMessage);
+        alert.error(alertMessage);
     }
 }

@@ -22,7 +22,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -130,21 +130,21 @@ public class SettingPresenter implements Initializable {
     private FilePropertiesSettings filePropertiesSettings;
     private LogSettings logSettings;
     private ProcessSettings processSettings;
-    private final LazyAlert alert;
+    private final AlertService alert;
 
     @Inject
     public SettingPresenter(final ResourceBundle resourceBundle,
                             final JobWorkers jobWorkers,
                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
                             final SettingsStore settingsStore,
-                            final LazyAlert lazyAlert,
+                            final AlertService alertService,
                             final ApplicationLoggerSettings applicationLoggerSettings) {
         this.resourceBundle = resourceBundle;
         this.jobWorkers = jobWorkers;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.settingsStore = settingsStore;
         this.applicationLoggerSettings = applicationLoggerSettings;
-        this.alert = lazyAlert;
+        this.alert = alertService;
     }
 
     @Override
@@ -169,7 +169,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.infoRaw(resourceBundle.getString("filePropertiesSettingsUpdated"));
+            alert.info("filePropertiesSettingsUpdated");
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -179,14 +179,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.infoRaw(resourceBundle.getString("performanceSettingsUpdated"));
+        alert.info("performanceSettingsUpdated");
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.infoRaw(resourceBundle.getString("loggingSettingsUpdated"));
+        alert.info("loggingSettingsUpdated");
     }
 
     public void saveJobSettings() {
@@ -195,7 +195,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.infoRaw(resourceBundle.getString("jobsSettingsUpdated"));
+            alert.info("jobsSettingsUpdated");
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }
