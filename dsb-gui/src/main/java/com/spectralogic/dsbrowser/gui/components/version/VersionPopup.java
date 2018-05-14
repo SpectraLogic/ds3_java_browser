@@ -1,3 +1,18 @@
+/*
+ * ******************************************************************************
+ *    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.
+ *    Licensed under the Apache License, Version 2.0 (the "License"). You may not use
+ *    this file except in compliance with the License. A copy of the License is located at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file.
+ *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ *    specific language governing permissions and limitations under the License.
+ * ******************************************************************************
+ */
+
 package com.spectralogic.dsbrowser.gui.components.version;
 
 import com.spectralogic.ds3client.Ds3Client;
@@ -52,7 +67,7 @@ public class VersionPopup {
                 .collect(GuavaCollectors.immutableList());
 
         if (versions.isEmpty()) {
-            lazyAlert.warningRaw(resourceBundle.getString("unabletogetversions"));
+            lazyAlert.warningRaw(resourceBundle.getString("unableToGetVersions"));
         } else {
             final Stage popup = new Stage();
             final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
@@ -78,7 +93,7 @@ public class VersionPopup {
             return client.getBucket(getBucketRequest).getListBucketResult().getVersionedObjects();
         } catch (final IOException io) {
             LOG.error("Could not get versions for " + item.getFullName(), io);
-            loggingService.logMessage(resourceBundle.getString("couldnotgetversion"), LogType.ERROR);
+            loggingService.logMessage(resourceBundle.getString("couldNotGetVersion"), LogType.ERROR);
             return Collections.emptyList();
         }
     }

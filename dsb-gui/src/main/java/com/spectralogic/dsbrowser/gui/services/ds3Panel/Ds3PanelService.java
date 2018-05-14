@@ -35,7 +35,6 @@ import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
-import com.spectralogic.dsbrowser.gui.services.versionpanelservice.VersionPanelService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.MetadataTask;
