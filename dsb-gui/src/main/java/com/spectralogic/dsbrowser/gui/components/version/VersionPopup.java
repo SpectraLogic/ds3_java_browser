@@ -63,7 +63,7 @@ public class VersionPopup {
     public void show(final Ds3TreeTableValue item) {
         final List<VersionItem> versions = getVersioned(item)
                 .stream()
-                .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getSize(), contents.getVersionId()))
+                .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getVersionId(), contents.getSize()))
                 .collect(GuavaCollectors.immutableList());
 
         if (versions.isEmpty()) {
