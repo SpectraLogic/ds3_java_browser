@@ -81,10 +81,9 @@ public class VersionPresenter implements Initializable {
     }
 
     private void transfer(final javafx.scene.input.MouseEvent mouseEvent) {
-        final Path path;
         final VersionItem versionItem = versions.getSelectionModel().getSelectedItem();
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
-        path = getDirectoryOrRoot();
+        final Path path = getDirectoryOrRoot();
         startJob(path, versionItem, client);
         versionModel.closePopup();
     }
