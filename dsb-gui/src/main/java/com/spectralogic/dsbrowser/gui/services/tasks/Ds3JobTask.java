@@ -36,12 +36,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
 
-    protected ResourceBundle resourceBundle;
     protected Ds3Client ds3Client;
-    protected DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    protected LoggingService loggingService;
-    protected Ds3ClientHelpers.Job job = null;
-    protected Session currentSession;
 
     @Override
     protected final Boolean call() throws Exception {
@@ -54,42 +49,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
 
     public abstract UUID getJobId();
 
-    public void updateProgressPutJob() {
-        updateProgress(0.1, 100);
-    }
-
     public Ds3Client getDs3Client() {
         return ds3Client;
-    }
-
-    AtomicLong addDataTransferListener(final long totalJobSize) {
-        final AtomicLong totalSent = new AtomicLong(0L);
-        job.attachDataTransferredListener(l -> {
-            updateProgress(totalSent.getAndAdd(l) / 2, totalJobSize);
-            totalSent.addAndGet(l);
-        });
-        return totalSent;
-    }
-
-    void addWaitingForChunkListener(final long totalJobSize, final String targetDir) {
-        job.attachWaitingForChunksListener(retryAfterSeconds -> {
-            for (int retryTimeRemaining = retryAfterSeconds; retryTimeRemaining >= 0; retryTimeRemaining--) {
-                try {
-                    updateMessage(resourceBundle.getString("noAvailableChunks") + SPACE + retryTimeRemaining + resourceBundle.getString("seconds"));
-                    Thread.sleep(1000);
-                } catch (final Exception e) {
-                    LOG.error("Failed attempting to updateMessage while waiting for chunks to become available for job: " + job.getJobId(), e);
-                }
-            }
-            updateMessage(StringBuilderUtil.transferringTotalJobString(FileSizeFormatKt.toByteRepresentation(totalJobSize), targetDir).toString());
-        });
-    }
-
-    void hostNotAvailable() {
-        final String msg = resourceBundle.getString("host") + SPACE + ds3Client.getConnectionDetails().getEndpoint() + resourceBundle.getString("unreachable");
-        ErrorUtils.dumpTheStack(msg);
-        loggingService.logMessage(resourceBundle.getString("unableToReachNetwork"), LogType.ERROR);
-        new LazyAlert(resourceBundle).errorRaw(resourceBundle.getString(msg));
     }
 
 }
