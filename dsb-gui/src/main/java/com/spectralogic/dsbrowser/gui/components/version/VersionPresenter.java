@@ -114,7 +114,7 @@ public class VersionPresenter implements Initializable {
                 versionItem.getVersionId());
     }
 
-    private String getParent(String path) {
+    private String getParent(final String path) {
         final int lastIndex = path.lastIndexOf("/");
         if (lastIndex == -1) {
             return "";

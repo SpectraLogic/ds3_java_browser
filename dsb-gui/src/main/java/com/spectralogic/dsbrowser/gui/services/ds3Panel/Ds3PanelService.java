@@ -74,14 +74,14 @@ public final class Ds3PanelService {
 
     @Inject
     public Ds3PanelService(
-            ResourceBundle resourceBundle,
-            DateTimeUtils dateTimeUtils,
-            Ds3Common ds3Common,
-            Workers workers,
-            LoggingService loggingService,
-            RefreshCompleteViewWorker refreshCompleteViewWorker,
-            LazyAlert lazyAlert,
-            VersionPopup versionPopup
+            final ResourceBundle resourceBundle,
+            final DateTimeUtils dateTimeUtils,
+            final Ds3Common ds3Common,
+            final Workers workers,
+            final LoggingService loggingService,
+            final RefreshCompleteViewWorker refreshCompleteViewWorker,
+            final LazyAlert lazyAlert,
+            final VersionPopup versionPopup
     ) {
         this.versionPopup = versionPopup;
         this.ds3Common = ds3Common;

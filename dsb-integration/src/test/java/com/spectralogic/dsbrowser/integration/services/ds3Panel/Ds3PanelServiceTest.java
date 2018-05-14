@@ -84,7 +84,7 @@ public class Ds3PanelServiceTest {
         try {
             envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
             envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }

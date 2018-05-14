@@ -85,7 +85,7 @@ public class VersionPopup {
 
     private List<Contents> getVersioned(final Ds3TreeTableValue item) {
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
-        GetBucketRequest getBucketRequest = new GetBucketRequest(item.getBucketName());
+        final GetBucketRequest getBucketRequest = new GetBucketRequest(item.getBucketName());
         getBucketRequest.withVersions(true);
         getBucketRequest.withPrefix(item.getFullName());
 

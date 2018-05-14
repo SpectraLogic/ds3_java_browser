@@ -39,7 +39,7 @@ public class FileTreeTableItemFactory {
         this.fileTreeTableProvider = fileTreeTableProvider;
     }
 
-    public FileTreeTableItem create(FileTreeModel fileTreeModel) {
+    public FileTreeTableItem create(final FileTreeModel fileTreeModel) {
         return new FileTreeTableItem(fileTreeTableProvider, fileTreeModel, workers, loggingService);
     }
 }

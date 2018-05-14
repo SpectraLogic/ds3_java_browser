@@ -30,7 +30,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     private final String owner;
     private final boolean searchOn;
     private String marker = "";
-    private String fullPath;
+    private final String fullPath;
 
     public Ds3TreeTableValue(final String bucketName,
             final String name,

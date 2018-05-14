@@ -120,7 +120,7 @@ public class Ds3DeleteFilesTaskTest {
                     fail();
                 }
 
-                Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
+                final Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
                 HELPERS.startWriteJob(DELETE_FILES_TASK_TEST_BUCKET_NAME, objectsList);
 
                 final ImmutableList<String> buckets = ImmutableList.of(DELETE_FILES_TASK_TEST_BUCKET_NAME);
