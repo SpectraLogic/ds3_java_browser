@@ -14,25 +14,18 @@
 */
 package com.spectralogic.dsbrowser.gui.services;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.*;
 import com.google.inject.util.Modules;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientImpl;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.GuiModule;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.ButtonCell;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.sun.javafx.application.PlatformImpl;
-import javafx.scene.control.TreeItem;
-import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.nio.file.Path;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.fail;

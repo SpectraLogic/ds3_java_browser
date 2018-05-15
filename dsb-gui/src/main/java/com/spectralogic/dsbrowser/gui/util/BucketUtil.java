@@ -41,8 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.spectralogic.dsbrowser.gui.util.GetStorageLocations.addPlacementIconsAndTooltip;
-
 public final class BucketUtil {
     private final static Logger LOG = LoggerFactory.getLogger(BucketUtil.class);
 

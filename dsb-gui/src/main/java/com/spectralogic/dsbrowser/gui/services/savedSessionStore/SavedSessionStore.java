@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;

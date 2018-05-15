@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
@@ -41,6 +42,12 @@ public class GetMediaDeviceTaskTest {
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private final LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag = false;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory = new FileTreeTableItem.FileTreeTableItemFactory() {
+        @Override
+        public FileTreeTableItem create(final FileTreeModel fileTreeModel) {
+            return new FileTreeTableItem(new FileTreeTableProvider(new DateTimeUtils()), fileTreeModel, new Workers(1), loggingService);
+        }
+    };
 
     @Test
     public void call() throws Exception {
@@ -54,7 +61,7 @@ public class GetMediaDeviceTaskTest {
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();
 
-                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, workers, loggingService);
+                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, fileTreeTableItemFactory);
                 workers.execute(task);
                 task.setOnSucceeded(event -> {
                     successFlag = true;

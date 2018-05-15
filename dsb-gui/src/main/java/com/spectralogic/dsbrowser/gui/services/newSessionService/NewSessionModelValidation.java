@@ -21,7 +21,6 @@ import com.spectralogic.dsbrowser.gui.util.AlertService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ResourceBundle;
 
 @Singleton
 public class NewSessionModelValidation {

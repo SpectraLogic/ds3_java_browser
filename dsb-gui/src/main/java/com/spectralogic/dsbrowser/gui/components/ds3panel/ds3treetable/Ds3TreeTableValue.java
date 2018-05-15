@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
-import javafx.scene.layout.HBox;
 
 import java.io.Serializable;
 

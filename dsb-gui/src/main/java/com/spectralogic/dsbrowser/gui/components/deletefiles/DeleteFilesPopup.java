@@ -19,7 +19,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.Popup;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;

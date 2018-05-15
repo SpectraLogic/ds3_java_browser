@@ -58,15 +58,13 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final Workers workers;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     private final LoggingService loggingService;
-    private final FileTreeTableItemFactory fileTreeTableItemFactory;
 
     @Inject
     public FileTreeTableItem(
             final FileTreeTableProvider provider,
             @Assisted final FileTreeModel fileTreeModel,
             final Workers workers,
-            final LoggingService loggingService,
-            final FileTreeTableItemFactory fileTreeTableItemFactory) {
+            final LoggingService loggingService) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = getLeaf(fileTreeModel.getPath());
@@ -74,7 +72,6 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
         this.loggingService = loggingService;
-        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
     }
 
     private boolean getLeaf(final Path path) {
@@ -172,7 +169,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
             final List<FileTreeTableItem> fileChildren = provider
                     .getListForDir(fileTreeModel)
                     .filter(ftm -> ftm.getType() != BaseTreeModel.Type.Error)
-                    .map(fileTreeTableItemFactory::create)
+                    .map(fileTreeModel -> new FileTreeTableItem(provider, fileTreeModel, workers, loggingService))
                     .sorted(Comparator.comparing(t -> t.getValue().getType().toString()))
                     .collect(Collectors.toList());
             children.setAll(fileChildren);

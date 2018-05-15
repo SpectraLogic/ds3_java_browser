@@ -16,14 +16,11 @@
 package com.spectralogic.dsbrowser.gui.injector.providers;
 
 import com.google.inject.Provider;
-import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 public class SavedSessionProvider implements Provider<SavedSessionStore> {
 

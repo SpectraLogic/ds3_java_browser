@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.fail;
@@ -46,6 +45,8 @@ public class FileTreeTableItemTest {
 
     final private LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag =  false;
+    private final Workers workers = new Workers(1);
+    private final FileTreeTableProvider fileTreeTableProvider = new FileTreeTableProvider(new DateTimeUtils());
 
     @Test
     public void getGraphicType() throws URISyntaxException, IOException {

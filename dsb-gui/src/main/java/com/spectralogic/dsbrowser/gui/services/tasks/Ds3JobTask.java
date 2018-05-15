@@ -16,21 +16,11 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
-import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ResourceBundle;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static com.spectralogic.dsbrowser.gui.util.StringConstants.SPACE;
 
 public abstract class Ds3JobTask extends Task<Boolean> {
 

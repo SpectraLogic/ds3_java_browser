@@ -21,11 +21,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
