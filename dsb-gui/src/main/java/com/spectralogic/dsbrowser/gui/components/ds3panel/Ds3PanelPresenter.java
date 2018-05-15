@@ -65,7 +65,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Presenter
 public class Ds3PanelPresenter implements Initializable {
@@ -115,7 +114,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final Ds3PanelService ds3PanelService;
     private final CreateService createService;
     private final DeleteService deleteService;
-    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final CancelJobsWorker cancelJobsWorker;
     private final ModifyJobPriorityPopUp modifyJobPriorityPopUp;
@@ -153,7 +151,6 @@ public class Ds3PanelPresenter implements Initializable {
         this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.ds3SessionStore = ds3SessionStore;
         this.cancelJobsWorker = cancelJobsWorker;
-        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
         this.workers = workers;
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
