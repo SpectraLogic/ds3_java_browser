@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
@@ -24,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
+import javax.inject.Inject;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,7 +36,13 @@ public class GetMediaDeviceTask extends Task{
     private final Workers workers;
     private final LoggingService loggingService;
 
-    public GetMediaDeviceTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final FileTreeTableProvider provider, final Workers workers, final LoggingService loggingService) {
+    @Inject
+    public GetMediaDeviceTask(
+            @Assisted final Stream<FileTreeModel> rootItems,
+            @Assisted final TreeItem<FileTreeModel> rootTreeItem,
+            final FileTreeTableProvider provider,
+            final Workers workers,
+            final LoggingService loggingService) {
         this.rootItems = rootItems;
         this.rootTreeItem = rootTreeItem;
         this.provider = provider;
@@ -51,5 +59,12 @@ public class GetMediaDeviceTask extends Task{
                 }
         );
         return Optional.empty();
+    }
+
+    public interface GetMediaDeviceTaskFactory {
+        public GetMediaDeviceTask create(
+                final Stream<FileTreeModel> rootItems,
+                final TreeItem<FileTreeModel> rootTreeItem
+        );
     }
 }

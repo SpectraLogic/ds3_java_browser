@@ -38,6 +38,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
@@ -72,6 +73,7 @@ public class GuiModule extends AbstractModule {
 
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
         install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
+        install(new FactoryModuleBuilder().build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
     }
 
     @Singleton

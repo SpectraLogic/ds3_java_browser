@@ -95,6 +95,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
     private final FileTreeTableItemFactory fileTreeTableItemFactory;
+    private final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -112,7 +113,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final GetJobFactory getJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final DateTimeUtils dateTimeUtils,
-            final AlertService alertService) {
+            final AlertService alertService,
+            final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
@@ -124,6 +126,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.putJobFactory = putJobFactory;
         this.getJobFactory = getJobFactory;
+        this.getMediaDeviceTaskFactory = getMediaDeviceTaskFactory;
         this.alert = alertService;
     }
 
@@ -494,7 +497,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, workers, loggingService);
+        final GetMediaDeviceTask getMediaDeviceTask = getMediaDeviceTaskFactory.create(rootItems, rootTreeItem);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
