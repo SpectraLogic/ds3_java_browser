@@ -18,6 +18,8 @@ package com.spectralogic.dsbrowser.gui.components.version;
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
@@ -30,6 +32,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import kotlin.Pair;
 import kotlin.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -38,17 +43,21 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class VersionPresenter implements Initializable {
+    private static final Logger LOG = LoggerFactory.getLogger(VersionPresenter.class);
 
     private final Ds3Common ds3Common;
     private final GetJobFactory getJobFactory;
+    private final LoggingService loggingService;
 
     @Inject
     public VersionPresenter(
             final Ds3Common ds3Common,
-            final GetJobFactory getJobFactory
+            final GetJobFactory getJobFactory,
+            final LoggingService loggingService
     ) {
         this.ds3Common = ds3Common;
         this.getJobFactory = getJobFactory;
+        this.loggingService = loggingService;
     }
 
     @FXML
@@ -68,16 +77,21 @@ public class VersionPresenter implements Initializable {
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
-        final DateTimeUtils dateTimeUtils = new DateTimeUtils();
-        created.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
-        download.setDisable(true);
-        versions.getItems().addAll(versionModel.getVersionItems());
-        versions.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        versions.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    download.setDisable(newValue == null);
-                }
-        );
-        download.setOnMouseClicked(SafeHandler.logHandle(this::transfer));
+        try {
+            final DateTimeUtils dateTimeUtils = new DateTimeUtils();
+            created.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
+            download.setDisable(true);
+            versions.getItems().addAll(versionModel.getVersionItems());
+            versions.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            versions.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        download.setDisable(newValue == null);
+                    }
+            );
+            download.setOnMouseClicked(SafeHandler.logHandle(this::transfer));
+        } catch (final Throwable t) {
+            LOG.error("Unable to show version presenter", t);
+            loggingService.logInternationalMessage("unableToShowVersionPresenter", LogType.ERROR);
+        }
     }
 
     private void transfer(final javafx.scene.input.MouseEvent mouseEvent) {
