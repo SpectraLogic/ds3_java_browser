@@ -122,13 +122,13 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
-                                       final ResourceBundle resourceBundle,
-                                       final Ds3Common ds3Common,
-                                       final JobInterruptionStore jobInterruptionStore,
-                                       final SettingsStore settingsStore,
-                                       final LoggingService loggingService,
-                                       final CancelJobsWorker cancelJobsWorker,
-                                       final ShutdownService shutdownService) {
+            final ResourceBundle resourceBundle,
+            final Ds3Common ds3Common,
+            final JobInterruptionStore jobInterruptionStore,
+            final SettingsStore settingsStore,
+            final LoggingService loggingService,
+            final CancelJobsWorker cancelJobsWorker,
+            final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
@@ -145,7 +145,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             registerLoggingServiceListener();
 
             LOG.info("Loading Main view");
-            loggingService.logMessage(resourceBundle.getString("loadMainView"), LogType.INFO);
+            loggingService.logInternationalMessage("loadMainView", LogType.INFO);
 
             initMenus(); //Setting up labels from resource file
 
@@ -172,7 +172,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             });
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
-            loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
+            loggingService.logInternationalMessage("errorWhileCreatingMainView", LogType.ERROR);
         }
     }
 
@@ -245,7 +245,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
             } else {
                 recoverInterruptedJobsButton.setDisable(true);
-                loggingService.logMessage(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
+                loggingService.logInternationalMessage("noInterruptedJobs", LogType.INFO);
             }
         }));
     }
