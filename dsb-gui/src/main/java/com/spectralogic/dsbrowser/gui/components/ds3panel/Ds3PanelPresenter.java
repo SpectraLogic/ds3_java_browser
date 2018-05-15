@@ -23,7 +23,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -137,7 +136,6 @@ public class Ds3PanelPresenter implements Initializable {
             final GetJobFactory getJobFactory,
             final Ds3PanelService ds3PanelService,
             final CreateService createService,
-            final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory,
             final DeleteService deleteService,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
             final CancelJobsWorker cancelJobsWorker,

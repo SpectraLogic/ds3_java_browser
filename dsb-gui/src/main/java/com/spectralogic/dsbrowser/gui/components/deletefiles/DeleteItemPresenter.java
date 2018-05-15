@@ -171,6 +171,8 @@ public class DeleteItemPresenter implements Initializable {
             alertMessage = "folderDeleteFailed";
         } else if (deleteTask instanceof Ds3DeleteFilesTask) {
             alertMessage = "deleteFailedError";
+        } else {
+            alertMessage = "genericDeleteFailed";
         }
         message = alertMessage + StringConstants.SPACE + deleteTask.getErrorMsg();
 
