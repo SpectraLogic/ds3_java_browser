@@ -25,7 +25,7 @@ data class VersionItem(
     val version: UUID,
     val size: Long) {
 
-    fun getName() : String = key.substring(key.lastIndexOf("/"))
+    fun getName() : String = key.substring((key.lastIndexOf("/") + 1))
     fun getCreated() : String = DateTimeUtils().format(lastModified)
     fun getVersionId() : String = version.toString()
     fun getSize() : String = size.toByteRepresentation()
