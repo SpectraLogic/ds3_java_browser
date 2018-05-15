@@ -94,7 +94,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final DateTimeUtils dateTimeUtils;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
-    private final FileTreeTableItemFactory fileTreeTableItemFactory;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory;
     private final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
@@ -109,7 +109,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final Workers workers,
             final LoggingService loggingService,
             final PutJobFactory putJobFactory,
-            final FileTreeTableItemFactory fileTreeTableItemFactory,
+            final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory,
             final GetJobFactory getJobFactory,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
             final DateTimeUtils dateTimeUtils,

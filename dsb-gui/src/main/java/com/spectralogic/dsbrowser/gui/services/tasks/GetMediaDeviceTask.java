@@ -35,6 +35,7 @@ public class GetMediaDeviceTask extends Task{
     private final FileTreeTableProvider provider;
     private final Workers workers;
     private final LoggingService loggingService;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory;
 
     @Inject
     public GetMediaDeviceTask(
@@ -42,19 +43,21 @@ public class GetMediaDeviceTask extends Task{
             @Assisted final TreeItem<FileTreeModel> rootTreeItem,
             final FileTreeTableProvider provider,
             final Workers workers,
-            final LoggingService loggingService) {
+            final LoggingService loggingService,
+            final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory) {
         this.rootItems = rootItems;
         this.rootTreeItem = rootTreeItem;
         this.provider = provider;
         this.workers = workers;
         this.loggingService = loggingService;
+        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
     }
 
     @Override
     protected Optional<Object> call() throws Exception {
         rootItems.forEach(ftm ->
                 {
-                    final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(provider, ftm, workers, loggingService);
+                    final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
                     rootTreeItem.getChildren().add(newRootTreeItem);
                 }
         );

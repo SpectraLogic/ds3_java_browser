@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -59,7 +60,13 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final LoggingService loggingService;
     private final FileTreeTableItemFactory fileTreeTableItemFactory;
 
-    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final Workers workers, final LoggingService loggingService) {
+    @Inject
+    public FileTreeTableItem(
+            final FileTreeTableProvider provider,
+            @Assisted final FileTreeModel fileTreeModel,
+            final Workers workers,
+            final LoggingService loggingService,
+            final FileTreeTableItemFactory fileTreeTableItemFactory) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = getLeaf(fileTreeModel.getPath());
@@ -67,7 +74,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
         this.loggingService = loggingService;
-        this.fileTreeTableItemFactory = new FileTreeTableItemFactory(loggingService, workers, provider);
+        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
     }
 
     private boolean getLeaf(final Path path) {
@@ -170,6 +177,10 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
                     .collect(Collectors.toList());
             children.setAll(fileChildren);
         }
+    }
+
+    public interface FileTreeTableItemFactory {
+        public FileTreeTableItem create(final FileTreeModel fileTreeModel);
     }
 
 }

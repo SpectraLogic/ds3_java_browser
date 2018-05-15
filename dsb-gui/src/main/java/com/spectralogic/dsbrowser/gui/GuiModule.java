@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.ButtonCell;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -74,6 +75,7 @@ public class GuiModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
         install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
         install(new FactoryModuleBuilder().build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
+        install(new FactoryModuleBuilder().build(FileTreeTableItem.FileTreeTableItemFactory.class));
     }
 
     @Singleton
