@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions.*
 class FileSizeFormatTest {
     @Test
     fun tenBytes() {
-        assertThat(10L.toByteRepresentation()).isEqualTo("10.00 Bytes")
+        assertThat(10L.toByteRepresentation()).isEqualTo("10 Bytes")
     }
 
     @Test
