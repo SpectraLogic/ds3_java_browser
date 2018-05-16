@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PutJobFactory @Inject constructor(private val loggingService: LoggingService,
                                         private val jobInterruptionStore: JobInterruptionStore,
                                         private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
