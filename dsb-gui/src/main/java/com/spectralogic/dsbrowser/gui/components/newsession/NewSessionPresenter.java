@@ -273,7 +273,7 @@ public class NewSessionPresenter implements Initializable {
                     });
                 }
             }
-            final Session session =createConnectionTask.createConnection(newSessionModel);
+            final Session session = createConnectionTask.createConnection(newSessionModel);
             if (session != null) {
                 final String message = buildSessionAlert(session);
                 final int i = savedSessionStore.addSession(session);
