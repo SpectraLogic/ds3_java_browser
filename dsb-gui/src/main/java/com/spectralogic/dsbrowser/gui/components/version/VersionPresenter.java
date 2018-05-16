@@ -47,16 +47,19 @@ public class VersionPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final GetJobFactory getJobFactory;
     private final LoggingService loggingService;
+    private final DateTimeUtils dateTimeUtils;
 
     @Inject
     public VersionPresenter(
             final Ds3Common ds3Common,
             final GetJobFactory getJobFactory,
-            final LoggingService loggingService
+            final LoggingService loggingService,
+            final DateTimeUtils dateTimeUtils
     ) {
         this.ds3Common = ds3Common;
         this.getJobFactory = getJobFactory;
         this.loggingService = loggingService;
+        this.dateTimeUtils = dateTimeUtils;
     }
 
     @FXML
@@ -77,7 +80,6 @@ public class VersionPresenter implements Initializable {
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
-            final DateTimeUtils dateTimeUtils = new DateTimeUtils();
             created.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
             download.setDisable(true);
             versions.getItems().addAll(versionModel.getVersionItems());

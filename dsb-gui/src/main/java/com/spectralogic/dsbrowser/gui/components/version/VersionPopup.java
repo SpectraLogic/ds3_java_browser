@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
@@ -53,33 +54,35 @@ public class VersionPopup {
             final LoggingService loggingService,
             final AlertService alertService
     ) {
-       this.resourceBundle = resourceBundle;
-       this.ds3Common = ds3Common;
-       this.loggingService = loggingService;
-       this.alertService = alertService;
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+        this.loggingService = loggingService;
+        this.alertService = alertService;
     }
 
     public void show(final Ds3TreeTableValue item) {
-        final List<VersionItem> versions = getVersioned(item)
-                .stream()
-                .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getVersionId(), contents.getSize()))
-                .collect(GuavaCollectors.immutableList());
+        Platform.runLater(() -> {
+            final List<VersionItem> versions = getVersioned(item)
+                    .stream()
+                    .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getVersionId(), contents.getSize()))
+                    .collect(GuavaCollectors.immutableList());
 
-        if (versions.isEmpty()) {
-            alertService.warning("unableToGetVersions");
-        } else {
-            final Stage popup = new Stage();
-            final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
-            final Scene popupScene = new Scene(view.getView());
+            if (versions.isEmpty()) {
+                alertService.warning("unableToGetVersions");
+            } else {
+                final Stage popup = new Stage();
+                final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
+                final Scene popupScene = new Scene(view.getView());
 
-            popup.initModality(Modality.APPLICATION_MODAL);
-            popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
-            popup.setScene(popupScene);
-            popup.setTitle(resourceBundle.getString("versionView"));
-            popup.setAlwaysOnTop(false);
-            popup.setResizable(true);
-            popup.showAndWait();
-        }
+                popup.initModality(Modality.APPLICATION_MODAL);
+                popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
+                popup.setScene(popupScene);
+                popup.setTitle(resourceBundle.getString("versionView"));
+                popup.setAlwaysOnTop(false);
+                popup.setResizable(true);
+                popup.showAndWait();
+            }
+        });
     }
 
     private List<Contents> getVersioned(final Ds3TreeTableValue item) {
@@ -92,7 +95,6 @@ public class VersionPopup {
             return client.getBucket(getBucketRequest).getListBucketResult().getVersionedObjects();
         } catch (final IOException io) {
             LOG.error("Could not get versions for " + item.getFullName(), io);
-            loggingService.logMessage(resourceBundle.getString("couldNotGetVersion"), LogType.ERROR);
             return Collections.emptyList();
         }
     }

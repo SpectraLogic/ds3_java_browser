@@ -21,8 +21,10 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
+@Singleton
 public class LoggingServiceImpl implements LoggingService {
     private final PublishSubject<LogEvent> subject  = PublishSubject.create();
     private final ResourceBundle resourceBundle;
