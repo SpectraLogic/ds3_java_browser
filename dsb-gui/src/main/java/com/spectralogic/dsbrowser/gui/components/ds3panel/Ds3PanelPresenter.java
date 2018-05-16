@@ -23,7 +23,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.*;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
-import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.modifyjobpriority.ModifyJobPriorityPopUp;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionPopup;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -65,7 +64,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Presenter
 public class Ds3PanelPresenter implements Initializable {
@@ -107,7 +105,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final FileTreeTableProvider fileTreeTableProvider;
     private final Ds3Common ds3Common;
     private final DateTimeUtils dateTimeUtils;
     private final SavedSessionStore savedSessionStore;
@@ -124,7 +121,6 @@ public class Ds3PanelPresenter implements Initializable {
             final JobWorkers jobWorkers,
             final JobInterruptionStore jobInterruptionStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-            final FileTreeTableProvider fileTreeTableProvider,
             final DateTimeUtils dateTimeUtils,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
@@ -137,7 +133,6 @@ public class Ds3PanelPresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.getJobFactory = getJobFactory;
-        this.fileTreeTableProvider = fileTreeTableProvider;
         this.ds3Common = ds3Common;
         this.dateTimeUtils = dateTimeUtils;
         this.savedSessionStore = savedSessionStore;
@@ -442,38 +437,7 @@ public class Ds3PanelPresenter implements Initializable {
             }
         }
 
-        startGetJob(selectedItemsAtSourceLocationListCustom, localPath, selectedItemsAtDestination);
-    }
-
-    private void refreshLocalSideView(final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination,
-            final TreeTableView<FileTreeModel> treeTable,
-            final Label fileRootItemLabel,
-            final String fileRootItem) {
-        final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
-        final Optional<TreeItem<FileTreeModel>> first = selectedItemsAtDestination.stream().findFirst();
-        if (first.isPresent()) {
-            final TreeItem<FileTreeModel> selectedItem = first.get();
-            if (selectedItem instanceof FileTreeTableItem) {
-                final FileTreeTableItem fileTreeTableItem = (FileTreeTableItem) selectedItem;
-                try {
-                    fileTreeTableItem.refresh();
-                    treeTable.getSelectionModel().clearSelection();
-                    treeTable.getSelectionModel().select(selectedItem);
-                } catch (final IOException e) {
-                    treeTable.setRoot(rootTreeItem);
-                }
-            }
-        } else {
-            rootTreeItem.setExpanded(true);
-            treeTable.setShowRoot(false);
-            final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
-            fileRootItemLabel.setText(fileRootItem);
-            rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
-                rootTreeItem.getChildren().add(newRootTreeItem);
-            });
-            treeTable.setRoot(rootTreeItem);
-        }
+        startGetJob(selectedItemsAtSourceLocationListCustom, localPath);
     }
 
     public void ds3DeleteObject() {
@@ -668,12 +632,7 @@ public class Ds3PanelPresenter implements Initializable {
         return paneItemsLabel;
     }
 
-    public Label getCreateNewSessionLabel() {
-        return createNewSessionLabel;
-    }
-
-    private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
-            final Path localPath, final ObservableList<TreeItem<FileTreeModel>> selectedItemsAtDestination) {
+    private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles, final Path localPath) {
         listFiles.stream()
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
