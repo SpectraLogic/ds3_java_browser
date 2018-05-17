@@ -21,6 +21,7 @@ import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpe
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
@@ -105,11 +106,9 @@ public class CreateFolderTaskTest {
             final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
 
             //Instantiating create folder task
-            final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(),
+            final CreateFolderTask createFolderTask = new CreateFolderTask(new Ds3Common(),
                     createFolderModel.getBucketName(),
-                    folderName,
-                    null,
-                    null);
+                    folderName);
             workers.execute(createFolderTask);
 
             //Validating test case

@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
@@ -60,16 +61,19 @@ public class CreateFolderPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
     private final AlertService alert;
+    private final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,
-                                 final ResourceBundle resourceBundle,
-                                 final LoggingService loggingService,
-                                 final AlertService alertService) {
+            final ResourceBundle resourceBundle,
+            final LoggingService loggingService,
+            final AlertService alertService,
+            final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
         this.alert = alertService;
+        this.createFolderTaskFactory = createFolderTaskFactory;
     }
 
     @Override
@@ -102,9 +106,7 @@ public class CreateFolderPresenter implements Initializable {
     public void createFolder() {
         //Instantiating create folder task
         final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
-        final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                createFolderModel.getBucketName().trim(), folderWithPath,
-                loggingService, resourceBundle);
+        final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), folderWithPath);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
@@ -113,7 +115,17 @@ public class CreateFolderPresenter implements Initializable {
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
-            alert.error(CREATE_FOLDER_ERR_LOGS);
+            final Throwable e = event.getSource().getException();
+            if (e instanceof FailedRequestException && ((FailedRequestException) e).getError().getCode().equals("OBJECT_ALREADY_EXISTS")) {
+                alert.error("folderAlreadyExists");
+            } else {
+                alert.error(CREATE_FOLDER_ERR_LOGS);
+                LOG.error("Failed to create folder", e);
+                loggingService.logMessage(resourceBundle.getString("createFolderErr")
+                        + StringConstants.SPACE + folderNameField.textProperty().getValue().trim()
+                        + StringConstants.SPACE + resourceBundle.getString("txtReason")
+                        + StringConstants.SPACE + e, LogType.ERROR);
+            }
             this.closeDialog();
         }));
         workers.execute(createFolderTask);
