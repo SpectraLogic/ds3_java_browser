@@ -469,6 +469,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void doubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
+        final ImmutableList<TreeTableColumn<Ds3TreeTableValue, ?>> sortOrder = ds3TreeTable.getSortOrder().stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> treeItem = row.getTreeItem();
         if ((treeItem != null) && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             final ProgressIndicator progress = new ProgressIndicator();
@@ -484,6 +485,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 ds3TreeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                 ds3TreeTable.setPlaceholder(null);
             }
+            ds3TreeTable.getSortOrder().addAll(sortOrder);
         }
     }
 
