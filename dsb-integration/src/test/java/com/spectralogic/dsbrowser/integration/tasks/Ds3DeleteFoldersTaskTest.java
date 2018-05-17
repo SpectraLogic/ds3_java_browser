@@ -29,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -61,6 +62,8 @@ public class Ds3DeleteFoldersTaskTest {
     private static final String folderName = "testFolder/";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @Before
     public void setUp() throws InterruptedException {
@@ -77,7 +80,7 @@ public class Ds3DeleteFoldersTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);

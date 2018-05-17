@@ -33,17 +33,16 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFilesTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.HBox;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -69,6 +68,8 @@ public class Ds3DeleteFilesTaskTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @Before
     public void setUp() {
@@ -84,8 +85,7 @@ public class Ds3DeleteFilesTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
@@ -118,7 +118,7 @@ public class Ds3DeleteFilesTaskTest {
                     fail();
                 }
 
-                Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
+                final Iterable<Ds3Object> objectsList = HELPERS.listObjectsForDirectory(path);
                 HELPERS.startWriteJob(DELETE_FILES_TASK_TEST_BUCKET_NAME, objectsList);
 
                 final ImmutableList<String> buckets = ImmutableList.of(DELETE_FILES_TASK_TEST_BUCKET_NAME);
@@ -126,7 +126,7 @@ public class Ds3DeleteFilesTaskTest {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(
                         DELETE_FILES_TASK_TEST_BUCKET_NAME, "files/SampleFiles.txt",
                         Ds3TreeTableValue.Type.File, 0L, StringConstants.EMPTY_STRING,
-                        StringConstants.TWO_DASH, false, Mockito.mock(HBox.class));
+                        StringConstants.TWO_DASH, false);
 
                 final TreeItem<Ds3TreeTableValue> value = new TreeItem<>();
                 value.setValue(ds3TreeTableValue);

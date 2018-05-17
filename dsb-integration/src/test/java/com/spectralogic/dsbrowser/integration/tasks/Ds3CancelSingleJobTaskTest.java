@@ -32,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
@@ -70,6 +71,8 @@ public class Ds3CancelSingleJobTaskTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setConnection() {
@@ -85,7 +88,7 @@ public class Ds3CancelSingleJobTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
         });
     }
 

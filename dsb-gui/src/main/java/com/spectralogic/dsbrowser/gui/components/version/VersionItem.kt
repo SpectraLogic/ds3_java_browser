@@ -13,24 +13,20 @@
  * ******************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.components.newsession;
+package com.spectralogic.dsbrowser.gui.components.version
 
-import com.spectralogic.dsbrowser.gui.util.Popup;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
+import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
+import java.util.*
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.ResourceBundle;
+data class VersionItem(
+    val key: String,
+    val lastModified: Date,
+    val version: UUID,
+    val size: Long) {
 
-@Singleton
-public class NewSessionPopup {
-    private final ResourceBundle resourceBundle;
-
-    @Inject
-    public NewSessionPopup(final ResourceBundle resourceBundle) {
-       this.resourceBundle = resourceBundle;
-    }
-    public void show() {
-        final NewSessionView view = new NewSessionView();
-        Popup.show(view.getView(), resourceBundle.getString("sessionsMenuItem"));
-    }
+    fun getName() : String = key.substring((key.lastIndexOf("/") + 1))
+    fun getCreated() : String = DateTimeUtils().format(lastModified)
+    fun getVersionId() : String = version.toString()
+    fun getSize() : String = size.toByteRepresentation()
 }

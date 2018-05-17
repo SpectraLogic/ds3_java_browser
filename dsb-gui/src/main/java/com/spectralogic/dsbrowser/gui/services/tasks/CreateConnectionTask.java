@@ -24,23 +24,34 @@ import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public final class CreateConnectionTask {
-
+public class CreateConnectionTask {
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    public static Session createConnection(final NewSessionModel newSessionModel,
-                                           final ResourceBundle resourceBundle,
-                                           final BuildInfoService buildInfoService) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+    private final AlertService alert;
+    private final ResourceBundle resourceBundle;
+    private final BuildInfoService buildInfoService;
+
+    @Inject
+    public CreateConnectionTask(
+            final AlertService alertService,
+            final ResourceBundle resourceBundle,
+            final BuildInfoService buildInfoService
+    ) {
+        this.alert = alertService;
+        this.resourceBundle = resourceBundle;
+        this.buildInfoService = buildInfoService;
+    }
+
+    public Session createConnection(final NewSessionModel newSessionModel) {
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().isEmpty()) {
                 newSessionModel.setProxyServer(null);

@@ -91,6 +91,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     @ModelContext
     private Session session;
 
+    private final Ds3PanelService ds3PanelService;
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final DataFormat dataFormat;
@@ -99,12 +100,13 @@ public class Ds3TreeTablePresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final LoggingService loggingService;
     private final DateTimeUtils dateTimeUtils;
-    private final LazyAlert alert;
+    private final AlertService alert;
     private final PutJobFactory putJobFactory;
+    private final CreateService createService;
 
     private ContextMenu contextMenu;
 
-    private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder;
+    private MenuItem physicalPlacement, deleteFile, deleteFolder, deleteBucket, metaData, createBucket, createFolder, versioning;
 
     @Inject
     public Ds3TreeTablePresenter(final ResourceBundle resourceBundle,
@@ -115,9 +117,13 @@ public class Ds3TreeTablePresenter implements Initializable {
             final JobInterruptionStore jobInterruptionStore,
             final LoggingService loggingService,
             final DateTimeUtils dateTimeUtils,
+            final Ds3PanelService ds3PanelService,
+            final CreateService createService,
+            final AlertService alertService,
             final PutJobFactory putJobFactory) {
         this.resourceBundle = resourceBundle;
         this.dataFormat = dataFormat;
+        this.createService = createService;
         this.putJobFactory = putJobFactory;
         this.workers = workers;
         this.ds3Common = ds3Common;
@@ -125,7 +131,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
         this.dateTimeUtils = dateTimeUtils;
-        this.alert = new LazyAlert(resourceBundle);
+        this.ds3PanelService = ds3PanelService;
+        this.alert = alertService;
     }
 
     @Override
@@ -147,9 +154,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             handleDropEvent(event, null);
             event.consume();
         }));
-        ds3TreeTable.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue);
-        });
+        ds3TreeTable.focusedProperty().addListener((observable, oldValue, newValue) -> this.deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(oldValue));
     }
 
     /**
@@ -167,18 +172,21 @@ public class Ds3TreeTablePresenter implements Initializable {
         deleteBucket.setOnAction(SafeHandler.logHandle(event -> ds3PanelPresenter.ds3DeleteObject()));
 
         physicalPlacement = new MenuItem(resourceBundle.getString("physicalPlacementContextMenu"));
-        physicalPlacement.setOnAction(SafeHandler.logHandle(event -> Ds3PanelService.showPhysicalPlacement(ds3Common, workers, resourceBundle)));
+        physicalPlacement.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showPhysicalPlacement()));
+
+        versioning = new MenuItem(resourceBundle.getString("versioningContextMenu"));
+        versioning.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showVersions()));
 
         metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
-        metaData.setOnAction(SafeHandler.logHandle(event -> Ds3PanelService.showMetadata(ds3Common, workers, resourceBundle)));
+        metaData.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showMetadata()));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(SafeHandler.logHandle(event -> CreateService.createBucketPrompt(ds3Common, workers, loggingService, dateTimeUtils, resourceBundle)));
+        createBucket.setOnAction(SafeHandler.logHandle(event -> createService.createBucketPrompt()));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(SafeHandler.logHandle(event -> CreateService.createFolderPrompt(ds3Common, loggingService, resourceBundle)));
+        createFolder.setOnAction(SafeHandler.logHandle(event -> createService.createFolderPrompt()));
 
-        contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
+        contextMenu.getItems().addAll(metaData, physicalPlacement, versioning, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
 
     private void initTreeTableView() {
@@ -404,7 +412,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                         .collect(GuavaCollectors.immutableList());
                 if (pairs.isEmpty()) {
                     LOG.info("Drag contained no files");
-                    Ds3PanelService.refresh(selectedItem);
+                    ds3PanelService.refresh(selectedItem);
                     return;
                 }
                 startPutJob(session.getClient(), pairs, bucket, targetDir, selectedItem);
@@ -523,15 +531,18 @@ public class Ds3TreeTablePresenter implements Initializable {
                             deleteBucket.setDisable(false);
                             createFolder.setDisable(false);
                             createBucket.setDisable(false);
+                            versioning.setDisable(true);
                             break;
                         case Directory:
                             deleteFolder.setDisable(false);
                             createFolder.setDisable(false);
+                            versioning.setDisable(true);
                             break;
                         case File:
                             deleteFile.setDisable(false);
                             metaData.setDisable(false);
-                            createFolder.setDisable(true);
+                            versioning.setDisable(false);
+                            createFolder.setDisable(false);
                             break;
                         default:
                             break;
@@ -541,9 +552,11 @@ public class Ds3TreeTablePresenter implements Initializable {
                     if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
                             (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFile.setDisable(false);
+                        versioning.setDisable(true);
                     } else if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
                             (value.getType() == Ds3TreeTableValue.Type.File) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
                         deleteFolder.setDisable(false);
+                        versioning.setDisable(true);
                     }
                 }
             }
@@ -669,7 +682,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
         if (selectedItems != null) {
             final ImmutableList<Ds3TreeTableValue> selectedI = selectedItems.stream().map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
-            final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified(), v.getOwner(), v.isSearchOn())).collect(GuavaCollectors.immutableList());
+            final ImmutableList<Ds3TreeTableValueCustom> selected = selectedI.stream().map(v -> new Ds3TreeTableValueCustom(v.getBucketName(), v.getFullName(), v.getType(), v.getSize(), v.getLastModified())).collect(GuavaCollectors.immutableList());
             if (!Guard.isNullOrEmpty(selectedI)) {
                 LOG.info("Starting drag and drop event");
                 final Dragboard db = ds3TreeTable.startDragAndDrop(TransferMode.COPY);
@@ -695,7 +708,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 targetDir,
                 client,
                 () -> {
-                    Ds3PanelService.refresh(selectedItem);
+                    ds3PanelService.refresh(selectedItem);
                     return Unit.INSTANCE;
                 });
     }

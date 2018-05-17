@@ -22,7 +22,7 @@ import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -130,20 +130,21 @@ public class SettingPresenter implements Initializable {
     private FilePropertiesSettings filePropertiesSettings;
     private LogSettings logSettings;
     private ProcessSettings processSettings;
-    private final LazyAlert alert;
+    private final AlertService alert;
 
     @Inject
     public SettingPresenter(final ResourceBundle resourceBundle,
                             final JobWorkers jobWorkers,
                             final SavedJobPrioritiesStore savedJobPrioritiesStore,
                             final SettingsStore settingsStore,
+                            final AlertService alertService,
                             final ApplicationLoggerSettings applicationLoggerSettings) {
         this.resourceBundle = resourceBundle;
         this.jobWorkers = jobWorkers;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.settingsStore = settingsStore;
         this.applicationLoggerSettings = applicationLoggerSettings;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = alertService;
     }
 
     @Override

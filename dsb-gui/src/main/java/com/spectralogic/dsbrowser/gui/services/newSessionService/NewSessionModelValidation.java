@@ -17,18 +17,23 @@ package com.spectralogic.dsbrowser.gui.services.newSessionService;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 
-import java.util.ResourceBundle;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public final class NewSessionModelValidation {
-    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+@Singleton
+public class NewSessionModelValidation {
+    private final AlertService alert;
+
+    @Inject
+    public NewSessionModelValidation(final AlertService alert) {
+        this.alert = alert;
+    }
+
     public static final String ERROR = "Error";
 
-    public static boolean validationNewSession(final NewSessionModel model) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+    public boolean validationNewSession(final NewSessionModel model) {
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
             alert.error("enterSession");
             return false;

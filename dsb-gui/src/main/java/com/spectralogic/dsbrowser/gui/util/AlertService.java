@@ -21,16 +21,18 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
-import java.util.Locale;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
 /**
  * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
  * if this Alert is never encountered.
  */
-public class LazyAlert {
+
+@Singleton
+public class AlertService {
     private static final String ERROR_TITLE = "errorTitle";
     private static final String ALERT_TITLE = "alertTitle";
     private static final String WARNING_TITLE = "warningTitle";
@@ -38,7 +40,8 @@ public class LazyAlert {
     private final ResourceBundle resourceBundle;
     private Alert alert = null;
 
-    public LazyAlert(final ResourceBundle resourceBundle) {
+    @Inject
+    public AlertService(final ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
     }
 
@@ -49,6 +52,7 @@ public class LazyAlert {
         }
         alert.setTitle(title);
         alert.setHeaderText(null);
+        alert.setAlertType(alertType);
 
         //This prevents a null pointer when a dialog  is called right after startup
         final DialogPane dp = alert.getDialogPane();
@@ -65,18 +69,6 @@ public class LazyAlert {
         alert.setContentText(message);
         alert.setAlertType(alertType);
         alert.showAndWait();
-    }
-
-    public void errorRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
-    }
-
-    public void infoRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
-    }
-
-    public void warningRaw(final String message) {
-        showAlertInternal(message, resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
     }
 
     public void error(final String message) {

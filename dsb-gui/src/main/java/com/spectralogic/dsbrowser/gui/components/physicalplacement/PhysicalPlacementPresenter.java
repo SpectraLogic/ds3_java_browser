@@ -113,7 +113,7 @@ public class PhysicalPlacementPresenter implements Initializable {
         for (final Tape tape : listTape) {
             final String barcode = tape.getBarCode();
             final String serialNumber = tape.getSerialNumber();
-            final String type = tape.getType().toString();
+            final String type = tape.getType();
             final String state = tape.getState().toString();
             final boolean writeProtected = tape.getWriteProtected();
             final long availableCapacity = tape.getAvailableRawCapacity();

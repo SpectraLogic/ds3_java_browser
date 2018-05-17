@@ -13,36 +13,12 @@
  * ******************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.services.sessionStore;
+package com.spectralogic.dsbrowser.gui.components.version;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.airhacks.afterburner.views.FXMLView;
 
-public class Ds3SessionStore implements SessionStore {
-    private final ObservableList<Session> sessions = FXCollections.observableArrayList();
-
-    @Override
-    public void addSession(final Session session) {
-        sessions.add(session);
-    }
-
-    @Override
-    public ObservableList<Session> getObservableList() {
-        return this.sessions;
-    }
-
-    @Override
-    public void removeSession(final Session session) {
-        sessions.remove(session);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return sessions.isEmpty();
-    }
-
-    @Override
-    public int size() {
-        return sessions.size();
+class VersionView extends FXMLView {
+    VersionView(final VersionModel versionModel) {
+        super(name -> versionModel);
     }
 }

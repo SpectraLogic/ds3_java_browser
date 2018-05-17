@@ -18,7 +18,6 @@ package com.spectralogic.dsbrowser.gui.util;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import static org.hamcrest.CoreMatchers.is;

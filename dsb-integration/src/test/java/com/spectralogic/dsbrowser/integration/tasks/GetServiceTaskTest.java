@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -57,6 +58,7 @@ import static org.junit.Assert.fail;
 
 public class GetServiceTaskTest {
 
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
@@ -68,6 +70,8 @@ public class GetServiceTaskTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @Before
     public void setUp() throws Exception {
@@ -84,7 +88,7 @@ public class GetServiceTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
 
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);

@@ -19,20 +19,30 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.Popup;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
-public final class DeleteFilesPopup {
+@Singleton
+public class DeleteFilesPopup {
     private final static Logger LOG = LoggerFactory.getLogger(DeleteFilesPopup.class);
 
-    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final Ds3Common ds3Common;
+    private final ResourceBundle resourceBundle;
 
-    public static void show(final Ds3Task deleteTask, final Ds3Common ds3Common) {
+    @Inject
+    public DeleteFilesPopup(final Ds3Common ds3Common, final ResourceBundle resourceBundle) {
+        this.ds3Common = ds3Common;
+        this.resourceBundle = resourceBundle;
+    }
+
+
+    public void show(final Ds3Task deleteTask) {
         final DeleteItemView deleteView = new DeleteItemView(deleteTask);
         if (ds3Common.getDs3TreeTableView() != null) {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
@@ -40,8 +50,8 @@ public final class DeleteFilesPopup {
         }
     }
 
-    private static void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
-                                        final DeleteItemView deleteView) {
+    private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
+            final DeleteItemView deleteView) {
         if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.File)) {
             Popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
         } else if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.Directory)) {

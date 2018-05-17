@@ -71,6 +71,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private TreeTableColumn<FileTreeModel, Number> sizeColumn;
 
     @FXML
+    private TreeTableColumn<FileTreeModel, String> dateModified;
+
+    @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton, createFolderButton;
 
     @FXML
@@ -86,11 +89,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final Workers workers;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final DateTimeUtils dateTimeUtils;
     private final DataFormat local = new DataFormat("local");
-    private final LazyAlert alert;
+    private final AlertService alert;
+    private final DateTimeUtils dateTimeUtils;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory;
+    private final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -103,21 +108,26 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final DataFormat dataFormat,
             final Workers workers,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
             final PutJobFactory putJobFactory,
+            final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory,
             final GetJobFactory getJobFactory,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final DateTimeUtils dateTimeUtils,
+            final AlertService alertService,
+            final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
+        this.dateTimeUtils = dateTimeUtils;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
+        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.putJobFactory = putJobFactory;
         this.getJobFactory = getJobFactory;
-        this.alert = new LazyAlert(resourceBundle);
+        this.getMediaDeviceTaskFactory = getMediaDeviceTaskFactory;
+        this.alert = alertService;
     }
 
     @Override
@@ -151,6 +161,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             setDragDropEvent(null, event);
             event.consume();
         }));
+        dateModified.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
                     final List<String> rowNameList = new ArrayList<>();
@@ -269,7 +280,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initProgressAndPathIndicators() {
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(StringConstants.ROOT_LOCATION);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
@@ -381,13 +392,13 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void changeRootDir(final String rootDir) {
         localPathIndicator.setText(rootDir);
         fileRootItem = rootDir;
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir);
         if (rootItems != null) {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
+                final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
             treeTable.setRoot(rootTreeItem);
@@ -402,10 +413,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers, loggingService);
+            final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
         treeTable.setRoot(rootTreeItem);
@@ -470,7 +481,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
                             .map(ds3 -> new kotlin.Pair<>( ds3.getFullName(), ds3.getParent())) .collect(GuavaCollectors.immutableList());
-                    getJobFactory.create(fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return Unit.INSTANCE; });
+                    getJobFactory.create(fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return Unit.INSTANCE;}, null);
                 });
     }
 
@@ -486,7 +497,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers, loggingService);
+        final GetMediaDeviceTask getMediaDeviceTask = getMediaDeviceTaskFactory.create(rootItems, rootTreeItem);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);

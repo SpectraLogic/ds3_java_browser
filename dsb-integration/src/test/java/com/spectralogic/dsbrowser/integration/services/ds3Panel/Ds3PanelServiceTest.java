@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.integration.services.ds3Panel;
 
 import com.google.common.collect.ImmutableList;
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request;
@@ -24,11 +25,18 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
+import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -40,9 +48,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertTrue;
@@ -50,6 +56,9 @@ import static org.junit.Assert.assertTrue;
 
 public class Ds3PanelServiceTest {
 
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
+    private final LoggingService loggingService = new LoggingServiceFake();
+    private final DateTimeUtils dateTimeUtils = new DateTimeUtils();
     private final Workers workers = new Workers();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
@@ -59,6 +68,8 @@ public class Ds3PanelServiceTest {
     private static final String DS3_PANEL_SERVICE_TEST_BUCKET_NAME = "Ds3PanelServiceTest_Bucket";
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new AlertService(resourceBundle)));
 
     @BeforeClass
     public static void setUp() {
@@ -73,7 +84,7 @@ public class Ds3PanelServiceTest {
         try {
             envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
             envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
@@ -99,7 +110,7 @@ public class Ds3PanelServiceTest {
                 workers.execute(createBucketTask);
 
                 //Checking is bucket empty
-                successFlag = Ds3PanelService.checkIfBucketEmpty(bucketName, session);
+                successFlag = ds3PanelService.checkIfBucketEmpty(bucketName, session);
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -118,7 +129,7 @@ public class Ds3PanelServiceTest {
             try {
                 HELPERS.ensureBucketExists(DS3_PANEL_SERVICE_TEST_BUCKET_NAME, envDataPolicyId);
 
-                final Optional<ImmutableList<Bucket>> searchableBuckets = Ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
+                final Optional<ImmutableList<Bucket>> searchableBuckets = ds3PanelService.setSearchableBucket(null, session, Mockito.mock(TreeTableView.class));
 
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);

@@ -21,7 +21,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
@@ -59,16 +59,17 @@ public class CreateFolderPresenter implements Initializable {
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
-    private final LazyAlert alert;
+    private final AlertService alert;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,
                                  final ResourceBundle resourceBundle,
-                                 final LoggingService loggingService) {
+                                 final LoggingService loggingService,
+                                 final AlertService alertService) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = alertService;
     }
 
     @Override

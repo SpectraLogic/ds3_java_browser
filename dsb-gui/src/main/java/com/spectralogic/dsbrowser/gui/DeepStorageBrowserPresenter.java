@@ -29,7 +29,6 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTre
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -117,30 +116,27 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
     private final ShowCachedJobSettings showCachedJobSettings;
-    private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
     private final ShutdownService shutdownService;
+    private final CancelJobsWorker cancelJobsWorker;
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
-                                       final ResourceBundle resourceBundle,
-                                       final Ds3Common ds3Common,
-                                       final JobInterruptionStore jobInterruptionStore,
-                                       final SettingsStore settingsStore,
-                                       final Workers workers,
-                                       final LoggingService loggingService,
-                                       final DateTimeUtils dateTimeUtils,
-                                       final ShutdownService shutdownService) {
+            final ResourceBundle resourceBundle,
+            final Ds3Common ds3Common,
+            final JobInterruptionStore jobInterruptionStore,
+            final SettingsStore settingsStore,
+            final LoggingService loggingService,
+            final CancelJobsWorker cancelJobsWorker,
+            final ShutdownService shutdownService) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.jobInterruptionStore = jobInterruptionStore;
         this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
-        this.workers = workers;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
         this.shutdownService = shutdownService;
+        this.cancelJobsWorker = cancelJobsWorker;
     }
 
     @Override
@@ -149,7 +145,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             registerLoggingServiceListener();
 
             LOG.info("Loading Main view");
-            loggingService.logMessage(resourceBundle.getString("loadMainView"), LogType.INFO);
+            loggingService.logInternationalMessage("loadMainView", LogType.INFO);
 
             initMenus(); //Setting up labels from resource file
 
@@ -176,7 +172,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             });
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
-            loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
+            loggingService.logInternationalMessage("errorWhileCreatingMainView", LogType.ERROR);
         }
     }
 
@@ -249,7 +245,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
             } else {
                 recoverInterruptedJobsButton.setDisable(true);
-                loggingService.logMessage(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
+                loggingService.logInternationalMessage("noInterruptedJobs", LogType.INFO);
             }
         }));
     }
@@ -274,7 +270,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
             closeResponse.ifPresent(cR -> {
                 if (cR.equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
+                    cancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore);
                 }
             });
             event.consume();

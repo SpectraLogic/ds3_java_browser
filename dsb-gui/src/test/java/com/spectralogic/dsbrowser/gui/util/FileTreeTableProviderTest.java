@@ -32,7 +32,7 @@ public class FileTreeTableProviderTest {
 
     @Test
     public void getRoot() throws Exception {
-        final Stream<FileTreeModel> root = new FileTreeTableProvider().getRoot("My Computer", new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        final Stream<FileTreeModel> root = new FileTreeTableProvider(new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getRoot("My Computer");
         final List<FileTreeModel> listRoot = root.collect(Collectors.toList());
         assertTrue(com.spectralogic.ds3client.utils.Guard.isNotNullAndNotEmpty(listRoot));
     }
@@ -50,7 +50,7 @@ public class FileTreeTableProviderTest {
         final File filePath ;
         if (url != null) {
             filePath = new File(url.getFile());
-            final Stream<FileTreeModel> listForDir = new FileTreeTableProvider().getListForDir(new FileTreeModel(filePath.toPath(), FileTreeModel.Type.Directory, 0, 0, ""), new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            final Stream<FileTreeModel> listForDir = new FileTreeTableProvider(new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getListForDir(new FileTreeModel(filePath.toPath(), FileTreeModel.Type.Directory, 0, 0, ""));
             Assert.assertEquals(filePath.list().length, listForDir.collect(Collectors.toList()).size());
         }
         else {

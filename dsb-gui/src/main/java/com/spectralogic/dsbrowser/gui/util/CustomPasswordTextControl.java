@@ -25,8 +25,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
 
 
 public class CustomPasswordTextControl extends GridPane {

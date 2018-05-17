@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -33,6 +34,7 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -54,18 +56,21 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     private final FileTreeModel fileTreeModel;
     private boolean accessedChildren = false;
     private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
     private final LoggingService loggingService;
 
-    public FileTreeTableItem(final FileTreeTableProvider provider, final FileTreeModel fileTreeModel, final DateTimeUtils dateTimeUtils, final Workers workers, final LoggingService loggingService) {
+    @Inject
+    public FileTreeTableItem(
+            final FileTreeTableProvider provider,
+            @Assisted final FileTreeModel fileTreeModel,
+            final Workers workers,
+            final LoggingService loggingService) {
         super(fileTreeModel);
         this.fileTreeModel = fileTreeModel;
         this.leaf = getLeaf(fileTreeModel.getPath());
         this.provider = provider;
         this.setGraphic(getGraphicType(fileTreeModel)); // sets the default icon
         this.workers = workers;
-        this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
     }
 
@@ -162,13 +167,17 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
         final Path path = fileTreeModel.getPath();
         if (path != null && !getLeaf(path)) {
             final List<FileTreeTableItem> fileChildren = provider
-                    .getListForDir(fileTreeModel, dateTimeUtils)
+                    .getListForDir(fileTreeModel)
                     .filter(ftm -> ftm.getType() != BaseTreeModel.Type.Error)
-                    .map(ftm -> new FileTreeTableItem(provider, ftm, dateTimeUtils, workers, loggingService))
+                    .map(fileTreeModel -> new FileTreeTableItem(provider, fileTreeModel, workers, loggingService))
                     .sorted(Comparator.comparing(t -> t.getValue().getType().toString()))
                     .collect(Collectors.toList());
             children.setAll(fileChildren);
         }
+    }
+
+    public interface FileTreeTableItemFactory {
+        public FileTreeTableItem create(final FileTreeModel fileTreeModel);
     }
 
 }

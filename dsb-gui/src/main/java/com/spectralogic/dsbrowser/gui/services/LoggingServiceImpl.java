@@ -20,8 +20,19 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ResourceBundle;
+
+@Singleton
 public class LoggingServiceImpl implements LoggingService {
     private final PublishSubject<LogEvent> subject  = PublishSubject.create();
+    private final ResourceBundle resourceBundle;
+
+    @Inject
+    public LoggingServiceImpl (final ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
+    }
 
     @Override
     public Observable<LogEvent> getLoggerObservable() {
@@ -33,4 +44,8 @@ public class LoggingServiceImpl implements LoggingService {
         subject.onNext(new LogEvent(message, logType)); // log an event to all subscribers (in our case: DeepStorageBrowserPresenter::logText())
     }
 
+    @Override
+    public void logInternationalMessage(final String messageBundleName, final LogType logType) {
+       logMessage(resourceBundle.getString(messageBundleName), logType);
+    }
 }

@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.fxmisc.richtext.InlineCssTextArea?>
 <!--
   ~ *******************************************************************************
   ~    Copyright 2016-2017 Spectra Logic Corporation. All Rights Reserved.

@@ -14,4 +14,9 @@ public class LoggingServiceFake implements LoggingService {
     public void logMessage(final String message, final LogType logType) {
         //Just do nothing
     }
+
+    @Override
+    public void logInternationalMessage(final String messageBundleName, final LogType logType) {
+        //Just do nothing
+    }
 }

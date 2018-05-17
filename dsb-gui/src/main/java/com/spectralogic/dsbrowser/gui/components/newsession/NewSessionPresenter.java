@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.newsession;
 
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
@@ -78,22 +77,23 @@ public class NewSessionPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final Ds3SessionStore ds3SessionStore;
     private final SavedSessionStore savedSessionStore;
+    private final AlertService alert;
+    private final NewSessionModelValidation newSessionModelValidation;
     private final CreateConnectionTask createConnectionTask;
-    private final BuildInfoService buildInfoService;
-    private final LazyAlert alert;
 
     @Inject
     public NewSessionPresenter(final ResourceBundle resourceBundle,
             final Ds3SessionStore ds3SessionStore,
             final SavedSessionStore savedSessionStore,
+            final NewSessionModelValidation newSessionModelValidation,
             final CreateConnectionTask createConnectionTask,
-            final BuildInfoService buildInfoService) {
+            final AlertService alertService) {
         this.resourceBundle = resourceBundle;
+        this.newSessionModelValidation = newSessionModelValidation;
         this.ds3SessionStore = ds3SessionStore;
         this.savedSessionStore = savedSessionStore;
         this.createConnectionTask = createConnectionTask;
-        this.buildInfoService = buildInfoService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = alertService;
     }
 
     @Override
@@ -169,7 +169,7 @@ public class NewSessionPresenter implements Initializable {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
                         final Boolean isDefaultSession = rowData.getDefaultSession();
-                        final Session connection = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), resourceBundle, buildInfoService);
+                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession));
                         sessionValidates(connection);
                     } else {
                         alert.info("alreadyExistSession");
@@ -230,8 +230,8 @@ public class NewSessionPresenter implements Initializable {
         LOG.info("Performing session validation");
         if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
                 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
-            if (NewSessionModelValidation.validationNewSession(model)) {
-                final Session session = CreateConnectionTask.createConnection(model, resourceBundle, buildInfoService);
+            if (newSessionModelValidation.validationNewSession(model)) {
+                final Session session = createConnectionTask.createConnection(model);
                 sessionValidates(session);
             }
         } else {
@@ -242,7 +242,7 @@ public class NewSessionPresenter implements Initializable {
     public void saveSession() {
         LOG.info("Creating new session");
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
-        if (NewSessionModelValidation.validationNewSession(newSessionModel)) {
+        if (newSessionModelValidation.validationNewSession(newSessionModel)) {
             if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(SavedSession::getDefaultSession)
                         .collect(GuavaCollectors.immutableList());
@@ -255,9 +255,8 @@ public class NewSessionPresenter implements Initializable {
                             newSessionModel.setDefaultSession(true);
                             final Optional<SavedSession> first = defaultSession.stream().findFirst();
                             if (first.isPresent()) {
-                                final Session session = CreateConnectionTask.createConnection(
-                                        SessionModelService.setSessionModel(first.get(), false),
-                                        resourceBundle, buildInfoService);
+                                final Session session = createConnectionTask.createConnection(
+                                        SessionModelService.setSessionModel(first.get(), false));
                                 if (session != null) {
                                     savedSessionStore.addSession(session);
                                     try {
@@ -274,7 +273,7 @@ public class NewSessionPresenter implements Initializable {
                     });
                 }
             }
-            final Session session = CreateConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService);
+            final Session session = createConnectionTask.createConnection(newSessionModel);
             if (session != null) {
                 final String message = buildSessionAlert(session);
                 final int i = savedSessionStore.addSession(session);

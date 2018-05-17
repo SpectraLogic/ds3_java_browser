@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
-import javafx.scene.layout.HBox;
 
 import java.io.Serializable;
 
@@ -27,12 +26,10 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
     private final String fullName;
     private final long size;
     private final String lastModified;
-    private final transient HBox physicalPlacementHBox;
     private final String owner;
     private final boolean searchOn;
     private String marker = "";
-    private String fullPath;
-    private long logicalCapacity;
+    private final String fullPath;
 
     public Ds3TreeTableValue(final String bucketName,
             final String name,
@@ -40,8 +37,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
             final long size,
             final String lastModified,
             final String owner,
-            final boolean searchOn,
-            final HBox physicalPlacementHBox) {
+            final boolean searchOn) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
@@ -49,7 +45,6 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         this.type = type;
         this.size = size;
         this.lastModified = lastModified;
-        this.physicalPlacementHBox = physicalPlacementHBox;
         this.owner = owner;
         this.searchOn = searchOn;
     }
@@ -62,7 +57,6 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
             final String lastModified,
             final String owner,
             final boolean searchOn,
-            final HBox physicalPlacementHBox,
             final String marker) {
         this.bucketName = bucketName;
         this.fullName = name;
@@ -70,7 +64,6 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         this.type = type;
         this.size = size;
         this.lastModified = lastModified;
-        this.physicalPlacementHBox = physicalPlacementHBox;
         this.owner = owner;
         this.searchOn = searchOn;
         this.marker = marker;
@@ -95,17 +88,13 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         stringBuilder.append(StringConstants.FORWARD_SLASH);
         final int index = fullPath.lastIndexOf("/");
         if (index != -1) {
-            stringBuilder.append(fullPath.substring(0, index));
+            stringBuilder.append(fullPath);
         }
         return stringBuilder.toString();
     }
 
     public boolean isSearchOn() {
         return searchOn;
-    }
-
-    public HBox getPhysicalPlacementHBox() {
-        return physicalPlacementHBox;
     }
 
     public String getName() {
@@ -167,7 +156,6 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
             return sub;
         }
 
-
     }
 
     public String getOwner() {
@@ -178,19 +166,4 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         return fullPath;
     }
 
-    public void setFullPath(final String fullPath) {
-        this.fullPath = fullPath;
-    }
-
-    public long getLogicalCapacity() {
-        return logicalCapacity;
-    }
-
-    public void setLogicalCapacity(final long logicalCapacity) {
-        this.logicalCapacity = logicalCapacity;
-    }
-
-    public String getParentDir() {
-        return getParentDir(this.getFullName());
-    }
 }

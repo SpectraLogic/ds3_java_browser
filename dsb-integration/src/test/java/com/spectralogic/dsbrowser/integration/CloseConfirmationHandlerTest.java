@@ -39,6 +39,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
@@ -59,7 +60,6 @@ import static org.junit.Assert.*;
 
 public class CloseConfirmationHandlerTest {
     private static final JobWorkers jobWorkers = new JobWorkers();
-    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
     private static CloseConfirmationHandler handler;
@@ -68,6 +68,8 @@ public class CloseConfirmationHandlerTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Path path;
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setConnection() {
@@ -81,7 +83,7 @@ public class CloseConfirmationHandlerTest {
                     new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
             try {
                 path = ResourceUtils.loadFileResource("files/");
@@ -119,12 +121,12 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setAccessKey(client.getConnectionDetails().getCredentials().getClientId());
                 newSessionModel.setSecretKey(client.getConnectionDetails().getCredentials().getKey());
                 newSessionModel.setProxyServer(null);
-                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
-                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService));
+                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
+                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session
-                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore();
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
                 final Optional<SavedSession> savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst();
 

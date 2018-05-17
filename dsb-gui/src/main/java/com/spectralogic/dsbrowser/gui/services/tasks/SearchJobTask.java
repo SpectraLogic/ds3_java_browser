@@ -49,12 +49,12 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     private final LoggingService loggingService;
 
     public SearchJobTask(final List<Bucket> searchableBuckets,
-                         final String searchText,
-                         final Session session,
-                         final Workers workers,
-                         final Ds3Common ds3Common,
-                         final DateTimeUtils dateTimeUtils,
-                         final LoggingService loggingService) {
+            final String searchText,
+            final Session session,
+            final Workers workers,
+            final Ds3Common ds3Common,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService) {
         this.searchableBuckets = searchableBuckets;
         this.searchText = searchText.trim();
         this.session = session;
@@ -102,19 +102,13 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
      * @return list of treeTableItem
      */
     private List<Ds3TreeTableItem> buildTreeItems(final List<DetailedS3Object> detailedS3Objects,
-                                                  final String bucketName, final DateTimeUtils dateTimeUtils) {
+            final String bucketName, final DateTimeUtils dateTimeUtils) {
         final List<Ds3TreeTableItem> list = new ArrayList<>();
         detailedS3Objects.forEach(itemObject -> {
                     if (!itemObject.getType().equals(S3ObjectType.FOLDER)) {
-                        HBox physicalPlacementHBox = null;
-                        //TO get the physical placement of the objects
-                        if (itemObject.getBlobs() != null && !Guard.isNullOrEmpty(itemObject.getBlobs().getObjects())) {
-                            final List<BulkObject> objects = itemObject.getBlobs().getObjects();
-                            physicalPlacementHBox = getConfiguredHBox(objects);
-                        }
                         final Ds3TreeTableValue treeTableValue = new Ds3TreeTableValue(bucketName, itemObject.getName(),
                                 Ds3TreeTableValue.Type.File, itemObject.getSize(),
-                                dateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
+                                dateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true);
                         list.add(new Ds3TreeTableItem(treeTableValue.getFullName(), session,
                                 treeTableValue, workers, ds3Common, dateTimeUtils, loggingService));
                     }
