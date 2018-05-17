@@ -56,6 +56,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Presenter
@@ -396,6 +397,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void changeRootDir(final String rootDir) {
+        final ImmutableList<TreeTableColumn<FileTreeModel, ?>> sortOrder = treeTable.getSortOrder().stream().collect(GuavaCollectors.immutableList());
         localPathIndicator.setText(rootDir);
         fileRootItem = rootDir;
         final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir);
@@ -409,6 +411,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             });
             treeTable.setRoot(rootTreeItem);
             treeTable.getSelectionModel().clearSelection();
+            treeTable.getSortOrder().addAll(sortOrder);
         } else {
             LOG.info("Already at root directory");
         }

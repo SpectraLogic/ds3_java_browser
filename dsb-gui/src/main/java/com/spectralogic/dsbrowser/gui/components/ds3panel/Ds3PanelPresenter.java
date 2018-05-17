@@ -188,6 +188,7 @@ public class Ds3PanelPresenter implements Initializable {
      */
     private void goToParentDirectory() {
         //if root is null back button will not work
+        final ImmutableList<TreeTableColumn<Ds3TreeTableValue, ?>> sortColumns = getTreeTableView().getSortOrder().stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = getTreeTableView().getRoot();
         if (null != root.getValue() && null != root.getParent()) {
             if (null == root.getParent().getValue()) {
@@ -201,6 +202,7 @@ public class Ds3PanelPresenter implements Initializable {
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
             getTreeTableView().refresh();
+            getTreeTableView().getSortOrder().addAll(sortColumns);
         }
     }
 
