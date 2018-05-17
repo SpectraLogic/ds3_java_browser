@@ -60,16 +60,19 @@ public class CreateFolderPresenter implements Initializable {
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
     private final AlertService alert;
+    private final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,
-                                 final ResourceBundle resourceBundle,
-                                 final LoggingService loggingService,
-                                 final AlertService alertService) {
+            final ResourceBundle resourceBundle,
+            final LoggingService loggingService,
+            final AlertService alertService,
+            final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
         this.alert = alertService;
+        this.createFolderTaskFactory = createFolderTaskFactory;
     }
 
     @Override
@@ -102,9 +105,7 @@ public class CreateFolderPresenter implements Initializable {
     public void createFolder() {
         //Instantiating create folder task
         final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
-        final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                createFolderModel.getBucketName().trim(), folderWithPath,
-                loggingService, resourceBundle);
+        final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), folderWithPath);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
