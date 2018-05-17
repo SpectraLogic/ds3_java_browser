@@ -116,7 +116,7 @@ public class CreateFolderPresenter implements Initializable {
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
             final Throwable e = event.getSource().getException();
-            if (e instanceof FailedRequestException) {
+            if (e instanceof FailedRequestException && ((FailedRequestException) e).getError().getCode().equals("OBJECT_ALREADY_EXISTS")) {
                 alert.error("folderAlreadyExists");
             } else {
                 alert.error(CREATE_FOLDER_ERR_LOGS);
