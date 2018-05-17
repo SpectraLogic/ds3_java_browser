@@ -63,6 +63,7 @@ import java.util.stream.Stream;
 public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
+    private static final String LOCAL = "local";
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
@@ -89,7 +90,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final Workers workers;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final DataFormat local = new DataFormat("local");
+    private final DataFormat local = new DataFormat(LOCAL);
     private final AlertService alert;
     private final DateTimeUtils dateTimeUtils;
     private final PutJobFactory putJobFactory;
@@ -243,7 +244,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initListeners() {
         refreshButton.setOnAction(SafeHandler.logHandle(event -> refreshFileTreeView()));
-        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.SETTING_FILE_PATH))));
+        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.USER_HOME))));
         toMyComputer.setOnAction(SafeHandler.logHandle(event -> changeRootDir(StringConstants.ROOT_LOCATION)));
         transferButton.setOnAction(SafeHandler.logHandle(event -> transferToBlackPearl()));
         parentDirectoryButton.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
@@ -280,8 +281,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initProgressAndPathIndicators() {
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
-        localPathIndicator.setText(StringConstants.ROOT_LOCATION);
+        final String userHome = System.getProperty(StringConstants.USER_HOME);
+        fileRootItem = userHome;
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(userHome);
+        localPathIndicator.setText(userHome);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(Constants.PROGRESS_BAR_SIZE, Constants.PROGRESS_BAR_SIZE);

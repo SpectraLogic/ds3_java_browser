@@ -40,7 +40,7 @@ import java.util.*;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
-    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.USER_HOME), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
     private final ObservableList<SavedSession> sessions;
     private boolean dirty = false;
 

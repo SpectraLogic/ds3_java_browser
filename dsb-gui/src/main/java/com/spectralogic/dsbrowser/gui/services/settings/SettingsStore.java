@@ -37,7 +37,7 @@ public class SettingsStore {
 
     private final static Logger LOG = LoggerFactory.getLogger(SettingsStore.class);
 
-    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH),
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.USER_HOME),
             StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SETTING_FILE_NAME);
 
     @JsonProperty("logSettings")
