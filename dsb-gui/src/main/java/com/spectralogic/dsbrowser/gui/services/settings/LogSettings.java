@@ -55,7 +55,7 @@ public class LogSettings {
     }
 
     private static LogSettings createDefault() {
-        final String logPath = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH),
+        final String logPath = Paths.get(System.getProperty(StringConstants.USER_HOME),
                 StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.LOG).toString();
         return new LogSettings(logPath, LOG_SIZE_IN_MB, MAXIMUM_NUMBER_OF_LOG_FILES, true, false);
     }

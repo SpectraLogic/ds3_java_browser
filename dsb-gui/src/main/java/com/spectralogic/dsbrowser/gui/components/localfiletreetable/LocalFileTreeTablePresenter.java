@@ -244,7 +244,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initListeners() {
         refreshButton.setOnAction(SafeHandler.logHandle(event -> refreshFileTreeView()));
-        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.SETTING_FILE_PATH))));
+        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.USER_HOME))));
         toMyComputer.setOnAction(SafeHandler.logHandle(event -> changeRootDir(StringConstants.ROOT_LOCATION)));
         transferButton.setOnAction(SafeHandler.logHandle(event -> transferToBlackPearl()));
         parentDirectoryButton.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
@@ -281,7 +281,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initProgressAndPathIndicators() {
-        final String userHome = System.getProperty(StringConstants.SETTING_FILE_PATH);
+        final String userHome = System.getProperty(StringConstants.USER_HOME);
         fileRootItem = userHome;
         final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(userHome);
         localPathIndicator.setText(userHome);

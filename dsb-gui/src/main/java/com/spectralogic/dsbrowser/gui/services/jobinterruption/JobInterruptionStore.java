@@ -33,7 +33,7 @@ import java.nio.file.StandardOpenOption;
 public class JobInterruptionStore {
     private final static Logger LOG = LoggerFactory.getLogger(JobInterruptionStore.class);
 
-    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.JOB_INTERRUPTION_STORE);
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.USER_HOME), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.JOB_INTERRUPTION_STORE);
 
     @JsonProperty("jobIdsModel")
     private final JobIdsModel jobIdsModel;
