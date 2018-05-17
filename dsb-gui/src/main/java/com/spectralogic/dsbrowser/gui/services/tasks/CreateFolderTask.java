@@ -18,18 +18,11 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
-import com.spectralogic.ds3client.networking.FailedRequestException;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 
 public class CreateFolderTask extends Ds3Task<Void> {

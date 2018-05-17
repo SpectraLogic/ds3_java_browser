@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 public class CreateFolderModel {
 
