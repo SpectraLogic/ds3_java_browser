@@ -181,7 +181,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         contextMenu.getItems().addAll(metaData, physicalPlacement, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
 
-    @SuppressWarnings("unchecked")
     private void initTreeTableView() {
 
         ds3TreeTable.rootProperty().addListener((observable, oldValue, newValue) -> {
@@ -509,6 +508,8 @@ public class Ds3TreeTablePresenter implements Initializable {
         } else if (selectedItems.stream().map(TreeItem::getValue).filter(Objects::nonNull).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not delete from here. Please go to specific location and delete object(s)");
             deleteFile.setDisable(false);
+            metaData.setDisable(false);
+            physicalPlacement.setDisable(false);
         } else {
             final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
 
