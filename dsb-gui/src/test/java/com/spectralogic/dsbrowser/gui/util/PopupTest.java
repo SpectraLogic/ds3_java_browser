@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Test;
@@ -25,13 +26,14 @@ import java.util.concurrent.TimeUnit;
 
 
 public class PopupTest {
+    private final static Popup popup = new Popup(new Ds3Common());
 
     @Test
     public void show() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
-            Popup.show(new AboutView().getView(), "About");
+            popup.show(new AboutView().getView(), "About");
         });
         latch.await(10, TimeUnit.SECONDS);
     }

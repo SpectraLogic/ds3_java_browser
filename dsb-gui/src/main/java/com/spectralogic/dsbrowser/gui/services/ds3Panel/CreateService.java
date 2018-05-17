@@ -51,6 +51,8 @@ public final class CreateService {
     private final Ds3PanelService ds3PanelService;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final AlertService alert;
+    private final CreateBucketPopup createBucketPopup;
+    private final CreateFolderPopup createFolderPopup;
 
     @Inject
     public CreateService(
@@ -60,6 +62,8 @@ public final class CreateService {
             final ResourceBundle resourceBundle,
             final Ds3PanelService ds3PanelService,
             final AlertService alertService,
+            final CreateBucketPopup createBucketPopup,
+            final CreateFolderPopup createFolderPopup,
             final RefreshCompleteViewWorker refreshCompleteViewWorker) {
        this.ds3Common = ds3Common;
        this.workers = workers;
@@ -68,6 +72,8 @@ public final class CreateService {
        this.ds3PanelService = ds3PanelService;
        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
        this.alert = alertService;
+       this.createBucketPopup = createBucketPopup;
+       this.createFolderPopup = createFolderPopup;
     }
 
     public void createBucketPrompt() {
@@ -85,7 +91,7 @@ public final class CreateService {
             if (value.isPresent()) {
                 LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
                 Platform.runLater(() -> {
-                    CreateBucketPopup.show(value.get(), resourceBundle);
+                    createBucketPopup.show(value.get());
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });
             } else {
@@ -133,8 +139,8 @@ public final class CreateService {
                     .map(Ds3TreeTableValue::getBucketName)
                     .distinct().collect(GuavaCollectors.immutableList());
             final Optional<String> bucketElement = buckets.stream().findFirst();
-            bucketElement.ifPresent(bucket -> CreateFolderPopup.show(
-                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), resourceBundle));
+            bucketElement.ifPresent(bucket -> createFolderPopup.show(
+                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket)));
 
             ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }

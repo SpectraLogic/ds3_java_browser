@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.integration;
 
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
@@ -39,7 +40,7 @@ public class NewSessionModelValidationTest {
         model.setAccessKey("testAccessId");
         model.setSecretKey("testSecretKey");
         model.setDefaultSession(true);
-        assertTrue(new NewSessionModelValidation(new AlertService(resourceBundle)).validationNewSession(model));
+        assertTrue(new NewSessionModelValidation(new AlertService(resourceBundle, new Ds3Common())).validationNewSession(model));
     }
 
 }

@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
+import javafx.stage.Window;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -127,5 +128,9 @@ public class Ds3Common {
 
     public LocalFileTreeTablePresenter getLocalFileTreeTablePresenter() {
         return localFileTreeTablePresenter;
+    }
+
+    public Window getWindow() {
+        return this.getLocalTreeTableView().getScene().getWindow();
     }
 }

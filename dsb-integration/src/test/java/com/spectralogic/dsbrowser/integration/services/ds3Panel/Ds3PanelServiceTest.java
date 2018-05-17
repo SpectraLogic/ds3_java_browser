@@ -28,15 +28,13 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.AlertService;
-import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -69,7 +67,7 @@ public class Ds3PanelServiceTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
-    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new AlertService(resourceBundle)));
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle, new Ds3Common()), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new AlertService(resourceBundle, new Ds3Common())), new Popup(new Ds3Common()),new PhysicalPlacementPopup(resourceBundle, new Ds3Common()));
 
     @BeforeClass
     public static void setUp() {

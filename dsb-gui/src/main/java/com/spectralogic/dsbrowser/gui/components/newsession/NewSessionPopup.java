@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 
 import javax.inject.Inject;
@@ -24,13 +25,18 @@ import java.util.ResourceBundle;
 @Singleton
 public class NewSessionPopup {
     private final ResourceBundle resourceBundle;
+    private final Popup popup;
 
     @Inject
-    public NewSessionPopup(final ResourceBundle resourceBundle) {
+    public NewSessionPopup(
+            final ResourceBundle resourceBundle, final Ds3Common ds3Common,
+            final Popup popup
+    ) {
        this.resourceBundle = resourceBundle;
+       this.popup = popup;
     }
     public void show() {
         final NewSessionView view = new NewSessionView();
-        Popup.show(view.getView(), resourceBundle.getString("sessionsMenuItem"));
+        popup.show(view.getView(), resourceBundle.getString("sessionsMenuItem"));
     }
 }

@@ -17,11 +17,22 @@ package com.spectralogic.dsbrowser.gui.components.createfolder;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
 
+import javax.inject.Inject;
 import java.util.ResourceBundle;
 
-public final class CreateFolderPopup {
-    public static void show(final CreateFolderModel createFolderModel, final ResourceBundle resourceBundle) {
+public class CreateFolderPopup {
+
+    private final Popup popup;
+    private final ResourceBundle resourceBundle;
+
+    @Inject
+    public CreateFolderPopup(final Popup popup, final ResourceBundle resourceBundle) {
+        this.popup = popup;
+        this.resourceBundle = resourceBundle;
+    }
+
+    public void show(final CreateFolderModel createFolderModel) {
         final CreateFolderView createFolderView = new CreateFolderView(createFolderModel);
-        Popup.show(createFolderView.getView(), resourceBundle.getString("createFolderButton"));
+        popup.show(createFolderView.getView(), resourceBundle.getString("createFolderButton"));
     }
 }

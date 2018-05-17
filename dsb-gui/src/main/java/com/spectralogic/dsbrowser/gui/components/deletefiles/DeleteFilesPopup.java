@@ -34,11 +34,17 @@ public class DeleteFilesPopup {
 
     private final Ds3Common ds3Common;
     private final ResourceBundle resourceBundle;
+    private final Popup popup;
 
     @Inject
-    public DeleteFilesPopup(final Ds3Common ds3Common, final ResourceBundle resourceBundle) {
+    public DeleteFilesPopup(
+            final Ds3Common ds3Common,
+            final ResourceBundle resourceBundle,
+            final Popup popup
+    ) {
         this.ds3Common = ds3Common;
         this.resourceBundle = resourceBundle;
+        this.popup = popup;
     }
 
 
@@ -53,11 +59,11 @@ public class DeleteFilesPopup {
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
             final DeleteItemView deleteView) {
         if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.File)) {
-            Popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
         } else if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.Directory)) {
-            Popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"));
         } else {
-            Popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"));
         }
 
     }

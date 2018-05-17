@@ -16,6 +16,7 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
@@ -38,11 +39,13 @@ public class AlertService {
     private static final String WARNING_TITLE = "warningTitle";
 
     private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
     private Alert alert = null;
 
     @Inject
-    public AlertService(final ResourceBundle resourceBundle) {
+    public AlertService(final ResourceBundle resourceBundle, final Ds3Common ds3Common) {
         this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
     }
 
 
@@ -50,6 +53,7 @@ public class AlertService {
         if (alert == null) {
             alert = new Alert(alertType);
         }
+        alert.initOwner(ds3Common.getWindow());
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setAlertType(alertType);

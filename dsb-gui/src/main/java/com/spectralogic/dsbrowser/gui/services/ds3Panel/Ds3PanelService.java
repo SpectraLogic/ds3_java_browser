@@ -70,7 +70,8 @@ public final class Ds3PanelService {
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final AlertService alert;
     private final VersionPopup versionPopup;
-    private Instant lastRefresh = Instant.now();
+    private final Popup popup;
+    private final PhysicalPlacementPopup physicalPlacementPopup;
 
     @Inject
     public Ds3PanelService(
@@ -81,7 +82,9 @@ public final class Ds3PanelService {
             final LoggingService loggingService,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
             final AlertService alertService,
-            final VersionPopup versionPopup
+            final VersionPopup versionPopup,
+            final Popup popup,
+            final PhysicalPlacementPopup physicalPlacementPopup
     ) {
         this.versionPopup = versionPopup;
         this.ds3Common = ds3Common;
@@ -91,6 +94,8 @@ public final class Ds3PanelService {
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
         this.alert = alertService;
+        this.popup = popup;
+        this.physicalPlacementPopup = physicalPlacementPopup;
     }
 
     /**
@@ -166,13 +171,6 @@ public final class Ds3PanelService {
         }
     }
 
-    public void throttledRefresh(final TreeItem<Ds3TreeTableValue> modifiedTreeItem) {
-        if (modifiedTreeItem != null && lastRefresh.plus(Duration.ofSeconds(5)).isBefore(Instant.now())) {
-            lastRefresh = Instant.now();
-            refresh(modifiedTreeItem);
-        }
-    }
-
     public void showPhysicalPlacement() {
         ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
@@ -198,7 +196,7 @@ public final class Ds3PanelService {
         workers.execute(getPhysicalPlacement);
         getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
-            PhysicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue(), resourceBundle);
+            physicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue());
         })));
     }
 
@@ -222,7 +220,7 @@ public final class Ds3PanelService {
         getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching metadata popup");
             final MetadataView metadataView = new MetadataView((Ds3Metadata) getMetadata.getValue());
-            Popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
+            popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
         })));
     }
 

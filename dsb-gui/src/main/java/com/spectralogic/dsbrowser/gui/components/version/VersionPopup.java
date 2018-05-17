@@ -70,12 +70,13 @@ public class VersionPopup {
                 alertService.warning("unableToGetVersions");
             } else {
                 final Stage popup = new Stage();
+                popup.initOwner(ds3Common.getDs3TreeTableView().getScene().getWindow());
                 final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
                 final Scene popupScene = new Scene(view.getView());
-
                 popup.initModality(Modality.APPLICATION_MODAL);
                 popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
                 popup.setScene(popupScene);
+                popup.centerOnScreen();
                 popup.setTitle(resourceBundle.getString("versionView"));
                 popup.setAlwaysOnTop(false);
                 popup.setResizable(true);

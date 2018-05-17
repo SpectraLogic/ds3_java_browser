@@ -261,6 +261,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         }
         final Path rootPath = Paths.get(fileRootItem);
         final TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.initOwner(ds3Common.getWindow());
         inputDialog.setContentText(resourceBundle.getString("createLocalFolder"));
         inputDialog.setGraphic(null);
         inputDialog.setHeaderText(StringConstants.EMPTY_STRING);

@@ -15,16 +15,30 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+
+import javax.inject.Inject;
 
 
-public final class Popup {
-    public static void show(final Parent parent, final String title) {
+public class Popup {
+
+    private final Ds3Common ds3Common;
+
+    @Inject
+    public Popup(final Ds3Common ds3Common) {
+        this.ds3Common =  ds3Common;
+    }
+
+    public void show(final Parent parent, final String title) {
         final Stage popup = new Stage();
+        popup.initOwner(ds3Common.getWindow());
+
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.setMaxWidth(1000);
         final Scene popupScene = new Scene(parent);

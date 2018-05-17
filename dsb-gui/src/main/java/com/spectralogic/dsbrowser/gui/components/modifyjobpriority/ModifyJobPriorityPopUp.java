@@ -25,15 +25,17 @@ import java.util.ResourceBundle;
 public final class ModifyJobPriorityPopUp {
 
     private final ResourceBundle resourceBundle;
+    private final Popup popup;
 
     @Inject
-    public ModifyJobPriorityPopUp(final ResourceBundle resourceBundle) {
+    public ModifyJobPriorityPopUp(final ResourceBundle resourceBundle, Popup popup) {
         this.resourceBundle = resourceBundle;
+        this.popup = popup;
     }
 
     public void show(final ModifyJobPriorityModel value) {
         final ModifyJobPriorityView view = new ModifyJobPriorityView(value);
-        Popup.show(view.getView(), resourceBundle.getString("changeJobPriority"));
+        popup.show(view.getView(), resourceBundle.getString("changeJobPriority"));
     }
 
 }
