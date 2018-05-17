@@ -283,7 +283,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void initProgressAndPathIndicators() {
         final String userHome = System.getProperty(StringConstants.SETTING_FILE_PATH);
         fileRootItem = userHome;
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(userHome, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(userHome);
         localPathIndicator.setText(userHome);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
