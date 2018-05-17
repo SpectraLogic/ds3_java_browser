@@ -505,7 +505,6 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
             sizeColumn.setCellFactory(c -> new ValueTreeTableCell<>());
-            //treeTable.sortPolicyProperty().set( new SortPolicyCallback(treeTable));
             treeTable.setSortMode(TreeSortMode.ALL_DESCENDANTS);
         }));
         workers.execute(getMediaDeviceTask);

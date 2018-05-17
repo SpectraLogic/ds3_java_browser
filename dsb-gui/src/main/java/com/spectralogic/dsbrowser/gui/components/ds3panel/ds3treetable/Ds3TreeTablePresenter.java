@@ -234,7 +234,6 @@ public class Ds3TreeTablePresenter implements Initializable {
         }));
 
         ds3TreeTable.setRowFactory(view -> setTreeTableViewRowBehaviour());
-        //ds3TreeTable.sortPolicyProperty().set(new SortPolicyCallback(ds3Common.getDs3TreeTableView()));
         ds3TreeTable.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
         final TreeItem<Ds3TreeTableValue> rootTreeItem = new TreeItem<>();
