@@ -25,6 +25,7 @@
   ~ *******************************************************************************
   -->
 
+<?import javafx.scene.control.TextField?>
 <VBox fx:id="metadataVBox" maxHeight="100000" maxWidth="100000" minHeight="1.0" minWidth="1.0" prefHeight="300.0" prefWidth="600.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
     <children>
         <HBox fx:id="metadataHbox" prefWidth="440.0" spacing="10.0">
@@ -34,11 +35,11 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectName" prefHeight="17.0" prefWidth="482.0">
+                <TextField fx:id="objectName" prefHeight="17.0" prefWidth="482.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false">
                     <tooltip>
                         <Tooltip fx:id="nameTooltip" />
                     </tooltip>
-                </Label>
+                </TextField>
             </children>
         </HBox>
         <HBox spacing="10.0">

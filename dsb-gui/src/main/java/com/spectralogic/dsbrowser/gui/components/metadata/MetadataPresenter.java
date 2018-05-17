@@ -38,7 +38,7 @@ public class MetadataPresenter implements Initializable {
     private static final Logger LOG = LoggerFactory.getLogger(MetadataPresenter.class);
 
     @FXML
-    private Label objectName;
+    private TextField objectName;
 
     @FXML
     private Label objectSize;
