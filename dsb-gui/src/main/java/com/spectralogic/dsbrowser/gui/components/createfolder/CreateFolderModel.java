@@ -26,10 +26,6 @@ public class CreateFolderModel {
 
     private final String bucketName;
 
-    public CreateFolderModel() {
-        this(null, StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING);
-    }
-
     public CreateFolderModel(final Ds3Client client, final String location, final String bucketName) {
         this.client = client;
         this.location = location;

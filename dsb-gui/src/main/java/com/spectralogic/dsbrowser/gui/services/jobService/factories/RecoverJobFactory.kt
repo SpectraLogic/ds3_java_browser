@@ -30,7 +30,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
                                             private val jobWorkers: JobWorkers,
                                             private val loggingService: LoggingService,
