@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
@@ -114,7 +115,17 @@ public class CreateFolderPresenter implements Initializable {
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
-            alert.error(CREATE_FOLDER_ERR_LOGS);
+            final Throwable e = event.getSource().getException();
+            if (e instanceof FailedRequestException) {
+                alert.error("folderAlreadyExists");
+            } else {
+                alert.error(CREATE_FOLDER_ERR_LOGS);
+                LOG.error("Failed to create folder", e);
+                loggingService.logMessage(resourceBundle.getString("createFolderErr")
+                        + StringConstants.SPACE + folderNameField.textProperty().getValue().trim()
+                        + StringConstants.SPACE + resourceBundle.getString("txtReason")
+                        + StringConstants.SPACE + e, LogType.ERROR);
+            }
             this.closeDialog();
         }));
         workers.execute(createFolderTask);

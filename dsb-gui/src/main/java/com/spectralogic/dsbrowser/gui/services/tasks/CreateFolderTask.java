@@ -34,46 +34,24 @@ import java.util.ResourceBundle;
 
 public class CreateFolderTask extends Ds3Task<Void> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(CreateFolderTask.class);
-
     private final Ds3Client ds3Client;
     private final String bucketName;
     private final String folderName;
-    private final LoggingService loggingService;
-    private final ResourceBundle resourceBundle;
-    private final AlertService alertService;
 
     @Inject
     public CreateFolderTask(
             final Ds3Common ds3Common,
-            final AlertService alertService,
             @Assisted("bucketName") final String bucketName,
-            @Assisted("folderName") final String folderName,
-            final LoggingService loggingService,
-            final ResourceBundle resourceBundle
+            @Assisted("folderName") final String folderName
     ) {
         this.ds3Client = ds3Common.getCurrentSession().getClient();
         this.bucketName = bucketName;
         this.folderName = folderName;
-        this.loggingService = loggingService;
-        this.resourceBundle = resourceBundle;
-        this.alertService = alertService;
     }
 
     @Override
     protected Void call() throws IOException {
-        try {
-            Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
-        } catch (final FailedRequestException failedRequestException) {
-            alertService.error("bucketAlreadyExists");
-        } catch (final IOException e) {
-            LOG.error("Failed to create folder", e);
-            loggingService.logMessage(resourceBundle.getString("createFolderErr")
-                    + StringConstants.SPACE + folderName
-                    + StringConstants.SPACE + resourceBundle.getString("txtReason")
-                    + StringConstants.SPACE + e, LogType.ERROR);
-            throw e;
-        }
+        Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
         return null;
     }
 
