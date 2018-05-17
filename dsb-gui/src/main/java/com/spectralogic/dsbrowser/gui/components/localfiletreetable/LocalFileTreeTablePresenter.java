@@ -27,7 +27,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.PutJobFactory;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -506,7 +505,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
             sizeColumn.setCellFactory(c -> new ValueTreeTableCell<>());
-            treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
+            treeTable.setSortMode(TreeSortMode.ALL_DESCENDANTS);
         }));
         workers.execute(getMediaDeviceTask);
     }
