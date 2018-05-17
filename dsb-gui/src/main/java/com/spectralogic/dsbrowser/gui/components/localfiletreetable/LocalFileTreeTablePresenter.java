@@ -74,6 +74,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private TreeTableColumn<FileTreeModel, String> dateModified;
 
     @FXML
+    private TreeTableColumn<FileTreeModel, String> nameColumn;
+
+    @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton, createFolderButton;
 
     @FXML
@@ -162,6 +165,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
             event.consume();
         }));
         dateModified.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
+        nameColumn.setComparator(Comparator.comparing(String::toLowerCase));
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
                     final List<String> rowNameList = new ArrayList<>();
