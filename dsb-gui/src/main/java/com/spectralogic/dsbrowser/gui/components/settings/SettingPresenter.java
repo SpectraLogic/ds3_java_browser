@@ -134,11 +134,11 @@ public class SettingPresenter implements Initializable {
 
     @Inject
     public SettingPresenter(final ResourceBundle resourceBundle,
-                            final JobWorkers jobWorkers,
-                            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-                            final SettingsStore settingsStore,
-                            final AlertService alertService,
-                            final ApplicationLoggerSettings applicationLoggerSettings) {
+            final JobWorkers jobWorkers,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final SettingsStore settingsStore,
+            final AlertService alertService,
+            final ApplicationLoggerSettings applicationLoggerSettings) {
         this.resourceBundle = resourceBundle;
         this.jobWorkers = jobWorkers;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
@@ -241,11 +241,10 @@ public class SettingPresenter implements Initializable {
         saveFilePropertiesEnableButton.setText(resourceBundle.getString("saveFilePropertiesEnableButton"));
         cancelFilePropertiesEnableButton.setText(resourceBundle.getString("cancelFilePropertiesEnableButton"));
         filePropertiesCheckbox.setSelected(filePropertiesSettings.isFilePropertiesEnabled());
-        final Priority[] priorities = PriorityFilter.filterPriorities();
-        for (final Priority priority : priorities) {
+        PriorityFilter.priorities.forEach(priority -> {
             putJobPriority.getItems().add(priority.toString());
             getJobPriority.getItems().add(priority.toString());
-        }
+        });
         putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority());
         getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority());
         performanceFieldValue.setText(String.valueOf(processSettings.getMaximumNumberOfParallelThreads()));
