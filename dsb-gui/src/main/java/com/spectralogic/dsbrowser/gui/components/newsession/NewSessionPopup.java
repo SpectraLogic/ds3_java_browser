@@ -29,7 +29,7 @@ public class NewSessionPopup {
 
     @Inject
     public NewSessionPopup(
-            final ResourceBundle resourceBundle, final Ds3Common ds3Common,
+            final ResourceBundle resourceBundle,
             final Popup popup
     ) {
        this.resourceBundle = resourceBundle;

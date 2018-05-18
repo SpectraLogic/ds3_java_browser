@@ -42,7 +42,6 @@ import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.DeepStorageTaskProgressViewSkin;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
 
