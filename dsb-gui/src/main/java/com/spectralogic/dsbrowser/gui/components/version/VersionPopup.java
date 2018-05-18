@@ -43,19 +43,16 @@ public class VersionPopup {
 
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
-    private final LoggingService loggingService;
     private final AlertService alertService;
 
     @Inject
     public VersionPopup(
             final ResourceBundle resourceBundle,
             final Ds3Common ds3Common,
-            final LoggingService loggingService,
             final AlertService alertService
     ) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
-        this.loggingService = loggingService;
         this.alertService = alertService;
     }
 
@@ -70,12 +67,13 @@ public class VersionPopup {
                 alertService.warning("unableToGetVersions");
             } else {
                 final Stage popup = new Stage();
+                popup.initOwner(ds3Common.getWindow());
                 final VersionView view = new VersionView(new VersionModel(item.getBucketName(), versions, popup));
                 final Scene popupScene = new Scene(view.getView());
-
                 popup.initModality(Modality.APPLICATION_MODAL);
                 popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));
                 popup.setScene(popupScene);
+                popup.centerOnScreen();
                 popup.setTitle(resourceBundle.getString("versionView"));
                 popup.setAlwaysOnTop(false);
                 popup.setResizable(true);

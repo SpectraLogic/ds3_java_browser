@@ -81,6 +81,7 @@ public class JobInfoPresenter implements Initializable {
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
     private final RecoverJobFactory recoverJobFactory;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final Ds3Alert ds3Alert;
     private Stage stage;
 
     @Inject
@@ -91,7 +92,8 @@ public class JobInfoPresenter implements Initializable {
             final LoggingService loggingService,
             final RecoverJobFactory recoverJobFactory,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final Ds3Alert ds3Alert) {
         this.resourceBundle = resourceBundle;
         this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.workers = workers;
@@ -100,6 +102,7 @@ public class JobInfoPresenter implements Initializable {
         this.recoverJobFactory = recoverJobFactory;
         this.buttonCellFactory = buttonCellFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.ds3Alert = ds3Alert;
     }
 
     @Override
@@ -116,7 +119,7 @@ public class JobInfoPresenter implements Initializable {
         cancelJobListButtons.setOnAction(SafeHandler.logHandle(event -> {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
             if (jobIDMap != null && jobIDMap.size() != 0) {
-                final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+                final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(
                         resourceBundle.getString("confirmation"),
                         jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
                         Alert.AlertType.CONFIRMATION,

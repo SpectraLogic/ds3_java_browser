@@ -23,6 +23,7 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
 import com.spectralogic.ds3client.utils.ResourceUtils;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -68,7 +69,7 @@ public class Ds3DeleteFilesTaskTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @Before

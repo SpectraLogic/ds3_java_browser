@@ -129,8 +129,6 @@ public class Ds3PanelPresenter implements Initializable {
             final JobWorkers jobWorkers,
             final JobInterruptionStore jobInterruptionStore,
             final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
-            final DateTimeUtils dateTimeUtils,
-            final FileTreeTableProvider fileTreeTableProvider,
             final Ds3Common ds3Common,
             final SavedSessionStore savedSessionStore,
             final GetJobFactory getJobFactory,

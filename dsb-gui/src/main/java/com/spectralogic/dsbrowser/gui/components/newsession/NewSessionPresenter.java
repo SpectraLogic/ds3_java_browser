@@ -80,6 +80,7 @@ public class NewSessionPresenter implements Initializable {
     private final AlertService alert;
     private final NewSessionModelValidation newSessionModelValidation;
     private final CreateConnectionTask createConnectionTask;
+    private final Ds3Alert ds3Alert;
 
     @Inject
     public NewSessionPresenter(final ResourceBundle resourceBundle,
@@ -87,13 +88,15 @@ public class NewSessionPresenter implements Initializable {
             final SavedSessionStore savedSessionStore,
             final NewSessionModelValidation newSessionModelValidation,
             final CreateConnectionTask createConnectionTask,
-            final AlertService alertService) {
+            final AlertService alertService,
+            final Ds3Alert ds3Alert) {
         this.resourceBundle = resourceBundle;
         this.newSessionModelValidation = newSessionModelValidation;
         this.ds3SessionStore = ds3SessionStore;
         this.savedSessionStore = savedSessionStore;
         this.createConnectionTask = createConnectionTask;
         this.alert = alertService;
+        this.ds3Alert = ds3Alert;
     }
 
     @Override
@@ -247,7 +250,7 @@ public class NewSessionPresenter implements Initializable {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(SavedSession::getDefaultSession)
                         .collect(GuavaCollectors.immutableList());
                 if (Guard.isNotNullAndNotEmpty(defaultSession) && !model.getSessionName().equals(defaultSession.get(0).getName())) {
-                    final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("defaultSession"),
+                    final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("defaultSession"),
                             resourceBundle.getString("alreadyExistDefaultSession"), Alert.AlertType.CONFIRMATION, null,
                             resourceBundle.getString("yesButton"), resourceBundle.getString("noButton"));
                     closeResponse.ifPresent(buttonType -> {

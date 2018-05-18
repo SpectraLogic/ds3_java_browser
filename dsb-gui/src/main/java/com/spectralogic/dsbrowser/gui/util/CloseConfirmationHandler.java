@@ -34,25 +34,32 @@ import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 
+@Singleton
 public class CloseConfirmationHandler {
     private static final Logger LOG = LoggerFactory.getLogger(CloseConfirmationHandler.class);
 
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
     private final ShutdownService shutdownService;
+    private final Ds3Alert ds3Alert;
 
+    @Inject
     public CloseConfirmationHandler(final ResourceBundle resourceBundle,
-                                    final JobWorkers jobWorkers,
-                                    final ShutdownService shutdownService) {
+            final JobWorkers jobWorkers,
+            final ShutdownService shutdownService,
+            final Ds3Alert ds3Alert) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
         this.shutdownService = shutdownService;
+        this.ds3Alert = ds3Alert;
     }
 
     /**
@@ -65,17 +72,17 @@ public class CloseConfirmationHandler {
         final ImmutableList<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream()
                 .filter(task -> task.getProgress() != 1).collect(GuavaCollectors.immutableList());
         if (Guard.isNullOrEmpty(jobWorkers.getTasks()) || Guard.isNullOrEmpty(notCachedRunningTasks)) {
-                event.consume();
-                shutdownService.shutdown();
+            event.consume();
+            shutdownService.shutdown();
         } else {
             final Optional<ButtonType> closeResponse;
             if (1 == notCachedRunningTasks.size()) {
-                closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                closeResponse =ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
                         notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"),
                         Alert.AlertType.CONFIRMATION, null,
                         resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
             } else {
-                closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
                         notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"),
                         Alert.AlertType.CONFIRMATION, null,
                         resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
@@ -100,9 +107,9 @@ public class CloseConfirmationHandler {
      * @return task
      */
     public Task cancelAllRunningTasks(final JobWorkers jobWorkers,
-                                      final Workers workers,
-                                      final JobInterruptionStore jobInterruptionStore,
-                                      final LoggingService loggingService) {
+            final Workers workers,
+            final JobInterruptionStore jobInterruptionStore,
+            final LoggingService loggingService) {
         LOG.info("Cancelling all running jobs");
         final Task cancelRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore, loggingService);
         workers.execute(cancelRunningJobsTask);
@@ -118,10 +125,10 @@ public class CloseConfirmationHandler {
      * @param height height
      */
     public void setPreferences(final double x,
-                               final double y,
-                               final double width,
-                               final double height,
-                               final boolean isWindowMaximized) {
+            final double y,
+            final double width,
+            final double height,
+            final boolean isWindowMaximized) {
         LOG.info("Setting up windows preferences");
         final Preferences preferences = Preferences.userRoot().node(NODE_NAME);
         preferences.putDouble(WINDOW_POSITION_X, x);
@@ -157,7 +164,7 @@ public class CloseConfirmationHandler {
         if (savedJobPrioritiesStore != null) {
             try {
                 SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            }  catch (final Exception ex) {
+            } catch (final Exception ex) {
                 LOG.error("General Exception while saving job settings information to the local filesystem", ex);
             }
         }

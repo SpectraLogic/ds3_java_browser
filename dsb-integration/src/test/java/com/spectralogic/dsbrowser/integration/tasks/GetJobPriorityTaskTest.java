@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.integration.tasks;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.utils.Guard;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -50,7 +51,7 @@ public class GetJobPriorityTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "GetJobPriorityTaskTest";
-    private final AlertService alertService = new AlertService(resourceBundle);
+    private final AlertService alertService = new AlertService(resourceBundle, new Ds3Common());
     private final CreateConnectionTask createConnectionTask = new CreateConnectionTask(alertService, resourceBundle, buildInfoService);
 
     @Before

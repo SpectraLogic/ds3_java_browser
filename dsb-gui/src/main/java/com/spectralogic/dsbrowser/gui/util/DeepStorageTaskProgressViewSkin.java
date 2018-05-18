@@ -48,9 +48,12 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         SkinBase<TaskProgressView<T>> {
 
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final Ds3Alert ds3Alert;
 
-    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor, final BooleanProperty showCache) {
+    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor, final BooleanProperty showCache, final Ds3Alert ds3Alert) {
         super(monitor);
+
+        this.ds3Alert = ds3Alert;
 
         final BorderPane borderPane = new BorderPane();
         borderPane.getStyleClass().add("box");
@@ -180,7 +183,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void popupCancelTask(final T task, final ActionEvent evt) {
-        final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
+        final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
         if (closeResponse.get().equals(ButtonType.OK)) {
             if (task != null) {
                 task.cancel();
