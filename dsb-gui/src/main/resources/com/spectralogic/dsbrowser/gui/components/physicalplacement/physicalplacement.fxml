@@ -89,7 +89,7 @@
                 </TableColumn>
                 <TableColumn prefWidth="88.0" text="Serial Number">
                     <cellValueFactory>
-                        <PropertyValueFactory property="serialNO"/>
+                        <PropertyValueFactory property="serialNumber"/>
                     </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="46.0" text="Type">

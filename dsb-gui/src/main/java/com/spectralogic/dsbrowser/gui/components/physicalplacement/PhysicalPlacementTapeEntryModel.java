@@ -15,7 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
-import org.apache.commons.io.FileUtils;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 
 public class PhysicalPlacementTapeEntryModel {
     private final String barcode;
@@ -46,8 +46,8 @@ public class PhysicalPlacementTapeEntryModel {
         this.type = type;
         this.state = state;
         this.writeProtected = writeProtected;
-        this.availableCapacity = FileUtils.byteCountToDisplaySize(availableCapacity);
-        this.usedCapacity = FileUtils.byteCountToDisplaySize(usedCapacity);
+        this.availableCapacity = FileSizeFormatKt.toByteRepresentation(availableCapacity);
+        this.usedCapacity = FileSizeFormatKt.toByteRepresentation(usedCapacity);
         this.tapePartition = tapePartition;
         this.lastModified = lastModified;
         this.ejectLabel = ejectLabel;
