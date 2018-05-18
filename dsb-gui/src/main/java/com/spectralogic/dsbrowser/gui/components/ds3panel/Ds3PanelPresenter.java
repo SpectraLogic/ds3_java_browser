@@ -46,10 +46,15 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -59,11 +64,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 @Presenter
 public class Ds3PanelPresenter implements Initializable {
@@ -488,7 +495,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void initTabPane() {
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (ds3SessionTabPane.getTabs().size() > 1 && newValue == addNewTab) {
+            if (ds3SessionTabPane.getTabs().size() > 0 && newValue == addNewTab) {
                 // popup new session dialog box
                 final int sessionCount = ds3SessionStore.size();
                 newSessionDialog();
@@ -515,7 +522,13 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void initTab() {
-        addNewTab.setGraphic(Icon.getIcon(FontAwesomeIcon.PLUS));
+        final Button newSessionButton = new Button("",Icon.getIcon(FontAwesomeIcon.PLUS));
+        newSessionButton.setStyle("-fx-background-color: transparent;" +
+                " -fx-background-insets: 0px;");
+        addNewTab.setGraphic(newSessionButton);
+        newSessionButton.setOnMouseClicked(event -> {
+            newSessionPopup.show();
+        });
     }
 
     private void initMenuItems() {
