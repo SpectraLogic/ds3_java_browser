@@ -110,7 +110,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
         modifyJobPriorityComboBoxLabel.setText(resourceBundle.getString("modifyJobPriorityComboBoxLabel"));
         yesButton.setText(resourceBundle.getString("yesButton"));
         noButton.setText(resourceBundle.getString("noButton"));
-        modifyJobPriorityComboBox.getItems().addAll(PriorityFilter.filterPriorities());
+        modifyJobPriorityComboBox.getItems().addAll(PriorityFilter.priorities);
         modifyJobPriorityComboBox.getSelectionModel().select(Priority.valueOf(value.getCurrentPriority()));
     }
 

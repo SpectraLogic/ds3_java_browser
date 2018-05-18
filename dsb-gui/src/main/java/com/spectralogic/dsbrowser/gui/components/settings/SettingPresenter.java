@@ -241,7 +241,7 @@ public class SettingPresenter implements Initializable {
         saveFilePropertiesEnableButton.setText(resourceBundle.getString("saveFilePropertiesEnableButton"));
         cancelFilePropertiesEnableButton.setText(resourceBundle.getString("cancelFilePropertiesEnableButton"));
         filePropertiesCheckbox.setSelected(filePropertiesSettings.isFilePropertiesEnabled());
-        final Priority[] priorities = PriorityFilter.filterPriorities();
+        final Priority[] priorities = PriorityFilter.priorities;
         for (final Priority priority : priorities) {
             putJobPriority.getItems().add(priority.toString());
             getJobPriority.getItems().add(priority.toString());
