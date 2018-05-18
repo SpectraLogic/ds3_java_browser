@@ -16,6 +16,8 @@
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
 import com.spectralogic.ds3client.commands.spectrads3.GetTapePartitionSpectraS3Request;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import org.slf4j.Logger;
@@ -39,9 +41,11 @@ public class PhysicalPlacementTapeEntryModel {
     private final String ejectLocation;
 
     private final Ds3Common ds3Common;
+    private final LoggingService loggingService;
 
     PhysicalPlacementTapeEntryModel(
             final Ds3Common ds3Common,
+            final LoggingService loggingService,
             final String barcode,
             final String serialNumber,
             final String type,
@@ -55,6 +59,7 @@ public class PhysicalPlacementTapeEntryModel {
             final String ejectLocation
     ) {
         this.ds3Common = ds3Common;
+        this.loggingService = loggingService;
         this.barcode = barcode;
         this.serialNumber = serialNumber;
         this.type = type;
@@ -111,6 +116,7 @@ public class PhysicalPlacementTapeEntryModel {
                     .getName();
         } catch (final IOException e) {
             LOG.error("Unable to get name of tape Partition", e);
+            loggingService.logInternationalMessage("unableToLookUpTapePartition", LogType.ERROR);
             return tapePartition;
         }
     }
