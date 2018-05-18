@@ -577,6 +577,7 @@ public class Ds3TreeTablePresenter implements Initializable {
         metaData.setDisable(disabled);
         createFolder.setDisable(disabled);
         createBucket.setDisable(disabled);
+        versioning.setDisable(disabled);
     }
 
 

@@ -21,10 +21,17 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
+import com.sun.webkit.ContextMenuItem;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +48,10 @@ public class MetadataPresenter implements Initializable {
     private TextField objectName;
 
     @FXML
-    private Label objectSize;
+    private TextField objectSize;
 
     @FXML
-    private Label lastModified;
-
-    @FXML
-    private Tooltip nameTooltip;
+    private TextField lastModified;
 
     @FXML
     private TableView<MetadataEntry> metadataTable;
@@ -85,7 +89,21 @@ public class MetadataPresenter implements Initializable {
         metadataTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         //showing tooltip for every column
-        metadataTableColValue.setCellFactory(column -> new TableCell());
+        metadataTableColValue.setCellFactory(column -> {
+            final javafx.scene.control.TableCell cell = new TableCell();
+            final MenuItem copyMenuItem = new MenuItem("Copy");
+            copyMenuItem.setOnAction(event -> copyTexToClipboard(event, cell.getText()));
+            final ContextMenu contextMenu = new ContextMenu(copyMenuItem);
+            cell.setContextMenu(contextMenu);
+            return cell;
+        });
+    }
+
+    private void copyTexToClipboard(final Event event, final String cellText) {
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(cellText.trim());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
     }
 
     private void initLabels() {
@@ -94,7 +112,6 @@ public class MetadataPresenter implements Initializable {
         objectName.setText(ds3Metadata.getName());
         objectSize.setText(FileSizeFormatKt.toByteRepresentation(ds3Metadata.getSize()));
         lastModified.setText(ds3Metadata.getLastModified());
-        nameTooltip.setText(ds3Metadata.getName());
     }
 
     //create metadata keys for showing on server
@@ -106,14 +123,12 @@ public class MetadataPresenter implements Initializable {
 
     }
 
-
     private static class TableCell extends javafx.scene.control.TableCell<MetadataEntry, String> {
         @Override
         protected void updateItem(final String item, final boolean empty) {
             if (item != null) {
                 super.updateItem(item, empty);
                 setText(item);
-                setTooltip(new Tooltip(item));
             }
         }
     }

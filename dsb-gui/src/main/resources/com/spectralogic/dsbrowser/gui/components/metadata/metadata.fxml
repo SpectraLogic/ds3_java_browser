@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -35,11 +34,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <TextField fx:id="objectName" prefHeight="17.0" prefWidth="482.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false">
-                    <tooltip>
-                        <Tooltip fx:id="nameTooltip" />
-                    </tooltip>
-                </TextField>
+                <TextField fx:id="objectName" prefHeight="17.0" prefWidth="482.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false"/>
             </children>
         </HBox>
         <HBox spacing="10.0">
@@ -49,7 +44,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectSize" prefHeight="17.0" prefWidth="399.0" />
+                <TextField fx:id="objectSize" prefHeight="17.0" prefWidth="399.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false" />
             </children>
         </HBox>
         <HBox spacing="10.0">
@@ -59,7 +54,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="lastModified" prefHeight="17.0" prefWidth="399.0" />
+                <TextField fx:id="lastModified" prefHeight="17.0" prefWidth="399.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false"/>
             </children>
         </HBox>
         <TableView fx:id="metadataTable" prefHeight="280.0" prefWidth="500.0" style="-fx-wrap-text: true;">
