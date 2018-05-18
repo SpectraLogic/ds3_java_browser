@@ -22,6 +22,7 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -88,7 +89,9 @@ public class PhysicalPlacementPresenter implements Initializable {
 
         if (ds3PhysicalPlacement != null) {
             physicalPlacementDataTablePool.setItems(getStoragePools(ds3PhysicalPlacement.getPools()));
-            physicalPlacementDataTableTape.setItems(getStorageTapes(ds3PhysicalPlacement.getTapes()));
+            Platform.runLater(() -> {
+                physicalPlacementDataTableTape.setItems(getStorageTapes(ds3PhysicalPlacement.getTapes()));
+            });
             physicalPlacementReplication.setItems(getStorageReplication(ds3PhysicalPlacement.getDs3Targets()));
         }
     }

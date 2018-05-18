@@ -15,7 +15,13 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
+import com.spectralogic.ds3client.commands.spectrads3.GetTapePartitionSpectraS3Request;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class PhysicalPlacementTapeEntryModel {
     private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementTapeEntryModel.class);
@@ -95,7 +101,7 @@ public class PhysicalPlacementTapeEntryModel {
         return lastModified;
     }
 
-    public String getTapePartition() throws IOException {
+    public String getTapePartition() {
         try {
             return ds3Common
                     .getCurrentSession()
@@ -105,7 +111,7 @@ public class PhysicalPlacementTapeEntryModel {
                     .getName();
         } catch (final IOException e) {
             LOG.error("Unable to get name of tape Partition", e);
-            return "";
+            return tapePartition;
         }
     }
 
