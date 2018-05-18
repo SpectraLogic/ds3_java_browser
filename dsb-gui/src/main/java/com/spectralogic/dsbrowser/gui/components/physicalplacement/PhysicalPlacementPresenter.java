@@ -21,6 +21,7 @@ import com.spectralogic.ds3client.models.*;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -32,6 +33,7 @@ import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -39,7 +41,6 @@ import java.util.UUID;
 
 @Presenter
 public class PhysicalPlacementPresenter implements Initializable {
-
     private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementPresenter.class);
 
     @FXML
@@ -56,6 +57,12 @@ public class PhysicalPlacementPresenter implements Initializable {
 
     @ModelContext
     private PhysicalPlacement ds3PhysicalPlacement;
+
+    private final Ds3Common ds3Common;
+
+    @Inject
+    public PhysicalPlacementPresenter(final Ds3Common ds3Common) {this.ds3Common = ds3Common;}
+
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
@@ -122,7 +129,7 @@ public class PhysicalPlacementPresenter implements Initializable {
             final String lastModified = tape.getLastModified().toString();
             final String ejectLabel = tape.getEjectLabel();
             final String ejectLocation = tape.getEjectLocation();
-            physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntryModel(barcode, serialNumber, type, state, writeProtected, availableCapacity, usedCapacity, tapePartition, lastModified, ejectLabel, ejectLocation));
+            physicalPlacementTapeEntryBuilder.add(new PhysicalPlacementTapeEntryModel(ds3Common, barcode, serialNumber, type, state, writeProtected, availableCapacity, usedCapacity, tapePartition, lastModified, ejectLabel, ejectLocation));
         }
         final SortedList<PhysicalPlacementTapeEntryModel> tapeSortedList = new SortedList<>(FXCollections.observableList(physicalPlacementTapeEntryBuilder.build()));
         tapeSortedList.comparatorProperty().bind(physicalPlacementDataTableTape.comparatorProperty());

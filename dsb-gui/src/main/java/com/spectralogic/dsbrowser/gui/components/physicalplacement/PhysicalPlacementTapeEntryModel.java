@@ -18,6 +18,8 @@ package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 
 public class PhysicalPlacementTapeEntryModel {
+    private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementTapeEntryModel.class);
+
     private final String barcode;
     private final String serialNumber;
     private final String type;
@@ -30,17 +32,23 @@ public class PhysicalPlacementTapeEntryModel {
     private final String ejectLabel;
     private final String ejectLocation;
 
-    PhysicalPlacementTapeEntryModel(final String barcode,
-                                    final String serialNumber,
-                                    final String type,
-                                    final String state,
-                                    final boolean writeProtected,
-                                    final long availableCapacity,
-                                    final long usedCapacity,
-                                    final String tapePartition,
-                                    final String lastModified,
-                                    final String ejectLabel,
-                                    final String ejectLocation) {
+    private final Ds3Common ds3Common;
+
+    PhysicalPlacementTapeEntryModel(
+            final Ds3Common ds3Common,
+            final String barcode,
+            final String serialNumber,
+            final String type,
+            final String state,
+            final boolean writeProtected,
+            final long availableCapacity,
+            final long usedCapacity,
+            final String tapePartition,
+            final String lastModified,
+            final String ejectLabel,
+            final String ejectLocation
+    ) {
+        this.ds3Common = ds3Common;
         this.barcode = barcode;
         this.serialNumber = serialNumber;
         this.type = type;
@@ -87,8 +95,18 @@ public class PhysicalPlacementTapeEntryModel {
         return lastModified;
     }
 
-    public String getTapePartition() {
-        return tapePartition;
+    public String getTapePartition() throws IOException {
+        try {
+            return ds3Common
+                    .getCurrentSession()
+                    .getClient()
+                    .getTapePartitionSpectraS3(new GetTapePartitionSpectraS3Request(tapePartition))
+                    .getTapePartitionResult()
+                    .getName();
+        } catch (final IOException e) {
+            LOG.error("Unable to get name of tape Partition", e);
+            return "";
+        }
     }
 
     public String getEjectLabel() {
