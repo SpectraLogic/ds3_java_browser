@@ -67,7 +67,7 @@ public class Ds3PanelServiceTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
-    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle, new Ds3Common()), new VersionPopup(resourceBundle, new Ds3Common(), loggingService, new AlertService(resourceBundle, new Ds3Common())), new Popup(new Ds3Common()),new PhysicalPlacementPopup(resourceBundle, new Ds3Common()));
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle, new Ds3Common()), new VersionPopup(resourceBundle, new Ds3Common(), new AlertService(resourceBundle, new Ds3Common())), new Popup(new Ds3Common()),new PhysicalPlacementPopup(resourceBundle, new Ds3Common()));
 
     @BeforeClass
     public static void setUp() {
