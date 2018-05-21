@@ -21,12 +21,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 public class PhysicalPlacementView extends FXMLView {
 
-    public PhysicalPlacementView(final PhysicalPlacement ds3PhysicalPlacement) {
-        super(name -> {
-            if (name.equals(StringConstants.CASE_DS3PHYSICALPLACEMENT)) {
-                return ds3PhysicalPlacement;
-            }
-            return null;
-        });
+    public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
+        super(name -> { return physicalPlacementModel; });
     }
 }

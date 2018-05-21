@@ -23,7 +23,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.ListBucketResult;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -33,6 +32,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementModel;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -51,8 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -72,6 +70,7 @@ public final class Ds3PanelService {
     private final VersionPopup versionPopup;
     private final Popup popup;
     private final PhysicalPlacementPopup physicalPlacementPopup;
+    private final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory;
 
     @Inject
     public Ds3PanelService(
@@ -84,7 +83,8 @@ public final class Ds3PanelService {
             final AlertService alertService,
             final VersionPopup versionPopup,
             final Popup popup,
-            final PhysicalPlacementPopup physicalPlacementPopup
+            final PhysicalPlacementPopup physicalPlacementPopup,
+            final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory
     ) {
         this.versionPopup = versionPopup;
         this.ds3Common = ds3Common;
@@ -96,6 +96,7 @@ public final class Ds3PanelService {
         this.alert = alertService;
         this.popup = popup;
         this.physicalPlacementPopup = physicalPlacementPopup;
+        this.physicalPlacementTaskFactory = physicalPlacementTaskFactory;
     }
 
     /**
@@ -191,12 +192,12 @@ public final class Ds3PanelService {
             return;
         }
 
-        final PhysicalPlacementTask getPhysicalPlacement = new PhysicalPlacementTask(ds3Common, values, workers);
+        final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(values);
 
         workers.execute(getPhysicalPlacement);
         getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
             LOG.info("Launching PhysicalPlacement popup");
-            physicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue());
+            physicalPlacementPopup.show((PhysicalPlacementModel) getPhysicalPlacement.getValue());
         })));
     }
 

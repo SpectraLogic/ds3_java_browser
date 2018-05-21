@@ -41,6 +41,7 @@ import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
@@ -78,6 +79,7 @@ public class GuiModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
         install(new FactoryModuleBuilder().build(FileTreeTableItem.FileTreeTableItemFactory.class));
         install(new FactoryModuleBuilder().build(CreateFolderTask.CreateFolderTaskFactory.class));
+        install(new FactoryModuleBuilder().build(PhysicalPlacementTask.PhysicalPlacementTaskFactory.class));
     }
 
     @Singleton
