@@ -80,6 +80,7 @@ public class GuiModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(FileTreeTableItem.FileTreeTableItemFactory.class));
         install(new FactoryModuleBuilder().build(CreateFolderTask.CreateFolderTaskFactory.class));
         install(new FactoryModuleBuilder().build(PhysicalPlacementTask.PhysicalPlacementTaskFactory.class));
+        install(new FactoryModuleBuilder().build(PhysicalPlacementTask.GetDirectoryObjectsFactory.class));
     }
 
     @Singleton

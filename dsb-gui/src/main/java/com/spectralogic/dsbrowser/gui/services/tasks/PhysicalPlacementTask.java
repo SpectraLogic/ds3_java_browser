@@ -59,41 +59,47 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     private final Ds3Common ds3Common;
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
-    private final ImmutableList<TreeItem<Ds3TreeTableValue>> values;
+    private final TreeItem<Ds3TreeTableValue> values;
     private final LoggingService loggingService;
+    private final GetDirectoryObjectsFactory getDirectoryObjectsFactory;
 
     @Inject
     public PhysicalPlacementTask(
-            @Assisted final ImmutableList<TreeItem<Ds3TreeTableValue>> values,
+            @Assisted final TreeItem<Ds3TreeTableValue> values,
             final Ds3Common ds3Common,
             final DateTimeUtils dateTimeUtils,
             final Workers workers,
-            final LoggingService loggingService) {
+            final LoggingService loggingService,
+            final GetDirectoryObjectsFactory getDirectoryObjectsFactory) {
         this.ds3Common = ds3Common;
         this.values = values;
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
+        this.getDirectoryObjectsFactory = getDirectoryObjectsFactory;
     }
 
     @Override
     protected PhysicalPlacementModel call() throws Exception {
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
-        final Ds3TreeTableValue value = values.get(0).getValue();
-        ImmutableList<Ds3Object> list = null;
-        if (null != value && (value.getType().equals(Ds3TreeTableValue.Type.Bucket))) {
-        } else if (value.getType().equals(Ds3TreeTableValue.Type.File)) {
-            list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
-                    .collect(GuavaCollectors.immutableList());
-            //TODO This always evaluates to true at this point
-        } else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            final PhysicalPlacementTask.GetDirectoryObjects getDirectoryObjects = new PhysicalPlacementTask.GetDirectoryObjects(value.getBucketName(), value.getDirectoryName(), ds3Common);
-            workers.execute(getDirectoryObjects);
-            final ListBucketResult listBucketResult = getDirectoryObjects.getValue();
-            if (null != listBucketResult) {
-                list = listBucketResult.getObjects().stream().map(item -> new Ds3Object(item.getKey(), item.getSize()))
-                        .collect(GuavaCollectors.immutableList());
-            }
+        final Ds3TreeTableValue value = values.getValue();
+        final ImmutableList<Ds3Object> list;
+        switch (value.getType()) {
+            case File:
+                list = ImmutableList.of(new Ds3Object(value.getFullName(), value.getSize()));
+                break;
+            case Directory:
+                final PhysicalPlacementTask.GetDirectoryObjects getDirectoryObjects = getDirectoryObjectsFactory.create(value.getBucketName(), value.getFullName());
+                workers.execute(getDirectoryObjects);
+                final ListBucketResult listBucketResult = getDirectoryObjects.getValue();
+                list = null != listBucketResult ? listBucketResult
+                        .getObjects()
+                        .stream()
+                        .map(item -> new Ds3Object(item.getKey(), item.getSize()))
+                        .collect(GuavaCollectors.immutableList()) : ImmutableList.of();
+                break;
+            default:
+                list = ImmutableList.of();
         }
         final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                 .getPhysicalPlacementForObjectsSpectraS3(
@@ -196,7 +202,11 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
         final String bucketName, directoryFullName;
         final Ds3Common ds3Common;
 
-        public GetDirectoryObjects(final String bucketName, final String directoryFullName, final Ds3Common ds3Common) {
+        @Inject
+        public GetDirectoryObjects(
+                @Assisted("bucketName") final String bucketName,
+                @Assisted("directoryFullName") final String directoryFullName,
+                final Ds3Common ds3Common) {
             this.bucketName = bucketName;
             this.directoryFullName = directoryFullName;
             this.ds3Common = ds3Common;
@@ -217,7 +227,12 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     }
 
     public interface PhysicalPlacementTaskFactory {
-        public PhysicalPlacementTask create(final ImmutableList<TreeItem<Ds3TreeTableValue>> values);
+        public PhysicalPlacementTask create(final TreeItem<Ds3TreeTableValue> values);
+    }
+
+
+    public interface GetDirectoryObjectsFactory {
+        public GetDirectoryObjects create(@Assisted("bucketName") final String bucketName, @Assisted("directoryFullName") final String directoryFullName);
     }
 
 }

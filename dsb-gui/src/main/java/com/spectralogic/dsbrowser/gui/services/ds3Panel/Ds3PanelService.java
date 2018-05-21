@@ -192,7 +192,7 @@ public final class Ds3PanelService {
             return;
         }
 
-        final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(values);
+        final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(values.get(0));
 
         workers.execute(getPhysicalPlacement);
         getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
