@@ -40,6 +40,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetDirectoryObjects;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
@@ -74,13 +75,14 @@ public class GuiModule extends AbstractModule {
 
         loadPresenters(this::bind);
 
-        install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
-        install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
-        install(new FactoryModuleBuilder().build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
-        install(new FactoryModuleBuilder().build(FileTreeTableItem.FileTreeTableItemFactory.class));
-        install(new FactoryModuleBuilder().build(CreateFolderTask.CreateFolderTaskFactory.class));
-        install(new FactoryModuleBuilder().build(PhysicalPlacementTask.PhysicalPlacementTaskFactory.class));
-        install(new FactoryModuleBuilder().build(PhysicalPlacementTask.GetDirectoryObjectsFactory.class));
+        final FactoryModuleBuilder factoryModuleBuilder = new FactoryModuleBuilder();
+        install(factoryModuleBuilder.build(ButtonCell.ButtonCellFactory.class));
+        install(factoryModuleBuilder.build(JobTaskElement.JobTaskElementFactory.class));
+        install(factoryModuleBuilder.build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
+        install(factoryModuleBuilder.build(FileTreeTableItem.FileTreeTableItemFactory.class));
+        install(factoryModuleBuilder.build(CreateFolderTask.CreateFolderTaskFactory.class));
+        install(factoryModuleBuilder.build(PhysicalPlacementTask.PhysicalPlacementTaskFactory.class));
+        install(factoryModuleBuilder.build(GetDirectoryObjects.Companion.GetDirectoryObjectsFactory.class));
     }
 
     @Singleton

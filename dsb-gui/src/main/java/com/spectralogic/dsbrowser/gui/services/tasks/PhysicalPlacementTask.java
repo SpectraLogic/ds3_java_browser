@@ -18,8 +18,6 @@ package com.spectralogic.dsbrowser.gui.services.tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.GetBucketRequest;
-import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Response;
 import com.spectralogic.ds3client.commands.spectrads3.GetTapePartitionSpectraS3Request;
@@ -41,12 +39,8 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 import kotlin.collections.EmptyList;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -54,14 +48,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
-    private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementTask.class);
 
     private final Ds3Common ds3Common;
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
     private final TreeItem<Ds3TreeTableValue> values;
     private final LoggingService loggingService;
-    private final GetDirectoryObjectsFactory getDirectoryObjectsFactory;
+    private final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory;
 
     @Inject
     public PhysicalPlacementTask(
@@ -70,7 +63,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
             final DateTimeUtils dateTimeUtils,
             final Workers workers,
             final LoggingService loggingService,
-            final GetDirectoryObjectsFactory getDirectoryObjectsFactory) {
+            final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory) {
         this.ds3Common = ds3Common;
         this.values = values;
         this.workers = workers;
@@ -89,7 +82,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 list = ImmutableList.of(new Ds3Object(value.getFullName(), value.getSize()));
                 break;
             case Directory:
-                final PhysicalPlacementTask.GetDirectoryObjects getDirectoryObjects = getDirectoryObjectsFactory.create(value.getBucketName(), value.getFullName());
+                final GetDirectoryObjects getDirectoryObjects = getDirectoryObjectsFactory.create(value.getBucketName(), value.getFullName());
                 workers.execute(getDirectoryObjects);
                 final ListBucketResult listBucketResult = getDirectoryObjects.getValue();
                 list = null != listBucketResult ? listBucketResult
@@ -128,7 +121,6 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 .collect(GuavaCollectors.immutableList());
     }
 
-    @NotNull
     private TapeEntry getTapeEntry(final Tape tape) {
         return new TapeEntry(
                 tape.getBarCode(),
@@ -165,7 +157,6 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 .collect(GuavaCollectors.immutableList());
     }
 
-    @NotNull
     private ReplicationEntry getReplicationEntry(final Ds3Target ds3Target) {
         return new ReplicationEntry(
                 ds3Target.getDataPathEndPoint(),
@@ -188,7 +179,6 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 .collect(GuavaCollectors.immutableList());
     }
 
-    @NotNull
     private PoolEntry getPoolEntry(final Pool pool) {
         return new PoolEntry(
                 pool.getName(),
@@ -197,43 +187,8 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 pool.getPartitionId().toString());
     }
 
-
-    private static class GetDirectoryObjects extends Task<ListBucketResult> {
-        final String bucketName, directoryFullName;
-        final Ds3Common ds3Common;
-
-        @Inject
-        public GetDirectoryObjects(
-                @Assisted("bucketName") final String bucketName,
-                @Assisted("directoryFullName") final String directoryFullName,
-                final Ds3Common ds3Common) {
-            this.bucketName = bucketName;
-            this.directoryFullName = directoryFullName;
-            this.ds3Common = ds3Common;
-        }
-
-        @Override
-        protected ListBucketResult call() throws Exception {
-            try {
-                final GetBucketRequest request = new GetBucketRequest(bucketName);
-                request.withPrefix(directoryFullName);
-                final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
-                return bucketResponse.getListBucketResult();
-            } catch (final Exception e) {
-                LOG.error("unable to get bucket response", e);
-                return null;
-            }
-        }
-    }
-
     public interface PhysicalPlacementTaskFactory {
         public PhysicalPlacementTask create(final TreeItem<Ds3TreeTableValue> values);
     }
-
-
-    public interface GetDirectoryObjectsFactory {
-        public GetDirectoryObjects create(@Assisted("bucketName") final String bucketName, @Assisted("directoryFullName") final String directoryFullName);
-    }
-
 }
 
