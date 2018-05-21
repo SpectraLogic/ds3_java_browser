@@ -40,6 +40,8 @@ import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import kotlin.collections.EmptyList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
+    private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementTask.class);
 
     private final Ds3Common ds3Common;
     private final Workers workers;
@@ -111,7 +114,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
         );
     }
 
-    private List<TapeEntry> buildTapeEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+    private ImmutableList<TapeEntry> buildTapeEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
         return response.getPhysicalPlacementResult()
                 .getTapes()
                 .stream()
@@ -141,12 +144,13 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                     .getTapePartitionResult()
                     .getName();
         } catch (final IOException e) {
+            LOG.error("Could not get Tape Partition", e);
             loggingService.logInternationalMessage("unableToGetPartitionName", LogType.ERROR);
             return id.toString();
         }
     }
 
-    private List<ReplicationEntry> buildReplicationEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+    private ImmutableList<ReplicationEntry> buildReplicationEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
         return response
                 .getPhysicalPlacementResult()
                 .getDs3Targets()
@@ -168,7 +172,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
                 ds3Target.getQuiesced().name());
     }
 
-    private List<PoolEntry> buildPoolEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+    private ImmutableList<PoolEntry> buildPoolEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
         return response
                 .getPhysicalPlacementResult()
                 .getPools()

@@ -15,4 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-data class PhysicalPlacementModel(val poolEntries: List<PoolEntry>, val replicationEntries: List<ReplicationEntry>, val tapeEntries: List<TapeEntry>)
+import com.google.common.collect.ImmutableList
+
+data class PhysicalPlacementModel(val poolEntries: ImmutableList<PoolEntry>, val replicationEntries: ImmutableList<ReplicationEntry>, val tapeEntries: ImmutableList<TapeEntry>)
