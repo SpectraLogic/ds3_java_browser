@@ -73,7 +73,8 @@ public class Ds3PanelServiceTest {
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
     private final AlertService alertService = new AlertService(resourceBundle, ds3Common);
     private final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory = new PhysicalPlacementTask.PhysicalPlacementTaskFactory() {
-        public PhysicalPlacementTask create(final TreeItem<Ds3TreeTableValue> values) {
+        @Override
+        public PhysicalPlacementTask create(final Ds3TreeTableValue value) {
             return null;
         }
     };
@@ -83,7 +84,6 @@ public class Ds3PanelServiceTest {
             workers,
             loggingService,
             refreshCompleteViewWorker,
-            alertService,
             new VersionPopup(resourceBundle, ds3Common, alertService),
             new Popup(ds3Common),
             new PhysicalPlacementPopup(resourceBundle, ds3Common),

@@ -39,7 +39,6 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.scene.control.TreeItem;
 import kotlin.collections.EmptyList;
 
 import javax.inject.Inject;
@@ -52,20 +51,20 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     private final Ds3Common ds3Common;
     private final Workers workers;
     private final DateTimeUtils dateTimeUtils;
-    private final TreeItem<Ds3TreeTableValue> values;
+    private final Ds3TreeTableValue value;
     private final LoggingService loggingService;
     private final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory;
 
     @Inject
     public PhysicalPlacementTask(
-            @Assisted final TreeItem<Ds3TreeTableValue> values,
+            @Assisted final Ds3TreeTableValue value,
             final Ds3Common ds3Common,
             final DateTimeUtils dateTimeUtils,
             final Workers workers,
             final LoggingService loggingService,
             final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory) {
         this.ds3Common = ds3Common;
-        this.values = values;
+        this.value = value;
         this.workers = workers;
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
@@ -75,7 +74,6 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     @Override
     protected PhysicalPlacementModel call() throws Exception {
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
-        final Ds3TreeTableValue value = values.getValue();
         final ImmutableList<Ds3Object> list;
         switch (value.getType()) {
             case File:
@@ -188,7 +186,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     }
 
     public interface PhysicalPlacementTaskFactory {
-        public PhysicalPlacementTask create(final TreeItem<Ds3TreeTableValue> values);
+        public PhysicalPlacementTask create(final Ds3TreeTableValue value);
     }
 }
 
