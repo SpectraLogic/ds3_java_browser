@@ -22,6 +22,6 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 public class PhysicalPlacementView extends FXMLView {
 
     public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
-        super(name -> { return physicalPlacementModel; });
+        super(name -> physicalPlacementModel);
     }
 }
