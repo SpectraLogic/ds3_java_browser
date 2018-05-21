@@ -28,17 +28,20 @@ import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.createbucket.CreateBucketModel;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.ds3Panel.Ds3PanelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -58,6 +61,7 @@ public class Ds3PanelServiceTest {
     private final LoggingService loggingService = new LoggingServiceFake();
     private final DateTimeUtils dateTimeUtils = new DateTimeUtils();
     private final Workers workers = new Workers();
+    private final Ds3Common ds3Common = new Ds3Common();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final Ds3ClientHelpers HELPERS = Ds3ClientHelpers.wrap(client);
     private static Session session;
@@ -67,7 +71,24 @@ public class Ds3PanelServiceTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
-    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle, dateTimeUtils, new Ds3Common(), workers, loggingService, refreshCompleteViewWorker, new AlertService(resourceBundle, new Ds3Common()), new VersionPopup(resourceBundle, new Ds3Common(), new AlertService(resourceBundle, new Ds3Common())), new Popup(new Ds3Common()),new PhysicalPlacementPopup(resourceBundle, new Ds3Common()));
+    private final AlertService alertService = new AlertService(resourceBundle, ds3Common);
+    private final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory = new PhysicalPlacementTask.PhysicalPlacementTaskFactory() {
+        @Override
+        public PhysicalPlacementTask create(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+            return null;
+        }
+    };
+    private final Ds3PanelService ds3PanelService = new Ds3PanelService(resourceBundle,
+            dateTimeUtils,
+            ds3Common,
+            workers,
+            loggingService,
+            refreshCompleteViewWorker,
+            alertService,
+            new VersionPopup(resourceBundle, ds3Common, alertService),
+            new Popup(ds3Common),
+            new PhysicalPlacementPopup(resourceBundle, ds3Common),
+            physicalPlacementTaskFactory);
 
     @BeforeClass
     public static void setUp() {
@@ -104,7 +125,7 @@ public class Ds3PanelServiceTest {
 
                 final CreateBucketModel createBucketModel = new CreateBucketModel("test_dp", envDataPolicyId);
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, client,
-                        bucketName,null, null);
+                        bucketName, null, null);
                 workers.execute(createBucketTask);
 
                 //Checking is bucket empty
