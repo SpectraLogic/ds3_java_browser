@@ -46,7 +46,7 @@ dependencies {
     compile project(":dsb-api")
     compile project(":dsb-util")
     compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.21'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
 }
 
 shadowJar {
