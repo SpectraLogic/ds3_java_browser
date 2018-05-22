@@ -30,9 +30,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
-import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementModel;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
 import com.spectralogic.dsbrowser.gui.services.Workers;
@@ -178,7 +176,7 @@ public final class Ds3PanelService {
                     workers.execute(getPhysicalPlacement);
                     getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                         LOG.info("Launching PhysicalPlacement popup");
-                        physicalPlacementPopup.show((PhysicalPlacementModel) getPhysicalPlacement.getValue());
+                        physicalPlacementPopup.show(getPhysicalPlacement.getValue());
                     })));
                 });
     }
@@ -192,7 +190,7 @@ public final class Ds3PanelService {
                     workers.execute(getMetadata);
                     getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
-                        final MetadataView metadataView = new MetadataView((Ds3Metadata) getMetadata.getValue());
+                        final MetadataView metadataView = new MetadataView(getMetadata.getValue());
                         popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
                     })));
                 });
