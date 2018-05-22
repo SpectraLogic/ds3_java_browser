@@ -12,16 +12,21 @@
  *    specific language governing permissions and limitations under the License.
  * ******************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-package com.spectralogic.dsbrowser.gui.components.physicalplacement;
+import com.spectralogic.ds3client.models.Ds3TargetAccessControlReplication
+import com.spectralogic.ds3client.models.Quiesced
+import com.spectralogic.ds3client.models.TargetState
+import java.util.*
 
-import com.airhacks.afterburner.views.FXMLView;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
-
-public class PhysicalPlacementView extends FXMLView {
-
-    public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
-        super(name -> physicalPlacementModel);
-    }
-}
+data class ReplicationEntry(
+    val dataPathEndPoint: String,
+    val dataPathPort: Int,
+    val authId: String,
+    val id: String,
+    val name: String,
+    val accessControlReplication: String,
+    val state: String,
+    val permitGoingOutOfSync: Boolean,
+    val quiesced: String
+)

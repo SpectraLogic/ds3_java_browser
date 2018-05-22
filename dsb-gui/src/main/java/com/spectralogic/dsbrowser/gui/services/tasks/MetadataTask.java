@@ -25,7 +25,7 @@ import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import javafx.scene.control.TreeItem;
 
-public class MetadataTask extends Ds3Task {
+public class MetadataTask extends Ds3Task<Ds3Metadata> {
 
     private final Ds3Common ds3Common;
     private final ImmutableList<TreeItem<Ds3TreeTableValue>> values;

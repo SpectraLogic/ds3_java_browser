@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
-import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.Scene;
@@ -37,8 +36,8 @@ public class PhysicalPlacementPopup {
         this.ds3Common = ds3Common;
     }
 
-    public void show(final PhysicalPlacement physicalPlacement) {
-        final PhysicalPlacementView view = new PhysicalPlacementView(physicalPlacement);
+    public void show(final PhysicalPlacementModel physicalPlacementModel) {
+        final PhysicalPlacementView view = new PhysicalPlacementView(physicalPlacementModel);
 
         final Stage popup = new Stage();
         popup.initOwner(ds3Common.getWindow());

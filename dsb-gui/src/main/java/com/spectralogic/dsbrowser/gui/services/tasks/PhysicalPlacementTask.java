@@ -16,87 +16,181 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.GetBucketRequest;
-import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Request;
 import com.spectralogic.ds3client.commands.spectrads3.GetPhysicalPlacementForObjectsSpectraS3Response;
+import com.spectralogic.ds3client.commands.spectrads3.GetTapePartitionSpectraS3Request;
+import com.spectralogic.ds3client.models.Ds3Target;
 import com.spectralogic.ds3client.models.ListBucketResult;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
+import com.spectralogic.ds3client.models.Pool;
+import com.spectralogic.ds3client.models.Tape;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementModel;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.PoolEntry;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.ReplicationEntry;
+import com.spectralogic.dsbrowser.gui.components.physicalplacement.TapeEntry;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.Ds3Task;
+import com.spectralogic.dsbrowser.gui.util.FileSizeFormatKt;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.concurrent.Task;
-import javafx.scene.control.TreeItem;
+import kotlin.collections.EmptyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PhysicalPlacementTask extends Ds3Task {
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     private final static Logger LOG = LoggerFactory.getLogger(PhysicalPlacementTask.class);
 
     private final Ds3Common ds3Common;
-    private final ImmutableList<TreeItem<Ds3TreeTableValue>> values;
     private final Workers workers;
+    private final DateTimeUtils dateTimeUtils;
+    private final Ds3TreeTableValue value;
+    private final LoggingService loggingService;
+    private final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory;
 
-    public PhysicalPlacementTask(final Ds3Common ds3Common, final ImmutableList<TreeItem<Ds3TreeTableValue>> values, final Workers workers) {
+    @Inject
+    public PhysicalPlacementTask(
+            @Assisted final Ds3TreeTableValue value,
+            final Ds3Common ds3Common,
+            final DateTimeUtils dateTimeUtils,
+            final Workers workers,
+            final LoggingService loggingService,
+            final GetDirectoryObjects.Companion.GetDirectoryObjectsFactory getDirectoryObjectsFactory) {
         this.ds3Common = ds3Common;
-        this.values = values;
+        this.value = value;
         this.workers = workers;
+        this.dateTimeUtils = dateTimeUtils;
+        this.loggingService = loggingService;
+        this.getDirectoryObjectsFactory = getDirectoryObjectsFactory;
     }
 
     @Override
-    protected PhysicalPlacement call() throws Exception {
+    protected PhysicalPlacementModel call() throws Exception {
         final Ds3Client client = ds3Common.getCurrentSession().getClient();
-        final Ds3TreeTableValue value = values.get(0).getValue();
-        ImmutableList<Ds3Object> list = null;
-        if (null != value && (value.getType().equals(Ds3TreeTableValue.Type.Bucket))) {
-        } else if (value.getType().equals(Ds3TreeTableValue.Type.File)) {
-            list = values.stream().map(item -> new Ds3Object(item.getValue().getFullName(), item.getValue().getSize()))
-                    .collect(GuavaCollectors.immutableList());
-        //TODO This always evaluates to true at this point
-        } else if (null != value && value.getType().equals(Ds3TreeTableValue.Type.Directory)) {
-            final PhysicalPlacementTask.GetDirectoryObjects getDirectoryObjects = new PhysicalPlacementTask.GetDirectoryObjects(value.getBucketName(), value.getDirectoryName(), ds3Common);
-            workers.execute(getDirectoryObjects);
-            final ListBucketResult listBucketResult = getDirectoryObjects.getValue();
-            if (null != listBucketResult) {
-                list = listBucketResult.getObjects().stream().map(item -> new Ds3Object(item.getKey(), item.getSize()))
-                        .collect(GuavaCollectors.immutableList());
-            }
+        final ImmutableList<Ds3Object> list;
+        switch (value.getType()) {
+            case File:
+                list = ImmutableList.of(new Ds3Object(value.getFullName(), value.getSize()));
+                break;
+            case Directory:
+                final GetDirectoryObjects getDirectoryObjects = getDirectoryObjectsFactory.create(value.getBucketName(), value.getFullName());
+                workers.execute(getDirectoryObjects);
+                final ListBucketResult listBucketResult = getDirectoryObjects.getValue();
+                list = null != listBucketResult ? listBucketResult
+                        .getObjects()
+                        .stream()
+                        .map(item -> new Ds3Object(item.getKey(), item.getSize()))
+                        .collect(GuavaCollectors.immutableList()) : ImmutableList.of();
+                break;
+            default:
+                list = ImmutableList.of();
         }
         final GetPhysicalPlacementForObjectsSpectraS3Response response = client
                 .getPhysicalPlacementForObjectsSpectraS3(
                         new GetPhysicalPlacementForObjectsSpectraS3Request(value.getBucketName(), list));
-        return response.getPhysicalPlacementResult();
+        if (response.getPhysicalPlacementResult().getPools() == null) {
+            response.getPhysicalPlacementResult().setPools(EmptyList.INSTANCE);
+        }
+        if (response.getPhysicalPlacementResult().getTapes() == null) {
+            response.getPhysicalPlacementResult().setTapes(EmptyList.INSTANCE);
+        }
+        if (response.getPhysicalPlacementResult().getDs3Targets() == null) {
+            response.getPhysicalPlacementResult().setDs3Targets(EmptyList.INSTANCE);
+        }
+        return new PhysicalPlacementModel(
+                buildPoolEntries(response),
+                buildReplicationEntries(response),
+                buildTapeEntries(response)
+        );
     }
 
+    private ImmutableList<TapeEntry> buildTapeEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+        return response.getPhysicalPlacementResult()
+                .getTapes()
+                .stream()
+                .map(this::getTapeEntry)
+                .collect(GuavaCollectors.immutableList());
+    }
 
-    private static class GetDirectoryObjects extends Task<ListBucketResult> {
-        final String bucketName, directoryFullName;
-        final Ds3Common ds3Common;
+    private TapeEntry getTapeEntry(final Tape tape) {
+        return new TapeEntry(
+                tape.getBarCode(),
+                tape.getSerialNumber(),
+                tape.getType(),
+                tape.getState().name(),
+                tape.getWriteProtected(),
+                FileSizeFormatKt.toByteRepresentation(tape.getAvailableRawCapacity()),
+                FileSizeFormatKt.toByteRepresentation(tape.getTotalRawCapacity() - tape.getAvailableRawCapacity()),
+                getPartitionName(tape.getPartitionId()),
+                dateTimeUtils.format(tape.getLastModified()),
+                tape.getEjectLabel() == null ? "" : tape.getEjectLabel(),
+                tape.getEjectLocation() == null ? "" : tape.getEjectLocation());
+    }
 
-        public GetDirectoryObjects(final String bucketName, final String directoryFullName, final Ds3Common ds3Common) {
-            this.bucketName = bucketName;
-            this.directoryFullName = directoryFullName;
-            this.ds3Common = ds3Common;
-        }
-
-        @Override
-        protected ListBucketResult call() throws Exception {
-            try {
-                final GetBucketRequest request = new GetBucketRequest(bucketName);
-                request.withPrefix(directoryFullName);
-                final GetBucketResponse bucketResponse = ds3Common.getCurrentSession().getClient().getBucket(request);
-                return bucketResponse.getListBucketResult();
-            } catch (final Exception e) {
-                LOG.error("unable to get bucket response", e);
-                return null;
-            }
+    private String getPartitionName(final UUID id) {
+        try {
+            return ds3Common.getCurrentSession().getClient()
+                    .getTapePartitionSpectraS3(new GetTapePartitionSpectraS3Request(id.toString()))
+                    .getTapePartitionResult()
+                    .getName();
+        } catch (final IOException e) {
+            LOG.error("Could not get Tape Partition", e);
+            loggingService.logInternationalMessage("unableToGetPartitionName", LogType.ERROR);
+            return id.toString();
         }
     }
 
+    private ImmutableList<ReplicationEntry> buildReplicationEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+        return response
+                .getPhysicalPlacementResult()
+                .getDs3Targets()
+                .stream()
+                .map(this::getReplicationEntry)
+                .collect(GuavaCollectors.immutableList());
+    }
 
+    private ReplicationEntry getReplicationEntry(final Ds3Target ds3Target) {
+        return new ReplicationEntry(
+                ds3Target.getDataPathEndPoint(),
+                ds3Target.getDataPathPort(),
+                ds3Target.getAdminAuthId(),
+                ds3Target.getId().toString(),
+                ds3Target.getName(),
+                ds3Target.getAccessControlReplication().name(),
+                ds3Target.getState().name(),
+                ds3Target.getPermitGoingOutOfSync(),
+                ds3Target.getQuiesced().name());
+    }
+
+    private ImmutableList<PoolEntry> buildPoolEntries(final GetPhysicalPlacementForObjectsSpectraS3Response response) {
+        return response
+                .getPhysicalPlacementResult()
+                .getPools()
+                .stream()
+                .map(this::getPoolEntry)
+                .collect(GuavaCollectors.immutableList());
+    }
+
+    private PoolEntry getPoolEntry(final Pool pool) {
+        return new PoolEntry(
+                pool.getName(),
+                pool.getHealth().name(),
+                pool.getType().toString(),
+                pool.getPartitionId().toString());
+    }
+
+    public interface PhysicalPlacementTaskFactory {
+        public PhysicalPlacementTask create(final Ds3TreeTableValue value);
+    }
 }
 

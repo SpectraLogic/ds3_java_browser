@@ -12,16 +12,18 @@
  *    specific language governing permissions and limitations under the License.
  * ******************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-package com.spectralogic.dsbrowser.gui.components.physicalplacement;
-
-import com.airhacks.afterburner.views.FXMLView;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
-
-public class PhysicalPlacementView extends FXMLView {
-
-    public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
-        super(name -> physicalPlacementModel);
-    }
-}
+data class TapeEntry(
+    val barcode: String,
+    val serialNumber: String,
+    val type: String,
+    val state: String,
+    val writeProtected: Boolean,
+    val availableCapacity: String,
+    val usedCapacity: String,
+    val tapePartition: String,
+    val lastModified: String,
+    val ejectLabel: String,
+    val ejectLocation: String
+)

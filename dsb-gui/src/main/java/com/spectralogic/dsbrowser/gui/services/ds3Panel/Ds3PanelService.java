@@ -23,7 +23,6 @@ import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Request
 import com.spectralogic.ds3client.commands.spectrads3.GetBucketsSpectraS3Response;
 import com.spectralogic.ds3client.models.Bucket;
 import com.spectralogic.ds3client.models.ListBucketResult;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
@@ -31,7 +30,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.components.metadata.Ds3Metadata;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
@@ -51,8 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -68,10 +64,10 @@ public final class Ds3PanelService {
     private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
-    private final AlertService alert;
     private final VersionPopup versionPopup;
     private final Popup popup;
     private final PhysicalPlacementPopup physicalPlacementPopup;
+    private final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory;
 
     @Inject
     public Ds3PanelService(
@@ -81,21 +77,21 @@ public final class Ds3PanelService {
             final Workers workers,
             final LoggingService loggingService,
             final RefreshCompleteViewWorker refreshCompleteViewWorker,
-            final AlertService alertService,
             final VersionPopup versionPopup,
             final Popup popup,
-            final PhysicalPlacementPopup physicalPlacementPopup
+            final PhysicalPlacementPopup physicalPlacementPopup,
+            final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory
     ) {
         this.versionPopup = versionPopup;
         this.ds3Common = ds3Common;
         this.workers = workers;
         this.refreshCompleteViewWorker = refreshCompleteViewWorker;
-        this.resourceBundle =resourceBundle;
+        this.resourceBundle = resourceBundle;
         this.dateTimeUtils = dateTimeUtils;
         this.loggingService = loggingService;
-        this.alert = alertService;
         this.popup = popup;
         this.physicalPlacementPopup = physicalPlacementPopup;
+        this.physicalPlacementTaskFactory = physicalPlacementTaskFactory;
     }
 
     /**
@@ -172,56 +168,32 @@ public final class Ds3PanelService {
     }
 
     public void showPhysicalPlacement() {
-        ImmutableList<TreeItem<Ds3TreeTableValue>> tempValues = getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
-        final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        if (tempValues.isEmpty() && (root == null || root.getValue() != null)) {
-            LOG.info(resourceBundle.getString("nothingSelected"));
-            alert.info("nothingSelected");
-            return;
-        } else if (tempValues.isEmpty()) {
-            final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
-            tempValues = builder.add(root).build().asList();
-
-        }
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = tempValues;
-        if (values.size() > 1) {
-            LOG.info(resourceBundle.getString("onlySingleObjectSelectForPhysicalPlacement"));
-            alert.info("onlySingleObjectSelectForPhysicalPlacement");
-            return;
-        }
-
-        final PhysicalPlacementTask getPhysicalPlacement = new PhysicalPlacementTask(ds3Common, values, workers);
-
-        workers.execute(getPhysicalPlacement);
-        getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
-            LOG.info("Launching PhysicalPlacement popup");
-            physicalPlacementPopup.show((PhysicalPlacement) getPhysicalPlacement.getValue());
-        })));
+        getSelectedItems()
+                .stream()
+                .findFirst()
+                .ifPresent(ds3TreeTableValueTreeItem -> {
+                    final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(ds3TreeTableValueTreeItem.getValue());
+                    workers.execute(getPhysicalPlacement);
+                    getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                        LOG.info("Launching PhysicalPlacement popup");
+                        physicalPlacementPopup.show(getPhysicalPlacement.getValue());
+                    })));
+                });
     }
 
-    @SuppressWarnings("unchecked")
     public void showMetadata() {
-
-        final ImmutableList<TreeItem<Ds3TreeTableValue>> values = getSelectedItems().stream().collect(GuavaCollectors.immutableList());
-        if (values.isEmpty()) {
-            LOG.info(resourceBundle.getString("noFiles"));
-            alert.info("noFiles");
-            return;
-        }
-        if (values.size() > 1) {
-            LOG.info(resourceBundle.getString("onlySingleObjectSelectForMetadata"));
-            alert.info("onlySingleObjectSelectForMetadata");
-            return;
-        }
-
-        final MetadataTask getMetadata = new MetadataTask(ds3Common, values);
-        workers.execute(getMetadata);
-        getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
-            LOG.info("Launching metadata popup");
-            final MetadataView metadataView = new MetadataView((Ds3Metadata) getMetadata.getValue());
-            popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
-        })));
+        getSelectedItems()
+                .stream()
+                .findFirst()
+                .ifPresent(ds3TreeTableValueTreeItem -> {
+                    final MetadataTask getMetadata = new MetadataTask(ds3Common, ImmutableList.of(ds3TreeTableValueTreeItem));
+                    workers.execute(getMetadata);
+                    getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                        LOG.info("Launching metadata popup");
+                        final MetadataView metadataView = new MetadataView(getMetadata.getValue());
+                        popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
+                    })));
+                });
     }
 
     public void filterChanged() {

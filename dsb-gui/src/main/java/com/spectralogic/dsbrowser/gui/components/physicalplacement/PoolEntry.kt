@@ -12,16 +12,6 @@
  *    specific language governing permissions and limitations under the License.
  * ******************************************************************************
  */
+package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-package com.spectralogic.dsbrowser.gui.components.physicalplacement;
-
-import com.airhacks.afterburner.views.FXMLView;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
-
-public class PhysicalPlacementView extends FXMLView {
-
-    public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
-        super(name -> physicalPlacementModel);
-    }
-}
+data class PoolEntry(val name: String, val health: String, val s3poolType: String, val partition: String)

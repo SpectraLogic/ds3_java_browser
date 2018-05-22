@@ -13,15 +13,8 @@
  * ******************************************************************************
  */
 
-package com.spectralogic.dsbrowser.gui.components.physicalplacement;
+package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-import com.airhacks.afterburner.views.FXMLView;
-import com.spectralogic.ds3client.models.PhysicalPlacement;
-import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.google.common.collect.ImmutableList
 
-public class PhysicalPlacementView extends FXMLView {
-
-    public PhysicalPlacementView(final PhysicalPlacementModel physicalPlacementModel) {
-        super(name -> physicalPlacementModel);
-    }
-}
+data class PhysicalPlacementModel(val poolEntries: ImmutableList<PoolEntry>, val replicationEntries: ImmutableList<ReplicationEntry>, val tapeEntries: ImmutableList<TapeEntry>)
