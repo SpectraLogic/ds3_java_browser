@@ -24,7 +24,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
         classpath "com.netflix.nebula:gradle-ospackage-plugin:4.6.0"
     }
 }
@@ -45,7 +45,7 @@ apply plugin: "nebula.ospackage"
 dependencies {
     compile project(":dsb-api")
     compile project(":dsb-util")
-    compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.0.5'
+    compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.21'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
 }
 
@@ -73,7 +73,7 @@ classes.dependsOn genConfigProperties
 
 ospackage {
     packageName = 'eonbrowser'
-    version = '5.0.0'
+    version = '5.0.1'
     release = '1'
     os = LINUX
 
