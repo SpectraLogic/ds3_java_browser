@@ -73,7 +73,6 @@ public class AlertService {
         alert.setContentText(message);
         alert.setAlertType(alertType);
         alert.showAndWait();
-        alert.close();
     }
 
     public void error(final String message) {
