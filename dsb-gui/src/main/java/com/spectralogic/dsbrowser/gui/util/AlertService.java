@@ -40,7 +40,6 @@ public class AlertService {
 
     private final ResourceBundle resourceBundle;
     private final Ds3Common ds3Common;
-    private Alert alert = null;
 
     @Inject
     public AlertService(final ResourceBundle resourceBundle, final Ds3Common ds3Common) {
@@ -50,9 +49,7 @@ public class AlertService {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType) {
-        if (alert == null) {
-            alert = new Alert(alertType);
-        }
+        Alert alert = new Alert(alertType);
         alert.initOwner(ds3Common.getWindow());
         alert.setTitle(title);
         alert.setHeaderText(null);
