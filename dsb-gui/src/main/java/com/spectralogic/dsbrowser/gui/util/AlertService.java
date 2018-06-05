@@ -52,8 +52,8 @@ public class AlertService {
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType) {
         if (alert == null) {
             alert = new Alert(alertType);
+            alert.initOwner(ds3Common.getWindow());
         }
-        alert.initOwner(ds3Common.getWindow());
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setAlertType(alertType);
