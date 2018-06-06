@@ -341,7 +341,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public void showSettingsPopup() {
         final SettingsView settingsView = new SettingsView();
-        popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"));
+        popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"), true);
     }
 
     public void showAboutPopup() {
