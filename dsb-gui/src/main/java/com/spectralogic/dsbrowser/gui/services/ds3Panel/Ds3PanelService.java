@@ -191,7 +191,7 @@ public final class Ds3PanelService {
                     getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
                         final MetadataView metadataView = new MetadataView(getMetadata.getValue());
-                        popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"));
+                        popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"), true);
                     })));
                 });
     }
