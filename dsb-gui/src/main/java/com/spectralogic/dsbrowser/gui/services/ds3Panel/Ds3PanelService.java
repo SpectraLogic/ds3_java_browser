@@ -45,6 +45,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,7 +182,7 @@ public final class Ds3PanelService {
                 });
     }
 
-    public void showMetadata() {
+    public void showMetadata(final Window window) {
         getSelectedItems()
                 .stream()
                 .findFirst()
@@ -191,7 +192,7 @@ public final class Ds3PanelService {
                     getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
                         final MetadataView metadataView = new MetadataView(getMetadata.getValue());
-                        popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"), true);
+                        popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"), true, window);
                     })));
                 });
     }
@@ -262,12 +263,12 @@ public final class Ds3PanelService {
 
     }
 
-    public void showVersions() {
+    public void showVersions(final Window window) {
         final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = getSelectedItems();
         selectedItems.stream()
                 .findFirst()
                 .ifPresent(item -> {
-                    versionPopup.show(item.getValue());
+                    versionPopup.show(item.getValue(), window);
                 });
     }
 

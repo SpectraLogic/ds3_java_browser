@@ -35,6 +35,7 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -57,8 +58,9 @@ public class SearchJobTaskTest {
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "DeleteFilesTaskTest";
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @Before
     public void setUp() {
@@ -74,7 +76,7 @@ public class SearchJobTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
         });
     }
 

@@ -21,6 +21,7 @@ import com.spectralogic.dsbrowser.gui.util.Ds3Task;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,22 +49,22 @@ public class DeleteFilesPopup {
     }
 
 
-    public void show(final Ds3Task deleteTask) {
+    public void show(final Ds3Task deleteTask, final Window window) {
         final DeleteItemView deleteView = new DeleteItemView(deleteTask);
         if (ds3Common.getDs3TreeTableView() != null) {
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedPanelItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
-            changeLabelText(selectedPanelItems, deleteView);
+            changeLabelText(selectedPanelItems, deleteView, window);
         }
     }
 
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
-            final DeleteItemView deleteView) {
+            final DeleteItemView deleteView, final Window window) {
         if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.File)) {
-            popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"), window);
         } else if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.Directory)) {
-            popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"), window);
         } else {
-            popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"));
+            popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"), window);
         }
 
     }

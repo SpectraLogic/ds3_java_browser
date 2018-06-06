@@ -38,6 +38,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +181,10 @@ public class DeleteItemPresenter implements Initializable {
         loggingService.logMessage(message, LogType.ERROR);
 
         closeDialog();
-        alert.error(alertMessage);
+        alert.error(alertMessage, getWindow());
+    }
+
+    private Window getWindow() {
+        return deleteLabel.getScene().getWindow();
     }
 }

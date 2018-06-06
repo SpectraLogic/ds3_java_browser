@@ -30,6 +30,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,20 +144,20 @@ public class CreateBucketPresenter implements Initializable {
                     });
                 }));
                 createBucketTask.setOnFailed(SafeHandler.logHandle(event -> {
-                    alert.error(CREATE_BUCKET_ERROR_ALERT);
+                    alert.error(CREATE_BUCKET_ERROR_ALERT, getWindow());
                 }));
                 workers.execute(createBucketTask);
             } else {
                 LOG.info("Data policy not found");
                 loggingService.logMessage(resourceBundle.getString(DATA_POLICY_NOT_FOUND_ERR), LogType.INFO);
-                alert.error(DATA_POLICY_NOT_FOUND_ERR);
+                alert.error(DATA_POLICY_NOT_FOUND_ERR, getWindow());
             }
 
 
         } catch (final Exception e) {
             LOG.error("Failed to create bucket", e);
             loggingService.logMessage(resourceBundle.getString("createBucketFailedErr") + e, LogType.ERROR);
-            alert.error(CREATE_BUCKET_ERROR_ALERT);
+            alert.error(CREATE_BUCKET_ERROR_ALERT, getWindow());
         }
     }
 
@@ -168,5 +169,9 @@ public class CreateBucketPresenter implements Initializable {
     private void closeDialog() {
         final Stage popupStage = (Stage) bucketNameField.getScene().getWindow();
         popupStage.close();
+    }
+
+    private Window getWindow() {
+        return dataPolicyComboLabel.getScene().getWindow();
     }
 }

@@ -29,6 +29,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class VersionPopup {
         this.alertService = alertService;
     }
 
-    public void show(final Ds3TreeTableValue item) {
+    public void show(final Ds3TreeTableValue item, final Window window) {
         Platform.runLater(() -> {
             final List<VersionItem> versions = getVersioned(item)
                     .stream()
@@ -64,7 +65,7 @@ public class VersionPopup {
                     .collect(GuavaCollectors.immutableList());
 
             if (versions.isEmpty()) {
-                alertService.warning("unableToGetVersions");
+                alertService.warning("unableToGetVersions", window);
             } else {
                 final Stage popup = new Stage();
                 popup.initOwner(ds3Common.getWindow());

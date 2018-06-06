@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.modifyjobpriority;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
+import javafx.stage.Window;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -33,9 +34,9 @@ public final class ModifyJobPriorityPopUp {
         this.popup = popup;
     }
 
-    public void show(final ModifyJobPriorityModel value) {
+    public void show(final ModifyJobPriorityModel value, final Window window) {
         final ModifyJobPriorityView view = new ModifyJobPriorityView(value);
-        popup.show(view.getView(), resourceBundle.getString("changeJobPriority"));
+        popup.show(view.getView(), resourceBundle.getString("changeJobPriority"), window);
     }
 
 }

@@ -19,21 +19,23 @@ import com.spectralogic.dsbrowser.gui.components.about.AboutView;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 
 public class PopupTest {
-    private final static Popup popup = new Popup(new Ds3Common());
+    private final static Popup popup = new Popup();
 
     @Test
     public void show() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         new JFXPanel();
         Platform.runLater(() -> {
-            popup.show(new AboutView().getView(), "About");
+            popup.show(new AboutView().getView(), "About", Mockito.mock(Window.class));
         });
         latch.await(10, TimeUnit.SECONDS);
     }

@@ -36,6 +36,7 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import javafx.scene.layout.HBox;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -65,8 +66,9 @@ public class BucketUtilTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -82,7 +84,7 @@ public class BucketUtilTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);

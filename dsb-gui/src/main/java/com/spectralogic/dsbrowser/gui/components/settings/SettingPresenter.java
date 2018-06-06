@@ -30,6 +30,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +162,7 @@ public class SettingPresenter implements Initializable {
         }
     }
 
-    public void saveFilePropertiesSettings() {
+    public void saveFilePropertiesSettings(final Window window) {
         LOG.info("Updating fileProperties settingsStore");
         try {
             if (filePropertiesCheckbox.isSelected()) {
@@ -169,33 +170,33 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.info("filePropertiesSettingsUpdated");
+            alert.info("filePropertiesSettingsUpdated", window);
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
     }
 
-    public void savePerformanceSettings() {
+    public void savePerformanceSettings(final Window window) {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.info("performanceSettingsUpdated");
+        alert.info("performanceSettingsUpdated", window);
     }
 
-    public void saveLogSettings() {
+    public void saveLogSettings(final Window window) {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.info("loggingSettingsUpdated");
+        alert.info("loggingSettingsUpdated", window);
     }
 
-    public void saveJobSettings() {
+    public void saveJobSettings(final Window window) {
         LOG.info("Updating jobs settingsStore");
         try {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.info("jobsSettingsUpdated");
+            alert.info("jobsSettingsUpdated", window);
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }

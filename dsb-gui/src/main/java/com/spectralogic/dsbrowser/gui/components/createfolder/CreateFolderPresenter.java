@@ -32,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,9 +118,9 @@ public class CreateFolderPresenter implements Initializable {
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
             final Throwable e = event.getSource().getException();
             if (e instanceof FailedRequestException && ((FailedRequestException) e).getError().getCode().equals("OBJECT_ALREADY_EXISTS")) {
-                alert.error("folderAlreadyExists");
+                alert.error("folderAlreadyExists", getWindow());
             } else {
-                alert.error(CREATE_FOLDER_ERR_LOGS);
+                alert.error(CREATE_FOLDER_ERR_LOGS, getWindow());
                 LOG.error("Failed to create folder", e);
                 loggingService.logMessage(resourceBundle.getString("createFolderErr")
                         + StringConstants.SPACE + folderNameField.textProperty().getValue().trim()
@@ -139,5 +140,9 @@ public class CreateFolderPresenter implements Initializable {
     private void closeDialog() {
         final Stage popupStage = (Stage) folderNameField.getScene().getWindow();
         popupStage.close();
+    }
+
+    private Window getWindow() {
+        return labelText.getScene().getWindow();
     }
 }

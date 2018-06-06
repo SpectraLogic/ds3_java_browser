@@ -57,6 +57,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,7 +180,7 @@ public class Ds3PanelPresenter implements Initializable {
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             //open default session when DSB launched
-            savedSessionStore.openDefaultSession(ds3SessionStore, createConnectionTask);
+            savedSessionStore.openDefaultSession(ds3SessionStore, createConnectionTask, getWindow());
         } catch (final Throwable t) {
             LOG.error("Encountered error when initializing Ds3PanelPresenter", t);
         }
@@ -213,7 +214,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3DeleteButton.setOnAction(SafeHandler.logHandle(event -> ds3DeleteObject()));
         ds3Refresh.setOnAction(SafeHandler.logHandle(event -> refreshCompleteViewWorker.refreshCompleteTreeTableView()));
         ds3ParentDir.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
-        ds3NewFolder.setOnAction(SafeHandler.logHandle(event -> createService.createFolderPrompt()));
+        ds3NewFolder.setOnAction(SafeHandler.logHandle(event -> createService.createFolderPrompt(getWindow())));
         ds3TransferLeft.setOnAction(SafeHandler.logHandle(event -> {
             try {
                 ds3TransferToLocal();
@@ -223,7 +224,7 @@ public class Ds3PanelPresenter implements Initializable {
         }));
         ds3NewBucket.setOnAction(SafeHandler.logHandle(event -> {
             LOG.debug("Attempting to create bucket...");
-            createService.createBucketPrompt();
+            createService.createBucketPrompt(getWindow());
         }));
 
         ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
@@ -333,7 +334,7 @@ public class Ds3PanelPresenter implements Initializable {
                     jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> Platform.runLater(() -> {
                         LOG.info("Launching metadata popup");
 
-                        modifyJobPriorityPopUp.show(jobPriorityTask.getValue());
+                        modifyJobPriorityPopUp.show(jobPriorityTask.getValue(), getWindow());
                     })));
                     jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> {
                         LOG.error(resourceBundle.getString("failedToModifyPriority"));
@@ -399,7 +400,7 @@ public class Ds3PanelPresenter implements Initializable {
     private void ds3TransferToLocal() throws IOException {
         final Session session = getSession();
         if ((session == null) || (ds3Common == null)) {
-            alert.error("invalidSession");
+            alert.error("invalidSession", getWindow());
             return;
         }
 
@@ -407,14 +408,14 @@ public class Ds3PanelPresenter implements Initializable {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
         if (ds3TreeTableView == null) {
             LOG.info("Files not selected");
-            alert.info(FILE_SELECT);
+            alert.info(FILE_SELECT, getWindow());
             return;
         }
 
         // Verify remote files to GET selected
         if ((ds3TreeTableView.getSelectionModel() == null) || (ds3TreeTableView.getSelectionModel().getSelectedItems() == null)) {
             LOG.info("Files not selected");
-            alert.info(FILE_SELECT);
+            alert.info(FILE_SELECT, getWindow());
             return;
         }
         final ImmutableList<Ds3TreeTableValue> selectedItemsAtSourceLocationList = ds3TreeTableView.getSelectionModel()
@@ -433,12 +434,12 @@ public class Ds3PanelPresenter implements Initializable {
         if (fileRootItem.equals(resourceBundle.getString("myComputer"))) {
             if (Guard.isNullOrEmpty(selectedItemsAtDestination)) {
                 LOG.info("Location not selected");
-                alert.error("sourceFileSelectError");
+                alert.error("sourceFileSelectError", getWindow());
                 return;
             }
         }
         if (selectedItemsAtDestination.size() > 1) {
-            alert.error("multipleDestError");
+            alert.error("multipleDestError", getWindow());
             return;
         }
         final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
@@ -476,17 +477,17 @@ public class Ds3PanelPresenter implements Initializable {
         if (Guard.isNullOrEmpty(values)) {
             if (root.getValue() == null) {
                 LOG.info(resourceBundle.getString("noFiles"));
-                alert.info("noFiles");
+                alert.info("noFiles", getWindow());
             }
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Directory)) {
             values.stream().map(TreeItem::toString).forEach(itemString -> LOG.info("Delete folder {}", itemString));
-            deleteService.deleteFolders(values);
+            deleteService.deleteFolders(values, getWindow());
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.Bucket)) {
             LOG.info("Going to delete the bucket");
-            deleteService.deleteBucket(values);
+            deleteService.deleteBucket(values, getWindow());
         } else if (values.stream().map(TreeItem::getValue).anyMatch(value -> value.getType() == Ds3TreeTableValue.Type.File)) {
             LOG.info("Going to delete the file(s)");
-            deleteService.deleteFiles(values);
+            deleteService.deleteFiles(values, getWindow());
         }
     }
 
@@ -515,7 +516,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     public void newSessionDialog() {
-        newSessionPopup.show();
+        newSessionPopup.show(getWindow());
     }
 
     private void initTab() {
@@ -524,7 +525,7 @@ public class Ds3PanelPresenter implements Initializable {
                 " -fx-background-insets: 0px;");
         addNewTab.setGraphic(newSessionButton);
         newSessionButton.setOnMouseClicked(event -> {
-            newSessionPopup.show();
+            newSessionPopup.show(getWindow());
         });
     }
 
@@ -683,6 +684,10 @@ public class Ds3PanelPresenter implements Initializable {
                             },
                             null);
                 });
+    }
+
+    private Window getWindow() {
+        return ds3SessionTabPane.getScene().getWindow();
     }
 }
 

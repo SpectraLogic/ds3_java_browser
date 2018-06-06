@@ -26,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,18 +119,18 @@ public class SavedSessionStore {
     }
 
     //open default session when DSB launched
-    public void openDefaultSession(final Ds3SessionStore store, final CreateConnectionTask createConnectionTask) {
+    public void openDefaultSession(final Ds3SessionStore store, final CreateConnectionTask createConnectionTask, final Window window) {
         getSessions().stream()
                 .filter(Objects::nonNull)
                 .filter(SavedSession::getDefaultSession)
                 .findFirst()
-                .ifPresent(savedSession -> connectToDefaultSession(store, savedSession, createConnectionTask));
+                .ifPresent(savedSession -> connectToDefaultSession(store, savedSession, createConnectionTask, window));
     }
 
-    private static void connectToDefaultSession(final Ds3SessionStore store, final SavedSession savedSession, final CreateConnectionTask createConnectionTask) {
+    private static void connectToDefaultSession(final Ds3SessionStore store, final SavedSession savedSession, final CreateConnectionTask createConnectionTask, final Window window) {
         store.addSession(
                 createConnectionTask.createConnection(
-                        SessionModelService.setSessionModel(savedSession, true)));
+                        SessionModelService.setSessionModel(savedSession, true), window));
     }
 
     public static class SerializedSessionStore {

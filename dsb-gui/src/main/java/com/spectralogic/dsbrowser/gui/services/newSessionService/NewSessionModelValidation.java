@@ -18,6 +18,7 @@ package com.spectralogic.dsbrowser.gui.services.newSessionService;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
+import javafx.stage.Window;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -33,21 +34,21 @@ public class NewSessionModelValidation {
 
     public static final String ERROR = "Error";
 
-    public boolean validationNewSession(final NewSessionModel model) {
+    public boolean validationNewSession(final NewSessionModel model, final Window window) {
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.error("enterSession");
+            alert.error("enterSession", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.error("enterDataPathAddress");
+            alert.error("enterDataPathAddress", window);
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.error("enterValidPort");
+            alert.error("enterValidPort", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.error("enterAccessKey");
+            alert.error("enterAccessKey", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.error("enterSecretKey");
+            alert.error("enterSecretKey", window);
             return false;
         }
         return true;
