@@ -35,7 +35,7 @@ public class Popup {
         this.ds3Common =  ds3Common;
     }
 
-    public void show(final Parent parent, final String title) {
+    public void show(final Parent parent, final String title, final Boolean resizeable) {
         final Stage popup = new Stage();
         popup.initOwner(ds3Common.getWindow());
 
@@ -46,7 +46,11 @@ public class Popup {
         popup.setScene(popupScene);
         popup.setTitle(title);
         popup.setAlwaysOnTop(false);
-        popup.setResizable(false);
+        popup.setResizable(resizeable);
         popup.showAndWait();
+    }
+
+    public void show(final Parent parent, final String title) {
+        show(parent, title, false);
     }
 }

@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 
 <!--
   ~ *******************************************************************************
@@ -19,25 +31,25 @@
   ~ *******************************************************************************
   -->
 
-<Pane prefHeight="243.0" prefWidth="515.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
-    <children>
-        <TabPane prefHeight="243.0" prefWidth="531.0" tabClosingPolicy="UNAVAILABLE">
+<BorderPane xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.settings.SettingPresenter">
+   <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
             <tabs>
                 <Tab fx:id="loggingTab">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-8.0" prefHeight="223.0" prefWidth="482.0" vgap="10.0">
+                                <GridPane alignment="CENTER" layoutY="-8.0" vgap="10.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="201.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="386.0" minWidth="10.0" prefWidth="204.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
                                         <Label fx:id="locationSetting" alignment="TOP_LEFT" />
@@ -49,8 +61,13 @@
                                             </GridPane.margin>
                                         </TextField>
                                         <TextField fx:id="numRolling" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                        <TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" prefHeight="18.0" prefWidth="150.0" GridPane.columnIndex="1" />
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                              <HBox GridPane.columnIndex="1">
+                                 <children>
+                                              <TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" />
+                                     <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="browseButton" layoutX="465.0" layoutY="15.0" mnemonicParsing="false" onAction="#showFileExplorer" />
+                                 </children>
+                              </HBox>
+                                        <HBox alignment="CENTER_RIGHT" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                             <children>
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsButton" mnemonicParsing="false" onAction="#saveLogSettings" />
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
@@ -66,29 +83,29 @@
                                         <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
                                     </padding>
                                 </GridPane>
-                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="browseButton" layoutX="465.0" layoutY="15.0" mnemonicParsing="false" onAction="#showFileExplorer" prefWidth="25.0" />
+
                             </children>
                         </AnchorPane>
 
-                    </content>
+                                </content>
                 </Tab>
                 <Tab fx:id="performanceTab">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="217.0" prefWidth="531.0" vgap="10.0">
+                                <GridPane alignment="CENTER" layoutY="-2.0" vgap="10.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="270.0" minWidth="10.0" prefWidth="201.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="204.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="112.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="112.0" minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints maxHeight="112.0" minHeight="10.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="performanceLabel" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" GridPane.rowIndex="0" maxHeight="Infinity" wrapText="true" />
-                                        <TextField fx:id="performanceFieldValue" prefHeight="25.0" prefWidth="70.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <Label fx:id="performanceLabel" maxHeight="Infinity" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="performanceFieldValue" prefWidth="206.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <HBox alignment="CENTER_RIGHT" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsPerforanceButton" mnemonicParsing="false" onAction="#savePerformanceSettings" />
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsPerforanceButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
@@ -105,37 +122,37 @@
                 </Tab>
                 <Tab fx:id="jobPriority">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-1.0" prefHeight="216.0" prefWidth="515.0" vgap="10.0">
+                                <GridPane alignment="CENTER" layoutY="-1.0" vgap="10.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="227.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="386.0" minWidth="10.0" prefWidth="225.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
                                     </columnConstraints>
                                     <rowConstraints>
                                         <RowConstraints vgrow="SOMETIMES" />
                                         <RowConstraints />
                                         <RowConstraints />
                                         <RowConstraints />
-                                        <RowConstraints maxHeight="27.0" minHeight="5.0" prefHeight="27.0" />
-                                        <RowConstraints maxHeight="61.0" minHeight="39.0" prefHeight="39.0" />
+                                        <RowConstraints maxHeight="Infinity" minHeight="5.0" />
+                                        <RowConstraints maxHeight="Infinity" minHeight="39.0" />
                                     </rowConstraints>
                                     <children>
                                         <Label fx:id="putJobPriorityText" alignment="TOP_LEFT" />
                                         <Label fx:id="getJobPriorityText" GridPane.rowIndex="1" />
-                                        <ComboBox fx:id="putJobPriority" prefHeight="25.0" prefWidth="200.0" GridPane.columnIndex="1">
+                                        <ComboBox fx:id="putJobPriority" GridPane.columnIndex="1">
                                             <GridPane.margin>
                                                 <Insets />
                                             </GridPane.margin>
                                         </ComboBox>
-                                        <ComboBox fx:id="getJobPriority" prefHeight="25.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <ComboBox fx:id="getJobPriority" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <GridPane.margin>
                                                 <Insets />
                                             </GridPane.margin>
                                         </ComboBox>
                                         <!--<TextField fx:id="getJobPriority" GridPane.columnIndex="1" GridPane.rowIndex="3"/>-->
                                         <!--<TextField fx:id="logDirectory" onAction="#showFileExplorer" onMouseClicked="#showFileExplorer" GridPane.columnIndex="1" />-->
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                        <HBox alignment="CENTER_RIGHT" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                             <children>
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveSettingsJobButton" mnemonicParsing="false" onAction="#saveJobSettings" />
                                                 <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelSettingsJobButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
@@ -144,9 +161,9 @@
                                                 <Insets top="10.0" />
                                             </GridPane.margin>
                                         </HBox>
-                                        <Label fx:id="showCachedJob" alignment="CENTER_LEFT"  prefHeight="17.0" prefWidth="228.0" GridPane.rowIndex="4">
+                                        <Label fx:id="showCachedJob" alignment="CENTER_LEFT" GridPane.rowIndex="4">
                                             <tooltip>
-                                                <Tooltip fx:id="showCachedJobTooltip" prefWidth="300.0" wrapText="true" />
+                                                <Tooltip fx:id="showCachedJobTooltip" wrapText="true" />
                                             </tooltip>
                                         </Label>
                                     </children>
@@ -160,28 +177,28 @@
                 </Tab>
                 <Tab fx:id="fileProperties">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
-                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="208.0" prefWidth="508.0" vgap="10.0">
+                                <GridPane alignment="CENTER" layoutY="-2.0" prefHeight="214.0" prefWidth="227.0" vgap="10.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
                                     <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="240.0" minWidth="10.0" prefWidth="199.0" />
-                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="10.0" prefWidth="99.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="Infinity" minWidth="10.0" />
                                     </columnConstraints>
                                     <rowConstraints>
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                     <children>
-                                        <Label fx:id="enableFileProperties" prefHeight="17.0" prefWidth="336.0" GridPane.columnIndex="0" maxHeight="Infinity" wrapText="true">
+                                        <Label fx:id="enableFileProperties" maxHeight="Infinity" wrapText="true" GridPane.columnIndex="0">
                                             <tooltip>
-                                                <Tooltip fx:id="enableFilePropertiesTooltip" prefWidth="300.0" wrapText="true" />
+                                                <Tooltip fx:id="enableFilePropertiesTooltip" wrapText="true" />
                                             </tooltip>
                                         </Label>
                                         <CheckBox fx:id="filePropertiesCheckbox" alignment="CENTER" mnemonicParsing="false" GridPane.columnIndex="1" />
-                                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <HBox alignment="CENTER" spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveFilePropertiesEnableButton" mnemonicParsing="false" onAction="#saveFilePropertiesSettings" prefWidth="70.0" />
-                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelFilePropertiesEnableButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" prefWidth="80.0" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="saveFilePropertiesEnableButton" mnemonicParsing="false" onAction="#saveFilePropertiesSettings" />
+                                                <com.spectralogic.dsbrowser.gui.util.Ds3Button fx:id="cancelFilePropertiesEnableButton" cancelButton="true" mnemonicParsing="false" onAction="#closeDialog" />
                                             </children>
                                             <GridPane.margin>
                                                 <Insets top="10.0" />
@@ -195,6 +212,5 @@
                 </Tab>
             </tabs>
         </TabPane>
-
-    </children>
-</Pane>
+   </center>
+</BorderPane>
