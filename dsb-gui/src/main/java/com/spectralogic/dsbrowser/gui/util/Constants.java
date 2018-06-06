@@ -19,8 +19,8 @@ import java.net.URI;
 
 public interface Constants {
     int OPEN_DELAY = 100;
-    int CLOSE_DELAY = 0;
-    int DURATION = 2000;
+    int CLOSE_DELAY = 250;
+    int DURATION = 10000;
     int MAX_PARALLEL_THREAD_DEFAULT = 10;
     String PORT_NUMBER = "80";
     String APACHE_URL = "http://www.apache.org/licenses/LICENSE-2.0";
