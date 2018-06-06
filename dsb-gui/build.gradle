@@ -80,8 +80,8 @@ ospackage {
     from(distTar.outputs.files) {
         into '/opt/eonbrowser'
     }
-    postInstall('tar xf /opt/eonbrowser/dsb-gui-2.1.5.tar -C /opt/eonbrowser/')
-    postInstall('ln -s  /opt/eonbrowser/dsb-gui-2.1.5/bin/dsb-gui /sbin/eonbrowser')
+    postInstall("tar xf /opt/eonbrowser/dsb-gui-${version}.tar -C /opt/eonbrowser/")
+    postInstall("ln -s  /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui /sbin/eonbrowser")
     preUninstall('unlink /sbin/eonbrowser')
     preUninstall('rm -rf /opt/eonbrowser/*')
 
