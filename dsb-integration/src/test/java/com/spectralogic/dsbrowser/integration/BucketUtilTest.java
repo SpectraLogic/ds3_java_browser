@@ -36,6 +36,7 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.layout.HBox;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -102,7 +103,7 @@ public class BucketUtilTest {
     public void createRequest() {
         final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
-                false);
+                false,  Mockito.mock(HBox.class));
         final GetBucketRequest request1 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Mockito.mock(Ds3TreeTableItem.class), resourceBundle, 100);
         ds3TreeTableValue.setMarker("testFolder/");
@@ -121,7 +122,7 @@ public class BucketUtilTest {
 
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
-                        false);
+                        false,  Mockito.mock(HBox.class));
                 final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Mockito.mock(Ds3TreeTableItem.class), resourceBundle,100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);
@@ -154,7 +155,7 @@ public class BucketUtilTest {
 
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(BUCKET_UTIL_TEST_BUCKET_NAME, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Ds3TreeTableValue.Type.Bucket, 0L, "", StringConstants.TWO_DASH,
-                        false);
+                        false,  Mockito.mock(HBox.class));
                 final GetBucketRequest request = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                         Mockito.mock(Ds3TreeTableItem.class), resourceBundle,100);
                 final GetBucketResponse bucketResponse = session.getClient().getBucket(request);

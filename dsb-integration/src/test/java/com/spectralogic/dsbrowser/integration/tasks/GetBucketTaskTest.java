@@ -37,6 +37,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.layout.HBox;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -88,7 +89,7 @@ public class GetBucketTaskTest {
                         0L,
                         StringConstants.EMPTY_STRING,
                         StringConstants.TWO_DASH,
-                        false);
+                        false,  Mockito.mock(HBox.class));
                 final GetBucketTask getBucketTask = new GetBucketTask(FXCollections.observableArrayList(),
                         bucketName,
                         session,
