@@ -103,6 +103,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         return searchOn;
     }
 
+    // This looks unused by is needed
     public HBox getPhysicalPlacementHBox() {
         return physicalPlacementHBox;
     }
