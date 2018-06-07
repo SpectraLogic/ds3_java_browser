@@ -41,9 +41,12 @@ import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.HBox;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -127,7 +130,7 @@ public class Ds3DeleteFilesTaskTest {
                 final Ds3TreeTableValue ds3TreeTableValue = new Ds3TreeTableValue(
                         DELETE_FILES_TASK_TEST_BUCKET_NAME, "files/SampleFiles.txt",
                         Ds3TreeTableValue.Type.File, 0L, StringConstants.EMPTY_STRING,
-                        StringConstants.TWO_DASH, false);
+                        StringConstants.TWO_DASH, false, Mockito.mock(HBox.class));
 
                 final TreeItem<Ds3TreeTableValue> value = new TreeItem<>();
                 value.setValue(ds3TreeTableValue);

@@ -106,9 +106,15 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
         final List<Ds3TreeTableItem> list = new ArrayList<>();
         detailedS3Objects.forEach(itemObject -> {
                     if (!itemObject.getType().equals(S3ObjectType.FOLDER)) {
+                        HBox physicalPlacementHBox = null;
+                        //TO get the physical placement of the objects
+                        if (itemObject.getBlobs() != null && !Guard.isNullOrEmpty(itemObject.getBlobs().getObjects())) {
+                            final List<BulkObject> objects = itemObject.getBlobs().getObjects();
+                            physicalPlacementHBox = getConfiguredHBox(objects);
+                        }
                         final Ds3TreeTableValue treeTableValue = new Ds3TreeTableValue(bucketName, itemObject.getName(),
                                 Ds3TreeTableValue.Type.File, itemObject.getSize(),
-                                dateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true);
+                                dateTimeUtils.format(itemObject.getCreationDate()), itemObject.getOwner(), true, physicalPlacementHBox);
                         list.add(new Ds3TreeTableItem(treeTableValue.getFullName(), session,
                                 treeTableValue, workers, ds3Common, dateTimeUtils, loggingService));
                     }
