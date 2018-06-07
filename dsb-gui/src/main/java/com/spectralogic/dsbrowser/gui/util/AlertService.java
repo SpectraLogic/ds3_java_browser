@@ -16,6 +16,7 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
@@ -47,8 +48,12 @@ public class AlertService {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType, final Window window) {
+        Platform.runLater(() -> {
+
         final Alert alert = new Alert(alertType);
-        alert.initOwner(window);
+        if (window != null) {
+            alert.initOwner(window);
+        }
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setAlertType(alertType);
@@ -68,6 +73,7 @@ public class AlertService {
         alert.setContentText(message);
         alert.setAlertType(alertType);
         alert.showAndWait();
+        });
     }
 
     public void error(final String message, final Window window) {

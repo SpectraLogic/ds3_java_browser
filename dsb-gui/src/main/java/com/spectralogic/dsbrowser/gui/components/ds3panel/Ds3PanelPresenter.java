@@ -175,12 +175,11 @@ public class Ds3PanelPresenter implements Initializable {
             initMenuItems();
             initButtons();
             initTab();
-            initTabPane();
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
             ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             //open default session when DSB launched
-            savedSessionStore.openDefaultSession(ds3SessionStore, createConnectionTask, getWindow());
+            savedSessionStore.openDefaultSession(ds3SessionStore, createConnectionTask, null);
         } catch (final Throwable t) {
             LOG.error("Encountered error when initializing Ds3PanelPresenter", t);
         }
@@ -209,7 +208,6 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void initListeners() {
         ds3DeleteButton.setOnAction(SafeHandler.logHandle(event -> ds3DeleteObject()));
         ds3Refresh.setOnAction(SafeHandler.logHandle(event -> refreshCompleteViewWorker.refreshCompleteTreeTableView()));
@@ -230,7 +228,9 @@ public class Ds3PanelPresenter implements Initializable {
         ds3SessionStore.getObservableList().addListener((ListChangeListener<Session>) c -> {
             if (c.next() && c.wasAdded()) {
                 final List<? extends Session> newItems = c.getAddedSubList();
-                newItems.forEach(newSession -> {
+                newItems.stream()
+                .filter(Objects::nonNull)
+                .forEach(newSession -> {
                     createTabAndSetBehaviour(newSession);
                     loggingService.logMessage(resourceBundle.getString("starting") + StringConstants.SPACE +
                             newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()
@@ -240,6 +240,9 @@ public class Ds3PanelPresenter implements Initializable {
         });
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
+            if (ds3SessionTabPane.getTabs().size() > 0 && newTab == addNewTab) {
+                newSessionDialog();
+            }
             try {
                 if (newTab.getContent() instanceof VBox) {
                     final VBox vbox = (VBox) newTab.getContent();
@@ -491,22 +494,6 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    private void initTabPane() {
-        ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (ds3SessionTabPane.getTabs().size() > 0 && newValue == addNewTab) {
-                // popup new session dialog box
-                final int sessionCount = ds3SessionStore.size();
-                newSessionDialog();
-                if (sessionCount == ds3SessionStore.size()) {
-                    // Do not select the new value if NewSessionDialog fails
-                    ds3SessionTabPane.getSelectionModel().select(oldValue);
-                }
-            }
-        });
-    }
-
-
-    @SuppressWarnings("unchecked")
     private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final VBox vbox = (VBox) ds3SessionTabPane.getSelectionModel().getSelectedItem().getContent();
 
@@ -687,7 +674,7 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private Window getWindow() {
-        return ds3SessionTabPane.getScene().getWindow();
+        return addNewTab.getContent().getScene().getWindow();
     }
 }
 
