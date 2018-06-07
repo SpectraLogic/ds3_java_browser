@@ -29,14 +29,17 @@ import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -47,8 +50,9 @@ public class CheckNetwork_Test {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @BeforeClass
     public static void setConnection() {
@@ -64,7 +68,7 @@ public class CheckNetwork_Test {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
         });
     }
 

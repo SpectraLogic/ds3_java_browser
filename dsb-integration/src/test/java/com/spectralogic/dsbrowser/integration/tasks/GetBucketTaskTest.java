@@ -37,6 +37,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeTableView;
+import javafx.stage.Window;
 import javafx.scene.layout.HBox;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +59,8 @@ public class GetBucketTaskTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private final static String bucketName = "TestGetBucketTask";
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static Window window = Mockito.mock(Window.class);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @BeforeClass
@@ -74,7 +76,7 @@ public class GetBucketTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
         });
     }
 

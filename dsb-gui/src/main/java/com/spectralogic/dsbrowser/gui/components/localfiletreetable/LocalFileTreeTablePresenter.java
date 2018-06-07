@@ -44,12 +44,14 @@ import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
 import javafx.util.Pair;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -57,7 +59,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
-
+@Singleton
 @Presenter
 public class LocalFileTreeTablePresenter implements Initializable {
 
@@ -256,7 +258,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void createFolder() {
         if (fileRootItem.equals("My Computer")) {
-            alert.error("specifyDirectory");
+            alert.error("specifyDirectory", getWindow());
             return;
         }
         final Path rootPath = Paths.get(fileRootItem);
@@ -270,14 +272,14 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (results.isPresent()) {
             final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
-                alert.error("cannotCreateFolderWithoutName");
+                alert.error("cannotCreateFolderWithoutName", getWindow());
                 return;
             }
             try {
                 Files.createDirectories(rootPath.resolve(folderName));
                 refreshFileTreeView();
             } catch (final IOException e) {
-                alert.error("couldNotCreateLocalDirectory");
+                alert.error("couldNotCreateLocalDirectory", getWindow());
                 loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                 LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
             }
@@ -345,7 +347,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.error("multipleDestError");
+            alert.error("multipleDestError", getWindow());
             return null;
         }
 
@@ -356,16 +358,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("No valid session to initiate Put");
-            alert.error("noSession");
+            alert.error("noSession", getWindow());
             return;
         }
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.info("selectDestination");
+            alert.info("selectDestination", getWindow());
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.info("operationNotAllowed");
+            alert.info("operationNotAllowed", getWindow());
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -379,7 +381,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.info("fieSelect");
+            alert.info("fieSelect", getWindow());
             return;
         }
 
@@ -564,5 +566,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
         }
         return localPath;
+    }
+
+    public Window getWindow() {
+        return treeTable.getScene().getWindow();
     }
 }

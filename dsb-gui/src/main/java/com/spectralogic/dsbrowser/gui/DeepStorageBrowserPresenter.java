@@ -52,6 +52,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.stage.Window;
 import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
@@ -242,7 +243,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                     recoverInterruptedJobsButton.setDisable(false);
                     final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, this, ds3Common));
-                    popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") + StringConstants.SPACE + endpoint);
+                    popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") + StringConstants.SPACE + endpoint, getWindow());
                 } else {
                     recoverInterruptedJobsButton.setDisable(true);
                 }
@@ -341,16 +342,16 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public void showSettingsPopup() {
         final SettingsView settingsView = new SettingsView();
-        popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"), true);
+        popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"), true, getWindow());
     }
 
     public void showAboutPopup() {
         final AboutView aboutView = new AboutView();
-        popup.show(aboutView.getView(), resourceBundle.getString("aboutMenuItem"));
+        popup.show(aboutView.getView(), resourceBundle.getString("aboutMenuItem"), getWindow());
     }
 
     public void showSessionPopup() {
-        popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
+        popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"), getWindow());
     }
 
     public void selectAllItemsInPane() {
@@ -440,5 +441,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public TaskProgressView<Ds3JobTask> getJobProgressView() {
         return jobProgressView;
+    }
+
+    private Window getWindow() {
+        return anchorPane.getScene().getWindow();
     }
 }

@@ -35,6 +35,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public final class DeleteService {
      *
      * @param values    list of objects to be deleted
      */
-    public void deleteBucket(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void deleteBucket(final ImmutableList<TreeItem<Ds3TreeTableValue>> values, final Window window) {
         LOG.info("Got delete bucket event");
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
@@ -89,7 +90,7 @@ public final class DeleteService {
             if (buckets.size() > 1) {
                 loggingService.logMessage(resourceBundle.getString("multiBucketNotAllowed"), LogType.ERROR);
                 LOG.info("The user selected objects from multiple buckets.  This is not allowed.");
-                alert.error("multiBucketNotAllowed");
+                alert.error("multiBucketNotAllowed", window);
                 return;
             }
             final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
@@ -98,10 +99,10 @@ public final class DeleteService {
                 final String bucketName = value.getValue().getBucketName();
                 if (!ds3PanelService.checkIfBucketEmpty(bucketName, currentSession)) {
                     loggingService.logMessage(resourceBundle.getString("failedToDeleteBucket"), LogType.ERROR);
-                    alert.error("failedToDeleteBucket");
+                    alert.error("failedToDeleteBucket", window);
                 } else {
                     final Ds3DeleteBucketTask ds3DeleteBucketTask = new Ds3DeleteBucketTask(currentSession.getClient(), bucketName);
-                    deleteFilesPopup.show(ds3DeleteBucketTask);
+                    deleteFilesPopup.show(ds3DeleteBucketTask, window);
                     ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
@@ -118,7 +119,7 @@ public final class DeleteService {
      *
      * @param values    list of folders to be deleted
      */
-    public void deleteFolders(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void deleteFolders(final ImmutableList<TreeItem<Ds3TreeTableValue>> values, final Window window) {
         LOG.info("Got delete folder event");
 
         final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
@@ -130,7 +131,7 @@ public final class DeleteService {
             final Ds3DeleteFoldersTask deleteFolderTask = new Ds3DeleteFoldersTask(currentSession.getClient(),
                     deleteFoldersMap.build());
 
-            deleteFilesPopup.show(deleteFolderTask);
+            deleteFilesPopup.show(deleteFolderTask, window);
             ds3PanelPresenter.getDs3PathIndicator().setText(StringConstants.EMPTY_STRING);
             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringConstants.EMPTY_STRING);
         }
@@ -141,7 +142,7 @@ public final class DeleteService {
      *
      * @param values    list of objects to be deleted
      */
-    public void deleteFiles(final ImmutableList<TreeItem<Ds3TreeTableValue>> values) {
+    public void deleteFiles(final ImmutableList<TreeItem<Ds3TreeTableValue>> values, final Window window) {
         LOG.info("Got delete file(s) event");
 
         final ImmutableList<String> buckets = getBuckets(values);
@@ -156,7 +157,7 @@ public final class DeleteService {
         final Ds3DeleteFilesTask ds3DeleteFilesTask = new Ds3DeleteFilesTask(
                 ds3Common.getCurrentSession().getClient(), buckets, bucketObjectsMap);
 
-        deleteFilesPopup.show(ds3DeleteFilesTask);
+        deleteFilesPopup.show(ds3DeleteFilesTask, window);
     }
 
     public void managePathIndicator() {

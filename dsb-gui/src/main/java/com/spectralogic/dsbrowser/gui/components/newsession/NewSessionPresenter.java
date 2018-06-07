@@ -32,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,10 +173,10 @@ public class NewSessionPresenter implements Initializable {
                     final SavedSession rowData = row.getItem();
                     if (ds3SessionStore.getObservableList().size() == 0 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
                         final Boolean isDefaultSession = rowData.getDefaultSession();
-                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession));
+                        final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), getWindow());
                         sessionValidates(connection);
                     } else {
-                        alert.info("alreadyExistSession");
+                        alert.info("alreadyExistSession", getWindow());
                     }
                 }
             }));
@@ -193,20 +194,20 @@ public class NewSessionPresenter implements Initializable {
     public void deleteSession() {
         LOG.info("Deleting the saved session");
         if (savedSessions.getSelectionModel().getSelectedItem() == null) {
-            alert.info("selectToDeleteSession");
+            alert.info("selectToDeleteSession", getWindow());
         } else {
             if (Guard.isNotNullAndNotEmpty(ds3SessionStore.getObservableList())) {
                 ds3SessionStore.getObservableList().forEach(openSession -> {
                     if (savedSessions.getSelectionModel().getSelectedItem().getName().equals(openSession.getSessionName())) {
-                        alert.info("cannotdeletesession");
+                        alert.info("cannotdeletesession", getWindow());
                     } else {
                         savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                        alert.info("sessionDeletedSuccess");
+                        alert.info("sessionDeletedSuccess", getWindow());
                     }
                 });
             } else {
                 savedSessionStore.removeSession(savedSessions.getSelectionModel().getSelectedItem());
-                alert.info("sessionDeletedSuccess");
+                alert.info("sessionDeletedSuccess", getWindow());
             }
         }
     }
@@ -233,19 +234,19 @@ public class NewSessionPresenter implements Initializable {
         LOG.info("Performing session validation");
         if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
                 || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
-            if (newSessionModelValidation.validationNewSession(model)) {
-                final Session session = createConnectionTask.createConnection(model);
+            if (newSessionModelValidation.validationNewSession(model, getWindow())) {
+                final Session session = createConnectionTask.createConnection(model, getWindow());
                 sessionValidates(session);
             }
         } else {
-            alert.info("alreadyExistSession");
+            alert.info("alreadyExistSession", getWindow());
         }
     }
 
     public void saveSession() {
         LOG.info("Creating new session");
         final NewSessionModel newSessionModel = SessionModelService.copy(model);
-        if (newSessionModelValidation.validationNewSession(newSessionModel)) {
+        if (newSessionModelValidation.validationNewSession(newSessionModel, getWindow())) {
             if (newSessionModel.getDefaultSession()) {
                 final List<SavedSession> defaultSession = savedSessionStore.getSessions().stream().filter(SavedSession::getDefaultSession)
                         .collect(GuavaCollectors.immutableList());
@@ -259,7 +260,7 @@ public class NewSessionPresenter implements Initializable {
                             final Optional<SavedSession> first = defaultSession.stream().findFirst();
                             if (first.isPresent()) {
                                 final Session session = createConnectionTask.createConnection(
-                                        SessionModelService.setSessionModel(first.get(), false));
+                                        SessionModelService.setSessionModel(first.get(), false), getWindow());
                                 if (session != null) {
                                     savedSessionStore.addSession(session);
                                     try {
@@ -276,7 +277,7 @@ public class NewSessionPresenter implements Initializable {
                     });
                 }
             }
-            final Session session = createConnectionTask.createConnection(newSessionModel);
+            final Session session = createConnectionTask.createConnection(newSessionModel, getWindow());
             if (session != null) {
                 final String message = buildSessionAlert(session);
                 final int i = savedSessionStore.addSession(session);
@@ -284,10 +285,10 @@ public class NewSessionPresenter implements Initializable {
                     SavedSessionStore.saveSavedSessionStore(savedSessionStore);
                     savedSessions.getSelectionModel().select(i);
                     savedSessions.getFocusModel().focus(i);
-                    alert.info(message);
+                    alert.info(message, getWindow());
                 } catch (final IOException e) {
                     LOG.error("Failed to save session: ", e);
-                    alert.error("sessionNotUpdatedSuccessfully");
+                    alert.error("sessionNotUpdatedSuccessfully", getWindow());
                 }
             }
         }
@@ -311,5 +312,9 @@ public class NewSessionPresenter implements Initializable {
             ds3SessionStore.addSession(session);
             closeDialog();
         }
+    }
+
+    public Window getWindow() {
+        return propertySheetAnchor.getScene().getWindow();
     }
 }

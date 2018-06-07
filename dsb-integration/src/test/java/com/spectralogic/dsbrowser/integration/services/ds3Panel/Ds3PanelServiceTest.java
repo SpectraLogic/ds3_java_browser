@@ -71,7 +71,7 @@ public class Ds3PanelServiceTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker = new RefreshCompleteViewWorker(null, workers, dateTimeUtils, loggingService);
-    private final AlertService alertService = new AlertService(resourceBundle, ds3Common);
+    private final AlertService alertService = new AlertService(resourceBundle);
     private final PhysicalPlacementTask.PhysicalPlacementTaskFactory physicalPlacementTaskFactory = new PhysicalPlacementTask.PhysicalPlacementTaskFactory() {
         @Override
         public PhysicalPlacementTask create(final Ds3TreeTableValue value) {
@@ -85,7 +85,7 @@ public class Ds3PanelServiceTest {
             loggingService,
             refreshCompleteViewWorker,
             new VersionPopup(resourceBundle, ds3Common, alertService),
-            new Popup(ds3Common),
+            new Popup(),
             new PhysicalPlacementPopup(resourceBundle, ds3Common),
             physicalPlacementTaskFactory);
 

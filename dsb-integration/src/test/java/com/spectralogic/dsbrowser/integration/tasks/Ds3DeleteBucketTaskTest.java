@@ -34,10 +34,12 @@ import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -61,8 +63,9 @@ public class Ds3DeleteBucketTaskTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @BeforeClass
     public static void startup() throws IOException {
@@ -90,7 +93,7 @@ public class Ds3DeleteBucketTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection( SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection( SessionModelService.setSessionModel(savedSession, false), window);
             try {
                 HELPERS.ensureBucketExists(DELETE_BUCKET_TASK_TEST_BUCKET_NAME, envDataPolicyId);
             } catch (final IOException e) {

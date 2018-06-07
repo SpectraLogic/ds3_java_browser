@@ -15,12 +15,13 @@
 
 package com.spectralogic.dsbrowser.integration;
 
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.NewSessionModelValidation;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
+import javafx.stage.Window;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -40,7 +41,7 @@ public class NewSessionModelValidationTest {
         model.setAccessKey("testAccessId");
         model.setSecretKey("testSecretKey");
         model.setDefaultSession(true);
-        assertTrue(new NewSessionModelValidation(new AlertService(resourceBundle, new Ds3Common())).validationNewSession(model));
+        assertTrue(new NewSessionModelValidation(new AlertService(resourceBundle)).validationNewSession(model, Mockito.mock(Window.class)));
     }
 
 }

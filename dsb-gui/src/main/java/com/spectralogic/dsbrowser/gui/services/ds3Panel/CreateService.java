@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +77,12 @@ public final class CreateService {
        this.createFolderPopup = createFolderPopup;
     }
 
-    public void createBucketPrompt() {
+    public void createBucketPrompt(final Window window) {
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("Invalid Session");
-            alert.error("invalidSession");
+            alert.error("invalidSession", window);
             return;
         }
         loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
@@ -91,40 +92,40 @@ public final class CreateService {
             if (value.isPresent()) {
                 LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
                 Platform.runLater(() -> {
-                    createBucketPopup.show(value.get());
+                    createBucketPopup.show(value.get(), window);
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });
             } else {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                alert.error("dataPolicyNotFoundErr");
+                alert.error("dataPolicyNotFoundErr", window);
             }
         }));
         getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
             LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-            alert.error("dataPolicyNotFoundErr");
+            alert.error("dataPolicyNotFoundErr", window);
         }));
         workers.execute(getDataPoliciesTask);
     }
 
-    public void createFolderPrompt() {
+    public void createFolderPrompt(final Window window) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not create folder here. Please refresh your view");
-            alert.info("cantCreateFolderHere");
+            alert.info("cantCreateFolderHere", window);
             return;
         } else if (values.isEmpty() && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (values.isEmpty()) {
             loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.info("locationNotSelected");
+            alert.info("locationNotSelected", window );
             return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            alert.info("selectSingleLocation");
+            alert.info("selectSingleLocation", window);
             return;
         }
 
@@ -140,7 +141,7 @@ public final class CreateService {
                     .distinct().collect(GuavaCollectors.immutableList());
             final Optional<String> bucketElement = buckets.stream().findFirst();
             bucketElement.ifPresent(bucket -> createFolderPopup.show(
-                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket)));
+                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), window));
 
             ds3PanelService.refresh(ds3TreeTableValueTreeItem);
         }

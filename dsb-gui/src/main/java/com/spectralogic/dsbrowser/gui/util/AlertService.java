@@ -16,12 +16,13 @@
 
 package com.spectralogic.dsbrowser.gui.util;
 
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,21 +40,20 @@ public class AlertService {
     private static final String WARNING_TITLE = "warningTitle";
 
     private final ResourceBundle resourceBundle;
-    private final Ds3Common ds3Common;
-    private Alert alert = null;
 
     @Inject
-    public AlertService(final ResourceBundle resourceBundle, final Ds3Common ds3Common) {
+    public AlertService(final ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
-        this.ds3Common = ds3Common;
     }
 
 
-    private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType) {
-        if (alert == null) {
-            alert = new Alert(alertType);
+    private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType, final Window window) {
+        Platform.runLater(() -> {
+
+        final Alert alert = new Alert(alertType);
+        if (window != null) {
+            alert.initOwner(window);
         }
-        alert.initOwner(ds3Common.getWindow());
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setAlertType(alertType);
@@ -73,18 +73,19 @@ public class AlertService {
         alert.setContentText(message);
         alert.setAlertType(alertType);
         alert.showAndWait();
+        });
     }
 
-    public void error(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR);
+    public void error(final String message, final Window window) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ERROR_TITLE), Alert.AlertType.ERROR, window);
     }
 
-    public void info(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION);
+    public void info(final String message, final Window window) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(ALERT_TITLE), Alert.AlertType.INFORMATION, window);
     }
 
-    public void warning(final String message) {
-        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING);
+    public void warning(final String message, final Window window) {
+        showAlertInternal(resourceBundle.getString(message), resourceBundle.getString(WARNING_TITLE), Alert.AlertType.WARNING, window);
     }
 
 }

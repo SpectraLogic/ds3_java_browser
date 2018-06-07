@@ -41,6 +41,7 @@ import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -66,8 +67,9 @@ public class CloseConfirmationHandlerTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Path path;
-    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle, new Ds3Common());
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
     private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @BeforeClass
     public static void setConnection() {
@@ -81,7 +83,7 @@ public class CloseConfirmationHandlerTest {
                     new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
             handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class), new Ds3Alert(new Ds3Common()));
             try {
                 path = ResourceUtils.loadFileResource("files/");
@@ -120,7 +122,7 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setSecretKey(client.getConnectionDetails().getCredentials().getKey());
                 newSessionModel.setProxyServer(null);
                 final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
-                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel));
+                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, window));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session

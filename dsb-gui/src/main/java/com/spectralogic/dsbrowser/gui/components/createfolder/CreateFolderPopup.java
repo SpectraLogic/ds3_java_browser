@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
+import javafx.stage.Window;
 
 import javax.inject.Inject;
 import java.util.ResourceBundle;
@@ -31,8 +32,8 @@ public class CreateFolderPopup {
         this.resourceBundle = resourceBundle;
     }
 
-    public void show(final CreateFolderModel createFolderModel) {
+    public void show(final CreateFolderModel createFolderModel, final Window window) {
         final CreateFolderView createFolderView = new CreateFolderView(createFolderModel);
-        popup.show(createFolderView.getView(), resourceBundle.getString("createFolderButton"));
+        popup.show(createFolderView.getView(), resourceBundle.getString("createFolderButton"), window);
     }
 }

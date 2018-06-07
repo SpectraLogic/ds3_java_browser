@@ -51,6 +51,7 @@ import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
 import javafx.util.Pair;
 import kotlin.Unit;
 import org.slf4j.Logger;
@@ -174,16 +175,16 @@ public class Ds3TreeTablePresenter implements Initializable {
         physicalPlacement.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showPhysicalPlacement()));
 
         versioning = new MenuItem(resourceBundle.getString("versioningContextMenu"));
-        versioning.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showVersions()));
+        versioning.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showVersions(getWindow())));
 
         metaData = new MenuItem(resourceBundle.getString("metaDataContextMenu"));
-        metaData.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showMetadata()));
+        metaData.setOnAction(SafeHandler.logHandle(event -> ds3PanelService.showMetadata(getWindow())));
 
         createBucket = new MenuItem(resourceBundle.getString("createBucketContextMenu"));
-        createBucket.setOnAction(SafeHandler.logHandle(event -> createService.createBucketPrompt()));
+        createBucket.setOnAction(SafeHandler.logHandle(event -> createService.createBucketPrompt(getWindow())));
 
         createFolder = new MenuItem(resourceBundle.getString("createFolderContextMenu"));
-        createFolder.setOnAction(SafeHandler.logHandle(event -> createService.createFolderPrompt()));
+        createFolder.setOnAction(SafeHandler.logHandle(event -> createService.createFolderPrompt(getWindow())));
 
         contextMenu.getItems().addAll(metaData, physicalPlacement, versioning, new SeparatorMenuItem(), deleteFile, deleteFolder, deleteBucket, new SeparatorMenuItem(), createBucket, createFolder);
     }
@@ -416,7 +417,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 }
                 startPutJob(session.getClient(), pairs, bucket, targetDir, selectedItem);
             } else {
-                alert.warning("operationNotAllowedHere");
+                alert.warning("operationNotAllowedHere", getWindow());
             }
             event.consume();
         } catch (final Throwable t) {
@@ -715,5 +716,8 @@ public class Ds3TreeTablePresenter implements Initializable {
                 });
     }
 
+    private Window getWindow() {
+        return ds3TreeTable.getScene().getWindow();
+    }
 
 }
