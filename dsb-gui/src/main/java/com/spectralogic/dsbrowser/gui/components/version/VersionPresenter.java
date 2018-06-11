@@ -22,13 +22,18 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
+import com.spectralogic.dsbrowser.gui.components.metadata.MetadataEntry;
+import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import kotlin.Pair;
 import kotlin.Unit;
@@ -74,12 +79,16 @@ public class VersionPresenter implements Initializable {
     @FXML
     TableColumn<VersionItem, String> created;
 
+    @FXML
+    TableColumn<VersionItem, String> versionId;
+
     @ModelContext
     private VersionModel versionModel;
 
     @Override
     public void initialize(final URL location, final ResourceBundle resources) {
         try {
+
             created.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
             download.setDisable(true);
             versions.getItems().addAll(versionModel.getVersionItems());
@@ -89,6 +98,16 @@ public class VersionPresenter implements Initializable {
                     }
             );
             download.setOnMouseClicked(SafeHandler.logHandle(this::transfer));
+
+            versionId.setCellFactory(column -> {
+                final javafx.scene.control.TableCell cell = new TableCell();
+                final MenuItem copyMenuItem = new MenuItem("Copy");
+                copyMenuItem.setOnAction(event -> copyTexToClipboard(event, cell.getText()));
+                final ContextMenu contextMenu = new ContextMenu(copyMenuItem);
+                cell.setContextMenu(contextMenu);
+                return cell;
+            });
+
         } catch (final Throwable t) {
             LOG.error("Unable to show version presenter", t);
             loggingService.logInternationalMessage("unableToShowVersionPresenter", LogType.ERROR);
@@ -138,4 +157,20 @@ public class VersionPresenter implements Initializable {
         }
     }
 
+    private void copyTexToClipboard(final Event event, final String cellText) {
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(cellText.trim());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        event.consume();
+    }
+
+    private static class TableCell extends javafx.scene.control.TableCell<MetadataEntry, String> {
+        @Override
+        protected void updateItem(final String item, final boolean empty) {
+            if (item != null) {
+                super.updateItem(item, empty);
+                setText(item);
+            }
+        }
+    }
 }
