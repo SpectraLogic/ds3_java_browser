@@ -75,7 +75,7 @@ public class FileTreeTableProvider {
     }
 
     public Stream<FileTreeModel> getListForDir(final FileTreeModel fileTreeModel) throws IOException {
-        LOG.info("Get Childern of a Directory {}", fileTreeModel.getPath());
+        LOG.info("Get Children of a Directory {}", fileTreeModel.getPath());
         final int newDepth = fileTreeModel.getDepth() + 1;
         return Files.list(fileTreeModel.getPath()).map(filePath -> {
             try {
