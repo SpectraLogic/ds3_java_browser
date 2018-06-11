@@ -30,7 +30,7 @@
                         <PropertyValueFactory property="size"/>
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn editable="false" maxWidth="Infinity" prefWidth="203.0" text="Version Id">
+                <TableColumn editable="false" maxWidth="Infinity" prefWidth="203.0" text="Version Id" fx:id="versionId">
                     <cellValueFactory>
                         <PropertyValueFactory property="versionId"/>
                     </cellValueFactory>
