@@ -73,7 +73,7 @@ classes.dependsOn genConfigProperties
 
 ospackage {
     packageName = 'eonbrowser'
-    version = '5.0.2'
+    version = "$project.version"
     release = '1'
     os = LINUX
 
