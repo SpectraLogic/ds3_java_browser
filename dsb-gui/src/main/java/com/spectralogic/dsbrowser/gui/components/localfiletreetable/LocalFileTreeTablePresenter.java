@@ -381,7 +381,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.info("fieSelect", getWindow());
+            alert.info("fileSelect", getWindow());
             return;
         }
 
