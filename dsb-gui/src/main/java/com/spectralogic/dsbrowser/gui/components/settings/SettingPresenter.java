@@ -15,7 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.components.settings;
 
-import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
@@ -121,6 +121,9 @@ public class SettingPresenter implements Initializable {
     @FXML
     private CheckBox filePropertiesCheckbox;
 
+    @ModelContext
+    private Window window;
+
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
     private final SavedJobPrioritiesStore savedJobPrioritiesStore;
@@ -132,6 +135,7 @@ public class SettingPresenter implements Initializable {
     private LogSettings logSettings;
     private ProcessSettings processSettings;
     private final AlertService alert;
+
 
     @Inject
     public SettingPresenter(final ResourceBundle resourceBundle,
@@ -162,7 +166,7 @@ public class SettingPresenter implements Initializable {
         }
     }
 
-    public void saveFilePropertiesSettings(final Window window) {
+    public void saveFilePropertiesSettings() {
         LOG.info("Updating fileProperties settingsStore");
         try {
             if (filePropertiesCheckbox.isSelected()) {
@@ -176,21 +180,21 @@ public class SettingPresenter implements Initializable {
         }
     }
 
-    public void savePerformanceSettings(final Window window) {
+    public void savePerformanceSettings() {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
         alert.info("performanceSettingsUpdated", window);
     }
 
-    public void saveLogSettings(final Window window) {
+    public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
         alert.info("loggingSettingsUpdated", window);
     }
 
-    public void saveJobSettings(final Window window) {
+    public void saveJobSettings() {
         LOG.info("Updating jobs settingsStore");
         try {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
