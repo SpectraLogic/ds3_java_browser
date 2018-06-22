@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.util
 
+import com.spectralogic.ds3client.utils.Guard
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
@@ -32,12 +33,18 @@ class Stats(val message: StringProperty, val loggingService: LoggingService, val
                          toPath: String,
                          location: String,
                          finished: Boolean) {
+
+        val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {
+            "/"
+        } else {
+            toPath
+        }
         val elapsedSeconds = Instant.now().epochSecond - startTime.epochSecond
         val transferRate = estimateTransferRate(sent, elapsedSeconds)
         val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
                 totalMessage, name, location).toString())
-        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, toPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
+        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
     }
 
     private fun estimateTransferRate(sent: LongProperty, elapsedSeconds: Long) =
