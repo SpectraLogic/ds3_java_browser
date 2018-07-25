@@ -528,6 +528,7 @@ public class Ds3PanelPresenter implements Initializable {
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENS_ICON);
             if (Guard.isStringNullOrEmpty(newValue)) {
+                ds3PanelService.showFullPath(false);
                 refreshCompleteViewWorker.refreshCompleteTreeTableView();
             }
         });
