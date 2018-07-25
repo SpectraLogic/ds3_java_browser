@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableView;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
@@ -231,19 +232,14 @@ public final class Ds3PanelService {
                             final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
                             ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            loggingService.logMessage(
-                                    StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
+                            loggingService.logMessage(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
                             treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
                             if (rootTreeItem.getChildren().size() == 0) {
                                 ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
                             }
                             ds3TreeTableView.setRoot(rootTreeItem);
-                            final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView
-                                    .getColumns().get(1);
-                            if (null != ds3TreeTableValueTreeTableColumn) {
-                                ds3TreeTableValueTreeTableColumn.setVisible(true);
-                            }
+                            showFullPath(true);
                         } catch (final Exception e) {
                             LOG.error("Search failed", e);
                             loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
@@ -276,5 +272,9 @@ public final class Ds3PanelService {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
         final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
         return selectionModel.getSelectedItems();
+    }
+
+    public void showFullPath(final boolean show) {
+        ds3Common.getDs3TreeTableView().getColumns().get(1).setVisible(show);
     }
 }
