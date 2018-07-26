@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("ALL")
 public final class CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateService.class);

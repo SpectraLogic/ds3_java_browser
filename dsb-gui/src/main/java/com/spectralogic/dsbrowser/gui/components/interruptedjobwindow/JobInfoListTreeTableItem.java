@@ -124,7 +124,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, size, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.File, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
-                    value.getFolders().entrySet().stream().forEach(i -> {
+                    value.getFolders().entrySet().forEach(i -> {
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, 0, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.Directory, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });

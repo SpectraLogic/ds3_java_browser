@@ -240,7 +240,7 @@ public class Ds3PanelPresenter implements Initializable {
         });
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
-            if (ds3SessionTabPane.getTabs().size() > 0 && newTab == addNewTab) {
+            if (!ds3SessionTabPane.getTabs().isEmpty() && newTab == addNewTab) {
                 newSessionDialog();
             }
             try {
