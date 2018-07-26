@@ -38,6 +38,7 @@ import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
@@ -143,9 +144,9 @@ public class Ds3DeleteFilesTaskTest {
                                 .add(value)
                                 .build();
 
-                final ArrayList<Ds3TreeTableValue> filesToDelete = values
+                final ImmutableList<Ds3TreeTableValue> filesToDelete = values
                         .stream()
-                        .map(TreeItem::getValue).collect(Collectors.toCollection(ArrayList::new));
+                        .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
                 final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap = filesToDelete.stream()
                         .collect(Collectors.groupingBy(Ds3TreeTableValue::getBucketName));
 
