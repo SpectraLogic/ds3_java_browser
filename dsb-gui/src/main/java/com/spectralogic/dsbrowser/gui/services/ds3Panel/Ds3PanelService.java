@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -229,7 +230,7 @@ public final class Ds3PanelService {
                     LOG.info("Search completed!");
                     Platform.runLater(() -> {
                         try {
-                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
+                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(new ArrayList<>(searchJobTask.get()));
                             ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
                             loggingService.logMessage(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);

@@ -114,7 +114,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
             @Override
             protected Optional<Object> call() throws Exception {
                 if (modelValue.getType().equals(JobInfoModel.Type.JOBID)) {
-                    value.getFiles().entrySet().stream().forEach(i -> {
+                    value.getFiles().entrySet().forEach(i -> {
                         long size = 0;
                         try {
                             size = Files.size(i.getValue());

@@ -147,11 +147,9 @@ public final class DeleteService {
 
         final ImmutableList<String> buckets = getBuckets(values);
 
-        final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+        final ArrayList<Ds3TreeTableValue> filesToDelete = values
                 .stream()
-                .map(TreeItem::getValue)
-                .collect(Collectors.toList())
-        );
+                .map(TreeItem::getValue).collect(Collectors.toCollection(ArrayList::new));
         final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap = filesToDelete.stream().collect(Collectors.groupingBy(Ds3TreeTableValue::getBucketName));
 
         final Ds3DeleteFilesTask ds3DeleteFilesTask = new Ds3DeleteFilesTask(

@@ -106,7 +106,7 @@ public class CreateBucketTaskTest {
                         envDataPolicyId);
                 final CreateBucketTask createBucketTask = new CreateBucketTask(createBucketModel, session.getClient(),
                         CREATE_BUCKET_TASK_TEST_BUCKET_NAME + StringConstants.UNDER_SCORE +
-                                +LocalDateTime.now().getSecond(), null, null);
+                                LocalDateTime.now().getSecond(), null, null);
                 workers.execute(createBucketTask);
                 createBucketTask.setOnSucceeded(event -> {
                     successFlag = true;

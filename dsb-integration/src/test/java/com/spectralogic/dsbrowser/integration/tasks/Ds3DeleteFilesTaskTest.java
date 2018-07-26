@@ -143,11 +143,9 @@ public class Ds3DeleteFilesTaskTest {
                                 .add(value)
                                 .build();
 
-                final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+                final ArrayList<Ds3TreeTableValue> filesToDelete = values
                         .stream()
-                        .map(TreeItem::getValue)
-                        .collect(Collectors.toList())
-                );
+                        .map(TreeItem::getValue).collect(Collectors.toCollection(ArrayList::new));
                 final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap = filesToDelete.stream()
                         .collect(Collectors.groupingBy(Ds3TreeTableValue::getBucketName));
 
