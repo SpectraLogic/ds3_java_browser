@@ -30,7 +30,6 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3PanelPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableView;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataView;
 import com.spectralogic.dsbrowser.gui.components.physicalplacement.PhysicalPlacementPopup;
 import com.spectralogic.dsbrowser.gui.components.version.VersionPopup;
@@ -54,7 +53,6 @@ import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public final class Ds3PanelService {
 
@@ -229,13 +227,15 @@ public final class Ds3PanelService {
                     LOG.info("Search completed!");
                     Platform.runLater(() -> {
                         try {
-                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
-                            ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            loggingService.logMessage(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
+                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get());
+                            final String noObjectsFoundMessage = StringBuilderUtil.numberObjectsFoundMessage(treeTableItems.size()).toString();
+                            ds3PanelPresenter.getDs3PathIndicator().setText(noObjectsFoundMessage);
+                            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(noObjectsFoundMessage);
+                            loggingService.logMessage(noObjectsFoundMessage, LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-                            treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
-                            if (rootTreeItem.getChildren().size() == 0) {
+                            final ObservableList<TreeItem<Ds3TreeTableValue>> children = rootTreeItem.getChildren();
+                            treeTableItems.forEach(value -> children.add(value));
+                            if (children.isEmpty()) {
                                 ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
                             }
                             ds3TreeTableView.setRoot(rootTreeItem);

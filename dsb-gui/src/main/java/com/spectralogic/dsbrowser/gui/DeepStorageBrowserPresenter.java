@@ -383,7 +383,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             if (!menuItem.isSelected())
                 tabs.remove(tab);
         }
-        if (tabs.size() == 0) {
+        if (tabs.isEmpty()) {
             items.remove(bottomTabPane);
         }
     }

@@ -104,7 +104,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                 LOG.error("Failed to save settings information to the local filesystem", e);
             }
         }
-        if (jobWorkers.getTasks().size() != 0) {
+        if (!jobWorkers.getTasks().isEmpty()) {
 
             final ImmutableList<Ds3JobTask> outstandingJobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
 
