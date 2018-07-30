@@ -486,7 +486,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
             final Path localPath, final Ds3Client client) {
         if (listFiles.stream().anyMatch(value -> value.getType() == BaseTreeModel.Type.Bucket)) {
-            LOG.info("Cannot perform GET on bucket");
+            LOG.error("Cannot perform GET on bucket");
             alert.error("noGetBucket", getWindow());
             return;
         }
