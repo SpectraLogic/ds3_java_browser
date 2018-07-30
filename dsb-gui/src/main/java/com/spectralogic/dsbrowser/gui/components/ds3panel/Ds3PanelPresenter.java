@@ -448,7 +448,7 @@ public class Ds3PanelPresenter implements Initializable {
         final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
                 .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
 
-        if(selectedItemsAtSourceLocationList.stream().anyMatch(value -> value.getType() == BaseTreeModel.Type.Bucket)) {
+        if (selectedItemsAtSourceLocationList.stream().anyMatch(value -> value.getType() == BaseTreeModel.Type.Bucket)) {
             LOG.info("Cannot perform GET on bucket");
             alert.error("noGetBucket", getWindow());
             return;
