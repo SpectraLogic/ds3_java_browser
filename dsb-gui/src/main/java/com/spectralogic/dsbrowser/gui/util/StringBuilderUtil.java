@@ -81,7 +81,8 @@ public class StringBuilderUtil {
         }
     }
 
-    public static StringBuilder objectSuccessfullyTransferredString(final String fromPath,
+    public static StringBuilder objectSuccessfullyTransferredString(
+            final String fromPath,
             final String toPath,
             final String date,
             final String location) {
