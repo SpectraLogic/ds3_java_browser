@@ -147,7 +147,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
             case Bucket:
                 return StringConstants.EMPTY_STRING;
             default:
-                return getParentDir(this.getFullName());
+                return getParentDir(this.getFullName()) + "/";
         }
     }
 
