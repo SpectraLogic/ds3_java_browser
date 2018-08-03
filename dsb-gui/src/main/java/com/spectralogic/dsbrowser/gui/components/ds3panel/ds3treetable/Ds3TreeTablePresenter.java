@@ -520,6 +520,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             deleteFile.setDisable(false);
             metaData.setDisable(false);
             physicalPlacement.setDisable(false);
+            versioning.setDisable(false);
         } else {
             final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
 
