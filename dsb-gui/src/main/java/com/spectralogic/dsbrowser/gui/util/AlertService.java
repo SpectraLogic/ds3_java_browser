@@ -48,8 +48,6 @@ public class AlertService {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType, final Window window) {
-        Platform.runLater(() -> {
-
         final Alert alert = new Alert(alertType);
         if (window != null) {
             alert.initOwner(window);
@@ -73,7 +71,6 @@ public class AlertService {
         alert.setContentText(message);
         alert.setAlertType(alertType);
         alert.showAndWait();
-        });
     }
 
     public void error(final String message, final Window window) {

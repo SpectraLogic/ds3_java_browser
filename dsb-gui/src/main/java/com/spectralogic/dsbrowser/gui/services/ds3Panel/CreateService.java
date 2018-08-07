@@ -32,12 +32,14 @@ import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -108,8 +110,10 @@ public final class CreateService {
     }
 
     public void createFolderPrompt(final Window window) {
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
+        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = selectedItems
+                .stream()
+                .collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
@@ -144,6 +148,7 @@ public final class CreateService {
                     new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), window));
 
             ds3PanelService.refresh(ds3TreeTableValueTreeItem);
+            ds3Common.getDs3TreeTableView().getSelectionModel().clearSelection();
         }
     }
 
