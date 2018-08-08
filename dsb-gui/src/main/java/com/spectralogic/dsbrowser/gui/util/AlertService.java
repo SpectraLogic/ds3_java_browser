@@ -28,11 +28,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
-/**
- * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
- * if this Alert is never encountered.
- */
-
 @Singleton
 public class AlertService {
     private static final String ERROR_TITLE = "errorTitle";
