@@ -1,17 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetupProject", "SetupProject\SetupProject.wixproj", "{4A143EFE-B332-4827-A4C8-49C4D3CC4C41}"
 	ProjectSection(ProjectDependencies) = postProject
-		{5C0B65A4-18FB-485C-A35B-203D5FAA97D6} = {5C0B65A4-18FB-485C-A35B-203D5FAA97D6}
 		{283BF1C6-2F2B-4BB1-9E86-039DF2CFB241} = {283BF1C6-2F2B-4BB1-9E86-039DF2CFB241}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomAction", "CustomAction\CustomAction.csproj", "{283BF1C6-2F2B-4BB1-9E86-039DF2CFB241}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DsbExecutable", "DsbExecutable\DsbExecutable.csproj", "{5C0B65A4-18FB-485C-A35B-203D5FAA97D6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{5A3AEC1A-A6A0-4674-B23C-0C605CD10B89}"
+	ProjectSection(SolutionItems) = preProject
+		SetupProject\createDsbExe.bat = SetupProject\createDsbExe.bat
+		SetupProject\createWXSDbsFiles.bat = SetupProject\createWXSDbsFiles.bat
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,12 +29,11 @@ Global
 		{283BF1C6-2F2B-4BB1-9E86-039DF2CFB241}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{283BF1C6-2F2B-4BB1-9E86-039DF2CFB241}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{283BF1C6-2F2B-4BB1-9E86-039DF2CFB241}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5C0B65A4-18FB-485C-A35B-203D5FAA97D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C0B65A4-18FB-485C-A35B-203D5FAA97D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C0B65A4-18FB-485C-A35B-203D5FAA97D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C0B65A4-18FB-485C-A35B-203D5FAA97D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {810DE940-CE2A-420D-9CDD-53406E254F67}
 	EndGlobalSection
 EndGlobal

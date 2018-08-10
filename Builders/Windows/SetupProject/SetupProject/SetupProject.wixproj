@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=5.0.3;JavaPath=..\..\Java;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\distributions</DefineConstants>
+    <DefineConstants>Version=5.0.3;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\libs</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE57</SuppressIces>
@@ -35,7 +35,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DsbFiles.wxs" />
-    <Compile Include="javaFiles.wxs" />
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
@@ -54,20 +53,13 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PreBuildEvent>del /q ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-5.0.3\bin\%2a.%2a
-
-
-xcopy $(ProjectDir)..\DsbExecutable\bin\Release\dsb-gui.exe ..\..\..\..\..\..\..\dsb-gui\build\distributions\dsb-gui-5.0.3\bin /Y
-
-
-
-call ..\..\..\..\..\createWXSJavaFiles.bat
+    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.3$(TargetExt)%2a /Y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>call ..\..\..\createDsbExe.bat
 
 
 call ..\..\..\createWXSDbsFiles.bat</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.3$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
