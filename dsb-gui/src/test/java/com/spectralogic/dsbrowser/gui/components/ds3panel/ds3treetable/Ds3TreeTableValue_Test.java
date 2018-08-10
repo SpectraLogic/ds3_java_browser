@@ -54,7 +54,7 @@ public class Ds3TreeTableValue_Test {
     public void getParentDirForFile() {
         final Ds3TreeTableValue value = new Ds3TreeTableValue("bucket", "hi/obj.txt", Ds3TreeTableValue.Type.File, 0, "sometime", "", false, null);
 
-        assertThat(value.getDirectoryName(), is("hi"));
+        assertThat(value.getDirectoryName(), is("hi/"));
     }
 
     @Test

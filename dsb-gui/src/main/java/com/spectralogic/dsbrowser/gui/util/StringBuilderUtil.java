@@ -81,7 +81,8 @@ public class StringBuilderUtil {
         }
     }
 
-    public static StringBuilder objectSuccessfullyTransferredString(final String fromPath,
+    public static StringBuilder objectSuccessfullyTransferredString(
+            final String fromPath,
             final String toPath,
             final String date,
             final String location) {
@@ -131,7 +132,7 @@ public class StringBuilderUtil {
                 .append(resourceBundle.getString("bucket"));
     }
 
-    public static StringBuilder nObjectsFoundMessage(final int n) {
+    public static StringBuilder numberObjectsFoundMessage(final int n) {
         return new StringBuilder()
                 .append(resourceBundle.getString("searchResults")).append(StringConstants.COLON).append(StringConstants.SPACE)
                 .append(n).append(StringConstants.SPACE)

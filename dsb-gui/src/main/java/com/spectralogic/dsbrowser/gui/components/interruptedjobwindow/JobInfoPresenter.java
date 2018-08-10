@@ -118,7 +118,7 @@ public class JobInfoPresenter implements Initializable {
     private void initListeners() {
         cancelJobListButtons.setOnAction(SafeHandler.logHandle(event -> {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
-            if (jobIDMap != null && jobIDMap.size() != 0) {
+            if (jobIDMap != null && !jobIDMap.isEmpty()) {
                 final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(
                         resourceBundle.getString("confirmation"),
                         jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
@@ -299,8 +299,8 @@ public class JobInfoPresenter implements Initializable {
                 loggingService.logMessage("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
                 if (jobIDMap != null) {
-                    if (jobIDMap.size() == 0) {
-                        Platform.runLater(() -> stage.close());
+                    if (jobIDMap.isEmpty()) {
+                        UIThreadUtil.runInFXThread(() -> stage.close());
                     }
                     jobIDMap.forEach((key, fileAndFolder) -> {
                         final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), key, fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), key, fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());

@@ -53,7 +53,6 @@ import javax.inject.Inject;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public final class Ds3PanelService {
 
@@ -175,7 +174,7 @@ public final class Ds3PanelService {
                 .ifPresent(ds3TreeTableValueTreeItem -> {
                     final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(ds3TreeTableValueTreeItem.getValue());
                     workers.execute(getPhysicalPlacement);
-                    getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                    getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching PhysicalPlacement popup");
                         physicalPlacementPopup.show(getPhysicalPlacement.getValue());
                     })));
@@ -189,7 +188,7 @@ public final class Ds3PanelService {
                 .ifPresent(ds3TreeTableValueTreeItem -> {
                     final MetadataTask getMetadata = new MetadataTask(ds3Common, ImmutableList.of(ds3TreeTableValueTreeItem));
                     workers.execute(getMetadata);
-                    getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                    getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching metadata popup");
                         final MetadataView metadataView = new MetadataView(getMetadata.getValue());
                         popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"), true, window);
@@ -226,24 +225,21 @@ public final class Ds3PanelService {
                 workers.execute(searchJobTask);
                 searchJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Search completed!");
-                    Platform.runLater(() -> {
+                    UIThreadUtil.runInFXThread(() -> {
                         try {
-                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get().stream().collect(Collectors.toList()));
-                            ds3PanelPresenter.getDs3PathIndicator().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString());
-                            loggingService.logMessage(
-                                    StringBuilderUtil.nObjectsFoundMessage(treeTableItems.size()).toString(), LogType.INFO);
+                            final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get());
+                            final String noObjectsFoundMessage = StringBuilderUtil.numberObjectsFoundMessage(treeTableItems.size()).toString();
+                            ds3PanelPresenter.getDs3PathIndicator().setText(noObjectsFoundMessage);
+                            ds3PanelPresenter.getDs3PathIndicatorTooltip().setText(noObjectsFoundMessage);
+                            loggingService.logMessage(noObjectsFoundMessage, LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
-                            treeTableItems.forEach(value -> rootTreeItem.getChildren().add(value));
-                            if (rootTreeItem.getChildren().size() == 0) {
+                            final ObservableList<TreeItem<Ds3TreeTableValue>> children = rootTreeItem.getChildren();
+                            treeTableItems.forEach(value -> children.add(value));
+                            if (children.isEmpty()) {
                                 ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
                             }
                             ds3TreeTableView.setRoot(rootTreeItem);
-                            final TreeTableColumn<Ds3TreeTableValue, ?> ds3TreeTableValueTreeTableColumn = ds3TreeTableView
-                                    .getColumns().get(1);
-                            if (null != ds3TreeTableValueTreeTableColumn) {
-                                ds3TreeTableValueTreeTableColumn.setVisible(true);
-                            }
+                            showFullPath(true);
                         } catch (final Exception e) {
                             LOG.error("Search failed", e);
                             loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
@@ -276,5 +272,9 @@ public final class Ds3PanelService {
         final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = ds3Common.getDs3TreeTableView();
         final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
         return selectionModel.getSelectedItems();
+    }
+
+    public void showFullPath(final boolean show) {
+        ds3Common.getDs3TreeTableView().getColumns().get(1).setVisible(show);
     }
 }

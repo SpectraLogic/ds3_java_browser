@@ -255,7 +255,7 @@ public class Ds3TreeTablePresenter implements Initializable {
                 final String info = StringBuilderUtil.getSelectedItemCountInfo(ds3TreeTable.getExpandedItemCount(),
                         ds3TreeTable.getSelectionModel().getSelectedItems().size()).toString();
                 ds3PanelPresenter.getPaneItemsLabel().setVisible(true);
-                Platform.runLater(() -> ds3PanelPresenter.getPaneItemsLabel().setText(info));
+                UIThreadUtil.runInFXThread(() -> ds3PanelPresenter.getPaneItemsLabel().setText(info));
                 //Make Select All menu item disable if current visible item is Bucket or empty else enable it
                 if (ds3TreeTable.getExpandedItemCount() == 0 || null == ds3TreeTable.getRoot().getValue()) {
                     deepStorageBrowserPresenter.getSelectAllMenuItem().setDisable(true);
@@ -274,7 +274,7 @@ public class Ds3TreeTablePresenter implements Initializable {
 
         progress.progressProperty().bind(getServiceTask.progressProperty());
 
-        Platform.runLater(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
+        UIThreadUtil.runInFXThread(() -> getServiceTask.setOnSucceeded(buildPlaceHolder(oldPlaceHolder)));
         workers.execute(getServiceTask);
     }
 
@@ -520,6 +520,7 @@ public class Ds3TreeTablePresenter implements Initializable {
             deleteFile.setDisable(false);
             metaData.setDisable(false);
             physicalPlacement.setDisable(false);
+            versioning.setDisable(false);
         } else {
             final Optional<TreeItem<Ds3TreeTableValue>> first = selectedItems.stream().findFirst();
 

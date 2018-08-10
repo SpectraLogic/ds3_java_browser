@@ -24,6 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateBucketTask;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -137,7 +138,7 @@ public class CreateBucketPresenter implements Initializable {
                 createBucketTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Created bucket [{}]", bucketNameField.getText().trim());
                     loggingService.logMessage(resourceBundle.getString("bucketCreated"), LogType.SUCCESS);
-                    Platform.runLater(() -> {
+                    UIThreadUtil.runInFXThread(() -> {
                         ds3Common.getDs3TreeTableView().setRoot(new TreeItem<>());
                         refreshCompleteViewWorker.refreshCompleteTreeTableView();
                         closeDialog();
