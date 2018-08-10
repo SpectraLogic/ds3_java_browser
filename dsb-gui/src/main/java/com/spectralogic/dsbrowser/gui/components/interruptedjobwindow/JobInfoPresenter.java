@@ -300,7 +300,7 @@ public class JobInfoPresenter implements Initializable {
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
                 if (jobIDMap != null) {
                     if (jobIDMap.isEmpty()) {
-                        Platform.runLater(() -> stage.close());
+                        UIThreadUtil.runInFXThread(() -> stage.close());
                     }
                     jobIDMap.forEach((key, fileAndFolder) -> {
                         final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), key, fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), key, fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());

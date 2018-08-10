@@ -43,29 +43,30 @@ public class AlertService {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType, final Window window) {
-        final Alert alert = new Alert(alertType);
-        if (window != null) {
-            alert.initOwner(window);
-        }
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setAlertType(alertType);
+        UIThreadUtil.runInFXThread(() -> {
+            final Alert alert = new Alert(alertType);
+            if (window != null) {
+                alert.initOwner(window);
+            }
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setAlertType(alertType);
 
-        //This prevents a null pointer when a dialog  is called right after startup
-        final DialogPane dp = alert.getDialogPane();
-        if (dp != null) {
-            final Scene scene = dp.getScene();
-            if (scene != null) {
-                final Stage w = (Stage) scene.getWindow();
-                if (w != null) {
-                    w.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
+            //This prevents a null pointer when a dialog  is called right after startup
+            final DialogPane dp = alert.getDialogPane();
+            if (dp != null) {
+                final Scene scene = dp.getScene();
+                if (scene != null) {
+                    final Stage w = (Stage) scene.getWindow();
+                    if (w != null) {
+                        w.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
+                    }
                 }
             }
-        }
-
-        alert.setContentText(message);
-        alert.setAlertType(alertType);
-        alert.showAndWait();
+            alert.setContentText(message);
+            alert.setAlertType(alertType);
+            alert.showAndWait();
+        });
     }
 
     public void error(final String message, final Window window) {

@@ -334,7 +334,7 @@ public class Ds3PanelPresenter implements Initializable {
 
                     final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
 
-                    jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> Platform.runLater(() -> {
+                    jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching metadata popup");
 
                         modifyJobPriorityPopUp.show(jobPriorityTask.getValue(), getWindow());
@@ -596,7 +596,7 @@ public class Ds3PanelPresenter implements Initializable {
             //start a new task for calculating
             itemsTask = new GetNumberOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
 
-            itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+            itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                         .stream().filter(Objects::nonNull).collect(GuavaCollectors.immutableList());
                 TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();

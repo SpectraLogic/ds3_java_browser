@@ -29,6 +29,7 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -93,7 +94,7 @@ public final class CreateService {
             final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
             if (value.isPresent()) {
                 LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
-                Platform.runLater(() -> {
+                UIThreadUtil.runInFXThread(() -> {
                     createBucketPopup.show(value.get(), window);
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });

@@ -137,7 +137,7 @@ public final class ParseJobInterruptionMap {
     private static void setInterruptJobStatus(final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                                               final boolean isJobInterrupted,
                                               final int size) {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             if (isJobInterrupted) {
                 deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(true);
                 deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(false);

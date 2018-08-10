@@ -298,7 +298,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             startMediaTask(rootItems, rootTreeItem, oldPlaceHolder);
             ds3Common.setLocalTreeTableView(treeTable);
             ds3Common.setLocalFilePathIndicator(localPathIndicator);

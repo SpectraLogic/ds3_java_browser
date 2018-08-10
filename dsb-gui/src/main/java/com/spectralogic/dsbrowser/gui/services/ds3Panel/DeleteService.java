@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -159,7 +160,7 @@ public final class DeleteService {
     }
 
     public void managePathIndicator() {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
 
