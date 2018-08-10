@@ -1,2 +1,2 @@
-"%WIX%\bin\heat.exe" dir "..\..\..\..\..\..\..\dsb-gui\build\distributions" -ag -sfrag -dr "APPLICATIONFOLDER" -cg DsbFilesGroup -var var.DsbPath -out ..\..\..\DsbFiles.wxs
+"%WIX%\bin\heat.exe" dir "..\..\..\..\..\..\..\dsb-gui\build\libs" -ag -sfrag -dr "APPLICATIONFOLDER" -cg DsbFilesGroup -var var.DsbPath -out ..\..\..\DsbFiles.wxs
 powershell -Command "(gc ..\..\..\DsbFiles.wxs) -replace '<Component ', '<Component Win64=\"yes\" ' | Out-File ..\..\..\DsbFiles.wxs" -encoding UTF8

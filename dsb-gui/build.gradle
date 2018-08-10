@@ -103,3 +103,16 @@ buildDeb {
     requires('openjfx')
 }
 
+task copyDependencies(type: Copy, dependsOn: [assemble]) {
+    destinationDir libsDir
+    from configurations.runtime
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': mainClassName
+        )
+    }
+}
+

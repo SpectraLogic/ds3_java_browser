@@ -11,6 +11,12 @@
   <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" Platform="x64"/>
 
+    <!-- Check some requirements ONLY on "install", but not on modify or uninstall. -->
+    <Property Id="JAVA_CURRENT_VERSION">
+      <RegistrySearch Id="JRE_CURRENT_VERSION_REGSEARCH" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw" Win64="yes" />
+    </Property>
+    <Condition Message="Java Runtime Environment (64 Bit) is not installed or outdated. Please install Oracle JRE 1.8 or later."><![CDATA[Installed OR (JAVA_CURRENT_VERSION >= "1.8")]]></Condition>
+
     <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)BlackPearlEonBrowser.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     <UI>
@@ -75,7 +81,7 @@
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
-    <Property Id="WixShellExecTarget" Value="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe" />
+    <Property Id="WixShellExecTarget" Value="[APPLICATIONFOLDER]\dsb-gui.exe" />
     <CustomAction Id="LaunchApplication"
         BinaryKey="WixCA"
         DllEntry="WixShellExec"
@@ -105,10 +111,17 @@
     <Feature Id="ProductFeature" Title="$(var.Name)" Level="1">
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="ApplicationShortcutDesktop" />
-      <ComponentGroupRef Id="JavaFilesGroup"/>
       <ComponentGroupRef Id="DsbFilesGroup"/>
       <ComponentRef Id="InstallRegistryComponent"/>
+      <ComponentRef Id="dsb_gui.exe" />
     </Feature>
+
+    <DirectoryRef Id="APPLICATIONFOLDER">
+      <Component Id="dsb_gui.exe" Win64="yes">
+        <File Id="dsb_gui.exe" Source="..\..\..\..\..\..\..\dsb-gui\build\dsb-gui.exe" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    
   </Product>
 
   <Fragment>
@@ -117,7 +130,7 @@
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="$(var.Name)"
                   Icon="icon.ico"
-                  Target="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
+                  Target="[APPLICATIONFOLDER]\dsb-gui.exe"
                   />
         <RemoveFolder Id="ApplicationProgramsFolder" On="both" />
         <RegistryValue Root="HKMU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationShortcut" Type="integer" Value="1" KeyPath="yes" />
@@ -129,7 +142,7 @@
         <Shortcut Id="ApplicationDesktopShortcut"
                   Name="$(var.Name)"
                   Icon="icon.ico"
-                  Target="[APPLICATIONFOLDER]\distributions\dsb-gui-$(var.Version)\bin\dsb-gui.exe"
+                  Target="[APPLICATIONFOLDER]\dsb-gui.exe"
                   />
         <RemoveFolder Id="DesktopFolder" On="both" />
         <RegistryValue Root="HKMU" Key="Software\$(var.Manufacturer)\$(var.Name)" Name="ApplicationDesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
@@ -159,5 +172,6 @@
       <Directory Id="DesktopFolder" Name="desktop">
       </Directory>
     </Directory>
+
   </Fragment>
 </Wix>
