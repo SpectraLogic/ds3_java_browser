@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=5.0.3;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\libs</DefineConstants>
+    <DefineConstants>Version=5.0.4;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\libs</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE57</SuppressIces>
@@ -53,7 +53,7 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.3$(TargetExt)%2a /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.4$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>call ..\..\..\createDsbExe.bat
