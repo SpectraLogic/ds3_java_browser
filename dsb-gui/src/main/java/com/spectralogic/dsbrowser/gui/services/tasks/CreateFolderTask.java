@@ -44,8 +44,8 @@ public class CreateFolderTask extends Ds3Task<Void> {
 
     @Override
     protected Void call() throws IOException {
-            Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
-            return null;
+        Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
+        return null;
     }
 
     public interface CreateFolderTaskFactory {

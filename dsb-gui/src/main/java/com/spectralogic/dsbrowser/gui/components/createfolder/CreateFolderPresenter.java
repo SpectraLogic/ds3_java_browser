@@ -34,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,15 +109,7 @@ public class CreateFolderPresenter implements Initializable {
 
     public void createFolder() {
         //Instantiating create folder task
-        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
-        final String targetPath;
-        if (folderWithPath.equals("/")) {
-            targetPath = "";
-        } else if (folderWithPath.startsWith("/")) {
-            targetPath = folderWithPath.substring(1);
-        } else {
-            targetPath = folderWithPath;
-        }
+        final String targetPath = getTargetPath();
         final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), targetPath);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
@@ -140,6 +133,20 @@ public class CreateFolderPresenter implements Initializable {
             this.closeDialog();
         }));
         workers.execute(createFolderTask);
+    }
+
+    @NotNull
+    private String getTargetPath() {
+        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
+        final String targetPath;
+        if (folderWithPath.equals("/")) {
+            targetPath = "";
+        } else if (folderWithPath.startsWith("/")) {
+            targetPath = folderWithPath.substring(1);
+        } else {
+            targetPath = folderWithPath;
+        }
+        return targetPath;
     }
 
     public void cancel() {

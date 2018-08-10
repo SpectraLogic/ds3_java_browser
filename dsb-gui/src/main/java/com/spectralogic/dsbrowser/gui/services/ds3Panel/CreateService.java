@@ -111,8 +111,7 @@ public final class CreateService {
     }
 
     public void createFolderPrompt(final Window window) {
-        final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems();
-        ImmutableList<TreeItem<Ds3TreeTableValue>> values = selectedItems
+        ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
                 .stream()
                 .collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();

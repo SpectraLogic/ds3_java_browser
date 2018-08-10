@@ -140,6 +140,7 @@ public class Ds3TreeTableValue extends BaseTreeModel implements Serializable {
         this.marker = marker;
     }
 
+    //This can be simplified.
     public String getDirectoryName() {
         switch (type) {
             case Directory:
