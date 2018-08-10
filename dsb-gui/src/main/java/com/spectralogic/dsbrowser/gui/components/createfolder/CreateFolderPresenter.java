@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
@@ -33,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +71,8 @@ public class CreateFolderPresenter implements Initializable {
             final ResourceBundle resourceBundle,
             final LoggingService loggingService,
             final AlertService alertService,
-            final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory) {
+            final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory
+    ) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
@@ -106,12 +109,12 @@ public class CreateFolderPresenter implements Initializable {
 
     public void createFolder() {
         //Instantiating create folder task
-        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
-        final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), folderWithPath);
+        final String targetPath = getTargetPath();
+        final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), targetPath);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
-            loggingService.logMessage(folderWithPath + StringConstants.SPACE
+            loggingService.logMessage(targetPath + StringConstants.SPACE
                     + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
@@ -130,6 +133,20 @@ public class CreateFolderPresenter implements Initializable {
             this.closeDialog();
         }));
         workers.execute(createFolderTask);
+    }
+
+    @NotNull
+    private String getTargetPath() {
+        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
+        final String targetPath;
+        if (folderWithPath.equals("/")) {
+            targetPath = "";
+        } else if (folderWithPath.startsWith("/")) {
+            targetPath = folderWithPath.substring(1);
+        } else {
+            targetPath = folderWithPath;
+        }
+        return targetPath;
     }
 
     public void cancel() {

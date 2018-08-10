@@ -174,7 +174,7 @@ public final class Ds3PanelService {
                 .ifPresent(ds3TreeTableValueTreeItem -> {
                     final PhysicalPlacementTask getPhysicalPlacement = physicalPlacementTaskFactory.create(ds3TreeTableValueTreeItem.getValue());
                     workers.execute(getPhysicalPlacement);
-                    getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                    getPhysicalPlacement.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching PhysicalPlacement popup");
                         physicalPlacementPopup.show(getPhysicalPlacement.getValue());
                     })));
@@ -188,7 +188,7 @@ public final class Ds3PanelService {
                 .ifPresent(ds3TreeTableValueTreeItem -> {
                     final MetadataTask getMetadata = new MetadataTask(ds3Common, ImmutableList.of(ds3TreeTableValueTreeItem));
                     workers.execute(getMetadata);
-                    getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+                    getMetadata.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching metadata popup");
                         final MetadataView metadataView = new MetadataView(getMetadata.getValue());
                         popup.show(metadataView.getView(), resourceBundle.getString("metaDataContextMenu"), true, window);
@@ -225,7 +225,7 @@ public final class Ds3PanelService {
                 workers.execute(searchJobTask);
                 searchJobTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                     LOG.info("Search completed!");
-                    Platform.runLater(() -> {
+                    UIThreadUtil.runInFXThread(() -> {
                         try {
                             final ObservableList<Ds3TreeTableItem> treeTableItems = FXCollections.observableArrayList(searchJobTask.get());
                             final String noObjectsFoundMessage = StringBuilderUtil.numberObjectsFoundMessage(treeTableItems.size()).toString();

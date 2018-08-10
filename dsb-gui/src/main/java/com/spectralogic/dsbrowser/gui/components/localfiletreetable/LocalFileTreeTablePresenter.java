@@ -298,7 +298,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             startMediaTask(rootItems, rootTreeItem, oldPlaceHolder);
             ds3Common.setLocalTreeTableView(treeTable);
             ds3Common.setLocalFilePathIndicator(localPathIndicator);
@@ -559,10 +559,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final TreeItem<FileTreeModel> fileTreeItem = row.getTreeItem();
             if (fileTreeItem != null && !fileTreeItem.getValue().getType().equals(FileTreeModel.Type.File)) {
                 localPath = fileTreeItem.getValue().getPath();
-            } else if (!fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                localPath = Paths.get(fileRootItem);
             } else if (fileTreeItem != null && fileTreeItem.getValue().getType().equals(FileTreeModel.Type.File)) {
                 localPath = fileTreeItem.getParent().getValue().getPath();
+            } else if (!fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                localPath = Paths.get(fileRootItem);
             }
 
         } else {

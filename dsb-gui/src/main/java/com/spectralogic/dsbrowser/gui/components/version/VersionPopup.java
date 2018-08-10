@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -58,7 +59,7 @@ public class VersionPopup {
     }
 
     public void show(final Ds3TreeTableValue item, final Window window) {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             final List<VersionItem> versions = getVersioned(item)
                     .stream()
                     .map(contents -> new VersionItem(contents.getKey(), contents.getLastModified(), contents.getVersionId(), contents.getSize()))

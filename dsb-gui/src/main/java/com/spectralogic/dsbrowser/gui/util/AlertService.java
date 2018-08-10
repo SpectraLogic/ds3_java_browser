@@ -28,11 +28,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ResourceBundle;
 
-/**
- * Lazily initialize Alerts.  Delay the action of showing the Alert.  Store the Alert for re-use.  Do not waste memory
- * if this Alert is never encountered.
- */
-
 @Singleton
 public class AlertService {
     private static final String ERROR_TITLE = "errorTitle";
@@ -48,31 +43,29 @@ public class AlertService {
 
 
     private void showAlertInternal(final String message, final String title, final Alert.AlertType alertType, final Window window) {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
+            final Alert alert = new Alert(alertType);
+            if (window != null) {
+                alert.initOwner(window);
+            }
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setAlertType(alertType);
 
-        final Alert alert = new Alert(alertType);
-        if (window != null) {
-            alert.initOwner(window);
-        }
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setAlertType(alertType);
-
-        //This prevents a null pointer when a dialog  is called right after startup
-        final DialogPane dp = alert.getDialogPane();
-        if (dp != null) {
-            final Scene scene = dp.getScene();
-            if (scene != null) {
-                final Stage w = (Stage) scene.getWindow();
-                if (w != null) {
-                    w.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
+            //This prevents a null pointer when a dialog  is called right after startup
+            final DialogPane dp = alert.getDialogPane();
+            if (dp != null) {
+                final Scene scene = dp.getScene();
+                if (scene != null) {
+                    final Stage w = (Stage) scene.getWindow();
+                    if (w != null) {
+                        w.getIcons().add(new Image(ImageURLs.DEEP_STORAGE_BROWSER));
+                    }
                 }
             }
-        }
-
-        alert.setContentText(message);
-        alert.setAlertType(alertType);
-        alert.showAndWait();
+            alert.setContentText(message);
+            alert.setAlertType(alertType);
+            alert.showAndWait();
         });
     }
 
