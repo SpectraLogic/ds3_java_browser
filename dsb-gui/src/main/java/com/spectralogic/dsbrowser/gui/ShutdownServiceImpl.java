@@ -28,6 +28,7 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -104,7 +105,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                 LOG.error("Failed to save settings information to the local filesystem", e);
             }
         }
-        if (jobWorkers.getTasks().size() != 0) {
+        if (!jobWorkers.getTasks().isEmpty()) {
 
             final ImmutableList<Ds3JobTask> outstandingJobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
 
@@ -149,7 +150,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                     LOG.info("Cancelled job:{} ", jobId);
 
                     final AtomicDouble progress = new AtomicDouble();
-                    Platform.runLater(() -> {
+                    UIThreadUtil.runInFXThread(() -> {
                         progress.set(job.getProgress());
                         latch.countDown();
                     });

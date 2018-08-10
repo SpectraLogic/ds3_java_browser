@@ -48,7 +48,7 @@ public class CancelJobsWorker {
     }
 
     public void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
-        if (jobWorkers.getTasks().size() != 0) {
+        if (!jobWorkers.getTasks().isEmpty()) {
             final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore);
             cancelAllRunningJobsTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                 refreshCompleteTreeTableView.refreshCompleteTreeTableView();
@@ -68,7 +68,7 @@ public class CancelJobsWorker {
 
     public CancelAllTaskBySession cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
-        if (tasks.size() != 0) {
+        if (!tasks.isEmpty()) {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks,
                     jobInterruptionStore, loggingService);
             cancelAllRunningJobs.setOnSucceeded(SafeHandler.logHandle(event -> {

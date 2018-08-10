@@ -240,7 +240,7 @@ public class Ds3PanelPresenter implements Initializable {
         });
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
-            if (ds3SessionTabPane.getTabs().size() > 0 && newTab == addNewTab) {
+            if (!ds3SessionTabPane.getTabs().isEmpty() && newTab == addNewTab) {
                 newSessionDialog();
             }
             try {
@@ -334,7 +334,7 @@ public class Ds3PanelPresenter implements Initializable {
 
                     final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
 
-                    jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> Platform.runLater(() -> {
+                    jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> UIThreadUtil.runInFXThread(() -> {
                         LOG.info("Launching metadata popup");
 
                         modifyJobPriorityPopUp.show(jobPriorityTask.getValue(), getWindow());
@@ -448,6 +448,12 @@ public class Ds3PanelPresenter implements Initializable {
         final ImmutableList<FileTreeModel> selectedItemsAtDestinationList = selectedItemsAtDestination.stream()
                 .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
 
+        if (selectedItemsAtSourceLocationList.stream().anyMatch(value -> value.getType() == BaseTreeModel.Type.Bucket)) {
+            LOG.error("Cannot perform GET on bucket");
+            alert.error("noGetBucket", getWindow());
+            return;
+        }
+
         //Getting selected item at source location
         final ImmutableList<Ds3TreeTableValueCustom> selectedItemsAtSourceLocationListCustom =
                 selectedItemsAtSourceLocationList.stream()
@@ -528,6 +534,7 @@ public class Ds3PanelPresenter implements Initializable {
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENS_ICON);
             if (Guard.isStringNullOrEmpty(newValue)) {
+                ds3PanelService.showFullPath(false);
                 refreshCompleteViewWorker.refreshCompleteTreeTableView();
             }
         });
@@ -589,7 +596,7 @@ public class Ds3PanelPresenter implements Initializable {
             //start a new task for calculating
             itemsTask = new GetNumberOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
 
-            itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> Platform.runLater(() -> {
+            itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
                 final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
                         .stream().filter(Objects::nonNull).collect(GuavaCollectors.immutableList());
                 TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();

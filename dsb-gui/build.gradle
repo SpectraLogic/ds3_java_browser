@@ -31,7 +31,7 @@ buildscript {
 
 /*As a workaround mainClassName must be set before shadowJar is applied
   Otherwise shadow:2.0.2 displays the following error:
-  A problem was found with the configuration of task ':dsb-gui:shadowJar'.
+  A problem was found with the configuration of task ':dsb-gui:shadowJare.
   Registering invalid inputs and outputs via TaskInputs and TaskOutputs methods has been deprecated and is scheduled to be removed in Gradle 5.0.
  - No value has been specified for property 'mainClassName'.
  */

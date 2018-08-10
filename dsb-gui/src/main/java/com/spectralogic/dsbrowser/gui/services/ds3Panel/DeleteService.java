@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3DeleteFoldersTask;
 import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -147,11 +148,9 @@ public final class DeleteService {
 
         final ImmutableList<String> buckets = getBuckets(values);
 
-        final ArrayList<Ds3TreeTableValue> filesToDelete = new ArrayList<>(values
+        final ImmutableList<Ds3TreeTableValue> filesToDelete = values
                 .stream()
-                .map(TreeItem::getValue)
-                .collect(Collectors.toList())
-        );
+                .map(TreeItem::getValue).collect(GuavaCollectors.immutableList());
         final Map<String, List<Ds3TreeTableValue>> bucketObjectsMap = filesToDelete.stream().collect(Collectors.groupingBy(Ds3TreeTableValue::getBucketName));
 
         final Ds3DeleteFilesTask ds3DeleteFilesTask = new Ds3DeleteFilesTask(
@@ -161,7 +160,7 @@ public final class DeleteService {
     }
 
     public void managePathIndicator() {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             final TreeTableView<Ds3TreeTableValue> ds3TreeTable = ds3Common.getDs3TreeTableView();
             final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTable.getSelectionModel().getSelectedItems();
 

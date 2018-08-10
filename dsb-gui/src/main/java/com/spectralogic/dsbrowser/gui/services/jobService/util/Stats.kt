@@ -37,14 +37,19 @@ class Stats(val message: StringProperty, val loggingService: LoggingService, val
         val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {
             "/"
         } else {
-            toPath
+            "/" + toPath
+        }
+        val displayName = if (name.startsWith(toPath)) {
+            name.substring(displayPath.length - 1)
+        } else {
+            name
         }
         val elapsedSeconds = Instant.now().epochSecond - startTime.epochSecond
         val transferRate = estimateTransferRate(sent, elapsedSeconds)
         val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
                 totalMessage, name, location).toString())
-        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
+        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(displayName, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
     }
 
     private fun estimateTransferRate(sent: LongProperty, elapsedSeconds: Long) =

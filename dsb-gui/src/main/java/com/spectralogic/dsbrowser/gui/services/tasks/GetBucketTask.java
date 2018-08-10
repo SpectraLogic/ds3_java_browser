@@ -116,7 +116,7 @@ public class GetBucketTask extends Ds3Task {
             final ImmutableList<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, bucket);
 
             //after getting both lists we need to merge in partialResult and need to sort
-            Platform.runLater(() -> {
+            UIThreadUtil.runInFXThread(() -> {
                 //if selected item is not load more then clear partial result list so that items will not appear twice
                 if(ds3Value.getType() != Ds3TreeTableValue.Type.Loader) {
                     partialResults.get().clear();
