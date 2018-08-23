@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllTaskBySession;
 import com.spectralogic.dsbrowser.gui.services.tasks.CancelAllRunningJobsTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
@@ -49,25 +50,23 @@ public class CancelJobsWorker {
 
     public void cancelAllRunningJobs(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
         if (!jobWorkers.getTasks().isEmpty()) {
-            final CancelAllRunningJobsTask cancelAllRunningJobsTask = cancelTasks(jobWorkers, jobInterruptionStore);
+            final CancelAllRunningJobsTask cancelAllRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore, loggingService);
             cancelAllRunningJobsTask.setOnSucceeded(SafeHandler.logHandle(event -> {
                 refreshCompleteTreeTableView.refreshCompleteTreeTableView();
                 if (cancelAllRunningJobsTask.getValue() != null) {
                     LOG.info("Canceled job. {}", cancelAllRunningJobsTask.getValue());
                 }
             }));
-
+            workers.execute(cancelAllRunningJobsTask);
         }
     }
 
-    public CancelAllRunningJobsTask cancelTasks(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
-        final CancelAllRunningJobsTask cancelAllRunningJobsTask = new CancelAllRunningJobsTask(jobWorkers, jobInterruptionStore, loggingService);
-        workers.execute(cancelAllRunningJobsTask);
-        return cancelAllRunningJobsTask;
-    }
-
-    public CancelAllTaskBySession cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore) {
-        final ImmutableList<Ds3JobTask> tasks = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
+    public void cancelAllRunningJobsBySession(final JobWorkers jobWorkers, final JobInterruptionStore jobInterruptionStore, final Session closedSession) {
+        final ImmutableList<Ds3JobTask> tasks = jobWorkers
+                .getTasks()
+                .stream()
+                .filter(ds3JobTask -> compareEndpoints(closedSession, ds3JobTask))
+                .collect(GuavaCollectors.immutableList());
         if (!tasks.isEmpty()) {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks,
                     jobInterruptionStore, loggingService);
@@ -77,9 +76,12 @@ public class CancelJobsWorker {
                 }
             }));
             workers.execute(cancelAllRunningJobs);
-            return cancelAllRunningJobs;
-        } else {
-            return null;
         }
+    }
+
+    private boolean compareEndpoints(final Session closedSession, final Ds3JobTask ds3JobTask) {
+        final String taskEndpoint = ds3JobTask.getDs3Client().getConnectionDetails().getEndpoint();
+        final String sessionEndpoint = closedSession.getEndpoint() + ":" + closedSession.getPortNo();
+        return taskEndpoint.equals(sessionEndpoint);
     }
 }

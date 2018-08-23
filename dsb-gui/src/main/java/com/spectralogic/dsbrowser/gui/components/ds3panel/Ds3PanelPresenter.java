@@ -354,12 +354,11 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void closeTab(final Tab closedTab) {
-        {
             try {
                 if (closedTab != null) {
                     final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
-                        cancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore);
+                        cancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, closedSession);
                         ds3SessionStore.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
@@ -379,7 +378,6 @@ public class Ds3PanelPresenter implements Initializable {
             } catch (final Exception e) {
                 LOG.error("Failed to remove session:", e);
             }
-        }
     }
 
     public void setBlank(final boolean isSetBlank) {

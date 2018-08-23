@@ -17,6 +17,10 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.github.thomasnield.rxkotlinfx.observeOnFx
 import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
+import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
+import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobsSpectraS3Request
+import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
+import com.spectralogic.ds3client.networking.FailedRequestException
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
@@ -30,6 +34,7 @@ import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
 import org.slf4j.Logger
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
 import java.util.function.Supplier
@@ -77,19 +82,19 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                            jobInterruptionStore: JobInterruptionStore,
                            workers: Workers,
                            deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
-        jobId.exists {
-            workers.execute {
-                try {
-                    client.cancelJobSpectraS3(CancelJobSpectraS3Request(it))
-                    log.info("{} Job cancelled", type)
-                    loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-                } catch (e: Throwable) {
-                    log.error("Failed to cancel $type job", e)
-                    loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
+        jobId.exists { uuid ->
+                workers.execute {
+                    try {
+                        client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
+                        log.info("{} Job cancelled", type)
+                        loggingService.logMessage("$type Job Cancelled", LogType.INFO)
+                    } catch (e: Throwable) {
+                        log.error("Failed to cancel $type job", e)
+                        loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
+                    }
                 }
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+            ParseJobInterruptionMap.removeJobID( jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService )
             }
-        }
     }
 
     fun onFailed(client: Ds3Client,
@@ -115,4 +120,5 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
 
     fun JobTask.onRunning() = { _: WorkerStateEvent -> }
     fun JobTask.onScheduled() = { _: WorkerStateEvent -> }
+
 }
