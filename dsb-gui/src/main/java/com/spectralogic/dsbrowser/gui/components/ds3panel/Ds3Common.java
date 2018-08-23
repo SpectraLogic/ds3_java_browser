@@ -37,8 +37,6 @@ public class Ds3Common {
 
     private TabPane currentTabPane;
 
-    private Session sessionOfClosedTab;
-
     private TreeTableView<FileTreeModel> localTreeTableView;
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;

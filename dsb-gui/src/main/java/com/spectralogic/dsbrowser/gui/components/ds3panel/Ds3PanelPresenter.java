@@ -58,6 +58,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import kotlin.Pair;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +178,6 @@ public class Ds3PanelPresenter implements Initializable {
             initTab();
             initListeners();
             ds3Common.setDs3PanelPresenter(this);
-            ds3Common.setDeepStorageBrowserPresenter(deepStorageBrowserPresenter);
             //open default session when DSB launched
             savedSessionStore.openDefaultSession(ds3SessionStore, createConnectionTask, null);
         } catch (final Throwable t) {
@@ -319,8 +319,6 @@ public class Ds3PanelPresenter implements Initializable {
 
         });
         treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource(), getSession())));
-        //treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> ds3Common.setSessionOfClosedTab(getSession())));
-        //treeTab.setOnClosed(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource(), getSession())));
         treeTab.setTooltip(new Tooltip(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()));
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
@@ -328,29 +326,27 @@ public class Ds3PanelPresenter implements Initializable {
     }
 
     private void modifyJobPriority(final Ds3JobTask task) {
-        {
-            final UUID jobId = task.getJobId();
-            if (getSession() != null) {
-                if (jobId != null) {
+        final UUID jobId = task.getJobId();
+        if (getSession() != null) {
+            if (jobId != null) {
 
-                    final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
+                final GetJobPriorityTask jobPriorityTask = new GetJobPriorityTask(getSession(), jobId);
 
-                    jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> UIThreadUtil.runInFXThread(() -> {
-                        LOG.info("Launching metadata popup");
+                jobPriorityTask.setOnSucceeded(SafeHandler.logHandle(eventPriority -> UIThreadUtil.runInFXThread(() -> {
+                    LOG.info("Launching metadata popup");
 
-                        modifyJobPriorityPopUp.show(jobPriorityTask.getValue(), getWindow());
-                    })));
-                    jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> {
-                        LOG.error(resourceBundle.getString("failedToModifyPriority"));
-                        loggingService.logMessage(resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
-                    }));
-                    workers.execute(jobPriorityTask);
-                } else {
-                    LOG.info("Job is not started yet");
-                }
+                    modifyJobPriorityPopUp.show(jobPriorityTask.getValue(), getWindow());
+                })));
+                jobPriorityTask.setOnFailed(SafeHandler.logHandle(modifyJobPriority -> {
+                    LOG.error(resourceBundle.getString("failedToModifyPriority"));
+                    loggingService.logMessage(resourceBundle.getString("failedToModifyPriority"), LogType.ERROR);
+                }));
+                workers.execute(jobPriorityTask);
             } else {
-                LOG.error("Null session.");
+                LOG.info("Job is not started yet");
             }
+        } else {
+            LOG.error("Null session.");
         }
     }
 
@@ -666,9 +662,9 @@ public class Ds3PanelPresenter implements Initializable {
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
                 .forEach(bucket -> {
-                    final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
+                    final ImmutableList<Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
-                            .map(ds3TreeTableValueCustom -> new kotlin.Pair<>(
+                            .map(ds3TreeTableValueCustom -> new Pair<String, String>(
                                     ds3TreeTableValueCustom.getFullName(),
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
