@@ -167,7 +167,7 @@ public class NewSessionPresenter implements Initializable {
             }
         });
         savedSessions.setRowFactory(tableView -> {
-            final TableRow<SavedSession> row = new TableRow<>();
+            final TableRow<SavedSession> row = new TableRow<SavedSession>();
             row.setOnMouseClicked(SafeHandler.logHandle(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();

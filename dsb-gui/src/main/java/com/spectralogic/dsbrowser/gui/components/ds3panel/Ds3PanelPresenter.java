@@ -318,8 +318,9 @@ public class Ds3PanelPresenter implements Initializable {
             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
 
         });
-        treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> ds3Common.setSessionOfClosedTab(getSession())));
-        treeTab.setOnClosed(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource())));
+        treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource(), getSession())));
+        //treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> ds3Common.setSessionOfClosedTab(getSession())));
+        //treeTab.setOnClosed(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource(), getSession())));
         treeTab.setTooltip(new Tooltip(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()));
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
@@ -353,16 +354,14 @@ public class Ds3PanelPresenter implements Initializable {
         }
     }
 
-    private void closeTab(final Tab closedTab) {
+    private void closeTab(final Tab closedTab, final Session closedSession) {
             try {
                 if (closedTab != null) {
-                    final Session closedSession = ds3Common.getSessionOfClosedTab();
                     if (closedSession != null) {
                         cancelJobsWorker.cancelAllRunningJobsBySession(jobWorkers, jobInterruptionStore, closedSession);
                         ds3SessionStore.removeSession(closedSession);
                         ds3Common.getExpandedNodesInfo().remove(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint());
-                        ds3Common.setSessionOfClosedTab(null);
                         loggingService.logMessage(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
@@ -375,6 +374,9 @@ public class Ds3PanelPresenter implements Initializable {
                             deepStorageBrowserPresenter.getJobProgressView(), null);
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
+
+                ds3SessionStore.removeSession(closedSession);
+                closedSession.close();
             } catch (final Exception e) {
                 LOG.error("Failed to remove session:", e);
             }

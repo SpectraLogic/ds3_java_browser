@@ -90,14 +90,6 @@ public class Ds3Common {
         this.currentTabPane = currentTabPane;
     }
 
-    public Session getSessionOfClosedTab() {
-        return sessionOfClosedTab;
-    }
-
-    public void setSessionOfClosedTab(final Session sessionOfClosedTab) {
-        this.sessionOfClosedTab = sessionOfClosedTab;
-    }
-
     public TreeTableView<FileTreeModel> getLocalTreeTableView() {
         return localTreeTableView;
     }
