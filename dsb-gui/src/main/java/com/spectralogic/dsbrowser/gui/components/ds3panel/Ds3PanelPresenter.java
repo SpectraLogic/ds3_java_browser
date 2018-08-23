@@ -241,6 +241,7 @@ public class Ds3PanelPresenter implements Initializable {
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
             if (!ds3SessionTabPane.getTabs().isEmpty() && newTab == addNewTab) {
+                ds3SessionStore.removeSession(ds3Common.getCurrentSession());
                 newSessionDialog();
             }
             try {
@@ -318,7 +319,10 @@ public class Ds3PanelPresenter implements Initializable {
             ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
 
         });
-        treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> closeTab((Tab) event.getSource(), getSession())));
+        treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> {
+            ds3SessionStore.removeSession(getSession());
+            closeTab((Tab) event.getSource(), getSession());
+        }));
         treeTab.setTooltip(new Tooltip(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()));
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
@@ -371,7 +375,6 @@ public class Ds3PanelPresenter implements Initializable {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
 
-                ds3SessionStore.removeSession(closedSession);
                 closedSession.close();
             } catch (final Exception e) {
                 LOG.error("Failed to remove session:", e);
