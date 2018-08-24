@@ -366,6 +366,7 @@ public class Ds3PanelPresenter implements Initializable {
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
                     }
+                    closedSession.close();
                 }
                 final Session currentSession = getSession();
                 if (currentSession != null) {
@@ -375,7 +376,6 @@ public class Ds3PanelPresenter implements Initializable {
                     ParseJobInterruptionMap.setButtonAndCountNumber(jobIDMap, deepStorageBrowserPresenter);
                 }
 
-                closedSession.close();
             } catch (final Exception e) {
                 LOG.error("Failed to remove session:", e);
             }
@@ -667,7 +667,7 @@ public class Ds3PanelPresenter implements Initializable {
                 .forEach(bucket -> {
                     final ImmutableList<Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
-                            .map(ds3TreeTableValueCustom -> new Pair<String, String>(
+                            .map(ds3TreeTableValueCustom -> new Pair<>(
                                     ds3TreeTableValueCustom.getFullName(),
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
