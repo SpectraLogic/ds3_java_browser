@@ -117,8 +117,6 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     fun JobTask.onSucceeded(type: String, log: Logger): (WorkerStateEvent) -> Unit = {
         log.info("$type Job completed successfully")
     }
-
-    fun JobTask.onRunning() = { _: WorkerStateEvent -> }
     fun JobTask.onScheduled() = { _: WorkerStateEvent -> }
 
 }

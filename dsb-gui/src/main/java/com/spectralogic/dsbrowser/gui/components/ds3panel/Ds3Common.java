@@ -37,8 +37,6 @@ public class Ds3Common {
 
     private TabPane currentTabPane;
 
-    private Session sessionOfClosedTab;
-
     private TreeTableView<FileTreeModel> localTreeTableView;
 
     private TreeTableView<Ds3TreeTableValue> ds3TreeTableView;
@@ -88,14 +86,6 @@ public class Ds3Common {
 
     public void setCurrentTabPane(final TabPane currentTabPane) {
         this.currentTabPane = currentTabPane;
-    }
-
-    public Session getSessionOfClosedTab() {
-        return sessionOfClosedTab;
-    }
-
-    public void setSessionOfClosedTab(final Session sessionOfClosedTab) {
-        this.sessionOfClosedTab = sessionOfClosedTab;
     }
 
     public TreeTableView<FileTreeModel> getLocalTreeTableView() {

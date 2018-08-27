@@ -167,11 +167,11 @@ public class NewSessionPresenter implements Initializable {
             }
         });
         savedSessions.setRowFactory(tableView -> {
-            final TableRow<SavedSession> row = new TableRow<>();
+            final TableRow<SavedSession> row = new TableRow<SavedSession>();
             row.setOnMouseClicked(SafeHandler.logHandle(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     final SavedSession rowData = row.getItem();
-                    if (ds3SessionStore.getObservableList().isEmpty() || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
+                    if (!SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
                         final Boolean isDefaultSession = rowData.getDefaultSession();
                         final Session connection = createConnectionTask.createConnection(SessionModelService.setSessionModel(rowData, isDefaultSession), getWindow());
                         sessionValidates(connection);
@@ -232,8 +232,7 @@ public class NewSessionPresenter implements Initializable {
 
     public void openSession() {
         LOG.info("Performing session validation");
-        if (Guard.isNullOrEmpty(ds3SessionStore.getObservableList())
-                || !SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
+        if (!SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), model.getSessionName())) {
             if (newSessionModelValidation.validationNewSession(model, getWindow())) {
                 final Session session = createConnectionTask.createConnection(model, getWindow());
                 sessionValidates(session);
