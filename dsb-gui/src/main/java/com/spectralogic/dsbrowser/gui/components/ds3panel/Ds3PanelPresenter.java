@@ -241,6 +241,8 @@ public class Ds3PanelPresenter implements Initializable {
 
         ds3SessionTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
             if (!ds3SessionTabPane.getTabs().isEmpty() && newTab == addNewTab) {
+                ds3PathIndicator.setText("");
+                ds3PathIndicatorTooltip.setText("");
                 ds3SessionStore.removeSession(ds3Common.getCurrentSession());
                 newSessionDialog();
             }
