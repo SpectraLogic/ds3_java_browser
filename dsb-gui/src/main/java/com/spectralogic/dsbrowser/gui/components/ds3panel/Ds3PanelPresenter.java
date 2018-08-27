@@ -365,8 +365,8 @@ public class Ds3PanelPresenter implements Initializable {
                         loggingService.logMessage(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
+                        closedSession.close();
                     }
-                    closedSession.close();
                 }
                 final Session currentSession = getSession();
                 if (currentSession != null) {

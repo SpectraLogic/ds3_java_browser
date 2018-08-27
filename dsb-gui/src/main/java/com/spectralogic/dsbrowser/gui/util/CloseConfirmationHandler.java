@@ -75,19 +75,13 @@ public class CloseConfirmationHandler {
             event.consume();
             shutdownService.shutdown();
         } else {
-            final Optional<ButtonType> closeResponse;
-            if (1 == notCachedRunningTasks.size()) {
-                closeResponse =ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("jobStillRunningMessage"),
-                        Alert.AlertType.CONFIRMATION, null,
-                        resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
-            } else {
-                closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("multipleJobStillRunningMessage"),
-                        Alert.AlertType.CONFIRMATION, null,
-                        resourceBundle.getString("exitButtonText"), resourceBundle.getString("cancelButtonText"));
-            }
-            closeResponse.ifPresent(response -> {
+            ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                    notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString(notCachedRunningTasks.size() > 1 ? "multipleJobStillRunningMessage" : "jobStillRunningMessage"),
+                    Alert.AlertType.CONFIRMATION,
+                    null,
+                    resourceBundle.getString("exitButtonText"),
+                    resourceBundle.getString("cancelButtonText"))
+            .ifPresent(response -> {
                 if (response.equals(ButtonType.OK)) {
                     shutdownService.shutdown();
                     event.consume();
