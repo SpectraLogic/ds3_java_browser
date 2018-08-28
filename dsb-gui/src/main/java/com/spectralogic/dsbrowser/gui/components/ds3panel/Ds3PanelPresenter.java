@@ -124,6 +124,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final ModifyJobPriorityPopUp modifyJobPriorityPopUp;
     private final NewSessionPopup newSessionPopup;
     private final CreateConnectionTask createConnectionTask;
+    private final Ds3Alert ds3Alert;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -146,6 +147,7 @@ public class Ds3PanelPresenter implements Initializable {
             final NewSessionPopup newSessionPopup,
             final LoggingService loggingService,
             final CreateConnectionTask createConnectionTask,
+            final Ds3Alert ds3Alert,
             final AlertService alertService) {
         this.resourceBundle = resourceBundle;
         this.createConnectionTask = createConnectionTask;
@@ -166,6 +168,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.createService = createService;
         this.deleteService = deleteService;
         this.alert = alertService;
+        this.ds3Alert = ds3Alert;
     }
 
     @Override
@@ -322,8 +325,28 @@ public class Ds3PanelPresenter implements Initializable {
 
         });
         treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> {
-            ds3SessionStore.removeSession(getSession());
-            closeTab((Tab) event.getSource(), getSession());
+            final ImmutableList<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream()
+                    .filter(ds3JobTask -> CancelJobsWorker.compareEndpoints(getSession(), ds3JobTask))
+                    .filter(task -> task.getProgress() != 1).collect(GuavaCollectors.immutableList());
+            if (Guard.isNullOrEmpty(jobWorkers.getTasks()) || Guard.isNullOrEmpty(notCachedRunningTasks)) {
+                ds3SessionStore.removeSession(getSession());
+                closeTab((Tab) event.getSource(), getSession());
+            } else {
+                ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString(notCachedRunningTasks.size() > 1 ? "multipleJobStillRunningMessage" : "jobStillRunningMessage"),
+                        Alert.AlertType.CONFIRMATION,
+                        null,
+                        resourceBundle.getString("closeButtonText"),
+                        resourceBundle.getString("cancelButtonText"))
+                        .ifPresent(response -> {
+                            if (response.equals(ButtonType.OK)) {
+                                ds3SessionStore.removeSession(getSession());
+                                closeTab((Tab) event.getSource(), getSession());
+                            } else if (response.equals(ButtonType.CANCEL)) {
+                                event.consume();
+                            }
+                        });
+            }
         }));
         treeTab.setTooltip(new Tooltip(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()));
         final int totalTabs = ds3SessionTabPane.getTabs().size();
