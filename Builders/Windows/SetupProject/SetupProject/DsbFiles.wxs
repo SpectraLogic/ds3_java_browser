@@ -120,17 +120,17 @@
                 <Component Win64="yes" Id="cmp334A6394C83DBE67F64EA8FBE394B02A" Guid="*">
                     <File Id="filC8C9899AE5BF1EC370933FC501A7CE8A" KeyPath="yes" Source="$(var.DsbPath)\jsr305-3.0.1.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpF90ACF24D8E7FF969A7009347D850857" Guid="*">
-                    <File Id="filEA29421D2E0230A2C75951110A411981" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-1.2.51.jar" />
+                <Component Win64="yes" Id="cmpE1A3DFE3C9A31BCF238B2D02F78531AC" Guid="*">
+                    <File Id="filE90C67D119CA33ED2AEAF41B301C89AA" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-1.2.60.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp433C52AC65AB8DA52D9A475410397B72" Guid="*">
-                    <File Id="fil14677DB0D82DEBD382D7EC5A7A8B428D" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-common-1.2.51.jar" />
+                <Component Win64="yes" Id="cmp3E33517F0E1E2929998A6F81BCE62168" Guid="*">
+                    <File Id="fil2409874FEB1D83E2BE56EDB8CF4BC352" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-common-1.2.60.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpF3CFE17BEED1762B47A9321D8E482C1A" Guid="*">
-                    <File Id="fil265D5EA0691E866EE39DD40A58C0EC0C" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk7-1.2.51.jar" />
+                <Component Win64="yes" Id="cmpD13B068F95F857464BEB1B7E85D43C79" Guid="*">
+                    <File Id="fil2588D5FC3824DDA9C9F809498B1E9F89" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk7-1.2.60.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp1CFF192927A70EFE32F0E0A4B91B8DA8" Guid="*">
-                    <File Id="fil1BF6EE00729E7FFAF4E9C99FE3E330CC" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk8-1.2.51.jar" />
+                <Component Win64="yes" Id="cmp04E005AB7682D572E63DF61DCABD227D" Guid="*">
+                    <File Id="fil663C51E61BE50C66732F4A5B59CEAAF2" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk8-1.2.60.jar" />
                 </Component>
                 <Component Win64="yes" Id="cmp06A9E5D8D3CCE9BC42F7B3E0DC00E2A7" Guid="*">
                     <File Id="fil5BC6FDBD5181516455F4630337B42F20" KeyPath="yes" Source="$(var.DsbPath)\logback-classic-1.2.3.jar" />
@@ -224,10 +224,10 @@
             <ComponentRef Id="cmp97EFDBF9C76488F17C1DCC8BC8DF619F" />
             <ComponentRef Id="cmp5F3CCD0C6935C81E44A85C22491B2B9F" />
             <ComponentRef Id="cmp334A6394C83DBE67F64EA8FBE394B02A" />
-            <ComponentRef Id="cmpF90ACF24D8E7FF969A7009347D850857" />
-            <ComponentRef Id="cmp433C52AC65AB8DA52D9A475410397B72" />
-            <ComponentRef Id="cmpF3CFE17BEED1762B47A9321D8E482C1A" />
-            <ComponentRef Id="cmp1CFF192927A70EFE32F0E0A4B91B8DA8" />
+            <ComponentRef Id="cmpE1A3DFE3C9A31BCF238B2D02F78531AC" />
+            <ComponentRef Id="cmp3E33517F0E1E2929998A6F81BCE62168" />
+            <ComponentRef Id="cmpD13B068F95F857464BEB1B7E85D43C79" />
+            <ComponentRef Id="cmp04E005AB7682D572E63DF61DCABD227D" />
             <ComponentRef Id="cmp06A9E5D8D3CCE9BC42F7B3E0DC00E2A7" />
             <ComponentRef Id="cmp2E66FE7608AEE42B0820E081251DCBFB" />
             <ComponentRef Id="cmp0ECD51BD3914BAA43635C47E89C1CDAD" />
