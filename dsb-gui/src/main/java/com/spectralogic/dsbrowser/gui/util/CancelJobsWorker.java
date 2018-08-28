@@ -79,7 +79,7 @@ public class CancelJobsWorker {
         }
     }
 
-    private boolean compareEndpoints(final Session closedSession, final Ds3JobTask ds3JobTask) {
+    public static boolean compareEndpoints(final Session closedSession, final Ds3JobTask ds3JobTask) {
         final String taskEndpoint = ds3JobTask.getDs3Client().getConnectionDetails().getEndpoint();
         final String sessionEndpoint = closedSession.getEndpoint() + ":" + closedSession.getPortNo();
         return taskEndpoint.equals(sessionEndpoint);
