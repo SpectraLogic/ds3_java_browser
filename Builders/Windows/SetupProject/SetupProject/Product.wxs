@@ -111,6 +111,7 @@
     <Feature Id="ProductFeature" Title="$(var.Name)" Level="1">
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="ApplicationShortcutDesktop" />
+      <ComponentGroupRef Id="JavaFilesGroup"/>
       <ComponentGroupRef Id="DsbFilesGroup"/>
       <ComponentRef Id="InstallRegistryComponent"/>
       <ComponentRef Id="dsb_gui.exe" />

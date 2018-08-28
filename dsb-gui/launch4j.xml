@@ -19,10 +19,10 @@
     <cp>./libs/*.jar</cp>
   </classPath>
   <jre>
-    <path></path>
-    <bundledJre64Bit>false</bundledJre64Bit>
+    <path>..\Java\jre1.8.0_181</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
-    <minVersion>1.8.0</minVersion>
+    <minVersion></minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64</runtimeBits>

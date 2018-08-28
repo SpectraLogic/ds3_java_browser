@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{5A3A
 	ProjectSection(SolutionItems) = preProject
 		SetupProject\createDsbExe.bat = SetupProject\createDsbExe.bat
 		SetupProject\createWXSDbsFiles.bat = SetupProject\createWXSDbsFiles.bat
+		..\createWXSJavaFiles.bat = ..\createWXSJavaFiles.bat
+		SetupProject\extractJava.bat = SetupProject\extractJava.bat
 	EndProjectSection
 EndProject
 Global
