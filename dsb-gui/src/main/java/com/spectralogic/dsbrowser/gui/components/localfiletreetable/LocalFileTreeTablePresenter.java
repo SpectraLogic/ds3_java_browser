@@ -276,7 +276,22 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return;
             }
             try {
-                Files.createDirectories(rootPath.resolve(folderName));
+                final Path path;
+                final ObservableList<TreeItem<FileTreeModel>> selectedItems = ds3Common.getLocalTreeTableView().getSelectionModel().getSelectedItems();
+                if(selectedItems.isEmpty()) {
+                    path = rootPath.resolve(folderName);
+                } else if (selectedItems.size() == 1) {
+                    final FileTreeModel fileTreeModel = selectedItems.get(0).getValue();
+                    if (fileTreeModel.getType() == BaseTreeModel.Type.Directory) {
+                        path = fileTreeModel.getPath().resolve(folderName);
+                    } else {
+                        path = fileTreeModel.getPath().getParent().resolve(folderName);
+                    }
+                } else {
+                   alert.error("tooManyItemsSelected", getWindow());
+                   return;
+                }
+                Files.createDirectories(path);
                 refreshFileTreeView();
             } catch (final IOException e) {
                 alert.error("couldNotCreateLocalDirectory", getWindow());
