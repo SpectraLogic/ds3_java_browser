@@ -107,7 +107,10 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
                 .retry { throwable ->
                     putJobData.loggingService().logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
                     LOG.error("Unable to check status of job " + jobUUID(), throwable)
-                    true
+                    when (throwable) {
+                        is IllegalStateException -> false
+                        else -> true
+                    }
                 }
                 .ignoreElements()
                 .subscribe()
