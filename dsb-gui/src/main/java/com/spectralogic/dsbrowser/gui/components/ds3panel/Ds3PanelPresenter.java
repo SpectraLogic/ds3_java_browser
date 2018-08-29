@@ -325,10 +325,8 @@ public class Ds3PanelPresenter implements Initializable {
 
         });
         treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> {
-            final ImmutableList<Ds3JobTask> notCachedRunningTasks = jobWorkers.getTasks().stream()
-                    .filter(ds3JobTask -> CancelJobsWorker.compareEndpoints(getSession(), ds3JobTask))
-                    .filter(task -> task.getProgress() != 1).collect(GuavaCollectors.immutableList());
-            if (Guard.isNullOrEmpty(jobWorkers.getTasks()) || Guard.isNullOrEmpty(notCachedRunningTasks)) {
+            final ImmutableList<Ds3JobTask> notCachedRunningTasks = getActiveItemsInSession();
+            if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
                 ds3SessionStore.removeSession(getSession());
                 closeTab((Tab) event.getSource(), getSession());
             } else {
@@ -341,8 +339,12 @@ public class Ds3PanelPresenter implements Initializable {
                         .ifPresent(response -> {
                             if (response.equals(ButtonType.OK)) {
                                 ds3SessionStore.removeSession(getSession());
+                                notCachedRunningTasks.forEach(ds3JobTask -> ds3JobTask.cancel(true));
                                 closeTab((Tab) event.getSource(), getSession());
                             } else if (response.equals(ButtonType.CANCEL)) {
+                                event.consume();
+                            } else {
+                                LOG.error("Got a button click that shold not be possible");
                                 event.consume();
                             }
                         });
@@ -352,6 +354,21 @@ public class Ds3PanelPresenter implements Initializable {
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
         ds3SessionTabPane.getSelectionModel().select(treeTab);
+    }
+
+    private ImmutableList<Ds3JobTask> getActiveItemsInSession() {
+        return jobWorkers.getTasks().stream()
+                .filter(ds3JobTask -> jobInSession(ds3JobTask, getSession()))
+                .filter(task -> !taskInCache(task))
+                .collect(GuavaCollectors.immutableList());
+    }
+
+    private boolean jobInSession(final Ds3JobTask ds3JobTask, final Session session) {
+        return CancelJobsWorker.compareEndpoints(session, ds3JobTask);
+    }
+
+    private boolean taskInCache(final Ds3JobTask task) {
+        return task.getProgress() == 1;
     }
 
     private void modifyJobPriority(final Ds3JobTask task) {
