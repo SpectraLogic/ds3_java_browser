@@ -43,17 +43,18 @@ class JobServiceTest {
 
         override fun jobUUID(): UUID = UUID.randomUUID()
 
-        override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
+        override fun finishedCompletable(): Completable {
             return Completable.fromAction {
                 //Simplified example, just skips the whole thing if cancelled is true
-                if(!cancelled.get()) {
                     message.set(RAN_MESSAGE)
                     totalJob.set(PERCENT_RAN)
                     title.set(RAN_MESSAGE)
                     visible.set(false)
-                }
             }
 
+        }
+
+        override fun cancel() {
 
         }
     }
@@ -68,7 +69,7 @@ class JobServiceTest {
         var message = "N/A"
         jobService!!.messageObservable().subscribe(Consumer { t: String -> message = t })
         assertThat(message).isEqualTo(INITIAL_MESSAGE)
-        jobService!!.finishedCompletable(cancelled).blockingGet()
+        jobService!!.finishedCompletable().blockingGet()
         assertThat(message).isEqualTo(RAN_MESSAGE)
     }
 
@@ -78,7 +79,7 @@ class JobServiceTest {
         var title = "N/A"
         jobService!!.titleObservable().subscribe(Consumer { t: String -> title = t })
         assertThat(title).isEqualTo(INITIAL_MESSAGE)
-        jobService!!.finishedCompletable(cancelled).blockingGet()
+        jobService!!.finishedCompletable().blockingGet()
         assertThat(title).isEqualTo(RAN_MESSAGE)
     }
 
@@ -87,7 +88,7 @@ class JobServiceTest {
         var visible = false
         jobService!!.visabilityObservable().subscribe(Consumer { t: Boolean -> visible = t })
         assertThat(visible).isEqualTo(VISIBLE)
-        jobService!!.finishedCompletable(cancelled).blockingGet()
+        jobService!!.finishedCompletable().blockingGet()
         assertThat(visible).isEqualTo(false)
     }
 
@@ -96,17 +97,8 @@ class JobServiceTest {
         var total = 100.00
         jobService!!.jobSizeObservable().subscribe(Consumer { t: Number -> total = t.toDouble() })
         assertThat(total).isEqualTo(0.0)
-        jobService!!.finishedCompletable(cancelled).blockingGet()
+        jobService!!.finishedCompletable().blockingGet()
         assertThat(total).isEqualTo(1.0)
-    }
-
-    @Test
-    fun cancelTest() {
-        var total = 100.00
-        jobService!!.jobSizeObservable().subscribe(Consumer {t: Number -> total = t.toDouble()})
-        assertThat(total).isEqualTo(0.0)
-        jobService!!.finishedCompletable(reallyCancelled).blockingGet()
-        assertThat(total).isEqualTo(0.0)
     }
 
 }

@@ -53,8 +53,8 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
                 .let { JobTask(it) }
                 .apply {
                     onSucceeded = SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior))
-                    onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, workers, TYPE).andThen(refreshBehavior))
-                    onCancelled = SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, workers, deepStorageBrowserPresenter).andThen(refreshBehavior))
+                    onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, workers, TYPE).andThen(refreshBehavior))
+                    onCancelled = SafeHandler.logHandle(onCancelled(client, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }
     }

@@ -25,15 +25,18 @@ import javafx.beans.property.StringProperty
 import java.time.Instant
 
 class Stats(val message: StringProperty, val loggingService: LoggingService, val dateTimeUtils: DateTimeUtils) {
-    fun updateStatistics(name: String,
-                         startTime: Instant,
+    private var lastFile: String = ""
+
+    fun updateStatistics(startTime: Instant,
                          sent: LongProperty,
                          total: LongProperty,
                          totalMessage: String,
                          toPath: String,
                          location: String,
-                         finished: Boolean) {
+                         finished: Boolean,
+                         name: String = lastFile) {
 
+        lastFile = name
         val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {
             "/"
         } else {

@@ -28,18 +28,26 @@ import com.spectralogic.dsbrowser.gui.services.Workers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
+import com.spectralogic.dsbrowser.util.Platform
 import com.spectralogic.dsbrowser.util.exists
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
 import java.util.function.Supplier
 
 class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(JobTask::class.java)
+    }
     @Throws(Throwable::class)
     override fun executeJob() {
         ds3Client = wrappedJob.getDs3Client()
@@ -68,7 +76,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable(Supplier { isCancelled }).blockingAwait()
+        wrappedJob.finishedCompletable().blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()
@@ -76,23 +84,10 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
     public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 
     public fun onCancelled(client: Ds3Client,
-                           type: String,
-                           log: Logger,
                            loggingService: LoggingService,
                            jobInterruptionStore: JobInterruptionStore,
-                           workers: Workers,
                            deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
         jobId.exists { uuid ->
-                workers.execute {
-                    try {
-                        client.cancelJobSpectraS3(CancelJobSpectraS3Request(uuid))
-                        log.info("{} Job cancelled", type)
-                        loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-                    } catch (e: Throwable) {
-                        log.error("Failed to cancel $type job", e)
-                        loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
-                    }
-                }
             ParseJobInterruptionMap.removeJobID( jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService )
             }
     }
@@ -101,7 +96,6 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                  jobInterruptionStore: JobInterruptionStore,
                  deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
                  loggingService: LoggingService,
-                 log: Logger,
                  workers: Workers,
                  type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
@@ -110,7 +104,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
             }
         }
-        log.error("$type Job failed", throwable)
+        LOG.error("$type Job failed", throwable)
         loggingService.logMessage("$type Job failed with message: ${throwable.message}", LogType.ERROR)
     }
 
@@ -118,5 +112,17 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
         log.info("$type Job completed successfully")
     }
     fun JobTask.onScheduled() = { _: WorkerStateEvent -> }
+
+    override fun cancelled() {
+        LOG.info("Got a cancelled event")
+        launch {
+            wrappedJob.cancel()
+        }
+    }
+
+    public fun awaitCancel() {
+            wrappedJob.cancel()
+    }
+
 
 }

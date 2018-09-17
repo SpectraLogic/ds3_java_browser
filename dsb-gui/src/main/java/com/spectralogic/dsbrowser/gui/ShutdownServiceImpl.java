@@ -22,6 +22,7 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -33,6 +34,7 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import kotlinx.coroutines.experimental.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,13 +162,14 @@ public class ShutdownServiceImpl implements ShutdownService {
                     // against a delta since doubles can sometimes report back values close to 1.0, but not
                     // exactly 1.0
                     final double difference = progress.get() - 1.0;
-                    if (difference > 0.0001 || difference < -0.0001) {
-                        job.cancel();
-                        ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
+                        if (difference > 0.0001 || difference < -0.0001) {
+                            if (job instanceof JobTask) {
+                                ((JobTask) job).awaitCancel();
+                            }
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
-                } catch (final InterruptedException  | IOException e) {
+                } catch (final InterruptedException e) {
                     LOG.error("Failed to cancel job", e);
                 }
             });

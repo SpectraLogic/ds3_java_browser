@@ -2,7 +2,6 @@ package com.spectralogic.dsbrowser.api.services.logging;
 
 import io.reactivex.Observable;
 
-
 public interface LoggingService {
     Observable<LogEvent> getLoggerObservable();
     void logMessage(final String message, final LogType logType);

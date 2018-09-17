@@ -26,23 +26,20 @@ private const val RETRY_TIME = 100
 class KnownJobData constructor(
         private val jobData: JobData,
         private val filesAndFolderMap: FilesAndFolderMap,
-        override var jobId: UUID?,
+        override val jobId: UUID,
         val client: Ds3Client,
         private val jobType: String
 ) : JobData by jobData {
 
-    override var job: Ds3ClientHelpers.Job? = null
-        get() {
-            if (field == null) {
+    override val job: Ds3ClientHelpers.Job by lazy {
                 if (jobType == "GET") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
+                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
                 } else if (jobType == "PUT") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+                } else {
+                    throw NullPointerException("Got here")
                 }
             }
-            jobData.job = field
-            return jobData.job
-        }
 
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {

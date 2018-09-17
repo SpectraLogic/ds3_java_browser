@@ -44,5 +44,5 @@ abstract class JobService : JobFacade {
     override fun totalJobSizeAsProperty(): LongProperty = totalJob
     override fun visibleProperty(): SimpleBooleanProperty = visible
 
-    abstract override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
+    abstract override fun finishedCompletable(): Completable
 }

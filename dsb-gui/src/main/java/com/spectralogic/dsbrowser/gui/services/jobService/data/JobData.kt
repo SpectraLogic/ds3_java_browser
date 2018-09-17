@@ -42,10 +42,8 @@ interface JobData {
     fun internationalize(labelName: String): String
     fun client(): Ds3Client
     fun runningTitle(): String
-    var job: Ds3ClientHelpers.Job?
+    val job: Ds3ClientHelpers.Job
     val bucket: String
     var prefixMap: MutableMap<String, Path>
-    public var lastFile: String
-    public var jobId: UUID?
-    public var cancelled: Supplier<Boolean>?
+    public val jobId: UUID
 }

@@ -37,8 +37,8 @@ public class CancelAllRunningJobsTask extends Task {
     private final LoggingService loggingService;
 
     public CancelAllRunningJobsTask(final JobWorkers jobWorkers,
-                                    final JobInterruptionStore jobInterruptionStore,
-                                    final LoggingService loggingService) {
+            final JobInterruptionStore jobInterruptionStore,
+            final LoggingService loggingService) {
         this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
@@ -49,17 +49,12 @@ public class CancelAllRunningJobsTask extends Task {
         LOG.info("Starting cancel all the running jobs");
         if (jobWorkers != null && !Guard.isNullOrEmpty(jobWorkers.getTasks())) {
             jobWorkers.getTasks().forEach(job -> {
-                try {
-                    final Ds3Client ds3Client = job.getDs3Client();
-                    final String jobId = job.getJobId().toString();
-                    job.cancel();
-                    LOG.info("Canceled job:{} " , jobId);
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId,
-                            ds3Client.getConnectionDetails().getEndpoint(), null, loggingService);
-                    ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
-                } catch (final IOException e1) {
-                    LOG.error("Failed to cancel job", e1);
-                }
+                final Ds3Client ds3Client = job.getDs3Client();
+                final String jobId = job.getJobId().toString();
+                job.cancel();
+                LOG.info("Canceled job:{} ", jobId);
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId,
+                        ds3Client.getConnectionDetails().getEndpoint(), null, loggingService);
             });
         } else {
             LOG.info("No jobs to cancel");

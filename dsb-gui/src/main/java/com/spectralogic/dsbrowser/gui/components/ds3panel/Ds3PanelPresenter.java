@@ -339,7 +339,7 @@ public class Ds3PanelPresenter implements Initializable {
                         .ifPresent(response -> {
                             if (response.equals(ButtonType.OK)) {
                                 ds3SessionStore.removeSession(getSession());
-                                notCachedRunningTasks.forEach(ds3JobTask -> ds3JobTask.cancel(true));
+                                //notCachedRunningTasks.forEach(ds3JobTask -> ds3JobTask.cancel(true));
                                 closeTab((Tab) event.getSource(), getSession());
                             } else if (response.equals(ButtonType.CANCEL)) {
                                 event.consume();
@@ -407,7 +407,6 @@ public class Ds3PanelPresenter implements Initializable {
                         loggingService.logMessage(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
-                        closedSession.close();
                     }
                 }
                 final Session currentSession = getSession();
