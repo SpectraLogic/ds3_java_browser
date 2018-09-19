@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class PutJob(private val putJobData: JobData) : JobService()  {
+class PutJob(private val putJobData: JobData) : JobService() {
     override fun getDs3Client(): Ds3Client = putJobData.client()
 
     private val chunkManagement: ChunkManagment = ChunkManagment()

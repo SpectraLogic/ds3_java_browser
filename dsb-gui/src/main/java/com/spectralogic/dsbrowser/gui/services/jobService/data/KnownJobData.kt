@@ -38,7 +38,7 @@ class KnownJobData constructor(
                 } else if (jobType == "PUT") {
                     Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
                 } else {
-                    throw ConfigurationException("Was expecting GET or PUT, but got" + jobType)
+                    throw ConfigurationException("Was expecting GET or PUT, but got $jobType")
                 }
             }
 

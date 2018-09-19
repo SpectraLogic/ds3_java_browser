@@ -143,7 +143,11 @@ public class ShutdownServiceImpl implements ShutdownService {
 
         @Override
         public Object call() {
-            outstandingJobs.forEach(job -> {
+            outstandingJobs
+                    .stream()
+                    .filter(ds3JobTask -> ds3JobTask instanceof JobTask)
+                    .map(ds3JobTask -> (JobTask) ds3JobTask)
+                    .forEach(job -> {
                 final CountDownLatch latch = new CountDownLatch(1);
                 try {
 
@@ -163,9 +167,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                     // exactly 1.0
                     final double difference = progress.get() - 1.0;
                         if (difference > 0.0001 || difference < -0.0001) {
-                            if (job instanceof JobTask) {
                                 ((JobTask) job).awaitCancel();
-                            }
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
