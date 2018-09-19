@@ -43,4 +43,8 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return ds3Client;
     }
 
+    public boolean isInCache() {
+        return getProgress() == 1;
+    }
+
 }

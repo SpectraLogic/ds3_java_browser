@@ -28,14 +28,11 @@ import com.spectralogic.dsbrowser.gui.services.Workers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
-import com.spectralogic.dsbrowser.util.Platform
 import com.spectralogic.dsbrowser.util.exists
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

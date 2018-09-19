@@ -34,7 +34,6 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import kotlinx.coroutines.experimental.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

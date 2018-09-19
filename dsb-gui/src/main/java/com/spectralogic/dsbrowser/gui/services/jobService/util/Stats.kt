@@ -34,7 +34,7 @@ class Stats(val message: StringProperty, val loggingService: LoggingService, val
                          toPath: String,
                          location: String,
                          finished: Boolean,
-                         name: String = lastFile) {
+                         name: String =lastFile ) {
 
         lastFile = name
         val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {

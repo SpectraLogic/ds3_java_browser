@@ -42,7 +42,6 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -339,12 +338,11 @@ public class Ds3PanelPresenter implements Initializable {
                         .ifPresent(response -> {
                             if (response.equals(ButtonType.OK)) {
                                 ds3SessionStore.removeSession(getSession());
-                                //notCachedRunningTasks.forEach(ds3JobTask -> ds3JobTask.cancel(true));
                                 closeTab((Tab) event.getSource(), getSession());
                             } else if (response.equals(ButtonType.CANCEL)) {
                                 event.consume();
                             } else {
-                                LOG.error("Got a button click that shold not be possible");
+                                LOG.error("Got a {} button click that shold not be possible", response);
                                 event.consume();
                             }
                         });
@@ -358,17 +356,9 @@ public class Ds3PanelPresenter implements Initializable {
 
     private ImmutableList<Ds3JobTask> getActiveItemsInSession() {
         return jobWorkers.getTasks().stream()
-                .filter(ds3JobTask -> jobInSession(ds3JobTask, getSession()))
-                .filter(task -> !taskInCache(task))
+                .filter(ds3JobTask ->getSession().containsTask(ds3JobTask))
+                .filter(task -> task.isInCache())
                 .collect(GuavaCollectors.immutableList());
-    }
-
-    private boolean jobInSession(final Ds3JobTask ds3JobTask, final Session session) {
-        return CancelJobsWorker.compareEndpoints(session, ds3JobTask);
-    }
-
-    private boolean taskInCache(final Ds3JobTask task) {
-        return task.getProgress() == 1;
     }
 
     private void modifyJobPriority(final Ds3JobTask task) {
