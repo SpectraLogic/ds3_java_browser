@@ -331,11 +331,11 @@ public class Ds3PanelPresenter implements Initializable {
                 closeTab((Tab) event.getSource(), getSession());
             } else {
                 ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                        notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString(notCachedRunningTasks.size() > 1 ? "multipleJobStillRunningMessage" : "jobStillRunningMessage"),
+                        notCachedRunningTasks.size() + " " + resourceBundle.getString("stillInProgress"),
                         Alert.AlertType.CONFIRMATION,
                         null,
-                        resourceBundle.getString("closeButtonText"),
-                        resourceBundle.getString("cancelButtonText"))
+                        resourceBundle.getString("cancelJobsAndCloseTab"),
+                        resourceBundle.getString("returnToBrowser"))
                         .ifPresent(response -> {
                             if (response.equals(ButtonType.OK)) {
                                 ds3SessionStore.removeSession(getSession());
