@@ -178,7 +178,7 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void hideTask(final T task, final TaskCell tc) {
-        if (task instanceof JobTask && task != null) {
+        if (task instanceof JobTask) {
             tc.visibleProperty().set(((JobTask) task).isVisible().getValue());
         }
     }

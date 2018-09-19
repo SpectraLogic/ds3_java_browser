@@ -23,6 +23,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;

@@ -21,6 +21,7 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.util.*
+import javax.naming.ConfigurationException
 
 private const val RETRY_TIME = 100
 class KnownJobData constructor(
@@ -37,7 +38,7 @@ class KnownJobData constructor(
                 } else if (jobType == "PUT") {
                     Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
                 } else {
-                    throw NullPointerException("Got here")
+                    throw ConfigurationException("Was expecting GET or PUT, but got" + jobType)
                 }
             }
 
