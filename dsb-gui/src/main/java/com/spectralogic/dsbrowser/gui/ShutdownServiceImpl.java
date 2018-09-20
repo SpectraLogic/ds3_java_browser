@@ -22,6 +22,8 @@ import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
@@ -141,7 +143,11 @@ public class ShutdownServiceImpl implements ShutdownService {
 
         @Override
         public Object call() {
-            outstandingJobs.forEach(job -> {
+            outstandingJobs
+                    .stream()
+                    .filter(ds3JobTask -> ds3JobTask instanceof JobTask)
+                    .map(ds3JobTask -> (JobTask) ds3JobTask)
+                    .forEach(job -> {
                 final CountDownLatch latch = new CountDownLatch(1);
                 try {
 
@@ -160,13 +166,12 @@ public class ShutdownServiceImpl implements ShutdownService {
                     // against a delta since doubles can sometimes report back values close to 1.0, but not
                     // exactly 1.0
                     final double difference = progress.get() - 1.0;
-                    if (difference > 0.0001 || difference < -0.0001) {
-                        job.cancel();
-                        ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
+                        if (difference > 0.0001 || difference < -0.0001) {
+                                ((JobTask) job).awaitCancel();
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
-                } catch (final InterruptedException  | IOException e) {
+                } catch (final InterruptedException e) {
                     LOG.error("Failed to cancel job", e);
                 }
             });

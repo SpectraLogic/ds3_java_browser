@@ -27,10 +27,11 @@ interface JobFacade {
     fun jobSizeObservable(): Observable<Number>
     fun messageObservable(): Observable<String>
     fun visabilityObservable(): Observable<Boolean>
-    fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
+    fun finishedCompletable(): Completable
     fun sentObservable(): Observable<Number>
     fun totalJobSizeAsProperty(): LongProperty
     fun visibleProperty(): SimpleBooleanProperty
     fun jobUUID(): UUID?
     fun getDs3Client(): Ds3Client
+    fun cancel(): Unit
 }

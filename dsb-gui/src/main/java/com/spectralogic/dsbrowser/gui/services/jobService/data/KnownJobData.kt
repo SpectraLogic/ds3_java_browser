@@ -21,28 +21,26 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.util.*
+import javax.naming.ConfigurationException
 
 private const val RETRY_TIME = 100
 class KnownJobData constructor(
         private val jobData: JobData,
         private val filesAndFolderMap: FilesAndFolderMap,
-        override var jobId: UUID?,
+        override val jobId: UUID,
         val client: Ds3Client,
         private val jobType: String
 ) : JobData by jobData {
 
-    override var job: Ds3ClientHelpers.Job? = null
-        get() {
-            if (field == null) {
+    override val job: Ds3ClientHelpers.Job by lazy {
                 if (jobType == "GET") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
+                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
                 } else if (jobType == "PUT") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+                } else {
+                    throw ConfigurationException("Was expecting GET or PUT, but got $jobType")
                 }
             }
-            jobData.job = field
-            return jobData.job
-        }
 
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {

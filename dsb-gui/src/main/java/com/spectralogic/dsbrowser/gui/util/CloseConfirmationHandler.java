@@ -76,11 +76,11 @@ public class CloseConfirmationHandler {
             shutdownService.shutdown();
         } else {
             ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
-                    notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString(notCachedRunningTasks.size() > 1 ? "multipleJobStillRunningMessage" : "jobStillRunningMessage"),
+                    notCachedRunningTasks.size() + StringConstants.SPACE + resourceBundle.getString("stillInProgressExit"),
                     Alert.AlertType.CONFIRMATION,
                     null,
-                    resourceBundle.getString("exitButtonText"),
-                    resourceBundle.getString("cancelButtonText"))
+                    resourceBundle.getString("cancelJobsAndCloseTab"),
+                    resourceBundle.getString("returnToBrowser"))
             .ifPresent(response -> {
                 if (response.equals(ButtonType.OK)) {
                     shutdownService.shutdown();

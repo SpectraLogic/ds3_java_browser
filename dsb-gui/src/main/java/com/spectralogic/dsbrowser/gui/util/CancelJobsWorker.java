@@ -65,7 +65,7 @@ public class CancelJobsWorker {
         final ImmutableList<Ds3JobTask> tasks = jobWorkers
                 .getTasks()
                 .stream()
-                .filter(ds3JobTask -> compareEndpoints(closedSession, ds3JobTask))
+                .filter(ds3JobTask -> closedSession.containsTask(ds3JobTask))
                 .collect(GuavaCollectors.immutableList());
         if (!tasks.isEmpty()) {
             final CancelAllTaskBySession cancelAllRunningJobs = new CancelAllTaskBySession(tasks,
@@ -77,11 +77,5 @@ public class CancelJobsWorker {
             }));
             workers.execute(cancelAllRunningJobs);
         }
-    }
-
-    private boolean compareEndpoints(final Session closedSession, final Ds3JobTask ds3JobTask) {
-        final String taskEndpoint = ds3JobTask.getDs3Client().getConnectionDetails().getEndpoint();
-        final String sessionEndpoint = closedSession.getEndpoint() + ":" + closedSession.getPortNo();
-        return taskEndpoint.equals(sessionEndpoint);
     }
 }

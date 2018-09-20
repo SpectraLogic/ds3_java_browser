@@ -55,7 +55,3 @@ private inline fun <T> T?.populated(block: T.() -> Boolean): Boolean {
         block.invoke(this)
     }
 }
-
-fun String?.populated(): Boolean = this.populated { !isNotEmpty() }
-fun Collection<*>?.populated(): Boolean = this.populated { isNotEmpty() }
-fun Iterator<*>?.populated(): Boolean = this.populated { hasNext() }

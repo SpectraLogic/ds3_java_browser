@@ -28,6 +28,7 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.concurrent.Task;
@@ -165,9 +166,9 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
                 } else {
                     /*
                      * Really needed. The application might have used a graphic
-                	 * factory before and then disabled it. In this case the border
-                	 * pane might still have an old graphic in the left position.
-                	 */
+                     * factory before and then disabled it. In this case the border
+                     * pane might still have an old graphic in the left position.
+                     */
                     borderPane.setLeft(null);
                 }
 
@@ -177,20 +178,22 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void hideTask(final T task, final TaskCell tc) {
-        if (task != null && task instanceof JobTask) {
+        if (task instanceof JobTask) {
             tc.visibleProperty().set(((JobTask) task).isVisible().getValue());
         }
     }
 
     private void popupCancelTask(final T task, final ActionEvent evt) {
         final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
-        if (closeResponse.get().equals(ButtonType.OK)) {
-            if (task != null) {
-                task.cancel();
+        closeResponse.ifPresent(buttonType -> {
+            if(buttonType.equals(ButtonType.OK)) {
+                if (task != null) {
+                    task.cancel();
+                } else if (buttonType.equals(ButtonType.CANCEL)) {
+                    evt.consume();
+                }
             }
-        } else if (closeResponse.get().equals(ButtonType.CANCEL)) {
-            evt.consume();
-        }
+        });
     }
 
 }

@@ -45,38 +45,26 @@ data class GetJobData(private val list: List<Pair<String, String>>,
                       override val bucket: String,
                       private val jobTaskElement: JobTaskElement,
                       private val versionId: String? = null) : JobData {
-    override var cancelled: Supplier<Boolean>? = null
 
     override fun runningTitle(): String {
         val transferringGet = jobTaskElement.resourceBundle.getString("transferringGet")
-        val jobId = job?.jobId
+        val jobId = job.jobId
         val startedAt = jobTaskElement.resourceBundle.getString("startedAt")
         val started = jobTaskElement.dateTimeUtils.format(getStartTime())
         return "$transferringGet $jobId $startedAt $started"
-
     }
 
-    override var jobId: UUID? = null
+    override val jobId: UUID by lazy { job.jobId }
     override fun client(): Ds3Client = jobTaskElement.client
-
-    override var lastFile: String = ""
     override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
 
-    override var job: Ds3ClientHelpers.Job? = null
-        get() {
-            if (field == null) {
-                field = if (readJobOptions() == null) {
+    override val job: Ds3ClientHelpers.Job by lazy {
+                if (readJobOptions() == null) {
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects())
                 } else {
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects(), readJobOptions())
                 }
             }
-            jobId = field?.jobId
-            return field!!
-        }
-        set(value) {
-            if (value != null) field = value
-        }
 
     override fun showCachedJobProperty(): SimpleBooleanProperty = SimpleBooleanProperty(true)
     override fun loggingService(): LoggingService = jobTaskElement.loggingService
@@ -136,16 +124,16 @@ data class GetJobData(private val list: List<Pair<String, String>>,
 
     override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
-        return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
+        return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes
     }
 
     override fun isCompleted(): Boolean = true
     override fun removeJob() {
-        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job!!.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
+        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
     }
 
     override fun saveJob(jobSize: Long) {
-        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "GET", bucket)
+        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "GET", bucket)
     }
 
     private fun checkifOverWriting(name: String, path: String) {

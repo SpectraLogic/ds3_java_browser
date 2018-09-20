@@ -42,7 +42,6 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -124,6 +123,7 @@ public class Ds3PanelPresenter implements Initializable {
     private final ModifyJobPriorityPopUp modifyJobPriorityPopUp;
     private final NewSessionPopup newSessionPopup;
     private final CreateConnectionTask createConnectionTask;
+    private final Ds3Alert ds3Alert;
 
     private GetNumberOfItemsTask itemsTask;
 
@@ -146,6 +146,7 @@ public class Ds3PanelPresenter implements Initializable {
             final NewSessionPopup newSessionPopup,
             final LoggingService loggingService,
             final CreateConnectionTask createConnectionTask,
+            final Ds3Alert ds3Alert,
             final AlertService alertService) {
         this.resourceBundle = resourceBundle;
         this.createConnectionTask = createConnectionTask;
@@ -166,6 +167,7 @@ public class Ds3PanelPresenter implements Initializable {
         this.createService = createService;
         this.deleteService = deleteService;
         this.alert = alertService;
+        this.ds3Alert = ds3Alert;
     }
 
     @Override
@@ -322,13 +324,41 @@ public class Ds3PanelPresenter implements Initializable {
 
         });
         treeTab.setOnCloseRequest(SafeHandler.logHandle(event -> {
-            ds3SessionStore.removeSession(getSession());
-            closeTab((Tab) event.getSource(), getSession());
+            final ImmutableList<Ds3JobTask> notCachedRunningTasks = getActiveItemsInSession();
+            if (Guard.isNullOrEmpty(notCachedRunningTasks)) {
+                ds3SessionStore.removeSession(getSession());
+                closeTab((Tab) event.getSource(), getSession());
+            } else {
+                ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"),
+                        notCachedRunningTasks.size() + " " + resourceBundle.getString("stillInProgress"),
+                        Alert.AlertType.CONFIRMATION,
+                        null,
+                        resourceBundle.getString("cancelJobsAndCloseTab"),
+                        resourceBundle.getString("returnToBrowser"))
+                        .ifPresent(response -> {
+                            if (response.equals(ButtonType.OK)) {
+                                ds3SessionStore.removeSession(getSession());
+                                closeTab((Tab) event.getSource(), getSession());
+                            } else if (response.equals(ButtonType.CANCEL)) {
+                                event.consume();
+                            } else {
+                                LOG.error("Got a {} button click that shold not be possible", response);
+                                event.consume();
+                            }
+                        });
+            }
         }));
         treeTab.setTooltip(new Tooltip(newSession.getSessionName() + StringConstants.SESSION_SEPARATOR + newSession.getEndpoint()));
         final int totalTabs = ds3SessionTabPane.getTabs().size();
         ds3SessionTabPane.getTabs().add(totalTabs - 1, treeTab);
         ds3SessionTabPane.getSelectionModel().select(treeTab);
+    }
+
+    private ImmutableList<Ds3JobTask> getActiveItemsInSession() {
+        return jobWorkers.getTasks().stream()
+                .filter(ds3JobTask ->getSession().containsTask(ds3JobTask))
+                .filter(task -> task.isInCache())
+                .collect(GuavaCollectors.immutableList());
     }
 
     private void modifyJobPriority(final Ds3JobTask task) {
@@ -367,7 +397,6 @@ public class Ds3PanelPresenter implements Initializable {
                         loggingService.logMessage(closedSession.getSessionName() +
                                 StringConstants.SESSION_SEPARATOR + closedSession.getEndpoint() + StringConstants
                                 .SPACE + resourceBundle.getString("closed"), LogType.ERROR);
-                        closedSession.close();
                     }
                 }
                 final Session currentSession = getSession();

@@ -14,9 +14,6 @@
  */
 package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-import com.spectralogic.ds3client.models.Ds3TargetAccessControlReplication
-import com.spectralogic.ds3client.models.Quiesced
-import com.spectralogic.ds3client.models.TargetState
 import java.util.*
 
 data class ReplicationEntry(
