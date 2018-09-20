@@ -18,6 +18,9 @@
                 <Component Win64="yes" Id="cmpFC6FB28BEAF3966BACD33B96384A4A38" Guid="*">
                     <File Id="filE5B9D474DD55400B434CEC96F030CF6F" KeyPath="yes" Source="$(var.DsbPath)\aopalliance-1.0.jar" />
                 </Component>
+                <Component Win64="yes" Id="cmp177C7EF4A31A4CA81BDD2F717721906F" Guid="*">
+                    <File Id="filCCA24CF598B4BC318B31FBDCC28037DA" KeyPath="yes" Source="$(var.DsbPath)\atomicfu-common-0.11.5.jar" />
+                </Component>
                 <Component Win64="yes" Id="cmpFACB3776EB6D76B0275845FEC4EF5044" Guid="*">
                     <File Id="filE601B39E9D2C31FC5254B8C78772996F" KeyPath="yes" Source="$(var.DsbPath)\checker-compat-qual-2.0.0.jar" />
                 </Component>
@@ -33,29 +36,29 @@
                 <Component Win64="yes" Id="cmp415FC109CDD3A33F88D3FCC826AF1FEF" Guid="*">
                     <File Id="fil46A76ED9B51590F33C7A11C0D89AF2AF" KeyPath="yes" Source="$(var.DsbPath)\controlsfx-8.40.14.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpBB02285210540F9B574E387FBDF736A2" Guid="*">
-                    <File Id="fil9E1FFC9265C3FAE44F66AA304C71E6AB" KeyPath="yes" Source="$(var.DsbPath)\ds3-interfaces-5.0.3.jar" />
+                <Component Win64="yes" Id="cmpDE93D714782817DB859617AE576166CA" Guid="*">
+                    <File Id="fil572BAF8D484720A75218642AEBAD7002" KeyPath="yes" Source="$(var.DsbPath)\ds3-interfaces-5.0.4.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpE49A681278EFCE80335A046F51980629" Guid="*">
-                    <File Id="fil9FE35BCF2907C7940DF868E2AEE95B53" KeyPath="yes" Source="$(var.DsbPath)\ds3-metadata-5.0.3.jar" />
+                <Component Win64="yes" Id="cmp5DF3C49C2723E26412193190D1A2F32A" Guid="*">
+                    <File Id="fil45FD67857BDFBAE1A697008D557155F5" KeyPath="yes" Source="$(var.DsbPath)\ds3-metadata-5.0.4.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp04B8EB55CEE42E119F334CDE22BCA237" Guid="*">
-                    <File Id="fil9FD4676696398E2B1A01CCFE1B1733F0" KeyPath="yes" Source="$(var.DsbPath)\ds3-sdk-5.0.3.jar" />
+                <Component Win64="yes" Id="cmpA46CEC9F6230CBA23238F5C25D8E23E9" Guid="*">
+                    <File Id="fil21975D5AECF1B9147C371ACE76C9C767" KeyPath="yes" Source="$(var.DsbPath)\ds3-sdk-5.0.4.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpFC9F1A459EB94982D02533FB9C9C0663" Guid="*">
-                    <File Id="fil3127093411A179636DF1C22E20933A51" KeyPath="yes" Source="$(var.DsbPath)\ds3-utils-5.0.3.jar" />
+                <Component Win64="yes" Id="cmp18E1ACD5A0D265BA3CF5CECEA628E7BD" Guid="*">
+                    <File Id="fil6FD478A9744074740944F5F9CB9700B0" KeyPath="yes" Source="$(var.DsbPath)\ds3-utils-5.0.4.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp40B643CB0594FF8A6000A4489D7AB60D" Guid="*">
-                    <File Id="fil414B56CE316E518913FD58D031FB054B" KeyPath="yes" Source="$(var.DsbPath)\dsb-api-5.0.4.jar" />
+                <Component Win64="yes" Id="cmp173BCC62E2012565858FF08D08B8DDAC" Guid="*">
+                    <File Id="fil8A4F91F22F52B349F1762D08042C24AD" KeyPath="yes" Source="$(var.DsbPath)\dsb-api-5.0.5.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp0208B54B5CB1F18EE220536498990134" Guid="*">
-                    <File Id="fil33DD914A06756C965E6906E979C88662" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.4-all.jar" />
+                <Component Win64="yes" Id="cmpE700890848D1CE53A04B6F6078376F4A" Guid="*">
+                    <File Id="fil1AB5DD7D3DAEF9FE93E89157DE46CD1A" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.5-all.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp6E0B2555642AED03CF6D2BBCF3A8F7C5" Guid="*">
-                    <File Id="fil85643A2F7B1FC30BE1590942316F05C0" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.4.jar" />
+                <Component Win64="yes" Id="cmpF1D6506ED55DB133984DBEA3B8BAAF01" Guid="*">
+                    <File Id="filBC5B8D5E2A3C46651C3A84873D98B214" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.5.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpC8CEB4861737F3C4CFD2DC7F9A690678" Guid="*">
-                    <File Id="filF1FF4AF57CDCAF3410164D4ED12436C9" KeyPath="yes" Source="$(var.DsbPath)\dsb-util-5.0.4.jar" />
+                <Component Win64="yes" Id="cmp30CCF754410B9A72BDEC80CE181B11B1" Guid="*">
+                    <File Id="filBE74C286E6F0D93DBFB208B08FA5AB19" KeyPath="yes" Source="$(var.DsbPath)\dsb-util-5.0.5.jar" />
                 </Component>
                 <Component Win64="yes" Id="cmp67C8CE44E28F997FEAC97FF167229D5B" Guid="*">
                     <File Id="filA4B497FD8BD148D3F7E813CA3071514F" KeyPath="yes" Source="$(var.DsbPath)\error_prone_annotations-2.1.3.jar" />
@@ -120,17 +123,23 @@
                 <Component Win64="yes" Id="cmp334A6394C83DBE67F64EA8FBE394B02A" Guid="*">
                     <File Id="filC8C9899AE5BF1EC370933FC501A7CE8A" KeyPath="yes" Source="$(var.DsbPath)\jsr305-3.0.1.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpE1A3DFE3C9A31BCF238B2D02F78531AC" Guid="*">
-                    <File Id="filE90C67D119CA33ED2AEAF41B301C89AA" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-1.2.60.jar" />
+                <Component Win64="yes" Id="cmpA23C4FA8B092EC5CB66EA755EF7223CE" Guid="*">
+                    <File Id="fil33AE603CFFCC272D774A6AA3301FF15D" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-1.2.70.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp3E33517F0E1E2929998A6F81BCE62168" Guid="*">
-                    <File Id="fil2409874FEB1D83E2BE56EDB8CF4BC352" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-common-1.2.60.jar" />
+                <Component Win64="yes" Id="cmp1819C4317F634E025C4A143A093034AE" Guid="*">
+                    <File Id="fil4323D738B45DE28D90C5FEFEE149429D" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-common-1.2.70.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpD13B068F95F857464BEB1B7E85D43C79" Guid="*">
-                    <File Id="fil2588D5FC3824DDA9C9F809498B1E9F89" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk7-1.2.60.jar" />
+                <Component Win64="yes" Id="cmpFC1D3E62CF437B66AF5E22F000FB4E3F" Guid="*">
+                    <File Id="fil33F28C06FF881FD78A0CA1989D21FA23" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk7-1.2.61.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp04E005AB7682D572E63DF61DCABD227D" Guid="*">
-                    <File Id="fil663C51E61BE50C66732F4A5B59CEAAF2" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk8-1.2.60.jar" />
+                <Component Win64="yes" Id="cmp70ADA9FDBB16462C395603485879EB86" Guid="*">
+                    <File Id="filA3B01A36F0303057938D85163CD825EF" KeyPath="yes" Source="$(var.DsbPath)\kotlin-stdlib-jdk8-1.2.61.jar" />
+                </Component>
+                <Component Win64="yes" Id="cmpC7F6EA20FE06BE1A82E119075826D5F1" Guid="*">
+                    <File Id="filAB000407D935CE151A31367BB8D5E260" KeyPath="yes" Source="$(var.DsbPath)\kotlinx-coroutines-core-0.25.3.jar" />
+                </Component>
+                <Component Win64="yes" Id="cmp2AB498902D587273112D55C91A739D41" Guid="*">
+                    <File Id="filC15FF8B412E4F2AC9678A4069DC04551" KeyPath="yes" Source="$(var.DsbPath)\kotlinx-coroutines-core-common-0.25.3.jar" />
                 </Component>
                 <Component Win64="yes" Id="cmp06A9E5D8D3CCE9BC42F7B3E0DC00E2A7" Guid="*">
                     <File Id="fil5BC6FDBD5181516455F4630337B42F20" KeyPath="yes" Source="$(var.DsbPath)\logback-classic-1.2.3.jar" />
@@ -147,8 +156,8 @@
                 <Component Win64="yes" Id="cmpF3F034485DE2DB5BE644A66A755B40AA" Guid="*">
                     <File Id="fil04E4572E60B605BBA720BD343D3278BD" KeyPath="yes" Source="$(var.DsbPath)\richtextfx-0.9.1.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp83475D62EA9E170664744129680F39DC" Guid="*">
-                    <File Id="filFA5CC6B95DABD5CCC8E10406A1A70A8A" KeyPath="yes" Source="$(var.DsbPath)\rxjava-2.1.17.jar" />
+                <Component Win64="yes" Id="cmp3E2189D7C4B5B47885098FD856951F7D" Guid="*">
+                    <File Id="fil749FF1FDFE532FDF16543FFCE8B3085E" KeyPath="yes" Source="$(var.DsbPath)\rxjava-2.2.2.jar" />
                 </Component>
                 <Component Win64="yes" Id="cmp302899050A059915A570A4EDD4C30927" Guid="*">
                     <File Id="fil0DE869DEAB500C1EF77843FDF5F59707" KeyPath="yes" Source="$(var.DsbPath)\rxjavafx-2.2.2.jar" />
@@ -190,19 +199,20 @@
             <ComponentRef Id="cmpC1F2A925715845316929E361251712A3" />
             <ComponentRef Id="cmpBA9117160EEA4097A2B8A46B7FF3104C" />
             <ComponentRef Id="cmpFC6FB28BEAF3966BACD33B96384A4A38" />
+            <ComponentRef Id="cmp177C7EF4A31A4CA81BDD2F717721906F" />
             <ComponentRef Id="cmpFACB3776EB6D76B0275845FEC4EF5044" />
             <ComponentRef Id="cmpBEBC4A77B7DF2734AC0750FEA8D077DD" />
             <ComponentRef Id="cmpCAFC8B140EF7A7F0A90AF20CCA67B467" />
             <ComponentRef Id="cmp2FD8C1740A993012CFE50DB3B08733AE" />
             <ComponentRef Id="cmp415FC109CDD3A33F88D3FCC826AF1FEF" />
-            <ComponentRef Id="cmpBB02285210540F9B574E387FBDF736A2" />
-            <ComponentRef Id="cmpE49A681278EFCE80335A046F51980629" />
-            <ComponentRef Id="cmp04B8EB55CEE42E119F334CDE22BCA237" />
-            <ComponentRef Id="cmpFC9F1A459EB94982D02533FB9C9C0663" />
-            <ComponentRef Id="cmp40B643CB0594FF8A6000A4489D7AB60D" />
-            <ComponentRef Id="cmp0208B54B5CB1F18EE220536498990134" />
-            <ComponentRef Id="cmp6E0B2555642AED03CF6D2BBCF3A8F7C5" />
-            <ComponentRef Id="cmpC8CEB4861737F3C4CFD2DC7F9A690678" />
+            <ComponentRef Id="cmpDE93D714782817DB859617AE576166CA" />
+            <ComponentRef Id="cmp5DF3C49C2723E26412193190D1A2F32A" />
+            <ComponentRef Id="cmpA46CEC9F6230CBA23238F5C25D8E23E9" />
+            <ComponentRef Id="cmp18E1ACD5A0D265BA3CF5CECEA628E7BD" />
+            <ComponentRef Id="cmp173BCC62E2012565858FF08D08B8DDAC" />
+            <ComponentRef Id="cmpE700890848D1CE53A04B6F6078376F4A" />
+            <ComponentRef Id="cmpF1D6506ED55DB133984DBEA3B8BAAF01" />
+            <ComponentRef Id="cmp30CCF754410B9A72BDEC80CE181B11B1" />
             <ComponentRef Id="cmp67C8CE44E28F997FEAC97FF167229D5B" />
             <ComponentRef Id="cmp8E58DEDBF54CD1426A62D1048B23BBE6" />
             <ComponentRef Id="cmp9567460C94E8835F3750DD7172F39DE2" />
@@ -224,16 +234,18 @@
             <ComponentRef Id="cmp97EFDBF9C76488F17C1DCC8BC8DF619F" />
             <ComponentRef Id="cmp5F3CCD0C6935C81E44A85C22491B2B9F" />
             <ComponentRef Id="cmp334A6394C83DBE67F64EA8FBE394B02A" />
-            <ComponentRef Id="cmpE1A3DFE3C9A31BCF238B2D02F78531AC" />
-            <ComponentRef Id="cmp3E33517F0E1E2929998A6F81BCE62168" />
-            <ComponentRef Id="cmpD13B068F95F857464BEB1B7E85D43C79" />
-            <ComponentRef Id="cmp04E005AB7682D572E63DF61DCABD227D" />
+            <ComponentRef Id="cmpA23C4FA8B092EC5CB66EA755EF7223CE" />
+            <ComponentRef Id="cmp1819C4317F634E025C4A143A093034AE" />
+            <ComponentRef Id="cmpFC1D3E62CF437B66AF5E22F000FB4E3F" />
+            <ComponentRef Id="cmp70ADA9FDBB16462C395603485879EB86" />
+            <ComponentRef Id="cmpC7F6EA20FE06BE1A82E119075826D5F1" />
+            <ComponentRef Id="cmp2AB498902D587273112D55C91A739D41" />
             <ComponentRef Id="cmp06A9E5D8D3CCE9BC42F7B3E0DC00E2A7" />
             <ComponentRef Id="cmp2E66FE7608AEE42B0820E081251DCBFB" />
             <ComponentRef Id="cmp0ECD51BD3914BAA43635C47E89C1CDAD" />
             <ComponentRef Id="cmp7D49CAB47554563D92415BBD2B8306EE" />
             <ComponentRef Id="cmpF3F034485DE2DB5BE644A66A755B40AA" />
-            <ComponentRef Id="cmp83475D62EA9E170664744129680F39DC" />
+            <ComponentRef Id="cmp3E2189D7C4B5B47885098FD856951F7D" />
             <ComponentRef Id="cmp302899050A059915A570A4EDD4C30927" />
             <ComponentRef Id="cmpDB5A744941E00A96FC0741BA14A04FEA" />
             <ComponentRef Id="cmpD15958C6F5D4EC2200C58FFCF7BFC108" />
