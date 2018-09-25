@@ -11,12 +11,6 @@
   <Product Id="*" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
     <Package InstallerVersion="200" Compressed="yes" Platform="x64"/>
 
-    <!-- Check some requirements ONLY on "install", but not on modify or uninstall. -->
-    <Property Id="JAVA_CURRENT_VERSION">
-      <RegistrySearch Id="JRE_CURRENT_VERSION_REGSEARCH" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw" Win64="yes" />
-    </Property>
-    <Condition Message="Java Runtime Environment (64 Bit) is not installed or outdated. Please install Oracle JRE 1.8 or later."><![CDATA[Installed OR (JAVA_CURRENT_VERSION >= "1.8")]]></Condition>
-
     <Icon Id="icon.ico" SourceFile="$(var.ProjectDir)BlackPearlEonBrowser.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
     <UI>
