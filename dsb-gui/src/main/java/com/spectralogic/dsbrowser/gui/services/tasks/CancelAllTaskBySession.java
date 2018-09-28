@@ -48,9 +48,9 @@ public class CancelAllTaskBySession extends Task {
             try {
                 final String jobId = task.getJobId().toString();
                 final Ds3Client ds3Client = task.getDs3Client();
-                task.cancel();
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
-                        .getEndpoint(), null, loggingService);
+                    task.cancel();
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
+                            .getEndpoint(), null, loggingService);
             } catch (final Exception e) {
                 LOG.error("Failed to cancel job", e);
             }

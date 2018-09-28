@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -44,12 +45,12 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
         private const val TYPE: String = "Recover"
     }
 
-    public fun create(uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
+    public fun create(session: Session, uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
         val client = endpointInfo.client
         jobTaskElementFactory.create(client)
                 .let { RecoverJob(uuid, endpointInfo, it, client) }
                 .let { it.getTask() }
-                .let { JobTask(it) }
+                .let { JobTask(it, session.sessionName) }
                 .apply {
                     onCancelled = SafeHandler.logHandle(onCancelled(client, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
                     onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, workers, TYPE).andThen(refreshBehavior))

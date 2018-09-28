@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTask
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.andThen
 import org.slf4j.Logger
@@ -46,11 +47,11 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
         private const val TYPE = "Get"
     }
 
-    public fun create(files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit, versionId: String? = null) {
+    public fun create(session: Session, files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit, versionId: String? = null) {
         jobTaskElementFactory.create(client)
                 .let { GetJobData(files, targetDir, bucket, it, versionId) }
                 .let { GetJob(it) }
-                .let { JobTask(it) }
+                .let { JobTask(it, session.sessionName) }
                 .apply {
                     onSucceeded = SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior))
                     onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, workers, TYPE).andThen(refreshBehavior))

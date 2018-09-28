@@ -20,6 +20,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.UUID;
 
 public class Session implements Closeable {
     private final Ds3Client client;
@@ -74,8 +75,6 @@ public class Session implements Closeable {
     public Boolean isUseSSL() { return useSSL; }
 
     public boolean containsTask(final Ds3JobTask ds3JobTask) {
-        final String taskEndpoint = ds3JobTask.getDs3Client().getConnectionDetails().getEndpoint();
-        final String sessionEndpoint = getEndpoint() + ":" + getPortNo();
-        return taskEndpoint.equals(sessionEndpoint);
+        return this.sessionName.equals(ds3JobTask.getSessionName());
     }
 }
