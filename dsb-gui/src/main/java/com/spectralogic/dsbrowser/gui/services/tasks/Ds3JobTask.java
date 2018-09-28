@@ -53,7 +53,7 @@ public abstract class Ds3JobTask extends Task<Boolean> {
     }
 
     public boolean isInCache() {
-        return getProgress() >= 1.0;
+        return Double.compare(getProgress(), 1.0) >= 0;
     }
 
 }
