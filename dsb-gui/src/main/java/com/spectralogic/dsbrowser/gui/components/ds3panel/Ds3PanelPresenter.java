@@ -260,6 +260,17 @@ public class Ds3PanelPresenter implements Initializable {
                         ds3Common.setDs3TreeTableView(ds3TreeTableView);
                         ds3Common.setCurrentTabPane(ds3SessionTabPane);
 
+                        final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
+                        final Ds3TreeTableValue ds3TreeTableValue = root.getValue();
+                        if (ds3TreeTableValue != null) {
+                            final String fullPath = ds3TreeTableValue.getFullPath();
+                            ds3PathIndicator.setText(fullPath);
+                            ds3PathIndicatorTooltip.setText(fullPath);
+                        } else {
+                            ds3PathIndicator.setText("");
+                            ds3PathIndicatorTooltip.setText("");
+                        }
+
                         final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
                         if (Guard.isNullOrEmpty(values)) {
                             setBlank(true);
