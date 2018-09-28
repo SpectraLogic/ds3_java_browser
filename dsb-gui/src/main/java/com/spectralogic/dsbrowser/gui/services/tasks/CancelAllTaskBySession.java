@@ -35,8 +35,8 @@ public class CancelAllTaskBySession extends Task {
     private final LoggingService loggingService;
 
     public CancelAllTaskBySession(final ImmutableList<Ds3JobTask> tasks,
-                                  final JobInterruptionStore jobInterruptionStore,
-                                  final LoggingService loggingService) {
+            final JobInterruptionStore jobInterruptionStore,
+            final LoggingService loggingService) {
         this.tasks = tasks;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
@@ -44,13 +44,13 @@ public class CancelAllTaskBySession extends Task {
 
     @Override
     protected Optional<Object> call() throws Exception {
-        tasks.forEach(task-> {
+        tasks.forEach(task -> {
             try {
                 final String jobId = task.getJobId().toString();
                 final Ds3Client ds3Client = task.getDs3Client();
-                    task.cancel();
-                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
-                            .getEndpoint(), null, loggingService);
+                task.cancel();
+                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
+                        .getEndpoint(), null, loggingService);
             } catch (final Exception e) {
                 LOG.error("Failed to cancel job", e);
             }

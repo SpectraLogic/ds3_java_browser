@@ -113,7 +113,7 @@ class PutJob(private val putJobData: JobData) : JobService() {
 
     override fun cancel() {
         wasCancelled = true
-        if(totalJob.get() < putJobData.jobSize()) {
+        if (totalJob.get() < putJobData.jobSize()) {
             putJobData.job.cancel()
         }
     }
