@@ -246,7 +246,6 @@ public class Ds3PanelPresenter implements Initializable {
                 ds3PathIndicator.setText("");
                 ds3PathIndicatorTooltip.setText("");
                 ds3SessionStore.removeSession(ds3Common.getCurrentSession());
-                newSessionDialog();
             }
             try {
                 if (newTab.getContent() instanceof VBox) {
