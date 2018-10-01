@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.PutJob
 import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.andThen
 import org.slf4j.LoggerFactory
@@ -45,11 +46,11 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
         private const val TYPE: String = "Put"
     }
 
-    fun create(files: List<Pair<String, Path>>, bucket: String, targetDir: String, client: Ds3Client, refreshBehavior: () -> Unit = {}) {
+    fun create(session: Session, files: List<Pair<String, Path>>, bucket: String, targetDir: String, client: Ds3Client, refreshBehavior: () -> Unit = {}) {
         jobTaskElementFactory.create(client)
                 .let { PutJobData(files, targetDir, bucket, it) }
                 .let { PutJob(it) }
-                .let { JobTask(it) }
+                .let { JobTask(it, session.sessionName) }
                 .apply {
                     onSucceeded = SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior))
                     onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, workers, TYPE).andThen(refreshBehavior))

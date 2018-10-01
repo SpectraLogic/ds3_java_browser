@@ -25,6 +25,11 @@ import java.util.UUID;
 public abstract class Ds3JobTask extends Task<Boolean> {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ds3JobTask.class);
+    private final String sessionName;
+
+    public Ds3JobTask(final String sessionName) {
+        this.sessionName = sessionName;
+    }
 
     protected Ds3Client ds3Client;
 
@@ -43,8 +48,12 @@ public abstract class Ds3JobTask extends Task<Boolean> {
         return ds3Client;
     }
 
+    public String getSessionName() {
+        return sessionName;
+    }
+
     public boolean isInCache() {
-        return getProgress() == 1;
+        return Double.compare(getProgress(), 1.0) >= 0;
     }
 
 }

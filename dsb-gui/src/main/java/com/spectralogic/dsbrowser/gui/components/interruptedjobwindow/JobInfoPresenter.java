@@ -21,6 +21,7 @@ import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.RecoverJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
@@ -82,11 +83,13 @@ public class JobInfoPresenter implements Initializable {
     private final RecoverJobFactory recoverJobFactory;
     private final RefreshCompleteViewWorker refreshCompleteViewWorker;
     private final Ds3Alert ds3Alert;
+    private final Ds3Common ds3Common;
     private Stage stage;
 
     @Inject
     public JobInfoPresenter(final ResourceBundle resourceBundle,
             final Workers workers,
+            final Ds3Common ds3Common,
             final JobInterruptionStore jobInterruptionStore,
             final ButtonCell.ButtonCellFactory buttonCellFactory,
             final LoggingService loggingService,
@@ -103,6 +106,7 @@ public class JobInfoPresenter implements Initializable {
         this.buttonCellFactory = buttonCellFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.ds3Alert = ds3Alert;
+        this.ds3Common = ds3Common;
     }
 
     @Override
@@ -229,7 +233,7 @@ public class JobInfoPresenter implements Initializable {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
 
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
-                recoverJobFactory.create(UUID.fromString(jobId), endpointInfo, () -> {
+                recoverJobFactory.create(ds3Common.getCurrentSession(), UUID.fromString(jobId), endpointInfo, () -> {
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                     return Unit.INSTANCE;
@@ -270,7 +274,7 @@ public class JobInfoPresenter implements Initializable {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null) {
             jobIDMap.forEach((key, value) -> {
-                recoverJobFactory.create(UUID.fromString(key), endpointInfo, () -> {
+                recoverJobFactory.create(ds3Common.getCurrentSession(), UUID.fromString(key), endpointInfo, () -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
                     refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     return Unit.INSTANCE;

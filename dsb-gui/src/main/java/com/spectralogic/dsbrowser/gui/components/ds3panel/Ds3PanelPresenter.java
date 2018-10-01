@@ -367,7 +367,7 @@ public class Ds3PanelPresenter implements Initializable {
     private ImmutableList<Ds3JobTask> getActiveItemsInSession() {
         return jobWorkers.getTasks().stream()
                 .filter(ds3JobTask ->getSession().containsTask(ds3JobTask))
-                .filter(task -> task.isInCache())
+                .filter(task -> !task.isInCache())
                 .collect(GuavaCollectors.immutableList());
     }
 
@@ -712,7 +712,7 @@ public class Ds3PanelPresenter implements Initializable {
                                     ds3TreeTableValueCustom.getFullName(),
                                     ds3TreeTableValueCustom.getParent() + "/"))
                             .collect(GuavaCollectors.immutableList());
-                    getJobFactory.create(fileAndParent, bucket, localPath, getSession().getClient(), () -> {
+                    getJobFactory.create(getSession(), fileAndParent, bucket, localPath, getSession().getClient(), () -> {
                                 ds3Common.getLocalFileTreeTablePresenter().refreshFileTreeView();
                                 return Unit.INSTANCE;
                             },

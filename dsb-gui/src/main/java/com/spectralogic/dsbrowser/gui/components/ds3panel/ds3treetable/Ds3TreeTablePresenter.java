@@ -707,7 +707,9 @@ public class Ds3TreeTablePresenter implements Initializable {
         final ImmutableList<kotlin.Pair<String, Path>> filePairs = files.stream()
                 .map(p -> new kotlin.Pair<>(p.getKey(), p.getValue()))
                 .collect(GuavaCollectors.immutableList());
-        putJobFactory.create(filePairs,
+        putJobFactory.create(
+                session,
+                filePairs,
                 bucket,
                 targetDir,
                 client,

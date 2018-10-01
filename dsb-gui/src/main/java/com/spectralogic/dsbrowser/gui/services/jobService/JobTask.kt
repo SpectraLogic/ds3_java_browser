@@ -33,6 +33,8 @@ import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,8 +42,9 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
 import java.util.function.Supplier
+import kotlin.coroutines.experimental.CoroutineContext
 
-class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
+class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTask(sessionName) {
     private companion object {
         private val LOG = LoggerFactory.getLogger(JobTask::class.java)
     }
@@ -112,7 +115,7 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
 
     override fun cancelled() {
         LOG.info("Got a cancelled event")
-        launch {
+        GlobalScope.launch {
             wrappedJob.cancel()
         }
     }

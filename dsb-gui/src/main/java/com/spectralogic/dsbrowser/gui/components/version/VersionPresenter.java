@@ -137,6 +137,7 @@ public class VersionPresenter implements Initializable {
 
     private void startJob(final Path path, final VersionItem versionItem, final Ds3Client client) {
         getJobFactory.create(
+                ds3Common.getCurrentSession(),
                 ImmutableList.of(new Pair<>(versionItem.getKey(), getParent(versionItem.getKey()))),
                 versionModel.getBucket(),
                 path,
