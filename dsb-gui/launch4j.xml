@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>build\libs\dsb-gui-5.0.6.jar</jar>
+  <jar>build\libs\dsb-gui-5.0.7.jar</jar>
   <outfile>build\dsb-gui.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -14,6 +14,7 @@
   <restartOnCrash>true</restartOnCrash>
   <manifest></manifest>
   <icon>..\Builders\Windows\SetupProject\SetupProject\BlackPearlEonBrowser.ico</icon>
+  <var>productionBuild=true</var>
   <classPath>
     <mainClass>com.spectralogic.dsbrowser.gui.Main</mainClass>
     <cp>./libs/*.jar</cp>
