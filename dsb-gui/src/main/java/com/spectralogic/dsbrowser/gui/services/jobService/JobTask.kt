@@ -99,10 +99,14 @@ class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTa
                  workers: Workers,
                  type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
-        jobId.exists {
-            workers.execute {
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+        try {
+            jobId.exists {
+                workers.execute {
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+                }
             }
+        } catch (t: Throwable) {
+            LOG.error("Unable to look up JobId, it probably was in a bad state", t)
         }
         LOG.error("$type Job failed", throwable)
         loggingService.logMessage("$type Job failed with message: ${throwable.message}", LogType.ERROR)
