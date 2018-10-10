@@ -33,9 +33,7 @@ import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStra
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
-import com.spectralogic.ds3client.networking.FailedRequestException
 import com.spectralogic.ds3client.utils.Guard
-import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder

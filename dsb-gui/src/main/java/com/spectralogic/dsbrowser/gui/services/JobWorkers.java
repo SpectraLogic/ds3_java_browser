@@ -15,8 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.services;
 
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
