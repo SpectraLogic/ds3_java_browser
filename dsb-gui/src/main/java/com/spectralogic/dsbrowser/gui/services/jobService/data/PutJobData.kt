@@ -99,12 +99,10 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                     .withBlobStrategy(blobStrategy)
                     .withChannelBuilder(null)
                     .withNumConcurrentTransferThreads(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
-
                 WriteJobImpl(transferStrategyBuilder)
             }
 
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
-
     override fun showCachedJobProperty(): BooleanProperty = jobTaskElement.settingsStore.showCachedJobSettings.showCachedJobEnableProperty()
     override fun loggingService(): LoggingService = jobTaskElement.loggingService
     override fun targetPath(): String = targetDir
