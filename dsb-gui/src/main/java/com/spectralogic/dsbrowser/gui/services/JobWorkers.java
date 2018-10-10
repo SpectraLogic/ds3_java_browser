@@ -15,6 +15,8 @@
 
 package com.spectralogic.dsbrowser.gui.services;
 
+import com.spectralogic.dsbrowser.api.services.logging.LogType;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.collections.FXCollections;
@@ -36,9 +38,11 @@ public class JobWorkers {
 
     private ExecutorService workers;
     private final ObservableList<Ds3JobTask> tasks;
+    private final LoggingService loggingService;
 
     @Inject
-    public JobWorkers() {
+    public JobWorkers(final LoggingService loggingService) {
+        this.loggingService = loggingService;
         workers = Executors.newCachedThreadPool();
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
@@ -64,6 +68,7 @@ public class JobWorkers {
         }));
         final EventHandler<WorkerStateEvent> onFailed = run.getOnFailed();
         run.setOnFailed(SafeHandler.logHandle(event -> {
+            //loggingService.logMessage("Job failed with message: " + event.getSource().getException().getMessage(), LogType.ERROR);
             onFailed.handle(event);
             handleStop(event);
         }));

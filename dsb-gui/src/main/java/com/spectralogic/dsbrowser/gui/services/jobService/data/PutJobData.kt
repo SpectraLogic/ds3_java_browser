@@ -33,7 +33,9 @@ import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStra
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
+import com.spectralogic.ds3client.networking.FailedRequestException
 import com.spectralogic.ds3client.utils.Guard
+import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder
@@ -99,8 +101,10 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                     .withBlobStrategy(blobStrategy)
                     .withChannelBuilder(null)
                     .withNumConcurrentTransferThreads(jobTaskElement.settingsStore.processSettings.maximumNumberOfParallelThreads)
+
                 WriteJobImpl(transferStrategyBuilder)
             }
+
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
 
     override fun showCachedJobProperty(): BooleanProperty = jobTaskElement.settingsStore.showCachedJobSettings.showCachedJobEnableProperty()
