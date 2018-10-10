@@ -38,11 +38,9 @@ public class JobWorkers {
 
     private ExecutorService workers;
     private final ObservableList<Ds3JobTask> tasks;
-    private final LoggingService loggingService;
 
     @Inject
-    public JobWorkers(final LoggingService loggingService) {
-        this.loggingService = loggingService;
+    public JobWorkers() {
         workers = Executors.newCachedThreadPool();
         this.tasks = FXCollections.observableArrayList();
         this.tasks.addListener((ListChangeListener<Ds3JobTask>) c -> {
@@ -68,7 +66,6 @@ public class JobWorkers {
         }));
         final EventHandler<WorkerStateEvent> onFailed = run.getOnFailed();
         run.setOnFailed(SafeHandler.logHandle(event -> {
-            //loggingService.logMessage("Job failed with message: " + event.getSource().getException().getMessage(), LogType.ERROR);
             onFailed.handle(event);
             handleStop(event);
         }));
