@@ -16,6 +16,7 @@
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
 import com.spectralogic.ds3client.Ds3Client;
+import com.spectralogic.ds3client.commands.GetBucketRequest;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.FilesCountModel;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
@@ -59,10 +60,11 @@ public class GetNumberOfItemsTask extends Task<FilesCountModel> {
                     foldersSet.add(directoryName);
                     final String bucket = folder.getValue().getBucketName();
                     try {
-                        return StreamSupport.stream(Ds3ClientHelpers.wrap(ds3Client)
-                                .listObjects(bucket, directoryName).spliterator(), false);
-                    } catch (final IOException ioe) {
-                        LOG.error("Failed to get bucket" + bucket, ioe);
+                        return StreamSupport.stream(
+                                ds3Client.getBucket(new GetBucketRequest(bucket).withMaxKeys(30).withPrefix("/").withPrefix(directoryName)).getListBucketResult().getObjects().spliterator()
+                                , false);
+                    } catch (final Throwable throwable) {
+//.                        LOG.error("Failed to get bucket" + bucket, ioe);
                     }
                     return null;
                 })
