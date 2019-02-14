@@ -60,11 +60,9 @@ public class GetNumberOfItemsTask extends Task<FilesCountModel> {
                     foldersSet.add(directoryName);
                     final String bucket = folder.getValue().getBucketName();
                     try {
-                        return StreamSupport.stream(
-                                ds3Client.getBucket(new GetBucketRequest(bucket).withMaxKeys(30).withPrefix("/").withPrefix(directoryName)).getListBucketResult().getObjects().spliterator()
-                                , false);
-                    } catch (final Throwable throwable) {
-//.                        LOG.error("Failed to get bucket" + bucket, ioe);
+                        return ds3Client.getBucket(new GetBucketRequest(bucket).withPrefix("/").withPrefix(directoryName)).getListBucketResult().getObjects().stream();
+                    } catch (final IOException ioe) {
+                        LOG.error("Failed to get bucket" + bucket, ioe);
                     }
                     return null;
                 })
