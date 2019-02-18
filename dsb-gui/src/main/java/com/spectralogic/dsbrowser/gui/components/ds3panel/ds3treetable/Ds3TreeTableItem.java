@@ -106,7 +106,6 @@ public class Ds3TreeTableItem extends TreeItem<Ds3TreeTableValue> {
         }
         final ObservableList<TreeItem<Ds3TreeTableValue>> list = super.getChildren();
         list.remove(0, list.size());
-        ds3Common.getDs3PanelPresenter().calculateFiles(ds3Common.getDs3TreeTableView());
         buildChildren(list);
     }
 

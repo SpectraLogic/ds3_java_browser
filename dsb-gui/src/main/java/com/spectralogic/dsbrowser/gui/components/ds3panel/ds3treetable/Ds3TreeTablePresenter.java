@@ -588,12 +588,6 @@ public class Ds3TreeTablePresenter implements Initializable {
                 && selectedItem.getValue().getType().equals(Ds3TreeTableValue.Type.File)) {
             ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(false);
             ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(false);
-        } else {
-            ds3Common.getDs3PanelPresenter().getInfoLabel().setVisible(true);
-            ds3Common.getDs3PanelPresenter().getCapacityLabel().setVisible(true);
-            ds3Common.getDs3PanelPresenter().getInfoLabel().setText(resourceBundle.getString("calculationProgressIndicator"));
-            ds3Common.getDs3PanelPresenter().getCapacityLabel().setText(resourceBundle.getString("infoLabel"));
-            ds3PanelPresenter.calculateFiles(ds3TreeTable);
         }
     }
 
