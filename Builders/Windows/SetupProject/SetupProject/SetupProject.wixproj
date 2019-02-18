@@ -27,7 +27,7 @@
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <DefineConstants>Version=5.0.7;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\libs;JavaPath=..\..\Java</DefineConstants>
+    <DefineConstants>Version=5.0.8;DsbPath=..\..\..\..\..\..\..\dsb-gui\build\libs;JavaPath=..\..\Java</DefineConstants>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE57</SuppressIces>
@@ -64,7 +64,7 @@ call ..\..\..\createWXSDbsFiles.bat</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>rmdir ..\..\..\..\..\Java /S /Q
-xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.7$(TargetExt)%2a /Y</PostBuildEvent>
+xcopy !(TargetPath) $(SolutionDir)bin\$(TargetName)-5.0.8$(TargetExt)%2a /Y</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
