@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>build\libs\dsb-gui-5.0.7.jar</jar>
+  <jar>build\libs\dsb-gui-5.0.8.jar</jar>
   <outfile>build\dsb-gui.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
