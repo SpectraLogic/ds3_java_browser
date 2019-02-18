@@ -48,17 +48,17 @@
                 <Component Win64="yes" Id="cmp18E1ACD5A0D265BA3CF5CECEA628E7BD" Guid="*">
                     <File Id="fil6FD478A9744074740944F5F9CB9700B0" KeyPath="yes" Source="$(var.DsbPath)\ds3-utils-5.0.4.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp00C742AA58DEC557755F1EA063677A33" Guid="*">
-                    <File Id="fil9A963CE2FA1CCA823925EF9A1D1A1CD5" KeyPath="yes" Source="$(var.DsbPath)\dsb-api-5.0.7.jar" />
+                <Component Win64="yes" Id="cmpC018C3332BED6873132687B3CA73BFF7" Guid="*">
+                    <File Id="fil17839E7E160B7F1DF1F860BB828B17B5" KeyPath="yes" Source="$(var.DsbPath)\dsb-api-5.0.8.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpF7747C20DE4FE055AC3C559B7BDBDD29" Guid="*">
-                    <File Id="fil992E39B8262BE084EAB2DA2DEBD18A46" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.7-all.jar" />
+                <Component Win64="yes" Id="cmpEEFF4123548C9F056C16604A6D889311" Guid="*">
+                    <File Id="fil6901514287D219B5DB6CE5DF4977C616" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.8-all.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmpCB8742CB1FAFF433A4534F1588858C10" Guid="*">
-                    <File Id="fil8D336938BF340CB411F475406BCB6209" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.7.jar" />
+                <Component Win64="yes" Id="cmp4CF4BEA5FF7803407695A4346E9ED422" Guid="*">
+                    <File Id="fil4B06EF717EE06FC1EEE80D39139E169F" KeyPath="yes" Source="$(var.DsbPath)\dsb-gui-5.0.8.jar" />
                 </Component>
-                <Component Win64="yes" Id="cmp46832BDD0E0546AFED443F9BDA659BEE" Guid="*">
-                    <File Id="fil7ED31EC5011C60AE19985B42B8943053" KeyPath="yes" Source="$(var.DsbPath)\dsb-util-5.0.7.jar" />
+                <Component Win64="yes" Id="cmp32475FAD71F711FDEA25FFBA87E64288" Guid="*">
+                    <File Id="filA1AFE2232CC61B3F247AE110A2AE8A62" KeyPath="yes" Source="$(var.DsbPath)\dsb-util-5.0.8.jar" />
                 </Component>
                 <Component Win64="yes" Id="cmp67C8CE44E28F997FEAC97FF167229D5B" Guid="*">
                     <File Id="filA4B497FD8BD148D3F7E813CA3071514F" KeyPath="yes" Source="$(var.DsbPath)\error_prone_annotations-2.1.3.jar" />
@@ -209,10 +209,10 @@
             <ComponentRef Id="cmp5DF3C49C2723E26412193190D1A2F32A" />
             <ComponentRef Id="cmpA46CEC9F6230CBA23238F5C25D8E23E9" />
             <ComponentRef Id="cmp18E1ACD5A0D265BA3CF5CECEA628E7BD" />
-            <ComponentRef Id="cmp00C742AA58DEC557755F1EA063677A33" />
-            <ComponentRef Id="cmpF7747C20DE4FE055AC3C559B7BDBDD29" />
-            <ComponentRef Id="cmpCB8742CB1FAFF433A4534F1588858C10" />
-            <ComponentRef Id="cmp46832BDD0E0546AFED443F9BDA659BEE" />
+            <ComponentRef Id="cmpC018C3332BED6873132687B3CA73BFF7" />
+            <ComponentRef Id="cmpEEFF4123548C9F056C16604A6D889311" />
+            <ComponentRef Id="cmp4CF4BEA5FF7803407695A4346E9ED422" />
+            <ComponentRef Id="cmp32475FAD71F711FDEA25FFBA87E64288" />
             <ComponentRef Id="cmp67C8CE44E28F997FEAC97FF167229D5B" />
             <ComponentRef Id="cmp8E58DEDBF54CD1426A62D1048B23BBE6" />
             <ComponentRef Id="cmp9567460C94E8835F3750DD7172F39DE2" />

@@ -20,7 +20,7 @@
     <cp>./libs/*.jar</cp>
   </classPath>
   <jre>
-    <path>Java\jre1.8.0_181</path>
+    <path>Java\jre1.8.0_202</path>
     <bundledJre64Bit>true</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion></minVersion>
