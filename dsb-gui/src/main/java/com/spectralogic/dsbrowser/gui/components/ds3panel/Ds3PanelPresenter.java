@@ -125,8 +125,6 @@ public class Ds3PanelPresenter implements Initializable {
     private final CreateConnectionTask createConnectionTask;
     private final Ds3Alert ds3Alert;
 
-    private GetNumberOfItemsTask itemsTask;
-
     @Inject
     public Ds3PanelPresenter(final ResourceBundle resourceBundle,
             final Ds3SessionStore ds3SessionStore,
@@ -274,12 +272,6 @@ public class Ds3PanelPresenter implements Initializable {
                         final String info = StringBuilderUtil.getPaneItemsString(ds3TreeTableView.getExpandedItemCount(), ds3TreeTableView.getSelectionModel().getSelectedItems().size()).toString();
                         if (Guard.isNullOrEmpty(values)) {
                             setBlank(true);
-                        } else {
-                            setBlank(false);
-                            final Optional<TreeItem<Ds3TreeTableValue>> ds3TreeTableValueTreeItemElement = values.stream().findFirst();
-                            if (ds3TreeTableValueTreeItemElement.isPresent()) {
-                                calculateFiles(ds3TreeTableView);
-                            }
                         }
                         getPaneItemsLabel().setVisible(true);
                         getPaneItemsLabel().setText(info);
@@ -618,49 +610,6 @@ public class Ds3PanelPresenter implements Initializable {
 
     public String getSearchedText() {
         return ds3PanelSearch.getText();
-    }
-
-    //Method for calculating no. of files and capacity of selected tree item
-    public void calculateFiles(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView) {
-        //if a task for calculating of items is already running and cancel that task
-        if (itemsTask != null) {
-            itemsTask.cancel(true);
-        }
-        try {
-            ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems = ds3TreeTableView.getSelectionModel().getSelectedItems();
-            final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
-            if (Guard.isNullOrEmpty(selectedItems) && root != null && root.getValue() != null) {
-                selectedItems = FXCollections.observableArrayList();
-                selectedItems.add(root);
-            }
-            //start a new task for calculating
-            itemsTask = new GetNumberOfItemsTask(ds3Common.getCurrentSession().getClient(), selectedItems);
-
-            itemsTask.setOnSucceeded(SafeHandler.logHandle(event -> UIThreadUtil.runInFXThread(() -> {
-                final ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3TreeTableView.getSelectionModel().getSelectedItems()
-                        .stream().filter(Objects::nonNull).collect(GuavaCollectors.immutableList());
-                TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
-                if (!Guard.isNullOrEmpty(values)) {
-                    final Optional<TreeItem<Ds3TreeTableValue>> first = values.stream().findFirst();
-                    if (first.isPresent()) {
-                        selectedRoot = first.get();
-                    }
-                }
-                //for number of files and folders
-                final FilesCountModel filesCountModel = itemsTask.getValue();
-                if (selectedRoot == null || selectedRoot.getValue() == null || getSession() == null || null == filesCountModel) {
-                    setVisibilityOfItemsInfo(false);
-                } else {
-                    setVisibilityOfItemsInfo(true);
-                    setItemCountPanelInfo(filesCountModel, selectedRoot);
-                }
-
-            })));
-            workers.execute(itemsTask);
-
-        } catch (final Exception e) {
-            LOG.error("Unable to calculate no. of items and capacity", e);
-        }
     }
 
     private void setItemCountPanelInfo(final FilesCountModel filesCountModel, final TreeItem<Ds3TreeTableValue> selectedRoot) {

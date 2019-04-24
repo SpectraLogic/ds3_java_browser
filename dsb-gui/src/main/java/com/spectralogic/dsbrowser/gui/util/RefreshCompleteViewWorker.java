@@ -107,7 +107,6 @@ public class RefreshCompleteViewWorker {
         ds3TreeTableView.setRoot(selectedRoot);
         selectionModel.select(selectedRoot);
         ((Ds3TreeTableItem) selectedRoot).refresh();
-        ds3PanelPresenter.calculateFiles(ds3TreeTableView);
     }
 
     private void expandNodes(final Session session, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel, final ObservableList<TreeItem<Ds3TreeTableValue>> children, final String key) {
