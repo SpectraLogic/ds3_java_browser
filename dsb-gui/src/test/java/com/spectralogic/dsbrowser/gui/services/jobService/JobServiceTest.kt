@@ -17,13 +17,11 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.spectralogic.ds3client.Ds3Client
 import io.reactivex.Completable
-import io.reactivex.functions.Consumer
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
-import org.assertj.core.api.Assertions.*
 import org.mockito.Mockito
-import java.util.*
-import java.util.function.Supplier
+import java.util.UUID
 
 const val INITIAL_MESSAGE: String = ""
 const val RAN_MESSAGE: String = "ran"
@@ -32,8 +30,6 @@ const val VISIBLE: Boolean = true
 
 class JobServiceTest {
 
-    private val cancelled =  Supplier<Boolean> { false }
-    private val reallyCancelled = Supplier { true }
     private var jobService: IncrementalJobService? = null
 
     private class IncrementalJobService() : JobService() {
@@ -45,17 +41,15 @@ class JobServiceTest {
 
         override fun finishedCompletable(): Completable {
             return Completable.fromAction {
-                //Simplified example, just skips the whole thing if cancelled is true
+                // Simplified example, just skips the whole thing if cancelled is true
                     message.set(RAN_MESSAGE)
                     totalJob.set(PERCENT_RAN)
                     title.set(RAN_MESSAGE)
                     visible.set(false)
             }
-
         }
 
         override fun cancel() {
-
         }
     }
 
@@ -72,7 +66,6 @@ class JobServiceTest {
         jobService!!.finishedCompletable().blockingGet()
         assertThat(message).isEqualTo(RAN_MESSAGE)
     }
-
 
     @Test
     fun titleTest() {
@@ -100,5 +93,4 @@ class JobServiceTest {
         jobService!!.finishedCompletable().blockingGet()
         assertThat(total).isEqualTo(1.0)
     }
-
 }

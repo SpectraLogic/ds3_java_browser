@@ -20,16 +20,16 @@ import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
-import java.util.*
+import java.util.UUID
 import javax.naming.ConfigurationException
 
 private const val RETRY_TIME = 100
 class KnownJobData constructor(
-        private val jobData: JobData,
-        private val filesAndFolderMap: FilesAndFolderMap,
-        override val jobId: UUID,
-        val client: Ds3Client,
-        private val jobType: String
+    private val jobData: JobData,
+    private val filesAndFolderMap: FilesAndFolderMap,
+    override val jobId: UUID,
+    val client: Ds3Client,
+    private val jobType: String
 ) : JobData by jobData {
 
     override val job: Ds3ClientHelpers.Job by lazy {

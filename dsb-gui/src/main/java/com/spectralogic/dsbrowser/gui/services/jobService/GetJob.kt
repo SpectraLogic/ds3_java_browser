@@ -24,7 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class GetJob(private val getJobData: JobData) : JobService() {
     override fun getDs3Client(): Ds3Client = getJobData.client()

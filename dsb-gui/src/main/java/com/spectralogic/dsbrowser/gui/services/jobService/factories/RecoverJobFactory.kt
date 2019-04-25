@@ -29,26 +29,27 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
-                                            private val jobWorkers: JobWorkers,
-                                            private val loggingService: LoggingService,
-                                            private val jobInterruptionStore: JobInterruptionStore,
-                                            private val workers: Workers,
-                                            private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter) {
+class RecoverJobFactory @Inject constructor(
+    private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
+    private val jobWorkers: JobWorkers,
+    private val loggingService: LoggingService,
+    private val jobInterruptionStore: JobInterruptionStore,
+    private val workers: Workers,
+    private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter
+) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(this::class.java)
         private const val TYPE: String = "Recover"
     }
 
-    public fun create(session: Session, uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
+    fun create(session: Session, uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
         val client = endpointInfo.client
-        RecoverJob(uuid, endpointInfo, jobTaskElementFactory.create(client), client)
-                .let { it.getTask() }
+        RecoverJob(uuid, endpointInfo, jobTaskElementFactory.create(client), client).getTask()
                 .let { JobTask(it, session.sessionName) }
                 .apply {
                     onCancelled = SafeHandler.logHandle(onCancelled(client, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))

@@ -35,12 +35,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetJobFactory @Inject constructor(private val loggingService: LoggingService,
-                                        private val jobInterruptionStore: JobInterruptionStore,
-                                        private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
-                                        private val jobWorkers: JobWorkers,
-                                        private val workers: Workers,
-                                        private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory) {
+class GetJobFactory @Inject constructor(
+    private val loggingService: LoggingService,
+    private val jobInterruptionStore: JobInterruptionStore,
+    private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
+    private val jobWorkers: JobWorkers,
+    private val workers: Workers,
+    private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory
+) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(GetJobFactory::class.java)
         private const val TYPE = "Get"

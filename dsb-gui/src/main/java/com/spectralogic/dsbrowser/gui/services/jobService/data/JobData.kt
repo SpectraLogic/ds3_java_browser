@@ -37,7 +37,7 @@ interface JobData {
     fun showCachedJobProperty(): BooleanProperty
     fun saveJob(jobSize: Long)
     fun removeJob()
-    fun modifyJob(job :Ds3ClientHelpers.Job)
+    fun modifyJob(job: Ds3ClientHelpers.Job)
     fun internationalize(labelName: String): String
     fun client(): Ds3Client
     fun runningTitle(): String

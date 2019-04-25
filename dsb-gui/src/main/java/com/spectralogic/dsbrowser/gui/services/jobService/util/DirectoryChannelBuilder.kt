@@ -20,9 +20,9 @@ import java.nio.channels.SeekableByteChannel
 import java.nio.file.Files
 import java.nio.file.Path
 
-class DirectoryChannelBuilder(private val objectChannelBuilder: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath : Path) :  Ds3ClientHelpers.ObjectChannelBuilder by objectChannelBuilder {
+class DirectoryChannelBuilder(private val objectChannelBuilder: Ds3ClientHelpers.ObjectChannelBuilder, private val localPath: Path) : Ds3ClientHelpers.ObjectChannelBuilder by objectChannelBuilder {
     override fun buildChannel(name: String): SeekableByteChannel {
-        return if(name.endsWith(localPath.fileSystem.separator)) {
+        return if (name.endsWith(localPath.fileSystem.separator)) {
             Files.createDirectories(localPath.resolve(name))
             ErrorByteChannel()
         } else {

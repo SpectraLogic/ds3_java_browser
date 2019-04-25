@@ -30,7 +30,7 @@ fun Long.toByteRepresentation(): String {
         "0 Bytes"
     } else {
         val i = Math.floor(Math.log(this.toDouble()) / Math.log(bigger))
-        val format = if(i.toInt() == 0) "%.0f" else "%.2f"
+        val format = if (i.toInt() == 0) "%.0f" else "%.2f"
         "${String.format(format, this / Math.pow(bigger, i))} ${listOfPrefixs[i.toInt()]}"
     }
 }

@@ -37,13 +37,15 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
-data class GetJobData(private val list: List<Pair<String, String>>,
-                      private val localPath: Path,
-                      override val bucket: String,
-                      private val jobTaskElement: JobTaskElement,
-                      private val versionId: String? = null) : JobData {
+data class GetJobData(
+    private val list: List<Pair<String, String>>,
+    private val localPath: Path,
+    override val bucket: String,
+    private val jobTaskElement: JobTaskElement,
+    private val versionId: String? = null
+) : JobData {
 
     override fun runningTitle(): String {
         val transferringGet = jobTaskElement.resourceBundle.getString("transferringGet")

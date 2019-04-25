@@ -26,7 +26,7 @@ import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import io.reactivex.Observable
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class PutJob(private val putJobData: JobData) : JobService() {
@@ -91,12 +91,12 @@ class PutJob(private val putJobData: JobData) : JobService() {
             totalJob.set(1L)
             sent.set(1L)
         }
-        LOG.info("Job {} is in cache, waiting to complete",  putJobData.job.jobId)
+        LOG.info("Job {} is in cache, waiting to complete", putJobData.job.jobId)
         message.set("In Cache, Waiting to complete")
         sent.set(totalJob.value)
         visible.bind(putJobData.showCachedJobProperty())
         Observable.interval(60, TimeUnit.SECONDS)
-                .takeUntil({ _ -> wasCancelled || putJobData.isCompleted()})
+                .takeUntil({ _ -> wasCancelled || putJobData.isCompleted() })
                 .retry { throwable ->
                     putJobData.loggingService().logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
                     LOG.error("Unable to check status of job " + jobUUID(), throwable)

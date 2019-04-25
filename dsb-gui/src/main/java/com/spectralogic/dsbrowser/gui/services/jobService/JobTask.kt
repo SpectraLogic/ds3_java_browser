@@ -73,21 +73,25 @@ class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTa
 
     val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 
-    fun onCancelled(client: Ds3Client,
-                           loggingService: LoggingService,
-                           jobInterruptionStore: JobInterruptionStore,
-                           deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
+    fun onCancelled(
+        client: Ds3Client,
+        loggingService: LoggingService,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter
+    ): (WorkerStateEvent) -> Unit = {
         jobId.exists { uuid ->
-            ParseJobInterruptionMap.removeJobID( jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService )
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
             }
     }
 
-    fun onFailed(client: Ds3Client,
-                 jobInterruptionStore: JobInterruptionStore,
-                 deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
-                 loggingService: LoggingService,
-                 workers: Workers,
-                 type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
+    fun onFailed(
+        client: Ds3Client,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
+        loggingService: LoggingService,
+        workers: Workers,
+        type: String
+    ): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
         try {
             jobId.exists {
