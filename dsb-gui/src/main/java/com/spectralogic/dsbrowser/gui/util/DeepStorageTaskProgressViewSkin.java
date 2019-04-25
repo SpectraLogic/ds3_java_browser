@@ -28,7 +28,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
-import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.concurrent.Task;

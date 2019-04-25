@@ -169,7 +169,7 @@ public class NewSessionPresenter implements Initializable {
         savedSessions.setRowFactory(tableView -> {
             final TableRow<SavedSession> row = new TableRow<SavedSession>();
             row.setOnMouseClicked(SafeHandler.logHandle(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
                     final SavedSession rowData = row.getItem();
                     if (!SavedSessionStore.containsNewSessionName(ds3SessionStore.getObservableList(), rowData.getName())) {
                         final Boolean isDefaultSession = rowData.getDefaultSession();

@@ -177,7 +177,7 @@ public class FileTreeTableItem extends TreeItem<FileTreeModel> {
     }
 
     public interface FileTreeTableItemFactory {
-        public FileTreeTableItem create(final FileTreeModel fileTreeModel);
+        FileTreeTableItem create(final FileTreeModel fileTreeModel);
     }
 
 }

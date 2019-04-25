@@ -164,7 +164,7 @@ public class DeleteItemPresenter implements Initializable {
 
     private void constructMessageForLog() {
         final String message;
-        String alertMessage;
+        final String alertMessage;
 
         if (deleteTask instanceof Ds3DeleteBucketTask) {
             alertMessage = "deleteBucketErr";

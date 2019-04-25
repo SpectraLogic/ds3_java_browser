@@ -24,23 +24,26 @@ buildscript {
     }
 
     dependencies {
-        classpath "gradle.plugin.net.ossindex:ossindex-gradle-plugin:0.3.1-beta"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
     }
+}
+
+plugins {
+    id 'org.jlleitschuh.gradle.ktlint' version '7.2.1'
 }
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '5.0.8'
+    version = '5.0.9'
 }
 
 subprojects {
+    apply plugin: 'com.github.ben-manes.versions'
     apply plugin: 'maven'
     apply plugin: 'java'
     apply plugin: 'kotlin'
-    apply plugin: 'com.github.ben-manes.versions'
-    apply plugin: 'net.ossindex.audit'
+    apply plugin: "org.jlleitschuh.gradle.ktlint"
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     kotlin { experimental { coroutines 'enable' } }

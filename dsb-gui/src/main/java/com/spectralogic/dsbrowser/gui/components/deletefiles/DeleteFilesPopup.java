@@ -59,9 +59,9 @@ public class DeleteFilesPopup {
 
     private void changeLabelText(final ObservableList<TreeItem<Ds3TreeTableValue>> selectedItems,
             final DeleteItemView deleteView, final Window window) {
-        if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.File)) {
+        if (selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.File) {
             popup.show(deleteView.getView(), resourceBundle.getString("deleteFiles"), window);
-        } else if (selectedItems.get(0).getValue().getType() == (Ds3TreeTableValue.Type.Directory)) {
+        } else if (selectedItems.get(0).getValue().getType() == Ds3TreeTableValue.Type.Directory) {
             popup.show(deleteView.getView(), resourceBundle.getString("deleteFolder"), window);
         } else {
             popup.show(deleteView.getView(), resourceBundle.getString("deleteBucket"), window);

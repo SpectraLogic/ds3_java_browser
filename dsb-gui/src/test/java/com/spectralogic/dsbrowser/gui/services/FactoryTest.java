@@ -88,7 +88,7 @@ public class FactoryTest {
         } catch (final ProvisionException pe) {
             fail("Provision Exception was thrown");
         }
-        assert(bc != null);
+        assert bc != null;
     }
 
 }

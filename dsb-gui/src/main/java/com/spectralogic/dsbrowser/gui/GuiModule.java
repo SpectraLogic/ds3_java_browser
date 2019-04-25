@@ -104,7 +104,7 @@ public class GuiModule extends AbstractModule {
     @Provides
     @Named("jobPriority")
     protected String providesJobPriority(final SavedJobPrioritiesStore savedJobPrioritiesStore, final ResourceBundle resourceBundle) {
-       return  (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
+       return  !savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText")) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
     }
 
     @Provides

@@ -42,16 +42,12 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import com.spectralogic.dsbrowser.util.Icon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -68,7 +64,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.List;
 
 @Presenter
 public class Ds3PanelPresenter implements Initializable {
@@ -434,7 +429,7 @@ public class Ds3PanelPresenter implements Initializable {
 
     private void ds3TransferToLocal() throws IOException {
         final Session session = getSession();
-        if ((session == null) || (ds3Common == null)) {
+        if (session == null || ds3Common == null) {
             alert.error("invalidSession", getWindow());
             return;
         }
@@ -448,7 +443,7 @@ public class Ds3PanelPresenter implements Initializable {
         }
 
         // Verify remote files to GET selected
-        if ((ds3TreeTableView.getSelectionModel() == null) || (ds3TreeTableView.getSelectionModel().getSelectedItems() == null)) {
+        if (ds3TreeTableView.getSelectionModel() == null || ds3TreeTableView.getSelectionModel().getSelectedItems() == null) {
             LOG.info("Files not selected");
             alert.info(FILE_SELECT, getWindow());
             return;
@@ -562,7 +557,7 @@ public class Ds3PanelPresenter implements Initializable {
         ds3DeleteButtonToolTip.setText(resourceBundle.getString("ds3DeleteButtonToolTip"));
         ds3PanelSearch.setPromptText(resourceBundle.getString("ds3PanelSearchPrompt"));
         ds3PanelSearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            final Image icon = (Guard.isStringNullOrEmpty(newValue)) ? LENS_ICON : CROSS_ICON;
+            final Image icon = Guard.isStringNullOrEmpty(newValue) ? LENS_ICON : CROSS_ICON;
             imageView.setImage(icon);
             imageView.setMouseTransparent(icon == LENS_ICON);
             if (Guard.isStringNullOrEmpty(newValue)) {

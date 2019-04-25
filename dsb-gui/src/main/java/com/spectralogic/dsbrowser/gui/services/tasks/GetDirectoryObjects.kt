@@ -46,6 +46,4 @@ class GetDirectoryObjects @Inject constructor(
             return null
         }
     }
-
 }
-

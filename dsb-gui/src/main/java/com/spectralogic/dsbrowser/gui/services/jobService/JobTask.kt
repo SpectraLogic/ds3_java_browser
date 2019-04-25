@@ -16,11 +16,6 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.github.thomasnield.rxkotlinfx.observeOnFx
 import com.spectralogic.ds3client.Ds3Client
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.GetActiveJobsSpectraS3Request
-import com.spectralogic.ds3client.commands.spectrads3.GetJobSpectraS3Request
-import com.spectralogic.ds3client.networking.FailedRequestException
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
@@ -33,16 +28,11 @@ import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
-import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.util.*
-import java.util.function.Supplier
-import kotlin.coroutines.experimental.CoroutineContext
+import java.util.UUID
 
 class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTask(sessionName) {
     private companion object {
@@ -81,23 +71,27 @@ class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTa
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()
 
-    public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
+    val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 
-    public fun onCancelled(client: Ds3Client,
-                           loggingService: LoggingService,
-                           jobInterruptionStore: JobInterruptionStore,
-                           deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
+    fun onCancelled(
+        client: Ds3Client,
+        loggingService: LoggingService,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter
+    ): (WorkerStateEvent) -> Unit = {
         jobId.exists { uuid ->
-            ParseJobInterruptionMap.removeJobID( jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService )
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
             }
     }
 
-    fun onFailed(client: Ds3Client,
-                 jobInterruptionStore: JobInterruptionStore,
-                 deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
-                 loggingService: LoggingService,
-                 workers: Workers,
-                 type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
+    fun onFailed(
+        client: Ds3Client,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
+        loggingService: LoggingService,
+        workers: Workers,
+        type: String
+    ): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
         try {
             jobId.exists {
@@ -124,9 +118,7 @@ class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTa
         }
     }
 
-    public fun awaitCancel() {
-            wrappedJob.cancel()
+    fun awaitCancel() {
+        wrappedJob.cancel()
     }
-
-
 }

@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.newsession;
 
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.Popup;
 import javafx.stage.Window;
 

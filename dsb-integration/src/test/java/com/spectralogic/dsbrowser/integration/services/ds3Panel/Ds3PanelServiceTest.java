@@ -41,7 +41,6 @@ import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -152,7 +151,7 @@ public class Ds3PanelServiceTest {
                 final GetBucketsSpectraS3Request getBucketsSpectraS3Request = new GetBucketsSpectraS3Request();
                 final GetBucketsSpectraS3Response response = session.getClient().getBucketsSpectraS3(getBucketsSpectraS3Request);
                 final List<Bucket> buckets = response.getBucketListResult().getBuckets();
-                searchableBuckets.ifPresent(buckets1 -> successFlag = (!Guard.isNullOrEmpty(buckets1) && buckets1.size() == buckets.size()));
+                searchableBuckets.ifPresent(buckets1 -> successFlag = !Guard.isNullOrEmpty(buckets1) && buckets1.size() == buckets.size());
                 latch.countDown();
             } catch (final Exception e) {
                 e.printStackTrace();

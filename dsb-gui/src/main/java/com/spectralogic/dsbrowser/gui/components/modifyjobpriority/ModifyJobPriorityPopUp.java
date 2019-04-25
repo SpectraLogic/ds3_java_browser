@@ -29,7 +29,7 @@ public final class ModifyJobPriorityPopUp {
     private final Popup popup;
 
     @Inject
-    public ModifyJobPriorityPopUp(final ResourceBundle resourceBundle, Popup popup) {
+    public ModifyJobPriorityPopUp(final ResourceBundle resourceBundle, final Popup popup) {
         this.resourceBundle = resourceBundle;
         this.popup = popup;
     }

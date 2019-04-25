@@ -23,7 +23,6 @@ import com.spectralogic.ds3client.commands.GetBucketResponse;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.ds3client.models.bulk.Ds3Object;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
@@ -111,7 +110,7 @@ public class BucketUtilTest {
         ds3TreeTableValue.setMarker("testFolder/");
         final GetBucketRequest request2 = BucketUtil.createRequest(ds3TreeTableValue, BUCKET_UTIL_TEST_BUCKET_NAME,
                 Mockito.mock(Ds3TreeTableItem.class), resourceBundle, 100);
-        successFlag = (request1 != null && request2 != null) ? true : false;
+        successFlag = request1 != null && request2 != null ? true : false;
         assertTrue(successFlag);
     }
 
@@ -131,12 +130,12 @@ public class BucketUtilTest {
                 final ImmutableList<Ds3Object> ds3ObjectListFiles = bucketResponse.getListBucketResult()
                         .getObjects()
                         .stream()
-                        .filter(c -> ((c.getKey() != null) && (!c.getKey().equals(ds3TreeTableValue.getFullName()))))
+                        .filter(c -> c.getKey() != null && !c.getKey().equals(ds3TreeTableValue.getFullName()))
                         .map(i -> new Ds3Object(i.getKey(), i.getSize()))
                         .collect(GuavaCollectors.immutableList());
                 final List<Ds3TreeTableValue> filterFilesList = BucketUtil.getFilterFilesList(ds3ObjectListFiles,
                         bucketResponse, BUCKET_UTIL_TEST_BUCKET_NAME, session, DTU);
-                successFlag = (null != filterFilesList) ? true : false;
+                successFlag = null != filterFilesList ? true : false;
                 latch.countDown();
             } catch (final IOException e) {
                 e.printStackTrace();

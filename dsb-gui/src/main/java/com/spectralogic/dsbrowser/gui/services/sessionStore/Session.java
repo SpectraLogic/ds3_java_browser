@@ -20,7 +20,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.UUID;
 
 public class Session implements Closeable {
     private final Ds3Client client;

@@ -19,7 +19,6 @@ import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.ResourceUtils;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
@@ -195,7 +194,7 @@ public class ParseJobInterruptionMapTest {
             boolean result = true;
 
             //Check if all keys/jobs id are equal
-            if (!resultMapKayElement.isPresent() || (jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size())) {
+            if (!resultMapKayElement.isPresent() || jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size()) {
                 result = false;
             } else {
                 for (final String key : jobIDMap.keySet()) {

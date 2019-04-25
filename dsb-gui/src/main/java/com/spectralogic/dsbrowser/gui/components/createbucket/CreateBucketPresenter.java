@@ -26,7 +26,6 @@ import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -95,7 +94,7 @@ public class CreateBucketPresenter implements Initializable {
             dataPolicyCombo.getItems().addAll(createBucketWithDataPoliciesModel.getDataPolicies().stream()
                     .map(CreateBucketModel::getDataPolicy).collect(Collectors.toList()));
             bucketNameField.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.isEmpty() && (dataPolicyCombo.getValue()) != null) {
+                if (!newValue.isEmpty() && dataPolicyCombo.getValue() != null) {
                     createBucketButton.setDisable(false);
                 } else {
                     createBucketButton.setDisable(true);

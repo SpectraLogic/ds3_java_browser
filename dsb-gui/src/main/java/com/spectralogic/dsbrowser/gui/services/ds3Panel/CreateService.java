@@ -32,15 +32,12 @@ import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
 import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 

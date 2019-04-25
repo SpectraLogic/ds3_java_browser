@@ -27,14 +27,16 @@ import java.time.Instant
 class Stats(val message: StringProperty, val loggingService: LoggingService, val dateTimeUtils: DateTimeUtils) {
     private var lastFile: String = ""
 
-    fun updateStatistics(startTime: Instant,
-                         sent: LongProperty,
-                         total: LongProperty,
-                         totalMessage: String,
-                         toPath: String,
-                         location: String,
-                         finished: Boolean,
-                         name: String =lastFile ) {
+    fun updateStatistics(
+        startTime: Instant,
+        sent: LongProperty,
+        total: LongProperty,
+        totalMessage: String,
+        toPath: String,
+        location: String,
+        finished: Boolean,
+        name: String = lastFile
+    ) {
 
         lastFile = name
         val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {
@@ -52,7 +54,7 @@ class Stats(val message: StringProperty, val loggingService: LoggingService, val
         val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
                 totalMessage, name, location).toString())
-        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(displayName, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
+        if (finished) { loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(displayName, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS) }
     }
 
     private fun estimateTransferRate(sent: LongProperty, elapsedSeconds: Long) =

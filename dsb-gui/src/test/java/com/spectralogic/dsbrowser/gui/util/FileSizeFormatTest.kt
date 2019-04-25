@@ -15,7 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.util
 
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class FileSizeFormatTest {
