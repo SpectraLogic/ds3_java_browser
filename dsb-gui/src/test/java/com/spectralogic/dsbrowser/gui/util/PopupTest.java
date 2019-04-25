@@ -16,7 +16,6 @@
 package com.spectralogic.dsbrowser.gui.util;
 
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Window;

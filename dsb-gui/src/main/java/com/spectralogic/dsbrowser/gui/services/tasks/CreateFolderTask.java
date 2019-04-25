@@ -49,6 +49,6 @@ public class CreateFolderTask extends Ds3Task<Void> {
     }
 
     public interface CreateFolderTaskFactory {
-        public CreateFolderTask create(@Assisted("bucketName") final String bucketName, @Assisted("folderName") final String folderName);
+        CreateFolderTask create(@Assisted("bucketName") final String bucketName, @Assisted("folderName") final String folderName);
     }
 }

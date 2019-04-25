@@ -36,7 +36,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -279,7 +278,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private EventHandler buildPlaceHolder(final Node oldPlaceHolder) {
-        return SafeHandler.logHandle((event) -> {
+        return SafeHandler.logHandle(event -> {
             ds3TreeTable.setPlaceholder(oldPlaceHolder);
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> children = ds3TreeTable.getRoot().getChildren();
@@ -463,7 +462,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     }
 
     private void rightClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
-        if ((row.getTreeItem() != null) && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+        if (row.getTreeItem() != null && row.getTreeItem().getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             LOG.info("Loading more entries...");
             loadMore(row.getTreeItem());
         }
@@ -472,7 +471,7 @@ public class Ds3TreeTablePresenter implements Initializable {
     private void doubleClickBehavior(final TreeTableRow<Ds3TreeTableValue> row) {
         final ImmutableList<TreeTableColumn<Ds3TreeTableValue, ?>> sortOrder = ds3TreeTable.getSortOrder().stream().collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> treeItem = row.getTreeItem();
-        if ((treeItem != null) && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
+        if (treeItem != null && !treeItem.getValue().getType().equals(Ds3TreeTableValue.Type.Loader)) {
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(90, 90);
             ds3TreeTable.setPlaceholder(new StackPane(progress));
@@ -553,11 +552,11 @@ public class Ds3TreeTablePresenter implements Initializable {
 
                 } else {
                     if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
-                            (value.getType() == Ds3TreeTableValue.Type.Directory) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
+                            value.getType() == Ds3TreeTableValue.Type.Directory || value.getType() == Ds3TreeTableValue.Type.Bucket)) {
                         deleteFile.setDisable(false);
                         versioning.setDisable(true);
                     } else if (selectedItems.stream().map(TreeItem::getValue).noneMatch(value ->
-                            (value.getType() == Ds3TreeTableValue.Type.File) || (value.getType() == Ds3TreeTableValue.Type.Bucket))) {
+                            value.getType() == Ds3TreeTableValue.Type.File || value.getType() == Ds3TreeTableValue.Type.Bucket)) {
                         deleteFolder.setDisable(false);
                         versioning.setDisable(true);
                     }

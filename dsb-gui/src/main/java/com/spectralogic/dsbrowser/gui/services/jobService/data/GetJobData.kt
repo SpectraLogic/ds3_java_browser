@@ -38,7 +38,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
-import java.util.function.Supplier
 
 data class GetJobData(private val list: List<Pair<String, String>>,
                       private val localPath: Path,
@@ -74,13 +73,15 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {
             if (field.isEmpty()) {
-                list.forEach({ field.put(it.first, Paths.get(it.second)) })
+                list.forEach {
+                    field[it.first] = Paths.get(it.second)
+                }
             }
             return field
         }
 
-    override public fun getStartTime(): Instant = startTime
-    override public fun setStartTime(): Instant {
+    override fun getStartTime(): Instant = startTime
+    override fun setStartTime(): Instant {
         startTime = Instant.now()
         return startTime
     }
@@ -94,7 +95,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         }
     }
 
-    private fun buildDs3Objects(): List<Ds3Object> = list.flatMap({ dataToDs3Objects(it) }).distinct()
+    private fun buildDs3Objects(): List<Ds3Object> = list.flatMap { dataToDs3Objects(it) }.distinct()
 
     private fun dataToDs3Objects(filePair: Pair<String, String>): Iterable<Ds3Object> = when (filePair.first.last()) {
         '/' -> {
@@ -111,18 +112,18 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     }
 
     private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> {
-        var list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jobTaskElement.client).listObjects(bucket, t.first)
+        val list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jobTaskElement.client).listObjects(bucket, t.first)
                 .map { contents -> Ds3Object(contents.key) }
                 .stream()
                 .collect(GuavaCollectors.immutableList())
         list.forEach {
-            prefixMap.put(it.name, Paths.get(t.second))
+            prefixMap[it.name] = Paths.get(t.second)
             checkifOverWriting(it.name, t.second)
         }
         return list
     }
 
-    override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun shouldRestoreFileAttributes(): Boolean = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
         return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes
     }

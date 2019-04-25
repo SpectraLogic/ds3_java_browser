@@ -41,7 +41,6 @@ import com.spectralogic.dsbrowser.gui.services.tasks.SearchJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
@@ -210,7 +209,7 @@ public final class Ds3PanelService {
             try {
                 ObservableList<TreeItem<Ds3TreeTableValue>> selectedItem = getSelectedItems();
                 final TreeItem<Ds3TreeTableValue> root = ds3TreeTableView.getRoot();
-                if (Guard.isNullOrEmpty(selectedItem) && (root != null && root.getValue() != null)) {
+                if (Guard.isNullOrEmpty(selectedItem) && root != null && root.getValue() != null) {
                     selectedItem = FXCollections.observableArrayList();
                     selectedItem.add(root);
                 }
@@ -234,7 +233,7 @@ public final class Ds3PanelService {
                             loggingService.logMessage(noObjectsFoundMessage, LogType.INFO);
                             treeTableItems.sort(Comparator.comparing(t -> t.getValue().getType().toString()));
                             final ObservableList<TreeItem<Ds3TreeTableValue>> children = rootTreeItem.getChildren();
-                            treeTableItems.forEach(value -> children.add(value));
+                            children.addAll(treeTableItems);
                             if (children.isEmpty()) {
                                 ds3TreeTableView.setPlaceholder(new Label(resourceBundle.getString("0_SearchResult")));
                             }

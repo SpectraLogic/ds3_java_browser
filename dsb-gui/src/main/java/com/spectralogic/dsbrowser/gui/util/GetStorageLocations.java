@@ -108,7 +108,7 @@ public final class GetStorageLocations {
                 final String toolTipMessage = BucketUtil.pluralize(nearlinePoolsCount, resourceBundle, "nearLine", "nearLines");
                 placementIconTooltipHbox.getChildren().add(createIcon(NEARLINEDISK, toolTipMessage));
             }
-            if ((poolsCount - nearlinePoolsCount) > 0) {
+            if (poolsCount - nearlinePoolsCount > 0) {
                 final String toolTipMessage = BucketUtil.pluralize(poolsCount - nearlinePoolsCount, resourceBundle, "online", "onlines");
                 placementIconTooltipHbox.getChildren().add(createIcon(ONLINEDISK, toolTipMessage));
             }
@@ -123,7 +123,7 @@ public final class GetStorageLocations {
                 final String toolTipMessage = BucketUtil.pluralize(ejectedTapesCount, resourceBundle, "ejected", "ejecteds");
                 placementIconTooltipHbox.getChildren().add(createIcon(EJECTEDTAPES, toolTipMessage));
             }
-            if ((storageTapeCount - ejectedTapesCount) > 0) {
+            if (storageTapeCount - ejectedTapesCount > 0) {
                 final long tapeCount = storageTapeCount - ejectedTapesCount;
                 final String toolTipMessage = BucketUtil.pluralize(tapeCount, resourceBundle, "storage", "storages");
                 placementIconTooltipHbox.getChildren().add(createIcon(STORAGETAPES, toolTipMessage));

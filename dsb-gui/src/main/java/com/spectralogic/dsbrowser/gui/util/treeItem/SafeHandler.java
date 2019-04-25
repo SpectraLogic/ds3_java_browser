@@ -24,7 +24,7 @@ public final class SafeHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SafeHandler.class);
 
     public static <T extends Event> EventHandler<T> logHandle(final EventHandler<T> handler) {
-        return (event) -> {
+        return event -> {
             try {
                 handler.handle(event);
             } catch (final Throwable t) {

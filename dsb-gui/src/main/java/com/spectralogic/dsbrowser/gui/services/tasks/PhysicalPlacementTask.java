@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
@@ -190,7 +189,7 @@ public class PhysicalPlacementTask extends Ds3Task<PhysicalPlacementModel> {
     }
 
     public interface PhysicalPlacementTaskFactory {
-        public PhysicalPlacementTask create(final Ds3TreeTableValue value);
+        PhysicalPlacementTask create(final Ds3TreeTableValue value);
     }
 }
 

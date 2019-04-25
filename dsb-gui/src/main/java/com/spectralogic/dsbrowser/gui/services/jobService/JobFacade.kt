@@ -19,8 +19,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import javafx.beans.property.LongProperty
 import javafx.beans.property.SimpleBooleanProperty
-import java.util.*
-import java.util.function.Supplier
+import java.util.UUID
 
 interface JobFacade {
     fun titleObservable(): Observable<String>

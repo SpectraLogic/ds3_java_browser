@@ -31,7 +31,6 @@ import com.spectralogic.dsbrowser.util.andThen
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,8 +47,7 @@ class GetJobFactory @Inject constructor(private val loggingService: LoggingServi
     }
 
     public fun create(session: Session, files: List<Pair<String, String>>, bucket: String, targetDir: Path, client: Ds3Client, refreshBehavior: () -> Unit, versionId: String? = null) {
-        jobTaskElementFactory.create(client)
-                .let { GetJobData(files, targetDir, bucket, it, versionId) }
+        GetJobData(files, targetDir, bucket, jobTaskElementFactory.create(client), versionId)
                 .let { GetJob(it) }
                 .let { JobTask(it, session.sessionName) }
                 .apply {

@@ -30,7 +30,6 @@ import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import com.spectralogic.dsbrowser.util.andThen
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,8 +46,7 @@ class PutJobFactory @Inject constructor(private val loggingService: LoggingServi
     }
 
     fun create(session: Session, files: List<Pair<String, Path>>, bucket: String, targetDir: String, client: Ds3Client, refreshBehavior: () -> Unit = {}) {
-        jobTaskElementFactory.create(client)
-                .let { PutJobData(files, targetDir, bucket, it) }
+        PutJobData(files, targetDir, bucket, jobTaskElementFactory.create(client))
                 .let { PutJob(it) }
                 .let { JobTask(it, session.sessionName) }
                 .apply {

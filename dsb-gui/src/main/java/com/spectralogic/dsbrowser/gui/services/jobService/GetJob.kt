@@ -15,10 +15,7 @@
 package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.spectralogic.ds3client.Ds3Client
-import com.spectralogic.ds3client.helpers.DataTransferredListener
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
-import com.spectralogic.ds3client.helpers.ObjectCompletedListener
-import com.spectralogic.ds3client.helpers.WaitingForChunksListener
 import com.spectralogic.ds3client.metadata.MetadataReceivedListenerImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
@@ -32,7 +29,7 @@ import java.util.*
 class GetJob(private val getJobData: JobData) : JobService() {
     override fun getDs3Client(): Ds3Client = getJobData.client()
 
-    private val chunkManagment: ChunkManagment = ChunkManagment()
+    private val chunkManagement: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats(message, getJobData.loggingService(), getJobData.dateTimeUtils())
 
     private companion object {
@@ -53,14 +50,16 @@ class GetJob(private val getJobData: JobData) : JobService() {
                 MetadataReceivedListenerImpl(getJobData.targetPath()).metadataReceived(localFile, metadata)
             }
         }
-        job.attachDataTransferredListener(DataTransferredListener {
+        job.attachDataTransferredListener {
             sent.set(it + sent.get())
             stats.updateStatistics(getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), false)
-        })
-        job.attachObjectCompletedListener(ObjectCompletedListener {
+        }
+        job.attachObjectCompletedListener {
             stats.updateStatistics(getJobData.getStartTime(), sent, totalJob, totalJobSizeDisplay, getJobData.targetPath(), getJobData.targetPath(), true, it)
-        })
-        job.attachWaitingForChunksListener(WaitingForChunksListener { chunkManagment.waitForChunks(it, getJobData.loggingService(), LOG) })
+        }
+        job.attachWaitingForChunksListener {
+            chunkManagement.waitForChunks(it, getJobData.loggingService(), LOG)
+        }
         job.attachFailureEventListener { getJobData.loggingService().logMessage(it.toString(), LogType.ERROR) }
         getJobData.saveJob(totalJob.get())
         return job

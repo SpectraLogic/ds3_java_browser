@@ -23,7 +23,6 @@ import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
 import com.spectralogic.dsbrowser.gui.components.metadata.MetadataEntry;
-import com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;

@@ -33,13 +33,11 @@ class KnownJobData constructor(
 ) : JobData by jobData {
 
     override val job: Ds3ClientHelpers.Job by lazy {
-                if (jobType == "GET") {
-                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
-                } else if (jobType == "PUT") {
-                    Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
-                } else {
-                    throw ConfigurationException("Was expecting GET or PUT, but got $jobType")
-                }
+        when (jobType) {
+            "GET" -> Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
+            "PUT" -> Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+            else -> throw ConfigurationException("Was expecting GET or PUT, but got $jobType")
+        }
             }
 
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()

@@ -23,8 +23,6 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.helpers.FileObjectPutter
 import com.spectralogic.ds3client.helpers.WriteJobImpl
 import com.spectralogic.ds3client.helpers.events.ConcurrentEventRunner
-import com.spectralogic.ds3client.helpers.events.SameThreadEventRunner
-import com.spectralogic.ds3client.helpers.options.WriteJobOptions
 import com.spectralogic.ds3client.helpers.strategy.blobstrategy.BlackPearlChunkAttemptRetryDelayBehavior
 import com.spectralogic.ds3client.helpers.strategy.blobstrategy.MaxChunkAttemptsRetryBehavior
 import com.spectralogic.ds3client.helpers.strategy.blobstrategy.PutSequentialBlobStrategy
@@ -33,7 +31,6 @@ import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStra
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
-import com.spectralogic.ds3client.utils.Guard
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder
@@ -44,9 +41,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
-import java.util.function.Supplier
-import java.util.stream.Stream
-import kotlin.streams.toList
 
 data class PutJobData(private val items: List<Pair<String, Path>>,
                       private val targetDir: String,
@@ -108,8 +102,8 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     override fun targetPath(): String = targetDir
     override fun dateTimeUtils(): DateTimeUtils = jobTaskElement.dateTimeUtils
     private var startTime: Instant = Instant.now()
-    public override fun getStartTime(): Instant = startTime
-    public override fun setStartTime(): Instant {
+    override fun getStartTime(): Instant = startTime
+    override fun setStartTime(): Instant {
         startTime = Instant.now()
         return startTime
     }
@@ -130,13 +124,13 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
                         }
                                 , if (Files.isDirectory(it.toPath())) 0L else it.length())
                     }
-                .map { Pair<Ds3Object, Path>(it, item.second) }
+                .map { Pair(it, item.second) }
         return paths
     }
 
     override fun jobSize() = jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes
 
-    override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun shouldRestoreFileAttributes(): Boolean = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
 
     override fun isCompleted() = jobTaskElement.client.getJobSpectraS3(GetJobSpectraS3Request(job.jobId)).masterObjectListResult.status == JobStatus.COMPLETED
     override fun removeJob() {

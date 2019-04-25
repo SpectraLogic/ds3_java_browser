@@ -47,8 +47,7 @@ class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: J
 
     public fun create(session: Session, uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
         val client = endpointInfo.client
-        jobTaskElementFactory.create(client)
-                .let { RecoverJob(uuid, endpointInfo, it, client) }
+        RecoverJob(uuid, endpointInfo, jobTaskElementFactory.create(client), client)
                 .let { it.getTask() }
                 .let { JobTask(it, session.sessionName) }
                 .apply {

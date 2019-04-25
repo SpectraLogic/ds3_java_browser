@@ -67,7 +67,7 @@ class JobServiceTest {
     @Test
     fun messageTest() {
         var message = "N/A"
-        jobService!!.messageObservable().subscribe(Consumer { t: String -> message = t })
+        jobService!!.messageObservable().subscribe { t: String -> message = t }
         assertThat(message).isEqualTo(INITIAL_MESSAGE)
         jobService!!.finishedCompletable().blockingGet()
         assertThat(message).isEqualTo(RAN_MESSAGE)
@@ -77,7 +77,7 @@ class JobServiceTest {
     @Test
     fun titleTest() {
         var title = "N/A"
-        jobService!!.titleObservable().subscribe(Consumer { t: String -> title = t })
+        jobService!!.titleObservable().subscribe { t: String -> title = t }
         assertThat(title).isEqualTo(INITIAL_MESSAGE)
         jobService!!.finishedCompletable().blockingGet()
         assertThat(title).isEqualTo(RAN_MESSAGE)
@@ -86,7 +86,7 @@ class JobServiceTest {
     @Test
     fun visibleTest() {
         var visible = false
-        jobService!!.visabilityObservable().subscribe(Consumer { t: Boolean -> visible = t })
+        jobService!!.visabilityObservable().subscribe { t: Boolean -> visible = t }
         assertThat(visible).isEqualTo(VISIBLE)
         jobService!!.finishedCompletable().blockingGet()
         assertThat(visible).isEqualTo(false)
@@ -95,7 +95,7 @@ class JobServiceTest {
     @Test
     fun totalJobTest() {
         var total = 100.00
-        jobService!!.jobSizeObservable().subscribe(Consumer { t: Number -> total = t.toDouble() })
+        jobService!!.jobSizeObservable().subscribe { t: Number -> total = t.toDouble() }
         assertThat(total).isEqualTo(0.0)
         jobService!!.finishedCompletable().blockingGet()
         assertThat(total).isEqualTo(1.0)

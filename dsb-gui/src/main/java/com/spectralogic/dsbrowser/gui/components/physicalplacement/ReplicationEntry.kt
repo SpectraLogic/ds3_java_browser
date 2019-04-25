@@ -14,8 +14,6 @@
  */
 package com.spectralogic.dsbrowser.gui.components.physicalplacement
 
-import java.util.*
-
 data class ReplicationEntry(
     val dataPathEndPoint: String,
     val dataPathPort: Int,

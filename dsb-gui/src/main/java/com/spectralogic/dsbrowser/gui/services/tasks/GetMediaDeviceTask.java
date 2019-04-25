@@ -52,7 +52,7 @@ public class GetMediaDeviceTask extends Task{
     }
 
     public interface GetMediaDeviceTaskFactory {
-        public GetMediaDeviceTask create(
+        GetMediaDeviceTask create(
                 final Stream<FileTreeModel> rootItems,
                 final TreeItem<FileTreeModel> rootTreeItem
         );

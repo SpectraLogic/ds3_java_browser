@@ -101,7 +101,7 @@ public class FileTreeTableProvider {
             long size = 0;
             String lastModified = StringConstants.EMPTY_STRING;
             try {
-                if ((type != FileTreeModel.Type.Media_Device) && (type != FileTreeModel.Type.Directory)) {
+                if (type != FileTreeModel.Type.Media_Device && type != FileTreeModel.Type.Directory) {
                     size = Files.size(path);
                 }
                 final FileTime modifiedTime = Files.getLastModifiedTime(path);

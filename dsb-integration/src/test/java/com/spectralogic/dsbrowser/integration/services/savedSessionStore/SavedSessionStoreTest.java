@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.integration.services.savedSessionStore;
 
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedCredentials;
@@ -100,7 +99,7 @@ public class SavedSessionStoreTest {
         savedSessionStore.getSessions().add(savedSession);
         SavedSessionStore.saveSavedSessionStore(savedSessionStore);
         final  int currentSize=savedSessionStore.getSessions().size();
-        assertTrue((previousSize + 1) == currentSize);
+        assertTrue(previousSize + 1 == currentSize);
     }
 
     @Test

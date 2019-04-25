@@ -17,15 +17,11 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
-import com.spectralogic.dsbrowser.api.services.ShutdownService;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
