@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{5A3A
 		SetupProject\createWXSDbsFiles.bat = SetupProject\createWXSDbsFiles.bat
 		..\createWXSJavaFiles.bat = ..\createWXSJavaFiles.bat
 		SetupProject\extractJava.bat = SetupProject\extractJava.bat
+		..\..\..\dsb-gui\launch4j.xml = ..\..\..\dsb-gui\launch4j.xml
 	EndProjectSection
 EndProject
 Global
