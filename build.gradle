@@ -35,7 +35,7 @@ plugins {
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '5.0.8'
+    version = '5.0.9'
 }
 
 subprojects {
