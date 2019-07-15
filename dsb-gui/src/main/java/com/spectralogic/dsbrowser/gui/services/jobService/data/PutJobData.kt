@@ -31,6 +31,7 @@ import com.spectralogic.ds3client.helpers.strategy.transferstrategy.TransferStra
 import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
+import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder
@@ -72,7 +73,7 @@ data class PutJobData(
                 val ds3Objects = items.map { dataToDs3Objects(it) }.flatMap { it.asIterable() }
                 ds3Objects.map { pair: Pair<Ds3Object, Path> -> Pair<String, Path>(pair.first.name, pair.second) }
                     .forEach { prefixMap.put(it.first, it.second) }
-                if (objects.isEmpty()) {
+                if (ds3Objects.isEmpty()) {
                     loggingService().logMessage("File list is empty, cannot create job", LogType.ERROR)
                     throw RuntimeException("File list is empty")
                  }
@@ -125,18 +126,14 @@ data class PutJobData(
         val paths = item.second.toFile().walk(FileWalkDirection.TOP_DOWN)
                     .filter { !(it.isDirectory && Files.list(it.toPath()).use { f -> f.findAny().isPresent }) }
                     .filter {
-                        if (!Files.isSymbolicLink(it)) {
-                            true
-                        } else {
                      try {
-                        it.toRealPath()
+                        it.toPath().toRealPath()
                         true
                     } catch (e: java.nio.file.NoSuchFileException) {
                         loggingService().logMessage("Could not resolve link " + it, LogType.ERROR)
                                 false
                              }
                          }
-                     }
                     .map {
                         Ds3Object(if (it.isDirectory) {
                             targetDir + parent.relativize(it.toPath()).toString().replace(localDelim, "/") + "/"
