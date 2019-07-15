@@ -58,19 +58,6 @@ public final class PathUtil {
         return rootPath.relativize(fullObjPath).toString().replace('\\', '/');
     }
 
-    public static Path resolveForSymbolic(final Path path) throws IOException {
-        if (Files.isSymbolicLink(path)) {
-            final Path simLink = Files.readSymbolicLink(path);
-            if (!simLink.isAbsolute()) {
-                // Resolve the path such that the path is relative to the symbolically
-                // linked file's directory
-                final Path symLinkParent = path.toAbsolutePath().getParent();
-                return symLinkParent.resolve(simLink);
-            }
-            return simLink;
-        }
-        return path;
-    }
 
     public static String getFolderLocation(final String location, final String bucketName) {
         String newLocation = StringConstants.EMPTY_STRING;

@@ -100,12 +100,6 @@ public class PathUtil_Test {
         assertThat(result, is(("parent/path/file.txt")));
     }
 
-    @Test
-    public void resolveForSymbolic() throws IOException {
-        final Path path = PathUtil.resolveForSymbolic(Paths.get("/parent/path/file.txt"));
-        assertThat(path, is(Paths.get("/parent/path/file.txt")));
-    }
-
 
     @Test
     public void getLocation() {

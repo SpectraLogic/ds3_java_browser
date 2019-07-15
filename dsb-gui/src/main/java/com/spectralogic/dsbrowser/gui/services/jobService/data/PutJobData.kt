@@ -25,23 +25,29 @@ import com.spectralogic.ds3client.models.JobStatus
 import com.spectralogic.ds3client.models.Priority
 import com.spectralogic.ds3client.models.bulk.Ds3Object
 import com.spectralogic.ds3client.utils.Guard
+import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.gui.services.jobService.util.EmptyChannelBuilder
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap
 import javafx.beans.property.BooleanProperty
+import java.io.File
+import java.lang.RuntimeException
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
 import java.util.function.Supplier
 import java.util.stream.Stream
 
-data class PutJobData(private val items: List<Pair<String, Path>>,
-                      private val targetDir: String,
-                      override val bucket: String,
-                      private val jobTaskElement: JobTaskElement) : JobData {
+data class PutJobData(
+    private val items: List<Pair<String, Path>>,
+    private val targetDir: String,
+    override val bucket: String,
+    private val jobTaskElement: JobTaskElement
+) : JobData {
 
     override fun runningTitle(): String {
         val transferringPut = jobTaskElement.resourceBundle.getString("transferringPut")
@@ -64,10 +70,15 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
     override var job: Ds3ClientHelpers.Job? = null
         get() {
             if (field == null) {
+                val objects = buildDs3Objects()
+                if (objects.isEmpty()) {
+                    loggingService().logMessage("File list is empty, cannot create job", LogType.ERROR)
+                    throw RuntimeException("File list is empty")
+                }
                 field = if (writeJobOptions() == null) {
-                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, buildDs3Objects())
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, objects)
                 } else {
-                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, buildDs3Objects(), writeJobOptions())
+                    Ds3ClientHelpers.wrap(jobTaskElement.client).startWriteJob(bucket, objects, writeJobOptions())
                 }
 
             }
@@ -81,7 +92,9 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         }
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
 
-    override fun showCachedJobProperty(): BooleanProperty = jobTaskElement.settingsStore.showCachedJobSettings.showCachedJobEnableProperty()
+    override fun showCachedJobProperty(): BooleanProperty =
+        jobTaskElement.settingsStore.showCachedJobSettings.showCachedJobEnableProperty()
+
     override fun loggingService(): LoggingService = jobTaskElement.loggingService
     override fun targetPath(): String = targetDir
     override fun dateTimeUtils(): DateTimeUtils = jobTaskElement.dateTimeUtils
@@ -92,7 +105,8 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         return startTime
     }
 
-    override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder = EmptyChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
+    override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder =
+        EmptyChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
 
     private fun buildDs3Objects(): List<Ds3Object> = items.flatMap({ dataToDs3Objects(it) }).distinct()
 
@@ -101,33 +115,67 @@ data class PutJobData(private val items: List<Pair<String, Path>>,
         val parent = item.second.parent
         val paths = Files.walk(item.second).use { stream: Stream<Path> ->
             stream.iterator().asSequence()
-                    .takeWhile { !cancelled!!.get() }
-                    .filter { !(Files.isDirectory(it) && Files.list(it).use { f -> f.findAny().isPresent }) }
-                    .map {
-                        Ds3Object(if (Files.isDirectory(it)) {
+                .takeWhile { !cancelled!!.get() }
+                .filter { !(Files.isDirectory(it) && Files.list(it).use { f -> f.findAny().isPresent }) }
+                .filter {
+                    if (!Files.isSymbolicLink(it)) {
+                        true
+                    } else {
+                        try {
+                            it.toRealPath()
+                            true
+                        } catch (e: java.nio.file.NoSuchFileException) {
+                            loggingService().logMessage("Could not resolve link " + it, LogType.ERROR)
+                            false
+                        }
+                    }
+                }
+                .map {
+                    Ds3Object(
+                        if (Files.isDirectory(it)) {
                             targetDir + parent.relativize(it).toString().replace(localDelim, "/") + "/"
                         } else {
                             targetDir + parent.relativize(it).toString().replace(localDelim, "/")
                         }
-                                , if (Files.isDirectory(it)) 0L else Files.size(it))
-                    }
-                    .toList()
+                        , if (Files.isDirectory(it)) 0L else Files.size(it)
+                    )
+                }
+                .toList()
         }
         paths.forEach { prefixMap.put(it.name, item.second) }
         return paths
     }
 
-    override fun jobSize() = jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
+    override fun jobSize() =
+        jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
 
-    override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun shouldRestoreFileAttributes() =
+        jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
 
-    override fun isCompleted() = jobTaskElement.client.getJobSpectraS3(GetJobSpectraS3Request(job!!.jobId)).masterObjectListResult.status == JobStatus.COMPLETED
+    override fun isCompleted() =
+        jobTaskElement.client.getJobSpectraS3(GetJobSpectraS3Request(job!!.jobId)).masterObjectListResult.status == JobStatus.COMPLETED
+
     override fun removeJob() {
-        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job!!.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
+        ParseJobInterruptionMap.removeJobIdFromFile(
+            jobTaskElement.jobInterruptionStore,
+            job!!.jobId.toString(),
+            jobTaskElement.client.connectionDetails.endpoint
+        )
     }
 
     override fun saveJob(jobSize: Long) {
-        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "PUT", bucket)
+        ParseJobInterruptionMap.saveValuesToFiles(
+            jobTaskElement.jobInterruptionStore,
+            prefixMap,
+            mapOf(),
+            jobTaskElement.client.connectionDetails.endpoint,
+            job!!.jobId,
+            jobSize,
+            targetPath(),
+            jobTaskElement.dateTimeUtils,
+            "PUT",
+            bucket
+        )
     }
 
     private fun writeJobOptions(): WriteJobOptions? {
