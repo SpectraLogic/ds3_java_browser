@@ -20,11 +20,13 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
+public class Popup {
 
-public final class Popup {
-    public static void show(final Parent parent, final String title) {
+    public void show(final Parent parent, final String title, final Boolean resizeable, final Window window) {
         final Stage popup = new Stage();
+        popup.initOwner(window);
         popup.initModality(Modality.APPLICATION_MODAL);
         popup.setMaxWidth(1000);
         final Scene popupScene = new Scene(parent);
@@ -32,7 +34,12 @@ public final class Popup {
         popup.setScene(popupScene);
         popup.setTitle(title);
         popup.setAlwaysOnTop(false);
-        popup.setResizable(false);
+        popup.setResizable(resizeable);
         popup.showAndWait();
     }
+
+    public void show(final Parent parent, final String title, final Window window) {
+        show(parent, title, false, window);
+    }
+
 }

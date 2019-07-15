@@ -25,32 +25,35 @@ import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement
 import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore
+import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class RecoverJobFactory @Inject constructor(private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
-                                            private val jobWorkers: JobWorkers,
-                                            private val loggingService: LoggingService,
-                                            private val jobInterruptionStore: JobInterruptionStore,
-                                            private val workers: Workers,
-                                            private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter) {
+@Singleton
+class RecoverJobFactory @Inject constructor(
+    private val jobTaskElementFactory: JobTaskElement.JobTaskElementFactory,
+    private val jobWorkers: JobWorkers,
+    private val loggingService: LoggingService,
+    private val jobInterruptionStore: JobInterruptionStore,
+    private val workers: Workers,
+    private val deepStorageBrowserPresenter: DeepStorageBrowserPresenter
+) {
     private companion object {
         private val LOG: Logger = LoggerFactory.getLogger(this::class.java)
         private const val TYPE: String = "Recover"
     }
 
-    public fun create(uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
+    fun create(session: Session, uuid: UUID, endpointInfo: EndpointInfo, refreshBehavior: () -> Unit) {
         val client = endpointInfo.client
-        jobTaskElementFactory.create(client)
-                .let { RecoverJob(uuid, endpointInfo, it, client) }
-                .let { it.getTask() }
-                .let { JobTask(it) }
+        RecoverJob(uuid, endpointInfo, jobTaskElementFactory.create(client), client).getTask()
+                .let { JobTask(it, session.sessionName) }
                 .apply {
-                    onCancelled = SafeHandler.logHandle(onCancelled(client, TYPE, LOG, loggingService, jobInterruptionStore, workers, deepStorageBrowserPresenter).andThen(refreshBehavior))
-                    onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, LOG, workers, TYPE).andThen(refreshBehavior))
+                    onCancelled = SafeHandler.logHandle(onCancelled(client, loggingService, jobInterruptionStore, deepStorageBrowserPresenter).andThen(refreshBehavior))
+                    onFailed = SafeHandler.logHandle(onFailed(client, jobInterruptionStore, deepStorageBrowserPresenter, loggingService, workers, TYPE).andThen(refreshBehavior))
                     onSucceeded = SafeHandler.logHandle(onSucceeded(TYPE, LOG).andThen(refreshBehavior))
                 }
                 .also { jobWorkers.execute(it) }

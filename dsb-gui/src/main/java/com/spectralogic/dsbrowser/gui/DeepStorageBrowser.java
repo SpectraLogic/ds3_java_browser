@@ -6,7 +6,7 @@
  *    this file except in compliance with the License. A copy of the License is located at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *    or in the "license" file accompanying this file.
  *    This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
  *    CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -17,8 +17,6 @@
 package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
-import com.spectralogic.dsbrowser.api.services.ShutdownService;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
 import com.spectralogic.dsbrowser.gui.util.ImageURLs;
 
@@ -38,26 +36,22 @@ class DeepStorageBrowser {
 
     private final ResourceBundle resourceBundle;
     private final BuildInfoService buildInfoService;
-    private final ShutdownService shutdownService;
-    private final JobWorkers jobWorkers;
+    private final CloseConfirmationHandler closeConfirmationHandler;
 
     @Inject
     DeepStorageBrowser(
             final ResourceBundle resourceBundle,
             final BuildInfoService buildInfoService,
-            final ShutdownService shutdownService,
-            final JobWorkers jobWorkers) {
+            final CloseConfirmationHandler closeConfirmationHandler) {
         this.resourceBundle = resourceBundle;
         this.buildInfoService = buildInfoService;
-        this.shutdownService = shutdownService;
-        this.jobWorkers = jobWorkers;
+        this.closeConfirmationHandler = closeConfirmationHandler;
     }
 
     void start(final Stage primaryStage) {
         LOG.info("Starting Deep Storage Browser {}", buildInfoService.getBuildVersion());
         LOG.info("  {}", buildInfoService.getBuildDateTime());
         LOG.info(getPlatformInformation());
-
         final DeepStorageBrowserView mainView = new DeepStorageBrowserView();
 
         final Scene mainScene = new Scene(mainView.getView());
@@ -80,7 +74,6 @@ class DeepStorageBrowser {
     }
 
     private void handleWindowClose(final WindowEvent event) {
-        final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
         closeConfirmationHandler.closeConfirmationAlert(event);
     }
 

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<BorderPane fx:id="window" maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.spectralogic.dsbrowser.gui.components.version.VersionPresenter">
+    <center>
+        <TableView fx:id="versions" prefHeight="200.0" prefWidth="200.0">
+            <columns>
+                <TableColumn editable="false" maxWidth="Infinity" text="Name">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="name"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn editable="false" maxWidth="Infinity" prefWidth="151.0" text="Creation Date" fx:id="created">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="created"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn editable="false" maxWidth="Infinity" prefWidth="165.0" text="Size">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="size"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn editable="false" maxWidth="Infinity" prefWidth="203.0" text="Version Id" fx:id="versionId">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="versionId"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <AnchorPane prefHeight="41.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <Button fx:id="download" layoutX="527.0" layoutY="7.0" mnemonicParsing="false" text="Download"
+                    AnchorPane.rightAnchor="14.0"/>
+        </AnchorPane>
+    </bottom>
+</BorderPane>

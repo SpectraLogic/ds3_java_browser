@@ -25,7 +25,6 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.TaskProgressView;
@@ -137,7 +136,7 @@ public final class ParseJobInterruptionMap {
     private static void setInterruptJobStatus(final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
                                               final boolean isJobInterrupted,
                                               final int size) {
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             if (isJobInterrupted) {
                 deepStorageBrowserPresenter.getNumInterruptedJobsCircle().setVisible(true);
                 deepStorageBrowserPresenter.getRecoverInterruptedJobsButton().setDisable(false);

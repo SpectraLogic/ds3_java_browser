@@ -25,11 +25,12 @@ const val peta = "PB"
 const val exa = "EB"
 val listOfPrefixs = arrayOf(bytes, kilo, mega, giga, tera, peta, exa)
 
-public fun Long.toByteRepresentation(): String {
+fun Long.toByteRepresentation(): String {
     return if (this == 0L) {
         "0 Bytes"
     } else {
         val i = Math.floor(Math.log(this.toDouble()) / Math.log(bigger))
-        "${String.format("%.2f", this / Math.pow(bigger, i))} ${listOfPrefixs[i.toInt()]}"
+        val format = if (i.toInt() == 0) "%.0f" else "%.2f"
+        "${String.format(format, this / Math.pow(bigger, i))} ${listOfPrefixs[i.toInt()]}"
     }
 }

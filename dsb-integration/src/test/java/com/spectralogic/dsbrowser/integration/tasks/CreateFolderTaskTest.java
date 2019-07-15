@@ -21,6 +21,7 @@ import com.spectralogic.ds3client.commands.spectrads3.DeleteFolderRecursivelySpe
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
 import com.spectralogic.dsbrowser.gui.components.createfolder.CreateFolderModel;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
@@ -30,13 +31,16 @@ import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -61,6 +65,10 @@ public class CreateFolderTaskTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
+
 
     @BeforeClass
     public static void setUp() {
@@ -76,7 +84,7 @@ public class CreateFolderTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
                 envStorageIds = IntegrationHelpers.setup(TEST_ENV_NAME, envDataPolicyId, client);
@@ -102,11 +110,9 @@ public class CreateFolderTaskTest {
             final CreateFolderModel createFolderModel = new CreateFolderModel(session.getClient(), CREATE_FOLDER_TASK_TEST_BUCKET_NAME, CREATE_FOLDER_TASK_TEST_BUCKET_NAME);
 
             //Instantiating create folder task
-            final CreateFolderTask createFolderTask = new CreateFolderTask(session.getClient(),
+            final CreateFolderTask createFolderTask = new CreateFolderTask(new Ds3Common(),
                     createFolderModel.getBucketName(),
-                    folderName,
-                    null,
-                    null);
+                    folderName);
             workers.execute(createFolderTask);
 
             //Validating test case

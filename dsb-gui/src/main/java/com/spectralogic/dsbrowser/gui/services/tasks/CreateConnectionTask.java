@@ -24,23 +24,35 @@ import com.spectralogic.ds3client.networking.FailedRequestUsingMgmtPortException
 import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public final class CreateConnectionTask {
-
+public class CreateConnectionTask {
     private final static Logger LOG = LoggerFactory.getLogger(CreateConnectionTask.class);
 
-    public static Session createConnection(final NewSessionModel newSessionModel,
-                                           final ResourceBundle resourceBundle,
-                                           final BuildInfoService buildInfoService) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+    private final AlertService alert;
+    private final ResourceBundle resourceBundle;
+    private final BuildInfoService buildInfoService;
+
+    @Inject
+    public CreateConnectionTask(
+            final AlertService alertService,
+            final ResourceBundle resourceBundle,
+            final BuildInfoService buildInfoService
+    ) {
+        this.alert = alertService;
+        this.resourceBundle = resourceBundle;
+        this.buildInfoService = buildInfoService;
+    }
+
+    public Session createConnection(final NewSessionModel newSessionModel, final Window window) {
         try {
             if (newSessionModel.getProxyServer() != null && newSessionModel.getProxyServer().isEmpty()) {
                 newSessionModel.setProxyServer(null);
@@ -58,32 +70,32 @@ public final class CreateConnectionTask {
                     newSessionModel.isUseSSL());
         } catch (final UnknownHostException e) {
             LOG.error("Invalid Endpoint Server Name or IP Address", e);
-            alert.error("invalidEndpointMessage");
+            alert.error("invalidEndpointMessage", window);
         } catch (final FailedRequestUsingMgmtPortException e) {
             LOG.error("Attempted data access on management port -- check endpoint", e);
-            alert.error("checkEndpoint");
+            alert.error("checkEndpoint", window);
         } catch (final FailedRequestException e) {
             if (e.getStatusCode() == 403) {
                 if (e.getError().getCode().equals("RequestTimeTooSkewed")) {
                     LOG.error("Failed To authenticate session : Client's clock is not synchronized with server's clock: ", e);
-                    alert.error("failToAuthenticateMessage");
+                    alert.error("failToAuthenticateMessage", window);
                 } else {
                     LOG.error("Invalid Access ID or Secret Key", e);
-                    alert.error("invalidIDKEYMessage");
+                    alert.error("invalidIDKEYMessage", window);
                 }
             } else if (e.getStatusCode() == 301) {
                 LOG.error("BlackPearl returned an unexpected status code, indicating we are attempting to make a data path request on the Management port", e);
-                alert.error("invalidEndpointMessage");
+                alert.error("invalidEndpointMessage", window);
             } else {
                 LOG.error("BlackPearl returned an unexpected status code", e);
-                alert.error("unexpectedStatusMessage");
+                alert.error("unexpectedStatusMessage", window);
             }
         } catch (final IOException ioe) {
             LOG.error("Encountered a networking error", ioe);
-            alert.error("networkErrorMessage");
+            alert.error("networkErrorMessage", window);
         } catch (final RuntimeException rte) {
             LOG.error("Something went wrong", rte);
-            alert.error("authenticationAlert");
+            alert.error("authenticationAlert", window);
         }
         return null;
     }

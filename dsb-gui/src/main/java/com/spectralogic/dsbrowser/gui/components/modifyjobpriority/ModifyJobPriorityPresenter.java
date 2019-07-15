@@ -20,7 +20,6 @@ import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
@@ -111,7 +110,7 @@ public class ModifyJobPriorityPresenter implements Initializable {
         modifyJobPriorityComboBoxLabel.setText(resourceBundle.getString("modifyJobPriorityComboBoxLabel"));
         yesButton.setText(resourceBundle.getString("yesButton"));
         noButton.setText(resourceBundle.getString("noButton"));
-        modifyJobPriorityComboBox.getItems().addAll(PriorityFilter.filterPriorities());
+        modifyJobPriorityComboBox.getItems().addAll(PriorityFilter.priorities);
         modifyJobPriorityComboBox.getSelectionModel().select(Priority.valueOf(value.getCurrentPriority()));
     }
 

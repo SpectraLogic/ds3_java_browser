@@ -16,6 +16,10 @@
 package com.spectralogic.dsbrowser.gui.components.settings;
 
 import com.airhacks.afterburner.views.FXMLView;
+import javafx.stage.Window;
 
 public class SettingsView extends FXMLView {
+
+    public SettingsView(final Window window) { super(name -> window);
+    }
 }

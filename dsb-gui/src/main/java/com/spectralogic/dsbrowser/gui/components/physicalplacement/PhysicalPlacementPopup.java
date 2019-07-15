@@ -15,21 +15,32 @@
 
 package com.spectralogic.dsbrowser.gui.components.physicalplacement;
 
-import com.spectralogic.ds3client.models.PhysicalPlacement;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.inject.Inject;
 import java.util.ResourceBundle;
 
-public final class PhysicalPlacementPopup {
+public class PhysicalPlacementPopup {
 
-    public static void show(final PhysicalPlacement physicalPlacement, final ResourceBundle resourceBundle) {
-        final PhysicalPlacementView view = new PhysicalPlacementView(physicalPlacement);
+    private final ResourceBundle resourceBundle;
+    private final Ds3Common ds3Common;
+
+    @Inject
+    public PhysicalPlacementPopup(final ResourceBundle resourceBundle, final  Ds3Common ds3Common) {
+        this.resourceBundle = resourceBundle;
+        this.ds3Common = ds3Common;
+    }
+
+    public void show(final PhysicalPlacementModel physicalPlacementModel) {
+        final PhysicalPlacementView view = new PhysicalPlacementView(physicalPlacementModel);
 
         final Stage popup = new Stage();
+        popup.initOwner(ds3Common.getWindow());
         popup.initModality(Modality.APPLICATION_MODAL);
         final Scene popupScene = new Scene(view.getView());
         popup.getIcons().add(new Image(StringConstants.DSB_ICON_PATH));

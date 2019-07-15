@@ -27,16 +27,17 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3GetDataPoliciesTask;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.RefreshCompleteViewWorker;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -44,17 +45,44 @@ public final class CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateService.class);
 
-    public static void createBucketPrompt(final Ds3Common ds3Common,
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final LoggingService loggingService;
+    private final ResourceBundle resourceBundle;
+    private final Ds3PanelService ds3PanelService;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final AlertService alert;
+    private final CreateBucketPopup createBucketPopup;
+    private final CreateFolderPopup createFolderPopup;
+
+    @Inject
+    public CreateService(
+            final Ds3Common ds3Common,
             final Workers workers,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
-            final ResourceBundle resourceBundle) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+            final ResourceBundle resourceBundle,
+            final Ds3PanelService ds3PanelService,
+            final AlertService alertService,
+            final CreateBucketPopup createBucketPopup,
+            final CreateFolderPopup createFolderPopup,
+            final RefreshCompleteViewWorker refreshCompleteViewWorker) {
+       this.ds3Common = ds3Common;
+       this.workers = workers;
+       this.loggingService = loggingService;
+       this.resourceBundle = resourceBundle;
+       this.ds3PanelService = ds3PanelService;
+       this.refreshCompleteViewWorker = refreshCompleteViewWorker;
+       this.alert = alertService;
+       this.createBucketPopup = createBucketPopup;
+       this.createFolderPopup = createFolderPopup;
+    }
+
+    public void createBucketPrompt(final Window window) {
         LOG.debug("Create Bucket Prompt");
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("Invalid Session");
-            alert.error("invalidSession");
+            alert.error("invalidSession", window);
             return;
         }
         loggingService.logMessage(resourceBundle.getString("fetchingDataPolicies"), LogType.INFO);
@@ -63,45 +91,42 @@ public final class CreateService {
             final Optional<CreateBucketWithDataPoliciesModel> value = (Optional<CreateBucketWithDataPoliciesModel>) getDataPoliciesTask.getValue();
             if (value.isPresent()) {
                 LOG.info("Launching create bucket popup {}", value.get().getDataPolicies().size());
-                Platform.runLater(() -> {
-                    CreateBucketPopup.show(value.get(), resourceBundle);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                UIThreadUtil.runInFXThread(() -> {
+                    createBucketPopup.show(value.get(), window);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                 });
             } else {
                 LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-                alert.error("dataPolicyNotFoundErr");
+                alert.error("dataPolicyNotFoundErr", window);
             }
         }));
         getDataPoliciesTask.setOnFailed(SafeHandler.logHandle(taskEvent -> {
             LOG.error("No DataPolicies found on [{}]", session.getEndpoint());
-            alert.error("dataPolicyNotFoundErr");
+            alert.error("dataPolicyNotFoundErr", window);
         }));
         workers.execute(getDataPoliciesTask);
     }
 
-    public static void createFolderPrompt(
-            final Ds3Common ds3Common,
-            final LoggingService loggingService,
-            final ResourceBundle resourceBundle) {
+    public void createFolderPrompt(final Window window) {
         ImmutableList<TreeItem<Ds3TreeTableValue>> values = ds3Common.getDs3TreeTableView().getSelectionModel().getSelectedItems()
-                .stream().collect(GuavaCollectors.immutableList());
+                .stream()
+                .collect(GuavaCollectors.immutableList());
         final TreeItem<Ds3TreeTableValue> root = ds3Common.getDs3TreeTableView().getRoot();
-        final LazyAlert alert = new LazyAlert(resourceBundle);
 
         if (values.stream().map(TreeItem::getValue).anyMatch(Ds3TreeTableValue::isSearchOn)) {
             LOG.info("You can not create folder here. Please refresh your view");
-            alert.info("cantCreateFolderHere");
+            alert.info("cantCreateFolderHere", window);
             return;
         } else if (values.isEmpty() && root != null && root.getValue() != null) {
             final ImmutableList.Builder<TreeItem<Ds3TreeTableValue>> builder = ImmutableList.builder();
             values = builder.add(root).build();
         } else if (values.isEmpty()) {
             loggingService.logMessage(resourceBundle.getString("selectLocation"), LogType.ERROR);
-            alert.info("locationNotSelected");
+            alert.info("locationNotSelected", window );
             return;
         } else if (values.size() > 1) {
             LOG.info("Only a single location can be selected to create empty folder");
-            alert.info("selectSingleLocation");
+            alert.info("selectSingleLocation", window);
             return;
         }
 
@@ -116,10 +141,11 @@ public final class CreateService {
                     .map(Ds3TreeTableValue::getBucketName)
                     .distinct().collect(GuavaCollectors.immutableList());
             final Optional<String> bucketElement = buckets.stream().findFirst();
-            bucketElement.ifPresent(bucket -> CreateFolderPopup.show(
-                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), resourceBundle));
+            bucketElement.ifPresent(bucket -> createFolderPopup.show(
+                    new CreateFolderModel(ds3Common.getCurrentSession().getClient(), destinationDirectory, bucket), window));
 
-            Ds3PanelService.refresh(ds3TreeTableValueTreeItem);
+            ds3PanelService.refresh(ds3TreeTableValueTreeItem);
+            ds3Common.getDs3TreeTableView().getSelectionModel().clearSelection();
         }
     }
 

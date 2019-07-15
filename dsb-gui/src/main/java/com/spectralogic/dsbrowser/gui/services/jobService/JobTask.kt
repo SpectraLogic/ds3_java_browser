@@ -16,7 +16,6 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 
 import com.github.thomasnield.rxkotlinfx.observeOnFx
 import com.spectralogic.ds3client.Ds3Client
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter
@@ -29,12 +28,16 @@ import io.reactivex.rxjavafx.schedulers.JavaFxScheduler
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.concurrent.WorkerStateEvent
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.launch
 import org.slf4j.Logger
-import java.io.IOException
-import java.util.*
-import java.util.function.Supplier
+import org.slf4j.LoggerFactory
+import java.util.UUID
 
-class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
+class JobTask(private val wrappedJob: JobFacade, sessionName: String) : Ds3JobTask(sessionName) {
+    private companion object {
+        private val LOG = LoggerFactory.getLogger(JobTask::class.java)
+    }
     @Throws(Throwable::class)
     override fun executeJob() {
         ds3Client = wrappedJob.getDs3Client()
@@ -63,56 +66,59 @@ class JobTask(private val wrappedJob: JobFacade) : Ds3JobTask() {
                 .doOnNext { visible: Boolean -> isVisible.set(visible) }
                 .subscribe()
 
-        wrappedJob.finishedCompletable(Supplier { isCancelled }).blockingAwait()
+        wrappedJob.finishedCompletable().blockingAwait()
     }
 
     override fun getJobId(): UUID? = wrappedJob.jobUUID()
 
-    public val isVisible: BooleanProperty = SimpleBooleanProperty(true)
+    val isVisible: BooleanProperty = SimpleBooleanProperty(true)
 
-    public fun onCancelled(client: Ds3Client,
-                           type: String,
-                           log: Logger,
-                           loggingService: LoggingService,
-                           jobInterruptionStore: JobInterruptionStore,
-                           workers: Workers,
-                           deepStorageBrowserPresenter: DeepStorageBrowserPresenter): (WorkerStateEvent) -> Unit = {
-        jobId.exists {
-            workers.execute {
-                try {
-                    client.cancelJobSpectraS3(CancelJobSpectraS3Request(it))
-                    log.info("{} Job cancelled", type)
-                    loggingService.logMessage("$type Job Cancelled", LogType.INFO)
-                } catch (e: Throwable) {
-                    log.error("Failed to cancel $type job", e)
-                    loggingService.logMessage("Could not cancel $type job", LogType.ERROR)
-                }
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+    fun onCancelled(
+        client: Ds3Client,
+        loggingService: LoggingService,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter
+    ): (WorkerStateEvent) -> Unit = {
+        jobId.exists { uuid ->
+            ParseJobInterruptionMap.removeJobID(jobInterruptionStore, uuid.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
             }
-        }
     }
 
-    fun onFailed(client: Ds3Client,
-                 jobInterruptionStore: JobInterruptionStore,
-                 deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
-                 loggingService: LoggingService,
-                 log: Logger,
-                 workers: Workers,
-                 type: String): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
+    fun onFailed(
+        client: Ds3Client,
+        jobInterruptionStore: JobInterruptionStore,
+        deepStorageBrowserPresenter: DeepStorageBrowserPresenter,
+        loggingService: LoggingService,
+        workers: Workers,
+        type: String
+    ): (WorkerStateEvent) -> Unit = { worker: WorkerStateEvent ->
         val throwable: Throwable = worker.source.exception
-        jobId.exists {
-            workers.execute {
-                ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+        try {
+            jobId.exists {
+                workers.execute {
+                    ParseJobInterruptionMap.removeJobID(jobInterruptionStore, it.toString(), client.connectionDetails.endpoint, deepStorageBrowserPresenter, loggingService)
+                }
             }
+        } catch (t: Throwable) {
+            LOG.error("Unable to look up JobId, it probably was in a bad state", t)
         }
-        log.error("$type Job failed", throwable)
+        LOG.error("$type Job failed", throwable)
         loggingService.logMessage("$type Job failed with message: ${throwable.message}", LogType.ERROR)
     }
 
     fun JobTask.onSucceeded(type: String, log: Logger): (WorkerStateEvent) -> Unit = {
         log.info("$type Job completed successfully")
     }
-
-    fun JobTask.onRunning() = { _: WorkerStateEvent -> }
     fun JobTask.onScheduled() = { _: WorkerStateEvent -> }
+
+    override fun cancelled() {
+        LOG.info("Got a cancelled event")
+        GlobalScope.launch {
+            wrappedJob.cancel()
+        }
+    }
+
+    fun awaitCancel() {
+        wrappedJob.cancel()
+    }
 }

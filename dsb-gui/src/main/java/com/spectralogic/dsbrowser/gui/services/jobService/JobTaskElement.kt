@@ -22,17 +22,19 @@ import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionSt
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
-import java.util.*
+import java.util.ResourceBundle
 import javax.inject.Inject
 
-data class JobTaskElement @Inject constructor(val settingsStore: SettingsStore,
-                                              val loggingService: LoggingService,
-                                              val dateTimeUtils: DateTimeUtils,
-                                              @Assisted val client: Ds3Client,
-                                              val jobInterruptionStore: JobInterruptionStore,
-                                              val savedJobPrioritiesStore: SavedJobPrioritiesStore,
-                                              val resourceBundle: ResourceBundle) {
-    public interface JobTaskElementFactory {
+data class JobTaskElement @Inject constructor(
+    val settingsStore: SettingsStore,
+    val loggingService: LoggingService,
+    val dateTimeUtils: DateTimeUtils,
+    @Assisted val client: Ds3Client,
+    val jobInterruptionStore: JobInterruptionStore,
+    val savedJobPrioritiesStore: SavedJobPrioritiesStore,
+    val resourceBundle: ResourceBundle
+) {
+    interface JobTaskElementFactory {
         fun create(client: Ds3Client): JobTaskElement
     }
 }

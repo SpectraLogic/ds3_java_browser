@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui.services.savedSessionStore;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spectralogic.dsbrowser.api.services.BuildInfoService;
 import com.spectralogic.dsbrowser.gui.services.newSessionService.SessionModelService;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -27,6 +26,7 @@ import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,33 +41,24 @@ import java.util.*;
 
 public class SavedSessionStore {
     private final static Logger LOG = LoggerFactory.getLogger(SavedSessionStore.class);
-    private final static Path PATH = Paths.get(System.getProperty(StringConstants.SETTING_FILE_PATH), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
+    private final static Path PATH = Paths.get(System.getProperty(StringConstants.USER_HOME), StringConstants.SETTING_FILE_FOLDER_NAME, StringConstants.SESSIONS_STORE);
     private final ObservableList<SavedSession> sessions;
-    private final ResourceBundle resourceBundle;
-    private final BuildInfoService buildInfoService;
     private boolean dirty = false;
 
-    private SavedSessionStore(final List<SavedSession> sessionList,
-            final ResourceBundle resourceBundle,
-            final BuildInfoService buildInfoService) {
+    private SavedSessionStore(final List<SavedSession> sessionList) {
         this.sessions = FXCollections.observableArrayList(sessionList);
         this.sessions.addListener((ListChangeListener<SavedSession>) c -> {
             if (c.next() && (c.wasAdded() || c.wasRemoved())) {
                 dirty = true;
             }
         });
-
-        this.resourceBundle = resourceBundle;
-        this.buildInfoService = buildInfoService;
     }
 
-    public static SavedSessionStore empty(final ResourceBundle resourceBundle,
-            final BuildInfoService buildInfoService) {
-        return new SavedSessionStore(new ArrayList<>(), resourceBundle, buildInfoService);
+    public static SavedSessionStore empty() {
+        return new SavedSessionStore(new ArrayList<>());
     }
 
-    public static SavedSessionStore loadSavedSessionStore(final ResourceBundle resourceBundle,
-            final BuildInfoService buildInfoService) throws IOException {
+    public static SavedSessionStore loadSavedSessionStore() throws IOException {
         final List<SavedSession> sessions;
         if (Files.exists(PATH)) {
             try (final InputStream inputStream = Files.newInputStream(PATH)) {
@@ -78,7 +69,7 @@ public class SavedSessionStore {
             LOG.info("Creating new empty saved session store");
             sessions = new ArrayList<>();
         }
-        return new SavedSessionStore(sessions, resourceBundle, buildInfoService);
+        return new SavedSessionStore(sessions);
     }
 
     public static void saveSavedSessionStore(final SavedSessionStore sessionStore) throws IOException {
@@ -128,18 +119,18 @@ public class SavedSessionStore {
     }
 
     //open default session when DSB launched
-    public void openDefaultSession(final Ds3SessionStore store) {
+    public void openDefaultSession(final Ds3SessionStore store, final CreateConnectionTask createConnectionTask, final Window window) {
         getSessions().stream()
                 .filter(Objects::nonNull)
                 .filter(SavedSession::getDefaultSession)
                 .findFirst()
-                .ifPresent(savedSession -> connectToDefaultSession(store, savedSession, resourceBundle, buildInfoService));
+                .ifPresent(savedSession -> connectToDefaultSession(store, savedSession, createConnectionTask, window));
     }
 
-    private static void connectToDefaultSession(final Ds3SessionStore store, final SavedSession savedSession, final ResourceBundle resourceBundle, final BuildInfoService buildInfoService) {
+    private static void connectToDefaultSession(final Ds3SessionStore store, final SavedSession savedSession, final CreateConnectionTask createConnectionTask, final Window window) {
         store.addSession(
-                CreateConnectionTask.createConnection(
-                        SessionModelService.setSessionModel(savedSession, true), resourceBundle, buildInfoService));
+                createConnectionTask.createConnection(
+                        SessionModelService.setSessionModel(savedSession, true), window));
     }
 
     public static class SerializedSessionStore {

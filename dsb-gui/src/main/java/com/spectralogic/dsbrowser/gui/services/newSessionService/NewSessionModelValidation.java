@@ -17,32 +17,38 @@ package com.spectralogic.dsbrowser.gui.services.newSessionService;
 
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.components.validation.SessionValidation;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
-import com.spectralogic.dsbrowser.gui.util.ResourceBundleProperties;
-import javafx.scene.control.Alert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
+import javafx.stage.Window;
 
-import java.util.ResourceBundle;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public final class NewSessionModelValidation {
-    private static final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+@Singleton
+public class NewSessionModelValidation {
+    private final AlertService alert;
+
+    @Inject
+    public NewSessionModelValidation(final AlertService alert) {
+        this.alert = alert;
+    }
+
     public static final String ERROR = "Error";
 
-    public static boolean validationNewSession(final NewSessionModel model) {
-        final LazyAlert alert = new LazyAlert(resourceBundle);
+    public boolean validationNewSession(final NewSessionModel model, final Window window) {
         if (!SessionValidation.checkStringEmptyNull(model.getSessionName())) {
-            alert.error("enterSession");
+            alert.error("enterSession", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getEndpoint())) {
-            alert.error("enterDataPathAddress");
+            alert.error("enterDataPathAddress", window);
             return false;
         } else if (!SessionValidation.validatePort(model.getPortNo().trim())) {
-            alert.error("enterValidPort");
+            alert.error("enterValidPort", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getAccessKey())) {
-            alert.error("enterAccessKey");
+            alert.error("enterAccessKey", window);
             return false;
         } else if (!SessionValidation.checkStringEmptyNull(model.getSecretKey())) {
-            alert.error("enterSecretKey");
+            alert.error("enterSecretKey", window);
             return false;
         }
         return true;

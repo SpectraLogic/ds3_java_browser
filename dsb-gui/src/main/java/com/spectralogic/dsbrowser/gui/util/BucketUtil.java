@@ -135,10 +135,6 @@ public final class BucketUtil {
     }
 
     static String pluralize(final long count, final ResourceBundle resourceBundle, final String one, final String many) {
-        if (count == 1) {
-            return count + " " + resourceBundle.getString(one);
-        } else {
-            return count + " " + resourceBundle.getString(many);
-        }
+        return count + " " + resourceBundle.getString(count == 1 ? one : many);
     }
 }

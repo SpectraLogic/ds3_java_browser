@@ -24,7 +24,7 @@ import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
+import java.util.UUID
 
 class RecoverJob(private val jobID: UUID, private val endpoint: EndpointInfo, private val jobTaskElement: JobTaskElement, val client: Ds3Client) {
 

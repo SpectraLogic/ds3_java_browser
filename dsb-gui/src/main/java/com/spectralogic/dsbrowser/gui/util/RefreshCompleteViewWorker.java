@@ -33,27 +33,46 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Optional;
 
-public final class RefreshCompleteViewWorker {
+public class RefreshCompleteViewWorker {
+
     private final static Logger LOG = LoggerFactory.getLogger(RefreshCompleteViewWorker.class);
 
-    public static void refreshCompleteTreeTableView(final Ds3Common ds3Common, final Workers workers, final DateTimeUtils dateTimeUtils, final LoggingService loggingService) {
+    private final Ds3Common ds3Common;
+    private final Workers workers;
+    private final DateTimeUtils dateTimeUtils;
+    private final LoggingService loggingService;
+
+    @Inject
+    public RefreshCompleteViewWorker(
+            final Ds3Common ds3Common,
+            final Workers workers,
+            final DateTimeUtils dateTimeUtils,
+            final LoggingService loggingService
+    ) {
+       this.dateTimeUtils = dateTimeUtils;
+       this.ds3Common = ds3Common;
+       this.workers = workers;
+       this.loggingService = loggingService;
+    }
+
+    public void refreshCompleteTreeTableView() {
         final Session session = ds3Common.getCurrentSession();
         if (session != null && ds3Common.getCurrentTabPane() != null) {
             loggingService.logMessage("Refreshing session " + session.getSessionName() +
                     StringConstants.SESSION_SEPARATOR +
                     session.getEndpoint(), LogType.INFO);
-            @SuppressWarnings("unchecked") final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView(ds3Common);
+            @SuppressWarnings("unchecked") final TreeTableView<Ds3TreeTableValue> ds3TreeTableView = getTreeTableView();
             final Ds3PanelPresenter ds3PanelPresenter = ds3Common.getDs3PanelPresenter();
-            final Label ds3PathIndicator = ds3PanelPresenter.getDs3PathIndicator();
             if (ds3TreeTableView != null && ds3TreeTableView.getColumns() != null) {
                 final TreeItem<Ds3TreeTableValue> selectedRoot = ds3TreeTableView.getRoot();
                 final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel = ds3TreeTableView.getSelectionModel();
                 if (selectedRoot != null && selectedRoot.getValue() != null && selectedRoot.getParent() != null) {
-                    refreshCurrentView(ds3Common, ds3TreeTableView, ds3PanelPresenter, selectedRoot, selectionModel);
+                    refreshCurrentView(ds3TreeTableView, ds3PanelPresenter, selectedRoot, selectionModel);
                 } else {
-                    refreshBpRootView(ds3Common, workers, dateTimeUtils, loggingService, session, ds3TreeTableView, ds3PathIndicator, selectedRoot, selectionModel);
+                    refreshBpRootView(session, ds3TreeTableView, selectedRoot, selectionModel);
                 }
             } else {
                 LOG.info("TreeView is null");
@@ -61,7 +80,7 @@ public final class RefreshCompleteViewWorker {
         }
     }
 
-    private static void refreshBpRootView(final Ds3Common ds3Common, final Workers workers, final DateTimeUtils dateTimeUtils, final LoggingService loggingService, final Session session, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Label ds3PathIndicator, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
+    private void refreshBpRootView(final Session session, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
         if (selectedRoot != null && selectedRoot.getParent() == null) {
             LOG.warn("Parent folder no longer existed, redirecting to the root of the tree");
         }
@@ -72,7 +91,7 @@ public final class RefreshCompleteViewWorker {
             ds3TreeTableView.setRoot(rootTreeItem);
             final String key = session.getSessionName() + StringConstants.SESSION_SEPARATOR + session.getEndpoint();
             if (ds3Common.getExpandedNodesInfo().containsKey(key)) {
-                expandNodes(ds3Common, session, selectionModel, children, key);
+                expandNodes(session, selectionModel, children, key);
             }
         }));
         getServiceTask.setOnFailed(SafeHandler.logHandle(event -> {
@@ -83,15 +102,14 @@ public final class RefreshCompleteViewWorker {
         workers.execute(getServiceTask);
     }
 
-    private static void refreshCurrentView(final Ds3Common ds3Common, final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Ds3PanelPresenter ds3PanelPresenter, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
+    private void refreshCurrentView(final TreeTableView<Ds3TreeTableValue> ds3TreeTableView, final Ds3PanelPresenter ds3PanelPresenter, final TreeItem<Ds3TreeTableValue> selectedRoot, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel) {
         selectionModel.clearSelection();
         ds3TreeTableView.setRoot(selectedRoot);
         selectionModel.select(selectedRoot);
         ((Ds3TreeTableItem) selectedRoot).refresh();
-        ds3PanelPresenter.calculateFiles(ds3TreeTableView);
     }
 
-    private static void expandNodes(final Ds3Common ds3Common, final Session session, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel, final ObservableList<TreeItem<Ds3TreeTableValue>> children, final String key) {
+    private void expandNodes(final Session session, final TreeTableView.TreeTableViewSelectionModel<Ds3TreeTableValue> selectionModel, final ObservableList<TreeItem<Ds3TreeTableValue>> children, final String key) {
         final TreeItem<Ds3TreeTableValue> item = ds3Common.getExpandedNodesInfo().get(key);
         final String bucketName = item.getValue().getBucketName();
         children.forEach(treeItem ->
@@ -114,7 +132,7 @@ public final class RefreshCompleteViewWorker {
 
 
     @SuppressWarnings("unchecked")
-    private static TreeTableView<Ds3TreeTableValue> getTreeTableView(final Ds3Common ds3Common) {
+    private TreeTableView<Ds3TreeTableValue> getTreeTableView() {
         final TabPane ds3SessionTabPane = ds3Common.getCurrentTabPane();
         if (null != ds3SessionTabPane) {
             try {

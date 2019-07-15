@@ -17,7 +17,7 @@ package com.spectralogic.dsbrowser.gui.util
 
 import com.spectralogic.dsbrowser.util.andThen
 import com.spectralogic.dsbrowser.util.exists
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class FunctionalExtensionsTest {
@@ -78,5 +78,4 @@ class FunctionalExtensionsTest {
         assertThat(f).isTrue()
         assertThat(c).isEqualTo(3)
     }
-
 }

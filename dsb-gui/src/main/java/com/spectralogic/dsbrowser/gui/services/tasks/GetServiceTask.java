@@ -28,7 +28,6 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -86,7 +85,7 @@ public class GetServiceTask extends Ds3Task {
                     }).sorted(Comparator.comparing(b -> b.getName().toLowerCase())).collect(GuavaCollectors.immutableList());
 
             loggingService.logMessage(resourceBundle.getString("receivedBucketList"), LogType.SUCCESS);
-            Platform.runLater(() -> {
+            UIThreadUtil.runInFXThread(() -> {
                 if (null != ds3Common) {
                     if (null != ds3Common.getDeepStorageBrowserPresenter() && null != ds3Common.getDs3PanelPresenter()) {
                         ds3Common.getDs3PanelPresenter().disableSearch(false);

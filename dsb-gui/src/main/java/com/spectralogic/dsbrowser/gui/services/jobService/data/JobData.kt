@@ -22,8 +22,7 @@ import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
 import javafx.beans.property.BooleanProperty
 import java.nio.file.Path
 import java.time.Instant
-import java.util.*
-import java.util.function.Supplier
+import java.util.UUID
 
 interface JobData {
     fun getStartTime(): Instant
@@ -38,14 +37,12 @@ interface JobData {
     fun showCachedJobProperty(): BooleanProperty
     fun saveJob(jobSize: Long)
     fun removeJob()
-    fun modifyJob(job :Ds3ClientHelpers.Job)
+    fun modifyJob(job: Ds3ClientHelpers.Job)
     fun internationalize(labelName: String): String
     fun client(): Ds3Client
     fun runningTitle(): String
-    var job: Ds3ClientHelpers.Job?
+    val job: Ds3ClientHelpers.Job
     val bucket: String
     var prefixMap: MutableMap<String, Path>
-    public var lastFile: String
-    public var jobId: UUID?
-    public var cancelled: Supplier<Boolean>?
+    val jobId: UUID
 }

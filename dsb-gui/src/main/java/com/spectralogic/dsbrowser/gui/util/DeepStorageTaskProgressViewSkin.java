@@ -48,9 +48,12 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
         SkinBase<TaskProgressView<T>> {
 
     private final ResourceBundle resourceBundle = ResourceBundleProperties.getResourceBundle();
+    private final Ds3Alert ds3Alert;
 
-    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor, final BooleanProperty showCache) {
+    public DeepStorageTaskProgressViewSkin(final TaskProgressView<T> monitor, final BooleanProperty showCache, final Ds3Alert ds3Alert) {
         super(monitor);
+
+        this.ds3Alert = ds3Alert;
 
         final BorderPane borderPane = new BorderPane();
         borderPane.getStyleClass().add("box");
@@ -162,9 +165,9 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
                 } else {
                     /*
                      * Really needed. The application might have used a graphic
-                	 * factory before and then disabled it. In this case the border
-                	 * pane might still have an old graphic in the left position.
-                	 */
+                     * factory before and then disabled it. In this case the border
+                     * pane might still have an old graphic in the left position.
+                     */
                     borderPane.setLeft(null);
                 }
 
@@ -174,20 +177,22 @@ public class DeepStorageTaskProgressViewSkin<T extends Task<?>> extends
     }
 
     private void hideTask(final T task, final TaskCell tc) {
-        if (task != null && task instanceof JobTask) {
+        if (task instanceof JobTask) {
             tc.visibleProperty().set(((JobTask) task).isVisible().getValue());
         }
     }
 
     private void popupCancelTask(final T task, final ActionEvent evt) {
-        final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
-        if (closeResponse.get().equals(ButtonType.OK)) {
-            if (task != null) {
-                task.cancel();
+        final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(resourceBundle.getString("confirmation"), resourceBundle.getString("aJobWillBeCancelled"), Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancelSingleJob"), resourceBundle.getString("exitBtnJobCancelConfirm"), resourceBundle.getString("cancelBtnJobCancelConfirm"));
+        closeResponse.ifPresent(buttonType -> {
+            if(buttonType.equals(ButtonType.OK)) {
+                if (task != null) {
+                    task.cancel();
+                } else if (buttonType.equals(ButtonType.CANCEL)) {
+                    evt.consume();
+                }
             }
-        } else if (closeResponse.get().equals(ButtonType.CANCEL)) {
-            evt.consume();
-        }
+        });
     }
 
 }

@@ -24,14 +24,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
         classpath "com.netflix.nebula:gradle-ospackage-plugin:4.6.0"
     }
 }
 
 /*As a workaround mainClassName must be set before shadowJar is applied
   Otherwise shadow:2.0.2 displays the following error:
-  A problem was found with the configuration of task ':dsb-gui:shadowJar'.
+  A problem was found with the configuration of task ':dsb-gui:shadowJare.
   Registering invalid inputs and outputs via TaskInputs and TaskOutputs methods has been deprecated and is scheduled to be removed in Gradle 5.0.
  - No value has been specified for property 'mainClassName'.
  */
@@ -45,7 +45,7 @@ apply plugin: "nebula.ospackage"
 dependencies {
     compile project(":dsb-api")
     compile project(":dsb-util")
-    compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.0.5'
+    compile group: 'io.github.lukehutch', name: 'fast-classpath-scanner', version: '2.21'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
 }
 
@@ -73,16 +73,17 @@ classes.dependsOn genConfigProperties
 
 ospackage {
     packageName = 'eonbrowser'
-    version = '2.1.5'
-    release = '3'
+    version = "$project.version"
+    release = '1'
     os = LINUX
 
     from(distTar.outputs.files) {
         into '/opt/eonbrowser'
     }
-    postInstall('tar xf /opt/eonbrowser/dsb-gui-2.1.5.tar -C /opt/eonbrowser/')
-    postInstall('ln -s  /opt/eonbrowser/dsb-gui-2.1.5/bin/dsb-gui /sbin/eonbrowser')
+    postInstall("tar xf /opt/eonbrowser/dsb-gui-${version}.tar -C /opt/eonbrowser/")
+    postInstall("ln -s  /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui /usr/local/bin/eonbrowser")
     preUninstall('unlink /sbin/eonbrowser')
+    preUninstall('unlink /usr/local/bin/eonbrowser')
     preUninstall('rm -rf /opt/eonbrowser/*')
 
 }
@@ -101,5 +102,18 @@ buildDeb {
     requires('openjdk-8-jre')
     requires('libopenjfx-java')
     requires('openjfx')
+}
+
+task copyDependencies(type: Copy, dependsOn: [assemble]) {
+    destinationDir libsDir
+    from configurations.runtime
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': mainClassName
+        )
+    }
 }
 

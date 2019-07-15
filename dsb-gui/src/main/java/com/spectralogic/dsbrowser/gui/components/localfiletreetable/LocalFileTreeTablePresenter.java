@@ -17,8 +17,6 @@ package com.spectralogic.dsbrowser.gui.components.localfiletreetable;
 
 import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
-import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
@@ -28,27 +26,14 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableItem;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValueCustom;
-import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.EndpointInfo;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.ds3Panel.SortPolicyCallback;
-import com.spectralogic.dsbrowser.gui.services.jobService.GetJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
-import com.spectralogic.dsbrowser.gui.services.jobService.PutJob;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.GetJobData;
-import com.spectralogic.dsbrowser.gui.services.jobService.data.PutJobData;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.GetJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.PutJobFactory;
-import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.*;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -58,12 +43,14 @@ import javafx.scene.control.*;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
 import javafx.util.Pair;
 import kotlin.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -71,17 +58,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
-
+@Singleton
 @Presenter
 public class LocalFileTreeTablePresenter implements Initializable {
 
     private final static Logger LOG = LoggerFactory.getLogger(LocalFileTreeTablePresenter.class);
+    private static final String LOCAL = "local";
 
     @FXML
     private TreeTableView<FileTreeModel> treeTable;
 
     @FXML
     private TreeTableColumn<FileTreeModel, Number> sizeColumn;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, String> dateModified;
+
+    @FXML
+    private TreeTableColumn<FileTreeModel, String> nameColumn;
 
     @FXML
     private Button homeButton, refreshButton, toMyComputer, transferButton, parentDirectoryButton, createFolderButton;
@@ -97,18 +91,15 @@ public class LocalFileTreeTablePresenter implements Initializable {
     private final FileTreeTableProvider fileTreeTableProvider;
     private final DataFormat dataFormat;
     private final Workers workers;
-    private final JobWorkers jobWorkers;
-    private final JobInterruptionStore jobInterruptionStore;
-    private final EndpointInfo endpointInfo;
     private final LoggingService loggingService;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
+    private final DataFormat local = new DataFormat(LOCAL);
+    private final AlertService alert;
     private final DateTimeUtils dateTimeUtils;
-    private final DataFormat local = new DataFormat("local");
-    private final LazyAlert alert;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private final SettingsStore settingsStore;
     private final PutJobFactory putJobFactory;
     private final GetJobFactory getJobFactory;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory;
+    private final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory;
 
     private String fileRootItem = StringConstants.ROOT_LOCATION;
 
@@ -120,32 +111,27 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final FileTreeTableProvider fileTreeTableProvider,
             final DataFormat dataFormat,
             final Workers workers,
-            final JobWorkers jobWorkers,
-            final JobInterruptionStore jobInterruptionStore,
-            final EndpointInfo endpointInfo,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-            final SettingsStore settingsStore,
             final PutJobFactory putJobFactory,
+            final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory,
             final GetJobFactory getJobFactory,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final DateTimeUtils dateTimeUtils,
+            final AlertService alertService,
+            final GetMediaDeviceTask.GetMediaDeviceTaskFactory getMediaDeviceTaskFactory) {
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
-        this.settingsStore = settingsStore;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.dateTimeUtils = dateTimeUtils;
         this.fileTreeTableProvider = fileTreeTableProvider;
         this.dataFormat = dataFormat;
         this.workers = workers;
-        this.jobWorkers = jobWorkers;
-        this.jobInterruptionStore = jobInterruptionStore;
-        this.endpointInfo = endpointInfo;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
+        this.fileTreeTableItemFactory = fileTreeTableItemFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
         this.putJobFactory = putJobFactory;
         this.getJobFactory = getJobFactory;
-        this.alert = new LazyAlert(resourceBundle);
+        this.getMediaDeviceTaskFactory = getMediaDeviceTaskFactory;
+        this.alert = alertService;
     }
 
     @Override
@@ -179,6 +165,8 @@ public class LocalFileTreeTablePresenter implements Initializable {
             setDragDropEvent(null, event);
             event.consume();
         }));
+        dateModified.setComparator(Comparator.comparing(dateTimeUtils::stringAsDate));
+        nameColumn.setComparator(Comparator.comparing(String::toLowerCase));
         treeTable.setRowFactory(view -> {
                     final TreeTableRow<FileTreeModel> row = new TreeTableRow<>();
                     final List<String> rowNameList = new ArrayList<>();
@@ -260,7 +248,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void initListeners() {
         refreshButton.setOnAction(SafeHandler.logHandle(event -> refreshFileTreeView()));
-        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.SETTING_FILE_PATH))));
+        homeButton.setOnAction(SafeHandler.logHandle(event -> changeRootDir(System.getProperty(StringConstants.USER_HOME))));
         toMyComputer.setOnAction(SafeHandler.logHandle(event -> changeRootDir(StringConstants.ROOT_LOCATION)));
         transferButton.setOnAction(SafeHandler.logHandle(event -> transferToBlackPearl()));
         parentDirectoryButton.setOnAction(SafeHandler.logHandle(event -> goToParentDirectory()));
@@ -269,11 +257,12 @@ public class LocalFileTreeTablePresenter implements Initializable {
 
     private void createFolder() {
         if (fileRootItem.equals("My Computer")) {
-            alert.error("specifyDirectory");
+            alert.error("specifyDirectory", getWindow());
             return;
         }
         final Path rootPath = Paths.get(fileRootItem);
         final TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.initOwner(ds3Common.getWindow());
         inputDialog.setContentText(resourceBundle.getString("createLocalFolder"));
         inputDialog.setGraphic(null);
         inputDialog.setHeaderText(StringConstants.EMPTY_STRING);
@@ -282,14 +271,29 @@ public class LocalFileTreeTablePresenter implements Initializable {
         if (results.isPresent()) {
             final String folderName = results.get();
             if (Guard.isStringNullOrEmpty(folderName)) {
-                alert.error("cannotCreateFolderWithoutName");
+                alert.error("cannotCreateFolderWithoutName", getWindow());
                 return;
             }
             try {
-                Files.createDirectories(rootPath.resolve(folderName));
+                final Path path;
+                final ObservableList<TreeItem<FileTreeModel>> selectedItems = ds3Common.getLocalTreeTableView().getSelectionModel().getSelectedItems();
+                if(selectedItems.isEmpty()) {
+                    path = rootPath.resolve(folderName);
+                } else if (selectedItems.size() == 1) {
+                    final FileTreeModel fileTreeModel = selectedItems.get(0).getValue();
+                    if (fileTreeModel.getType() == BaseTreeModel.Type.Directory) {
+                        path = fileTreeModel.getPath().resolve(folderName);
+                    } else {
+                        path = fileTreeModel.getPath().getParent().resolve(folderName);
+                    }
+                } else {
+                   alert.error("tooManyItemsSelected", getWindow());
+                   return;
+                }
+                Files.createDirectories(path);
                 refreshFileTreeView();
             } catch (final IOException e) {
-                alert.error("couldNotCreateLocalDirectory");
+                alert.error("couldNotCreateLocalDirectory", getWindow());
                 loggingService.logMessage(resourceBundle.getString("couldNotCreateLocalDirectory"), LogType.ERROR);
                 LOG.error("Could not create directory in " + rootPath.toString(), LogType.ERROR);
             }
@@ -297,8 +301,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void initProgressAndPathIndicators() {
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
-        localPathIndicator.setText(StringConstants.ROOT_LOCATION);
+        final String userHome = System.getProperty(StringConstants.USER_HOME);
+        fileRootItem = userHome;
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(userHome);
+        localPathIndicator.setText(userHome);
         final Node oldPlaceHolder = treeTable.getPlaceholder();
         final ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(Constants.PROGRESS_BAR_SIZE, Constants.PROGRESS_BAR_SIZE);
@@ -306,7 +312,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        Platform.runLater(() -> {
+        UIThreadUtil.runInFXThread(() -> {
             startMediaTask(rootItems, rootTreeItem, oldPlaceHolder);
             ds3Common.setLocalTreeTableView(treeTable);
             ds3Common.setLocalFilePathIndicator(localPathIndicator);
@@ -355,7 +361,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                 return null;
             }
         } else if (currentRemoteSelection.size() > 1) {
-            alert.error("multipleDestError");
+            alert.error("multipleDestError", getWindow());
             return null;
         }
 
@@ -366,16 +372,16 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final Session session = ds3Common.getCurrentSession();
         if (session == null) {
             LOG.error("No valid session to initiate Put");
-            alert.error("noSession");
+            alert.error("noSession", getWindow());
             return;
         }
 
         final TreeItem<Ds3TreeTableValue> remoteDestination = getRemoteDestination(); // The TreeItem is required to refresh the view
         if (remoteDestination == null || remoteDestination.getValue() == null) {
-            alert.info("selectDestination");
+            alert.info("selectDestination", getWindow());
             return;
         } else if (remoteDestination.getValue().isSearchOn()) {
-            alert.info("operationNotAllowed");
+            alert.info("operationNotAllowed", getWindow());
             return;
         } else if (!remoteDestination.isExpanded()) {
             remoteDestination.setExpanded(true);
@@ -389,7 +395,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
         // Get local files to PUT
         final ImmutableList<kotlin.Pair<String, Path>> filesToPut = getLocalFilesToPut();
         if (Guard.isNullOrEmpty(filesToPut)) {
-            alert.info("fieSelect");
+            alert.info("fileSelect", getWindow());
             return;
         }
 
@@ -407,19 +413,21 @@ public class LocalFileTreeTablePresenter implements Initializable {
     }
 
     private void changeRootDir(final String rootDir) {
+        final ImmutableList<TreeTableColumn<FileTreeModel, ?>> sortOrder = treeTable.getSortOrder().stream().collect(GuavaCollectors.immutableList());
         localPathIndicator.setText(rootDir);
         fileRootItem = rootDir;
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(rootDir);
         if (rootItems != null) {
             final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
             rootTreeItem.setExpanded(true);
             treeTable.setShowRoot(false);
             rootItems.forEach(ftm -> {
-                final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+                final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
                 rootTreeItem.getChildren().add(newRootTreeItem);
             });
             treeTable.setRoot(rootTreeItem);
             treeTable.getSelectionModel().clearSelection();
+            treeTable.getSortOrder().addAll(sortOrder);
         } else {
             LOG.info("Already at root directory");
         }
@@ -430,10 +438,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
         final TreeItem<FileTreeModel> rootTreeItem = new TreeItem<>();
         rootTreeItem.setExpanded(true);
         treeTable.setShowRoot(false);
-        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem, dateTimeUtils);
+        final Stream<FileTreeModel> rootItems = fileTreeTableProvider.getRoot(fileRootItem);
         localPathIndicator.setText(fileRootItem);
         rootItems.forEach(ftm -> {
-            final TreeItem<FileTreeModel> newRootTreeItem = new FileTreeTableItem(fileTreeTableProvider, ftm, dateTimeUtils, workers);
+            final TreeItem<FileTreeModel> newRootTreeItem = fileTreeTableItemFactory.create(ftm);
             rootTreeItem.getChildren().add(newRootTreeItem);
         });
         treeTable.setRoot(rootTreeItem);
@@ -491,6 +499,11 @@ public class LocalFileTreeTablePresenter implements Initializable {
      */
     private void startGetJob(final List<Ds3TreeTableValueCustom> listFiles,
             final Path localPath, final Ds3Client client) {
+        if (listFiles.stream().anyMatch(value -> value.getType() == BaseTreeModel.Type.Bucket)) {
+            LOG.error("Cannot perform GET on bucket");
+            alert.error("noGetBucket", getWindow());
+            return;
+        }
         listFiles.stream()
                 .map(Ds3TreeTableValueCustom::getBucketName)
                 .distinct()
@@ -498,7 +511,7 @@ public class LocalFileTreeTablePresenter implements Initializable {
                     final ImmutableList<kotlin.Pair<String, String>> fileAndParent = listFiles.stream()
                             .filter(ds3TreeTableValueCustom -> Objects.equals(ds3TreeTableValueCustom.getBucketName(), bucket))
                             .map(ds3 -> new kotlin.Pair<>( ds3.getFullName(), ds3.getParent())) .collect(GuavaCollectors.immutableList());
-                    getJobFactory.create(fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return Unit.INSTANCE; });
+                    getJobFactory.create(ds3Common.getCurrentSession(), fileAndParent, bucket, localPath, client, () -> { refreshFileTreeView(); return Unit.INSTANCE;}, null);
                 });
     }
 
@@ -507,20 +520,20 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final String bucket,
             final String targetDir,
             final TreeItem<Ds3TreeTableValue> remoteDestination) {
-        putJobFactory.create(files, bucket, targetDir, client, () -> {
+        putJobFactory.create(ds3Common.getCurrentSession(), files, bucket, targetDir, client, () -> {
             refreshBlackPearlSideItem(remoteDestination);
             return Unit.INSTANCE;
         });
     }
 
     private void startMediaTask(final Stream<FileTreeModel> rootItems, final TreeItem<FileTreeModel> rootTreeItem, final Node oldPlaceHolder) {
-        final GetMediaDeviceTask getMediaDeviceTask = new GetMediaDeviceTask(rootItems, rootTreeItem, fileTreeTableProvider, dateTimeUtils, workers);
+        final GetMediaDeviceTask getMediaDeviceTask = getMediaDeviceTaskFactory.create(rootItems, rootTreeItem);
         getMediaDeviceTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             treeTable.setRoot(rootTreeItem);
             treeTable.setPlaceholder(oldPlaceHolder);
             setExpandBehaviour(treeTable);
             sizeColumn.setCellFactory(c -> new ValueTreeTableCell<>());
-            treeTable.sortPolicyProperty().set(new SortPolicyCallback(treeTable));
+            treeTable.setSortMode(TreeSortMode.ALL_DESCENDANTS);
         }));
         workers.execute(getMediaDeviceTask);
     }
@@ -560,10 +573,10 @@ public class LocalFileTreeTablePresenter implements Initializable {
             final TreeItem<FileTreeModel> fileTreeItem = row.getTreeItem();
             if (fileTreeItem != null && !fileTreeItem.getValue().getType().equals(FileTreeModel.Type.File)) {
                 localPath = fileTreeItem.getValue().getPath();
-            } else if (!fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
-                localPath = Paths.get(fileRootItem);
             } else if (fileTreeItem != null && fileTreeItem.getValue().getType().equals(FileTreeModel.Type.File)) {
                 localPath = fileTreeItem.getParent().getValue().getPath();
+            } else if (!fileRootItem.equals(StringConstants.ROOT_LOCATION)) {
+                localPath = Paths.get(fileRootItem);
             }
 
         } else {
@@ -572,5 +585,9 @@ public class LocalFileTreeTablePresenter implements Initializable {
             }
         }
         return localPath;
+    }
+
+    public Window getWindow() {
+        return treeTable.getScene().getWindow();
     }
 }

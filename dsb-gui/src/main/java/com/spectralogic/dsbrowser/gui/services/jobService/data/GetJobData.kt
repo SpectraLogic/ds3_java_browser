@@ -37,45 +37,35 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.Instant
-import java.util.*
-import java.util.function.Supplier
+import java.util.UUID
 
-data class GetJobData(private val list: List<Pair<String, String>>,
-                      private val localPath: Path,
-                      override val bucket: String,
-                      private val jobTaskElement: JobTaskElement) : JobData {
-    override var cancelled: Supplier<Boolean>? = null
+data class GetJobData(
+    private val list: List<Pair<String, String>>,
+    private val localPath: Path,
+    override val bucket: String,
+    private val jobTaskElement: JobTaskElement,
+    private val versionId: String? = null
+) : JobData {
 
     override fun runningTitle(): String {
         val transferringGet = jobTaskElement.resourceBundle.getString("transferringGet")
-        val jobId = job?.jobId
+        val jobId = job.jobId
         val startedAt = jobTaskElement.resourceBundle.getString("startedAt")
         val started = jobTaskElement.dateTimeUtils.format(getStartTime())
         return "$transferringGet $jobId $startedAt $started"
-
     }
 
-    override var jobId: UUID? = null
+    override val jobId: UUID by lazy { job.jobId }
     override fun client(): Ds3Client = jobTaskElement.client
-
-    override var lastFile: String = ""
     override fun internationalize(labelName: String): String = jobTaskElement.resourceBundle.getString(labelName)
 
-    override var job: Ds3ClientHelpers.Job? = null
-        get() {
-            if (field == null) {
-                field = if (readJobOptions() == null) {
+    override val job: Ds3ClientHelpers.Job by lazy {
+                if (readJobOptions() == null) {
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects())
                 } else {
                     Ds3ClientHelpers.wrap(jobTaskElement.client).startReadJob(bucket, buildDs3Objects(), readJobOptions())
                 }
             }
-            jobId = field?.jobId
-            return field!!
-        }
-        set(value) {
-            if (value != null) field = value
-        }
 
     override fun showCachedJobProperty(): SimpleBooleanProperty = SimpleBooleanProperty(true)
     override fun loggingService(): LoggingService = jobTaskElement.loggingService
@@ -85,13 +75,15 @@ data class GetJobData(private val list: List<Pair<String, String>>,
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {
             if (field.isEmpty()) {
-                list.forEach({ field.put(it.first, Paths.get(it.second)) })
+                list.forEach {
+                    field[it.first] = Paths.get(it.second)
+                }
             }
             return field
         }
 
-    override public fun getStartTime(): Instant = startTime
-    override public fun setStartTime(): Instant {
+    override fun getStartTime(): Instant = startTime
+    override fun setStartTime(): Instant {
         startTime = Instant.now()
         return startTime
     }
@@ -105,7 +97,7 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         }
     }
 
-    private fun buildDs3Objects(): List<Ds3Object> = list.flatMap({ dataToDs3Objects(it) }).distinct()
+    private fun buildDs3Objects(): List<Ds3Object> = list.flatMap { dataToDs3Objects(it) }.distinct()
 
     private fun dataToDs3Objects(filePair: Pair<String, String>): Iterable<Ds3Object> = when (filePair.first.last()) {
         '/' -> {
@@ -113,40 +105,44 @@ data class GetJobData(private val list: List<Pair<String, String>>,
         }
         else -> {
             checkifOverWriting(filePair.first, filePair.second)
-            ImmutableList.of(Ds3Object(filePair.first))
+            if (versionId == null) {
+                ImmutableList.of(Ds3Object(filePair.first))
+            } else {
+                ImmutableList.of(Ds3Object(filePair.first, versionId))
+            }
         }
     }
 
     private fun folderToObjects(t: Pair<String, String>): Iterable<Ds3Object> {
-        var list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jobTaskElement.client).listObjects(bucket, t.first)
+        val list: ImmutableList<Ds3Object> = Ds3ClientHelpers.wrap(jobTaskElement.client).listObjects(bucket, t.first)
                 .map { contents -> Ds3Object(contents.key) }
                 .stream()
                 .collect(GuavaCollectors.immutableList())
         list.forEach {
-            prefixMap.put(it.name, Paths.get(t.second))
+            prefixMap[it.name] = Paths.get(t.second)
             checkifOverWriting(it.name, t.second)
         }
         return list
     }
 
-    override fun shouldRestoreFileAttributes() = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
+    override fun shouldRestoreFileAttributes(): Boolean = jobTaskElement.settingsStore.filePropertiesSettings.isFilePropertiesEnabled
     override fun jobSize(): Long {
-        return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job!!.jobId)).activeJobResult.originalSizeInBytes
+        return jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes
     }
 
     override fun isCompleted(): Boolean = true
     override fun removeJob() {
-        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job!!.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
+        ParseJobInterruptionMap.removeJobIdFromFile(jobTaskElement.jobInterruptionStore, job.jobId.toString(), jobTaskElement.client.connectionDetails.endpoint)
     }
 
     override fun saveJob(jobSize: Long) {
-        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job!!.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "GET", bucket)
+        ParseJobInterruptionMap.saveValuesToFiles(jobTaskElement.jobInterruptionStore, prefixMap, mapOf(), jobTaskElement.client.connectionDetails.endpoint, job.jobId, jobSize, targetPath(), jobTaskElement.dateTimeUtils, "GET", bucket)
     }
 
     private fun checkifOverWriting(name: String, path: String) {
         val filePath = Paths.get(targetPath(), name.removePrefix(path))
         if (Files.exists(filePath)) {
-            loggingService().logMessage("Overwriting file ${filePath.toString()}", LogType.INFO)
+            loggingService().logMessage("Overwriting file $filePath", LogType.INFO)
         }
     }
 

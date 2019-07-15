@@ -14,7 +14,7 @@
  */
 
 buildscript {
-    ext.kotlin_version = '1.2.20'
+    ext.kotlin_version = '1.2.71'
 
     repositories {
         maven {
@@ -25,20 +25,28 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
     }
+}
+
+plugins {
+    id 'org.jlleitschuh.gradle.ktlint' version '7.2.1'
 }
 
 allprojects {
     group = 'com.spectralogic.dsbrowser'
-    version = '2.1.6'
+    version = '5.0.9'
 }
 
 subprojects {
+    apply plugin: 'com.github.ben-manes.versions'
     apply plugin: 'maven'
     apply plugin: 'java'
     apply plugin: 'kotlin'
+    apply plugin: "org.jlleitschuh.gradle.ktlint"
 
     sourceCompatibility = JavaVersion.VERSION_1_8
+    kotlin { experimental { coroutines 'enable' } }
 
     repositories {
         maven {
@@ -52,29 +60,31 @@ subprojects {
         compile "com.spectralogic.ds3:ds3-sdk:$bpclientVersion"
         compile "com.spectralogic.ds3:ds3-metadata:$bpclientVersion"
         compile 'com.airhacks:afterburner.fx:1.7.0'
-        compile 'org.controlsfx:controlsfx:8.40.12'
+        compile 'org.controlsfx:controlsfx:8.40.14'
         compile 'de.jensd:fontawesomefx:8.9'
-        compile 'org.slf4j:slf4j-api:1.7.22'
-        compile 'ch.qos.logback:logback-classic:1.1.9'
-        compile 'ch.qos.logback:logback-core:1.1.9'
-        compile 'org.fxmisc.richtext:richtextfx:0.6.10'
-        compile 'net.java.dev.jna:jna-platform:4.2.2'
-        compile 'net.java.dev.jna:jna:4.2.2'
-        compile 'io.reactivex.rxjava2:rxjava:2.1.5'
-        compile 'io.reactivex.rxjava2:rxjavafx:2.2.0'
-        compile "io.reactivex.rxjava2:rxkotlin:2.1.0"
-        compile 'com.github.thomasnield:rxkotlinfx:2.2.0'
-        compile 'com.google.inject:guice:4.1.0'
-        compile 'com.google.inject.extensions:guice-assistedinject:4.1.0'
-        compile 'com.google.guava:guava:21.0'
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-
+        compile 'org.slf4j:slf4j-api:1.7.25'
+        compile 'ch.qos.logback:logback-classic:1.2.3'
+        compile 'ch.qos.logback:logback-core:1.2.3'
+        compile 'org.fxmisc.richtext:richtextfx:0.9.1'
+        compile 'net.java.dev.jna:jna-platform:4.5.2'
+        compile 'net.java.dev.jna:jna:4.5.2'
+        compile 'io.reactivex.rxjava2:rxjava:2.2.2'
+        compile 'io.reactivex.rxjava2:rxjavafx:2.2.2'
+        compile "io.reactivex.rxjava2:rxkotlin:2.3.0"
+        compile 'com.github.thomasnield:rxkotlinfx:2.2.2'
+        compile 'com.google.inject:guice:4.2.1'
+        compile 'com.google.inject.extensions:guice-assistedinject:4.2.1'
+        compile 'com.google.guava:guava:26.0-jre'
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1'
         testCompile "org.hamcrest:hamcrest-all:1.3"
         testCompile 'junit:junit:4.12'
-        testCompile "org.assertj:assertj-core:3.8.0"
-        testCompile('org.mockito:mockito-core:1.10.19') {
+        testCompile "org.assertj:assertj-core:3.11.1"
+        testCompile "org.assertj:assertj-guava:3.2.0"
+        testCompile project(":dsb-test-util")
+        testCompile('org.mockito:mockito-core:2.22.0') {
             exclude group: 'org.hamcrest'// https://mvnrepository.com/artifact/net.java.dev.jna/jna
-            compile group: 'net.java.dev.jna', name: 'jna', version: '4.0.0'
+            compile group: 'net.java.dev.jna', name: 'jna', version: '4.5.2'
         }
     }
 
@@ -85,6 +95,7 @@ subprojects {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.4.1'
+
+wrapper {
+    gradleVersion = '4.10'
 }

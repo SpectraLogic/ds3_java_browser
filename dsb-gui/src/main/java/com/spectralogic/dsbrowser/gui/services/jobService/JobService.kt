@@ -17,8 +17,11 @@ package com.spectralogic.dsbrowser.gui.services.jobService
 import com.github.thomasnield.rxkotlinfx.toObservable
 import io.reactivex.Completable
 import io.reactivex.Observable
-import javafx.beans.property.*
-import java.util.function.Supplier
+import javafx.beans.property.LongProperty
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleLongProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.StringProperty
 
 abstract class JobService : JobFacade {
     protected val title: StringProperty = SimpleStringProperty("")
@@ -44,5 +47,5 @@ abstract class JobService : JobFacade {
     override fun totalJobSizeAsProperty(): LongProperty = totalJob
     override fun visibleProperty(): SimpleBooleanProperty = visible
 
-    abstract override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable
+    abstract override fun finishedCompletable(): Completable
 }

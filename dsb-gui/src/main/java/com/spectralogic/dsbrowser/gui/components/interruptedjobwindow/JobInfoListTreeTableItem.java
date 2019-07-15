@@ -114,7 +114,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
             @Override
             protected Optional<Object> call() throws Exception {
                 if (modelValue.getType().equals(JobInfoModel.Type.JOBID)) {
-                    value.getFiles().entrySet().stream().forEach(i -> {
+                    value.getFiles().entrySet().forEach(i -> {
                         long size = 0;
                         try {
                             size = Files.size(i.getValue());
@@ -124,7 +124,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, size, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.File, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
-                    value.getFolders().entrySet().stream().forEach(i -> {
+                    value.getFolders().entrySet().forEach(i -> {
                         final JobInfoListTreeTableItem jobListTreeTableItem = new JobInfoListTreeTableItem(jobId, new JobInfoModel(i.getKey(), modelValue.getJobId(), StringConstants.TWO_DASH, 0, i.getValue().toString(), modelValue.getJobType(), StringConstants.TWO_DASH, JobInfoModel.Type.Directory, StringConstants.TWO_DASH, modelValue.getBucket()), stringFilesAndFolderMapMap, session, workers);
                         list.add(jobListTreeTableItem);
                     });
@@ -156,7 +156,7 @@ public class JobInfoListTreeTableItem extends TreeItem<JobInfoModel> {
                         }
                     } else {
                         final GetObjectsWithFullDetailsSpectraS3Request request = new GetObjectsWithFullDetailsSpectraS3Request().withBucketId(modelValue.getBucket()).withIncludePhysicalPlacement(true);
-                        request.withName(modelValue.getName() + StringConstants.PERCENT).withFolder(modelValue.getName());
+                        request.withName(modelValue.getName() + StringConstants.PERCENT);
                         try {
                             final GetObjectsWithFullDetailsSpectraS3Response objectsWithFullDetailsSpectraS3 = session.getClient().getObjectsWithFullDetailsSpectraS3(request);
                             final List<DetailedS3Object> detailedS3Objects = objectsWithFullDetailsSpectraS3.getDetailedS3ObjectListResult().getDetailedS3Objects();

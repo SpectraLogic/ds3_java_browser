@@ -15,52 +15,40 @@
 
 package com.spectralogic.dsbrowser.gui.services.tasks;
 
+import com.google.inject.assistedinject.Assisted;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
-import com.spectralogic.dsbrowser.api.services.logging.LogType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
+import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 
-public class CreateFolderTask extends Ds3Task {
-
-    private final static Logger LOG = LoggerFactory.getLogger(CreateFolderTask.class);
+public class CreateFolderTask extends Ds3Task<Void> {
 
     private final Ds3Client ds3Client;
     private final String bucketName;
     private final String folderName;
-    private final LoggingService loggingService;
-    private final ResourceBundle resourceBundle;
 
-    public CreateFolderTask(final Ds3Client ds3Client,
-                            final String bucketName,
-                            final String folderName,
-                            final LoggingService loggingService,
-                            final ResourceBundle resourceBundle) {
-        this.ds3Client = ds3Client;
+    @Inject
+    public CreateFolderTask(
+            final Ds3Common ds3Common,
+            @Assisted("bucketName") final String bucketName,
+            @Assisted("folderName") final String folderName
+    ) {
+        this.ds3Client = ds3Common.getCurrentSession().getClient();
         this.bucketName = bucketName;
         this.folderName = folderName;
-        this.loggingService = loggingService;
-        this.resourceBundle = resourceBundle;
     }
 
     @Override
     protected Void call() throws IOException {
-        try {
-            Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
-        } catch (final IOException e) {
-            LOG.error("Failed to create folder", e);
-            loggingService.logMessage(resourceBundle.getString("createFolderErr")
-                    + StringConstants.SPACE + folderName
-                    + StringConstants.SPACE + resourceBundle.getString("txtReason")
-                    + StringConstants.SPACE + e, LogType.ERROR);
-            throw e;
-        }
+        Ds3ClientHelpers.wrap(ds3Client).createFolder(bucketName, folderName);
         return null;
+    }
+
+    public interface CreateFolderTaskFactory {
+        CreateFolderTask create(@Assisted("bucketName") final String bucketName, @Assisted("folderName") final String folderName);
     }
 }

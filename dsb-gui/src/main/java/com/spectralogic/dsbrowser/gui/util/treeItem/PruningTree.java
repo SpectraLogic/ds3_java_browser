@@ -73,7 +73,7 @@ public class PruningTree<K, V> {
 
     public void addAll(final List<K[]> paths, final List<V> list) {
         for (int i = 0; i < list.size(); i++) {
-            this.add(paths.get(i), list.get((i)));
+            this.add(paths.get(i), list.get(i));
         }
     }
 

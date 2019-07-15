@@ -15,6 +15,7 @@
 
 package com.spectralogic.dsbrowser.gui.services.jobService.util
 
+import com.spectralogic.ds3client.utils.Guard
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils
@@ -24,20 +25,36 @@ import javafx.beans.property.StringProperty
 import java.time.Instant
 
 class Stats(val message: StringProperty, val loggingService: LoggingService, val dateTimeUtils: DateTimeUtils) {
-    fun updateStatistics(name: String,
-                         startTime: Instant,
-                         sent: LongProperty,
-                         total: LongProperty,
-                         totalMessage: String,
-                         toPath: String,
-                         location: String,
-                         finished: Boolean) {
+    private var lastFile: String = ""
+
+    fun updateStatistics(
+        startTime: Instant,
+        sent: LongProperty,
+        total: LongProperty,
+        totalMessage: String,
+        toPath: String,
+        location: String,
+        finished: Boolean,
+        name: String = lastFile
+    ) {
+
+        lastFile = name
+        val displayPath = if (Guard.isStringNullOrEmpty(toPath)) {
+            "/"
+        } else {
+            "/" + toPath
+        }
+        val displayName = if (name.startsWith(toPath)) {
+            name.substring(displayPath.length - 1)
+        } else {
+            name
+        }
         val elapsedSeconds = Instant.now().epochSecond - startTime.epochSecond
         val transferRate = estimateTransferRate(sent, elapsedSeconds)
         val timeRemaining: Float = estimateTimeRemaning(transferRate, total)
         message.set(StringBuilderUtil.getTransferRateString(transferRate.toLong(), timeRemaining.toLong(), (sent.get()),
                 totalMessage, name, location).toString())
-        if (finished) {loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(name, toPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS)}
+        if (finished) { loggingService.logMessage(StringBuilderUtil.objectSuccessfullyTransferredString(displayName, displayPath, dateTimeUtils.nowAsString(), location).toString(), LogType.SUCCESS) }
     }
 
     private fun estimateTransferRate(sent: LongProperty, elapsedSeconds: Long) =

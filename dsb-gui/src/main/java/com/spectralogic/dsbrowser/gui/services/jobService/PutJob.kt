@@ -20,50 +20,43 @@ import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.ds3client.metadata.MetadataAccessImpl
 import com.spectralogic.dsbrowser.api.services.logging.LogType
 import com.spectralogic.dsbrowser.gui.services.jobService.data.JobData
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.PrepStage
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.TeardownStage
-import com.spectralogic.dsbrowser.gui.services.jobService.stage.TransferStage
 import com.spectralogic.dsbrowser.gui.services.jobService.util.ChunkManagment
 import com.spectralogic.dsbrowser.gui.services.jobService.util.Stats
 import com.spectralogic.dsbrowser.gui.util.toByteRepresentation
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
 
-class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>, TransferStage, TeardownStage {
+class PutJob(private val putJobData: JobData) : JobService() {
     override fun getDs3Client(): Ds3Client = putJobData.client()
 
     private val chunkManagement: ChunkManagment = ChunkManagment()
     private val stats: Stats = Stats(message, putJobData.loggingService(), putJobData.dateTimeUtils())
+    private var wasCancelled = false
 
     private companion object {
         private val LOG = LoggerFactory.getLogger(GetJob::class.java)
     }
 
-    override fun jobUUID(): UUID? = putJobData.jobId
+    override fun jobUUID(): UUID = putJobData.jobId
 
-    override fun finishedCompletable(cancelled: Supplier<Boolean>): Completable {
-        putJobData.cancelled = cancelled
+    override fun finishedCompletable(): Completable {
+
         return Completable.fromAction {
-            val resources = prepare(putJobData)
-            if (cancelled.get()) {
-                return@fromAction
-            }
+            val resources = prepare()
             transfer(resources)
-            if (cancelled.get()) {
-                return@fromAction
+            if (!wasCancelled) {
+                tearDown()
             }
-            tearDown()
         }
     }
 
-    override fun prepare(resources: JobData): Ds3ClientHelpers.Job {
+    private fun prepare(): Ds3ClientHelpers.Job {
         title.set(putJobData.internationalize("preparingJob"))
-        val job: Ds3ClientHelpers.Job = putJobData.job!!
+        val job: Ds3ClientHelpers.Job = putJobData.job
+        LOG.info("Job ID is {}", job.jobId)
         totalJob.set(putJobData.jobSize())
         val totalJobMessage: String = putJobData.jobSize().toByteRepresentation()
         if (putJobData.shouldRestoreFileAttributes()) {
@@ -74,18 +67,17 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         }
         job.attachDataTransferredListener {
             sent.set(it + sent.get())
-            stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, false)
+            stats.updateStatistics(putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, false)
         }
         job.attachWaitingForChunksListener { chunkManagement.waitForChunks(it, putJobData.loggingService(), LOG) }
         job.attachObjectCompletedListener {
-            putJobData.lastFile = it
-            stats.updateStatistics(putJobData.lastFile, putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, true)
+            stats.updateStatistics(putJobData.getStartTime(), sent, totalJob, totalJobMessage, putJobData.targetPath(), putJobData.bucket, true, it)
         }
         putJobData.saveJob(totalJob.get())
         return job
     }
 
-    override fun transfer(job: Ds3ClientHelpers.Job) {
+    private fun transfer(job: Ds3ClientHelpers.Job) {
         putJobData.setStartTime()
         title.set(putJobData.runningTitle())
         putJobData.loggingService().logMessage(putJobData.internationalize("starting") + " PUT " + job.jobId, LogType.SUCCESS)
@@ -94,27 +86,35 @@ class PutJob(private val putJobData: JobData) : JobService(), PrepStage<JobData>
         }
     }
 
-    override fun tearDown() {
+    private fun tearDown() {
         if (totalJob.get() < 1) {
             totalJob.set(1L)
             sent.set(1L)
         }
+        LOG.info("Job {} is in cache, waiting to complete", putJobData.job.jobId)
         message.set("In Cache, Waiting to complete")
         sent.set(totalJob.value)
         visible.bind(putJobData.showCachedJobProperty())
-        val disposable: Disposable = Observable.interval(60, TimeUnit.SECONDS)
-                .takeUntil({ _ -> putJobData.isCompleted() })
+        Observable.interval(60, TimeUnit.SECONDS)
+                .takeUntil({ _ -> wasCancelled || putJobData.isCompleted() })
                 .retry { throwable ->
                     putJobData.loggingService().logMessage("Error checking status of job " + jobUUID() + " will retry", LogType.ERROR)
                     LOG.error("Unable to check status of job " + jobUUID(), throwable)
-                    true
+                    when (throwable) {
+                        is IllegalStateException -> false
+                        else -> true
+                    }
                 }
                 .ignoreElements()
-                .subscribe()
-        while (!disposable.isDisposed) {
-            Thread.sleep(1000)
-        }
+                .blockingAwait()
         sent.set(totalJob.value)
         putJobData.removeJob()
+    }
+
+    override fun cancel() {
+        wasCancelled = true
+        if (totalJob.get() < putJobData.jobSize()) {
+            putJobData.job.cancel()
+        }
     }
 }

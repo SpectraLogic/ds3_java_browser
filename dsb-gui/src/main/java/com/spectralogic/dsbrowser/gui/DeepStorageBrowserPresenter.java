@@ -17,7 +17,6 @@ package com.spectralogic.dsbrowser.gui;
 
 import com.spectralogic.ds3client.utils.Guard;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
-import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.about.AboutView;
@@ -29,7 +28,6 @@ import com.spectralogic.dsbrowser.gui.components.localfiletreetable.LocalFileTre
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionView;
 import com.spectralogic.dsbrowser.gui.components.settings.SettingsView;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
@@ -54,6 +52,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.stage.Window;
 import org.controlsfx.control.TaskProgressView;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.slf4j.Logger;
@@ -117,30 +116,33 @@ public class DeepStorageBrowserPresenter implements Initializable {
     private final Ds3Common ds3Common;
     private final JobInterruptionStore jobInterruptionStore;
     private final ShowCachedJobSettings showCachedJobSettings;
-    private final Workers workers;
-    private final DateTimeUtils dateTimeUtils;
     private final LoggingService loggingService;
-    private final ShutdownService shutdownService;
+    private final CancelJobsWorker cancelJobsWorker;
+    private final Popup popup;
+    private final Ds3Alert ds3Alert;
+    private final CloseConfirmationHandler closeConfirmationHandler;
 
     @Inject
     public DeepStorageBrowserPresenter(final JobWorkers jobWorkers,
-                                       final ResourceBundle resourceBundle,
-                                       final Ds3Common ds3Common,
-                                       final JobInterruptionStore jobInterruptionStore,
-                                       final SettingsStore settingsStore,
-                                       final Workers workers,
-                                       final LoggingService loggingService,
-                                       final DateTimeUtils dateTimeUtils,
-                                       final ShutdownService shutdownService) {
+            final ResourceBundle resourceBundle,
+            final Ds3Common ds3Common,
+            final JobInterruptionStore jobInterruptionStore,
+            final SettingsStore settingsStore,
+            final LoggingService loggingService,
+            final CancelJobsWorker cancelJobsWorker,
+            final Popup popup,
+            final Ds3Alert ds3Alert,
+            final CloseConfirmationHandler closeConfirmationHandler) {
         this.jobWorkers = jobWorkers;
         this.resourceBundle = resourceBundle;
         this.ds3Common = ds3Common;
         this.jobInterruptionStore = jobInterruptionStore;
         this.showCachedJobSettings = settingsStore.getShowCachedJobSettings();
-        this.workers = workers;
         this.loggingService = loggingService;
-        this.dateTimeUtils = dateTimeUtils;
-        this.shutdownService = shutdownService;
+        this.cancelJobsWorker = cancelJobsWorker;
+        this.popup = popup;
+        this.ds3Alert = ds3Alert;
+        this.closeConfirmationHandler = closeConfirmationHandler;
     }
 
     @Override
@@ -149,7 +151,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             registerLoggingServiceListener();
 
             LOG.info("Loading Main view");
-            loggingService.logMessage(resourceBundle.getString("loadMainView"), LogType.INFO);
+            loggingService.logInternationalMessage("loadMainView", LogType.INFO);
 
             initMenus(); //Setting up labels from resource file
 
@@ -176,7 +178,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             });
         } catch (final Throwable e) {
             LOG.error("Encountered an error when creating Main view", e);
-            loggingService.logMessage(resourceBundle.getString("errorWhileCreatingMainView"), LogType.ERROR);
+            loggingService.logInternationalMessage("errorWhileCreatingMainView", LogType.ERROR);
         }
     }
 
@@ -207,7 +209,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         anchorPane.setMinHeight(35);
 
         Bindings.bindContentBidirectional(jobWorkers.getTasks(), jobProgressView.getTasks());
-        jobProgressView.setSkin(new DeepStorageTaskProgressViewSkin<>(jobProgressView, showCachedJobSettings.showCachedJobEnableProperty()));
+        jobProgressView.setSkin(new DeepStorageTaskProgressViewSkin<>(jobProgressView, showCachedJobSettings.showCachedJobEnableProperty(), ds3Alert));
 
         jobProgressView.setPrefHeight(1000);
         jobProgressVBox.getChildren().add(anchorPane);
@@ -241,15 +243,14 @@ public class DeepStorageBrowserPresenter implements Initializable {
                 if (!Guard.isMapNullOrEmpty(jobIDMap)) {
                     recoverInterruptedJobsButton.setDisable(false);
                     final JobInfoView jobView = new JobInfoView(new EndpointInfo(endpoint, session.getClient(), jobIDMap, this, ds3Common));
-                    Popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") +
-                            StringConstants.SPACE + endpoint);
+                    popup.show(jobView.getView(), resourceBundle.getString("interruptedJobsPopUp") + StringConstants.SPACE + endpoint, getWindow());
                 } else {
                     recoverInterruptedJobsButton.setDisable(true);
                 }
 
             } else {
                 recoverInterruptedJobsButton.setDisable(true);
-                loggingService.logMessage(resourceBundle.getString("noInterruptedJobs"), LogType.INFO);
+                loggingService.logInternationalMessage("noInterruptedJobs", LogType.INFO);
             }
         }));
     }
@@ -266,7 +267,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
         cancelInterruptedJobsButton.setGraphic(cancelAllJobsImageView);
         cancelInterruptedJobsButton.disableProperty().bind(Bindings.size(jobProgressView.getTasks()).lessThan(1));
         cancelInterruptedJobsButton.setOnAction(SafeHandler.logHandle(event -> {
-            final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+            final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(
                     resourceBundle.getString("confirmation"), jobWorkers.getTasks().size()
                             + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
                     Alert.AlertType.CONFIRMATION, resourceBundle.getString("reallyWantToCancel"),
@@ -274,7 +275,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
                     resourceBundle.getString("cancelBtnJobCancelConfirm"));
             closeResponse.ifPresent(cR -> {
                 if (cR.equals(ButtonType.OK)) {
-                    CancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore, workers, ds3Common, dateTimeUtils, loggingService);
+                    cancelJobsWorker.cancelAllRunningJobs(jobWorkers, jobInterruptionStore);
                 }
             });
             event.consume();
@@ -318,7 +319,6 @@ public class DeepStorageBrowserPresenter implements Initializable {
         settingsMenuItem.setText(resourceBundle.getString("settingsMenuItem"));
         closeMenuItem.setText(resourceBundle.getString("closeMenuItem"));
         closeMenuItem.setOnAction(SafeHandler.logHandle(event -> {
-            final CloseConfirmationHandler closeConfirmationHandler = new CloseConfirmationHandler(resourceBundle, jobWorkers, shutdownService);
             closeConfirmationHandler.closeConfirmationAlert(event);
         }));
 
@@ -341,17 +341,17 @@ public class DeepStorageBrowserPresenter implements Initializable {
     }
 
     public void showSettingsPopup() {
-        final SettingsView settingsView = new SettingsView();
-        Popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"));
+        final SettingsView settingsView = new SettingsView(getWindow());
+        popup.show(settingsView.getView(), resourceBundle.getString("settingsMenuItem"), true, getWindow());
     }
 
     public void showAboutPopup() {
         final AboutView aboutView = new AboutView();
-        Popup.show(aboutView.getView(), resourceBundle.getString("aboutMenuItem"));
+        popup.show(aboutView.getView(), resourceBundle.getString("aboutMenuItem"), getWindow());
     }
 
     public void showSessionPopup() {
-        Popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"));
+        popup.show(new NewSessionView().getView(), resourceBundle.getString("sessionsMenuItem"), getWindow());
     }
 
     public void selectAllItemsInPane() {
@@ -383,7 +383,7 @@ public class DeepStorageBrowserPresenter implements Initializable {
             if (!menuItem.isSelected())
                 tabs.remove(tab);
         }
-        if (tabs.size() == 0) {
+        if (tabs.isEmpty()) {
             items.remove(bottomTabPane);
         }
     }
@@ -441,5 +441,9 @@ public class DeepStorageBrowserPresenter implements Initializable {
 
     public TaskProgressView<Ds3JobTask> getJobProgressView() {
         return jobProgressView;
+    }
+
+    private Window getWindow() {
+        return anchorPane.getScene().getWindow();
     }
 }

@@ -15,21 +15,16 @@
 
 package com.spectralogic.dsbrowser.integration;
 
-import com.google.common.collect.ImmutableList;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.models.JobRequestType;
 import com.spectralogic.ds3client.models.Priority;
 import com.spectralogic.ds3client.utils.ResourceUtils;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
-import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.components.newsession.NewSessionModel;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
-import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobIdsModel;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
@@ -42,16 +37,11 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
-import com.spectralogic.dsbrowser.gui.util.ApplicationPreferences;
-import com.spectralogic.dsbrowser.gui.util.CloseConfirmationHandler;
-import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
-import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.control.TreeItem;
-import javafx.util.Pair;
+import javafx.stage.Window;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,7 +51,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -70,8 +59,6 @@ import static org.junit.Assert.*;
 
 public class CloseConfirmationHandlerTest {
     private static final JobWorkers jobWorkers = new JobWorkers();
-    private static final Workers workers = new Workers();
-    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask();
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static Session session;
     private static CloseConfirmationHandler handler;
@@ -80,7 +67,9 @@ public class CloseConfirmationHandlerTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static Path path;
-    private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @BeforeClass
     public static void setConnection() {
@@ -94,8 +83,8 @@ public class CloseConfirmationHandlerTest {
                     new SavedCredentials(client.getConnectionDetails().getCredentials().getClientId(), client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
-            handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class));
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
+            handler = new CloseConfirmationHandler(resourceBundle, jobWorkers, Mockito.mock(ShutdownService.class), new Ds3Alert(new Ds3Common()));
             try {
                 path = ResourceUtils.loadFileResource("files/");
                 if (path != null) {
@@ -132,12 +121,12 @@ public class CloseConfirmationHandlerTest {
                 newSessionModel.setAccessKey(client.getConnectionDetails().getCredentials().getClientId());
                 newSessionModel.setSecretKey(client.getConnectionDetails().getCredentials().getKey());
                 newSessionModel.setProxyServer(null);
-                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
-                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, resourceBundle, buildInfoService));
+                final SavedSessionStore savedSessionStorePrevious = SavedSessionStore.loadSavedSessionStore();
+                savedSessionStorePrevious.addSession(createConnectionTask.createConnection(newSessionModel, window));
                 handler.saveSessionStore(savedSessionStorePrevious);
 
                 //To get list of saved session
-                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore(resourceBundle, buildInfoService);
+                final SavedSessionStore savedSessionStoreNew = SavedSessionStore.loadSavedSessionStore();
                 final ObservableList<SavedSession> sessions = savedSessionStoreNew.getSessions();
                 final Optional<SavedSession> savedSession = sessions.stream().filter(session -> session.getName().equals(newSessionModel.getSessionName())).findFirst();
 

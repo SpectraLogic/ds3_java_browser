@@ -22,17 +22,10 @@ import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.DeepStorageBrowserPresenter;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
-import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobService;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
-import com.spectralogic.dsbrowser.gui.services.jobService.JobTaskElement;
-import com.spectralogic.dsbrowser.gui.services.jobService.RecoverJob;
 import com.spectralogic.dsbrowser.gui.services.jobService.factories.RecoverJobFactory;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
-import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
-import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3CancelSingleJobTask;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
@@ -82,47 +75,38 @@ public class JobInfoPresenter implements Initializable {
     private EndpointInfo endpointInfo;
 
     private final ResourceBundle resourceBundle;
-    private final Ds3Common ds3Common;
     private final Workers workers;
-    private final JobWorkers jobWorkers;
     private final JobInterruptionStore jobInterruptionStore;
     private final LoggingService loggingService;
     private final ButtonCell.ButtonCellFactory buttonCellFactory;
     private final DeepStorageBrowserPresenter deepStorageBrowserPresenter;
-    private final DateTimeUtils dateTimeUtils;
-    private final SettingsStore settingsStore;
     private final RecoverJobFactory recoverJobFactory;
-    private final SavedJobPrioritiesStore savedJobPrioritiesStore;
-    private final JobTaskElement.JobTaskElementFactory jobTaskElementFactory;
+    private final RefreshCompleteViewWorker refreshCompleteViewWorker;
+    private final Ds3Alert ds3Alert;
+    private final Ds3Common ds3Common;
     private Stage stage;
 
     @Inject
     public JobInfoPresenter(final ResourceBundle resourceBundle,
-            final Ds3Common ds3Common,
             final Workers workers,
-            final JobWorkers jobWorkers,
+            final Ds3Common ds3Common,
             final JobInterruptionStore jobInterruptionStore,
             final ButtonCell.ButtonCellFactory buttonCellFactory,
             final LoggingService loggingService,
-            final DateTimeUtils dateTimeUtils,
-            final SettingsStore settingsStore,
             final RecoverJobFactory recoverJobFactory,
-            final JobTaskElement.JobTaskElementFactory jobTaskElementFactory,
-            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-            final DeepStorageBrowserPresenter deepStorageBrowserPresenter) {
+            final RefreshCompleteViewWorker refreshCompleteViewWorker,
+            final DeepStorageBrowserPresenter deepStorageBrowserPresenter,
+            final Ds3Alert ds3Alert) {
         this.resourceBundle = resourceBundle;
-        this.ds3Common = ds3Common;
-        this.savedJobPrioritiesStore = savedJobPrioritiesStore;
+        this.refreshCompleteViewWorker = refreshCompleteViewWorker;
         this.workers = workers;
-        this.jobWorkers = jobWorkers;
         this.jobInterruptionStore = jobInterruptionStore;
         this.loggingService = loggingService;
         this.recoverJobFactory = recoverJobFactory;
-        this.jobTaskElementFactory = jobTaskElementFactory;
-        this.settingsStore = settingsStore;
-        this.dateTimeUtils = dateTimeUtils;
         this.buttonCellFactory = buttonCellFactory;
         this.deepStorageBrowserPresenter = deepStorageBrowserPresenter;
+        this.ds3Alert = ds3Alert;
+        this.ds3Common = ds3Common;
     }
 
     @Override
@@ -138,8 +122,8 @@ public class JobInfoPresenter implements Initializable {
     private void initListeners() {
         cancelJobListButtons.setOnAction(SafeHandler.logHandle(event -> {
             final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
-            if (jobIDMap != null && jobIDMap.size() != 0) {
-                final Optional<ButtonType> closeResponse = Ds3Alert.showConfirmationAlert(
+            if (jobIDMap != null && !jobIDMap.isEmpty()) {
+                final Optional<ButtonType> closeResponse = ds3Alert.showConfirmationAlert(
                         resourceBundle.getString("confirmation"),
                         jobIDMap.size() + StringConstants.SPACE + resourceBundle.getString("jobsWillBeCancelled"),
                         Alert.AlertType.CONFIRMATION,
@@ -249,8 +233,8 @@ public class JobInfoPresenter implements Initializable {
                 loggingService.logMessage(resourceBundle.getString("initiatingRecovery"), LogType.INFO);
 
                 final String jobId = buttonCell.getTreeTableRow().getTreeItem().getValue().getJobId();
-                recoverJobFactory.create(UUID.fromString(jobId), endpointInfo, () -> {
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(endpointInfo.getDs3Common(), workers, dateTimeUtils, loggingService);
+                recoverJobFactory.create(ds3Common.getCurrentSession(), UUID.fromString(jobId), endpointInfo, () -> {
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     refresh(buttonCell.getTreeTableView(), jobInterruptionStore, endpointInfo);
                     return Unit.INSTANCE;
                 });
@@ -290,9 +274,9 @@ public class JobInfoPresenter implements Initializable {
         final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
         if (jobIDMap != null) {
             jobIDMap.forEach((key, value) -> {
-                recoverJobFactory.create(UUID.fromString(key), endpointInfo, () -> {
+                recoverJobFactory.create(ds3Common.getCurrentSession(), UUID.fromString(key), endpointInfo, () -> {
                     refresh(jobListTreeTable, jobInterruptionStore, endpointInfo);
-                    RefreshCompleteViewWorker.refreshCompleteTreeTableView(ds3Common, workers, dateTimeUtils, loggingService);
+                    refreshCompleteViewWorker.refreshCompleteTreeTableView();
                     return Unit.INSTANCE;
                 });
 
@@ -319,8 +303,8 @@ public class JobInfoPresenter implements Initializable {
                 loggingService.logMessage("Loading interrupted jobs", LogType.INFO);
                 final Map<String, FilesAndFolderMap> jobIDMap = ParseJobInterruptionMap.getJobIDMap(jobInterruptionStore.getJobIdsModel().getEndpoints(), endpointInfo.getEndpoint(), deepStorageBrowserPresenter.getJobProgressView(), null);
                 if (jobIDMap != null) {
-                    if (jobIDMap.size() == 0) {
-                        Platform.runLater(() -> stage.close());
+                    if (jobIDMap.isEmpty()) {
+                        UIThreadUtil.runInFXThread(() -> stage.close());
                     }
                     jobIDMap.forEach((key, fileAndFolder) -> {
                         final JobInfoModel jobModel = new JobInfoModel(fileAndFolder.getType(), key, fileAndFolder.getDate(), fileAndFolder.getTotalJobSize(), key, fileAndFolder.getType(), "Interrupted", JobInfoModel.Type.JOBID, fileAndFolder.getTargetLocation(), fileAndFolder.getBucket());

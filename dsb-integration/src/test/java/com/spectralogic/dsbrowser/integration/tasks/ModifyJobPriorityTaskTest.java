@@ -32,11 +32,14 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.ModifyJobPriorityTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -51,6 +54,9 @@ public class ModifyJobPriorityTaskTest {
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
     private static final String TEST_ENV_NAME = "ModifyJobPriorityTaskTest";
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @Before
     public void setUp() throws Exception {
@@ -66,9 +72,9 @@ public class ModifyJobPriorityTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(
-                    SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
         });
+
     }
 
     @Test

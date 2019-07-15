@@ -5,6 +5,7 @@ import io.reactivex.Observable;
 public interface LoggingService {
     Observable<LogEvent> getLoggerObservable();
     void logMessage(final String message, final LogType logType);
+    void logInternationalMessage(final String messageBundleName, final LogType logType);
 
     class LogEvent {
         private final String message;

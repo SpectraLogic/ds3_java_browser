@@ -18,16 +18,17 @@ package com.spectralogic.dsbrowser.gui;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.spectralogic.ds3client.Ds3Client;
-import com.spectralogic.ds3client.commands.spectrads3.CancelJobSpectraS3Request;
 import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.Workers;
+import com.spectralogic.dsbrowser.gui.services.jobService.JobTask;
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.JobInterruptionStore;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
 import com.spectralogic.dsbrowser.gui.services.tasks.Ds3JobTask;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
+import com.spectralogic.dsbrowser.gui.util.UIThreadUtil;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.application.Platform;
@@ -104,7 +105,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                 LOG.error("Failed to save settings information to the local filesystem", e);
             }
         }
-        if (jobWorkers.getTasks().size() != 0) {
+        if (!jobWorkers.getTasks().isEmpty()) {
 
             final ImmutableList<Ds3JobTask> outstandingJobs = jobWorkers.getTasks().stream().collect(GuavaCollectors.immutableList());
 
@@ -140,7 +141,11 @@ public class ShutdownServiceImpl implements ShutdownService {
 
         @Override
         public Object call() {
-            outstandingJobs.forEach(job -> {
+            outstandingJobs
+                    .stream()
+                    .filter(ds3JobTask -> ds3JobTask instanceof JobTask)
+                    .map(ds3JobTask -> (JobTask) ds3JobTask)
+                    .forEach(job -> {
                 final CountDownLatch latch = new CountDownLatch(1);
                 try {
 
@@ -149,7 +154,7 @@ public class ShutdownServiceImpl implements ShutdownService {
                     LOG.info("Cancelled job:{} ", jobId);
 
                     final AtomicDouble progress = new AtomicDouble();
-                    Platform.runLater(() -> {
+                    UIThreadUtil.runInFXThread(() -> {
                         progress.set(job.getProgress());
                         latch.countDown();
                     });
@@ -159,13 +164,12 @@ public class ShutdownServiceImpl implements ShutdownService {
                     // against a delta since doubles can sometimes report back values close to 1.0, but not
                     // exactly 1.0
                     final double difference = progress.get() - 1.0;
-                    if (difference > 0.0001 || difference < -0.0001) {
-                        job.cancel();
-                        ds3Client.cancelJobSpectraS3(new CancelJobSpectraS3Request(jobId));
+                        if (difference > 0.0001 || difference < -0.0001) {
+                                ((JobTask) job).awaitCancel();
                     }
                     ParseJobInterruptionMap.removeJobID(jobInterruptionStore, jobId, ds3Client.getConnectionDetails()
                             .getEndpoint(), null, null);
-                } catch (final InterruptedException  | IOException e) {
+                } catch (final InterruptedException e) {
                     LOG.error("Failed to cancel job", e);
                 }
             });

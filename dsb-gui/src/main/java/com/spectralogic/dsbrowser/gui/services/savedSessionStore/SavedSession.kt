@@ -19,13 +19,15 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session
 
-data class SavedSession @JsonCreator constructor(@JsonProperty("name") val name: String,
-                                                 @JsonProperty("endpoint") val endpoint: String,
-                                                 @JsonProperty("portNo") val portNo: String,
-                                                 @JsonProperty("proxyServer") val proxyServer: String?,
-                                                 @JsonProperty("credentials") val credentials: SavedCredentials,
-                                                 @JsonProperty("defaultSession") val defaultSession: Boolean,
-                                                 @JsonProperty("useSSL") val useSSL: Boolean) {
+data class SavedSession @JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("endpoint") val endpoint: String,
+    @JsonProperty("portNo") val portNo: String,
+    @JsonProperty("proxyServer") val proxyServer: String?,
+    @JsonProperty("credentials") val credentials: SavedCredentials,
+    @JsonProperty("defaultSession") val defaultSession: Boolean,
+    @JsonProperty("useSSL") val useSSL: Boolean
+) {
 
     constructor(session: Session, savedCredentials: SavedCredentials) : this(
             session.sessionName,

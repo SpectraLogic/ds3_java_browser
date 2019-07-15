@@ -29,13 +29,16 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSession;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.ParseJobInterruptionMap;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.stage.Window;
 import org.controlsfx.control.TaskProgressView;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +68,8 @@ public class ParseJobInterruptionMapTest {
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private static final Ds3Client client = Ds3ClientBuilder.fromEnv().withHttps(false).build();
     private static final BuildInfoServiceImpl buildInfoService = new BuildInfoServiceImpl();
+    private static  final AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private static final CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
 
     @BeforeClass
     public static void setUp() throws InterruptedException {
@@ -83,7 +88,7 @@ public class ParseJobInterruptionMapTest {
                                 client.getConnectionDetails().getCredentials().getKey()),
                         false,
                         false);
-                session = CreateConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+                session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), Mockito.mock(Window.class));
 
                 //Initializing endpoint
                 endpoint = session.getEndpoint() + StringConstants.COLON + session.getPortNo();
@@ -189,7 +194,7 @@ public class ParseJobInterruptionMapTest {
             boolean result = true;
 
             //Check if all keys/jobs id are equal
-            if (!resultMapKayElement.isPresent() || (jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size())) {
+            if (!resultMapKayElement.isPresent() || jobIDMap.size() != filesAndFolderMap1.get(resultMapKayElement.get()).size()) {
                 result = false;
             } else {
                 for (final String key : jobIDMap.keySet()) {

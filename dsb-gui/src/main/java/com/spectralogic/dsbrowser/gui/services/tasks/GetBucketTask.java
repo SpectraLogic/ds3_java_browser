@@ -29,7 +29,6 @@ import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
 import com.spectralogic.dsbrowser.util.GuavaCollectors;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -116,7 +115,7 @@ public class GetBucketTask extends Ds3Task {
             final ImmutableList<Ds3TreeTableValue> directoryValues = BucketUtil.getDirectoryValues(bucketResponse, bucket);
 
             //after getting both lists we need to merge in partialResult and need to sort
-            Platform.runLater(() -> {
+            UIThreadUtil.runInFXThread(() -> {
                 //if selected item is not load more then clear partial result list so that items will not appear twice
                 if(ds3Value.getType() != Ds3TreeTableValue.Type.Loader) {
                     partialResults.get().clear();
@@ -167,8 +166,8 @@ public class GetBucketTask extends Ds3Task {
                     clickToLoadMore.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
                     final Ds3TreeTableItem addMoreItem = new Ds3TreeTableItem(bucket, session, new Ds3TreeTableValue
                             (bucket, clickToLoadMore.getText(), Ds3TreeTableValue.Type.Loader, -1,
-                                    StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING, false,
-                                    hbox, marker), workers, ds3Common, dateTimeUtils, loggingService);
+                                    StringConstants.EMPTY_STRING, StringConstants.EMPTY_STRING, false, hbox,
+                                    marker), workers, ds3Common, dateTimeUtils, loggingService);
                     partialResults.get().add(addMoreItem);
 
                 }

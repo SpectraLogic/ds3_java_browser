@@ -15,14 +15,14 @@
 
 package com.spectralogic.dsbrowser.gui.components.settings;
 
-import com.spectralogic.ds3client.models.Priority;
+import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.JobSettings;
 import com.spectralogic.dsbrowser.gui.services.jobprioritystore.SavedJobPrioritiesStore;
 import com.spectralogic.dsbrowser.gui.services.logservice.ApplicationLoggerSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.*;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.PriorityFilter;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
@@ -30,6 +30,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.converter.NumberStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +121,9 @@ public class SettingPresenter implements Initializable {
     @FXML
     private CheckBox filePropertiesCheckbox;
 
+    @ModelContext
+    private Window window;
+
     private final ResourceBundle resourceBundle;
     private final JobWorkers jobWorkers;
     private final SavedJobPrioritiesStore savedJobPrioritiesStore;
@@ -130,20 +134,22 @@ public class SettingPresenter implements Initializable {
     private FilePropertiesSettings filePropertiesSettings;
     private LogSettings logSettings;
     private ProcessSettings processSettings;
-    private final LazyAlert alert;
+    private final AlertService alert;
+
 
     @Inject
     public SettingPresenter(final ResourceBundle resourceBundle,
-                            final JobWorkers jobWorkers,
-                            final SavedJobPrioritiesStore savedJobPrioritiesStore,
-                            final SettingsStore settingsStore,
-                            final ApplicationLoggerSettings applicationLoggerSettings) {
+            final JobWorkers jobWorkers,
+            final SavedJobPrioritiesStore savedJobPrioritiesStore,
+            final SettingsStore settingsStore,
+            final AlertService alertService,
+            final ApplicationLoggerSettings applicationLoggerSettings) {
         this.resourceBundle = resourceBundle;
         this.jobWorkers = jobWorkers;
         this.savedJobPrioritiesStore = savedJobPrioritiesStore;
         this.settingsStore = settingsStore;
         this.applicationLoggerSettings = applicationLoggerSettings;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = alertService;
     }
 
     @Override
@@ -168,7 +174,7 @@ public class SettingPresenter implements Initializable {
             } else {
                 settingsStore.setFilePropertiesSettings(false);
             }
-            alert.info("filePropertiesSettingsUpdated");
+            alert.info("filePropertiesSettingsUpdated", window);
         } catch (final Exception e) {
             LOG.error("Failed to save file properties", e);
         }
@@ -178,14 +184,14 @@ public class SettingPresenter implements Initializable {
         LOG.info("Updating maximum number of Threads");
         settingsStore.setProcessSettings(processSettings);
         jobWorkers.setWorkers(Executors.newFixedThreadPool(processSettings.getMaximumNumberOfParallelThreads()));
-        alert.info("performanceSettingsUpdated");
+        alert.info("performanceSettingsUpdated", window);
     }
 
     public void saveLogSettings() {
         LOG.info("Updating logging settingsStore");
         settingsStore.setLogSettings(logSettings);
         applicationLoggerSettings.setLogSettings(logSettings);
-        alert.info("loggingSettingsUpdated");
+        alert.info("loggingSettingsUpdated", window);
     }
 
     public void saveJobSettings() {
@@ -194,7 +200,7 @@ public class SettingPresenter implements Initializable {
             jobSettings.setGetJobPriority(getJobPriority.getSelectionModel().getSelectedItem());
             jobSettings.setPutJobPriority(putJobPriority.getSelectionModel().getSelectedItem());
             SavedJobPrioritiesStore.saveSavedJobPriorties(savedJobPrioritiesStore);
-            alert.info("jobsSettingsUpdated");
+            alert.info("jobsSettingsUpdated", window);
         } catch (final Exception e) {
             LOG.error("Failed to save job priorities", e);
         }
@@ -240,11 +246,10 @@ public class SettingPresenter implements Initializable {
         saveFilePropertiesEnableButton.setText(resourceBundle.getString("saveFilePropertiesEnableButton"));
         cancelFilePropertiesEnableButton.setText(resourceBundle.getString("cancelFilePropertiesEnableButton"));
         filePropertiesCheckbox.setSelected(filePropertiesSettings.isFilePropertiesEnabled());
-        final Priority[] priorities = PriorityFilter.filterPriorities();
-        for (final Priority priority : priorities) {
+        PriorityFilter.priorities.forEach(priority -> {
             putJobPriority.getItems().add(priority.toString());
             getJobPriority.getItems().add(priority.toString());
-        }
+        });
         putJobPriority.getSelectionModel().select(jobSettings.getPutJobPriority());
         getJobPriority.getSelectionModel().select(jobSettings.getGetJobPriority());
         performanceFieldValue.setText(String.valueOf(processSettings.getMaximumNumberOfParallelThreads()));

@@ -25,6 +25,7 @@ import com.spectralogic.dsbrowser.api.services.ShutdownService;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.interruptedjobwindow.ButtonCell;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.injector.providers.*;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
 import com.spectralogic.dsbrowser.gui.services.JobWorkers;
@@ -38,6 +39,10 @@ import com.spectralogic.dsbrowser.gui.services.savedSessionStore.SavedSessionSto
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Ds3SessionStore;
 import com.spectralogic.dsbrowser.gui.services.settings.LogSettings;
 import com.spectralogic.dsbrowser.gui.services.settings.SettingsStore;
+import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetDirectoryObjects;
+import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
+import com.spectralogic.dsbrowser.gui.services.tasks.PhysicalPlacementTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import javafx.scene.input.DataFormat;
@@ -70,8 +75,14 @@ public class GuiModule extends AbstractModule {
 
         loadPresenters(this::bind);
 
-        install(new FactoryModuleBuilder().build(ButtonCell.ButtonCellFactory.class));
-        install(new FactoryModuleBuilder().build(JobTaskElement.JobTaskElementFactory.class));
+        final FactoryModuleBuilder factoryModuleBuilder = new FactoryModuleBuilder();
+        install(factoryModuleBuilder.build(ButtonCell.ButtonCellFactory.class));
+        install(factoryModuleBuilder.build(JobTaskElement.JobTaskElementFactory.class));
+        install(factoryModuleBuilder.build(GetMediaDeviceTask.GetMediaDeviceTaskFactory.class));
+        install(factoryModuleBuilder.build(FileTreeTableItem.FileTreeTableItemFactory.class));
+        install(factoryModuleBuilder.build(CreateFolderTask.CreateFolderTaskFactory.class));
+        install(factoryModuleBuilder.build(PhysicalPlacementTask.PhysicalPlacementTaskFactory.class));
+        install(factoryModuleBuilder.build(GetDirectoryObjects.Companion.GetDirectoryObjectsFactory.class));
     }
 
     @Singleton
@@ -93,7 +104,7 @@ public class GuiModule extends AbstractModule {
     @Provides
     @Named("jobPriority")
     protected String providesJobPriority(final SavedJobPrioritiesStore savedJobPrioritiesStore, final ResourceBundle resourceBundle) {
-       return  (!savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText"))) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
+       return  !savedJobPrioritiesStore.getJobSettings().getPutJobPriority().equals(resourceBundle.getString("defaultPolicyText")) ? savedJobPrioritiesStore.getJobSettings().getPutJobPriority() : null;
     }
 
     @Provides

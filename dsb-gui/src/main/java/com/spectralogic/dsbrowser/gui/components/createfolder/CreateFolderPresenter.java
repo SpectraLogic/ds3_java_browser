@@ -15,13 +15,14 @@
 
 package com.spectralogic.dsbrowser.gui.components.createfolder;
 
+import com.spectralogic.ds3client.networking.FailedRequestException;
 import com.spectralogic.dsbrowser.api.injector.ModelContext;
 import com.spectralogic.dsbrowser.api.injector.Presenter;
 import com.spectralogic.dsbrowser.api.services.logging.LogType;
 import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.CreateFolderTask;
-import com.spectralogic.dsbrowser.gui.util.LazyAlert;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 import com.spectralogic.dsbrowser.gui.util.treeItem.SafeHandler;
 import javafx.fxml.FXML;
@@ -31,6 +32,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,16 +62,21 @@ public class CreateFolderPresenter implements Initializable {
     private final Workers workers;
     private final ResourceBundle resourceBundle;
     private final LoggingService loggingService;
-    private final LazyAlert alert;
+    private final AlertService alert;
+    private final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory;
 
     @Inject
     public CreateFolderPresenter(final Workers workers,
-                                 final ResourceBundle resourceBundle,
-                                 final LoggingService loggingService) {
+            final ResourceBundle resourceBundle,
+            final LoggingService loggingService,
+            final AlertService alertService,
+            final CreateFolderTask.CreateFolderTaskFactory createFolderTaskFactory
+    ) {
         this.workers = workers;
         this.resourceBundle = resourceBundle;
         this.loggingService = loggingService;
-        this.alert = new LazyAlert(resourceBundle);
+        this.alert = alertService;
+        this.createFolderTaskFactory = createFolderTaskFactory;
     }
 
     @Override
@@ -100,22 +108,44 @@ public class CreateFolderPresenter implements Initializable {
 
     public void createFolder() {
         //Instantiating create folder task
-        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
-        final CreateFolderTask createFolderTask = new CreateFolderTask(createFolderModel.getClient(),
-                createFolderModel.getBucketName().trim(), folderWithPath,
-                loggingService, resourceBundle);
+        final String targetPath = getTargetPath();
+        final CreateFolderTask createFolderTask = createFolderTaskFactory.create(createFolderModel.getBucketName().trim(), targetPath);
         //Handling task actions
         createFolderTask.setOnSucceeded(SafeHandler.logHandle(event -> {
             this.closeDialog();
-            loggingService.logMessage(folderWithPath + StringConstants.SPACE
+            loggingService.logMessage(targetPath + StringConstants.SPACE
                     + resourceBundle.getString("folderCreated"), LogType.SUCCESS);
         }));
         createFolderTask.setOnCancelled(SafeHandler.logHandle(event -> this.closeDialog()));
         createFolderTask.setOnFailed(SafeHandler.logHandle(event -> {
-            alert.error(CREATE_FOLDER_ERR_LOGS);
+            final Throwable e = event.getSource().getException();
+            if (e instanceof FailedRequestException && ((FailedRequestException) e).getError().getCode().equals("OBJECT_ALREADY_EXISTS")) {
+                alert.error("folderAlreadyExists", getWindow());
+            } else {
+                alert.error(CREATE_FOLDER_ERR_LOGS, getWindow());
+                LOG.error("Failed to create folder", e);
+                loggingService.logMessage(resourceBundle.getString("createFolderErr")
+                        + StringConstants.SPACE + folderNameField.textProperty().getValue().trim()
+                        + StringConstants.SPACE + resourceBundle.getString("txtReason")
+                        + StringConstants.SPACE + e, LogType.ERROR);
+            }
             this.closeDialog();
         }));
         workers.execute(createFolderTask);
+    }
+
+    @NotNull
+    private String getTargetPath() {
+        final String folderWithPath = createFolderModel.getLocation() + folderNameField.textProperty().getValue().trim();
+        final String targetPath;
+        if (folderWithPath.equals("/")) {
+            targetPath = "";
+        } else if (folderWithPath.startsWith("/")) {
+            targetPath = folderWithPath.substring(1);
+        } else {
+            targetPath = folderWithPath;
+        }
+        return targetPath;
     }
 
     public void cancel() {
@@ -126,5 +156,9 @@ public class CreateFolderPresenter implements Initializable {
     private void closeDialog() {
         final Stage popupStage = (Stage) folderNameField.getScene().getWindow();
         popupStage.close();
+    }
+
+    private Window getWindow() {
+        return labelText.getScene().getWindow();
     }
 }

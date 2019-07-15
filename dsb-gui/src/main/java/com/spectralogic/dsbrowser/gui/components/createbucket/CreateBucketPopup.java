@@ -16,12 +16,27 @@
 package com.spectralogic.dsbrowser.gui.components.createbucket;
 
 import com.spectralogic.dsbrowser.gui.util.Popup;
+import javafx.stage.Window;
 
+import javax.inject.Inject;
 import java.util.ResourceBundle;
 
 public final class CreateBucketPopup {
-    public static void show(final CreateBucketWithDataPoliciesModel createBucketModel, final ResourceBundle resourceBundle) {
+
+    private final ResourceBundle resourceBundle;
+    private final Popup popup;
+
+    @Inject
+    public CreateBucketPopup (
+            final ResourceBundle resourceBundle,
+            final Popup popup
+    ) {
+        this.resourceBundle = resourceBundle;
+        this.popup = popup;
+    }
+
+    public void show(final CreateBucketWithDataPoliciesModel createBucketModel, final Window window) {
         final CreateBucketView createBucketView = new CreateBucketView(createBucketModel);
-        Popup.show(createBucketView.getView(), resourceBundle.getString("createBucketContextMenu"));
+        popup.show(createBucketView.getView(), resourceBundle.getString("createBucketContextMenu"), window);
     }
 }

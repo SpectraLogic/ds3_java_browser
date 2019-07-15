@@ -15,7 +15,6 @@
 
 package com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable;
 
-import com.spectralogic.dsbrowser.gui.util.BaseTreeModel;
 import com.spectralogic.dsbrowser.gui.util.StringConstants;
 
 import java.io.Serializable;
@@ -28,27 +27,14 @@ public class Ds3TreeTableValueCustom implements Serializable {
     private final Ds3TreeTableValue.Type type;
     private final long size;
     private final String lastModified;
-    private final String owner;
-    private final boolean searchOn;
 
-    public Ds3TreeTableValueCustom(final String bucketName, final String name, final Ds3TreeTableValue.Type type, final long size, final String lastModified, final String owner, final boolean searchOn) {
+    public Ds3TreeTableValueCustom(final String bucketName, final String name, final Ds3TreeTableValue.Type type, final long size, final String lastModified) {
         this.bucketName = bucketName;
         this.fullName = name;
         this.name = getLastPart(name, type);
         this.type = type;
         this.size = size;
         this.lastModified = lastModified;
-        this.owner = owner;
-        this.searchOn = searchOn;
-    }
-
-    //I'm not sure what this method does, it isn't called anywhere
-    public boolean isContainer() {
-        return (type == Ds3TreeTableValue.Type.Bucket || type == Ds3TreeTableValue.Type.File);
-    }
-
-    public boolean isSearchOn() {
-        return searchOn;
     }
 
     private static String getLastPart(final String name, final Ds3TreeTableValue.Type type) {
@@ -87,26 +73,6 @@ public class Ds3TreeTableValueCustom implements Serializable {
         return bucketName;
     }
 
-    public String getDirectoryName() {
-        switch (type) {
-            case Directory:
-                return getFullName();
-            case Bucket:
-                return StringConstants.EMPTY_STRING;
-            default:
-                return getParentDir(this.getFullName());
-        }
-    }
-
-
-    private String getParentDir(final String fullName) {
-        final int index = fullName.lastIndexOf('/');
-        if (index < 0) {
-            return StringConstants.EMPTY_STRING;
-        }
-        return fullName.substring(0, index);
-    }
-
     public String getParent() {
         final int index = fullName.lastIndexOf('/');
         if (index < 0) {
@@ -120,10 +86,6 @@ public class Ds3TreeTableValueCustom implements Serializable {
             return fullName.substring(0, secondLast);
         }
         return fullName.substring(0, index);
-    }
-
-    public String getOwner() {
-        return owner;
     }
 
 }

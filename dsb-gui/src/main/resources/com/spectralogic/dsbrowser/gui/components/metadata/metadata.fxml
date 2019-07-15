@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -25,6 +24,7 @@
   ~ *******************************************************************************
   -->
 
+<?import javafx.scene.control.TextField?>
 <VBox fx:id="metadataVBox" maxHeight="100000" maxWidth="100000" minHeight="1.0" minWidth="1.0" prefHeight="300.0" prefWidth="600.0" spacing="10.0" stylesheets="@../../common.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.spectralogic.dsbrowser.gui.components.metadata.MetadataPresenter">
     <children>
         <HBox fx:id="metadataHbox" prefWidth="440.0" spacing="10.0">
@@ -34,11 +34,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectName" prefHeight="17.0" prefWidth="482.0">
-                    <tooltip>
-                        <Tooltip fx:id="nameTooltip" />
-                    </tooltip>
-                </Label>
+                <TextField fx:id="objectName" prefHeight="17.0" prefWidth="482.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false"/>
             </children>
         </HBox>
         <HBox spacing="10.0">
@@ -48,7 +44,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="objectSize" prefHeight="17.0" prefWidth="399.0" />
+                <TextField fx:id="objectSize" prefHeight="17.0" prefWidth="399.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false" />
             </children>
         </HBox>
         <HBox spacing="10.0">
@@ -58,7 +54,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Label>
-                <Label fx:id="lastModified" prefHeight="17.0" prefWidth="399.0" />
+                <TextField fx:id="lastModified" prefHeight="17.0" prefWidth="399.0" editable="false" stylesheets="metadata.css" styleClass="hideTextArea" focusTraversable="false"/>
             </children>
         </HBox>
         <TableView fx:id="metadataTable" prefHeight="280.0" prefWidth="500.0" style="-fx-wrap-text: true;">

@@ -15,7 +15,10 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
+import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeModel;
+import com.spectralogic.dsbrowser.gui.components.localfiletreetable.FileTreeTableItem;
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetMediaDeviceTask;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
@@ -37,7 +40,14 @@ import static org.junit.Assert.assertTrue;
 public class GetMediaDeviceTaskTest {
 
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private final LoggingService loggingService = new LoggingServiceFake();
     private boolean successFlag = false;
+    private final FileTreeTableItem.FileTreeTableItemFactory fileTreeTableItemFactory = new FileTreeTableItem.FileTreeTableItemFactory() {
+        @Override
+        public FileTreeTableItem create(final FileTreeModel fileTreeModel) {
+            return new FileTreeTableItem(new FileTreeTableProvider(new DateTimeUtils()), fileTreeModel, new Workers(1), loggingService);
+        }
+    };
 
     @Test
     public void call() throws Exception {
@@ -45,13 +55,13 @@ public class GetMediaDeviceTaskTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final FileTreeTableProvider provider = new FileTreeTableProvider();
-                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer", DTU);
+                final FileTreeTableProvider provider = new FileTreeTableProvider(DTU);
+                final Stream<FileTreeModel> rootItems = provider.getRoot("My Computer");
                 final TreeItem treeItem = Mockito.mock(TreeItem.class);
                 Mockito.when(treeItem.getChildren()).thenReturn(FXCollections.observableArrayList());
                 final Workers workers = new Workers();
 
-                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, provider, DTU, workers);
+                final GetMediaDeviceTask task = new GetMediaDeviceTask(rootItems, treeItem, fileTreeTableItemFactory);
                 workers.execute(task);
                 task.setOnSucceeded(event -> {
                     successFlag = true;

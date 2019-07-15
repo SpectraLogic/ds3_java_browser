@@ -20,29 +20,25 @@ import com.spectralogic.ds3client.Ds3Client
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers
 import com.spectralogic.dsbrowser.gui.services.jobinterruption.FilesAndFolderMap
 import java.nio.file.Path
-import java.util.*
+import java.util.UUID
+import javax.naming.ConfigurationException
 
 private const val RETRY_TIME = 100
 class KnownJobData constructor(
-        private val jobData: JobData,
-        private val filesAndFolderMap: FilesAndFolderMap,
-        override var jobId: UUID?,
-        val client: Ds3Client,
-        private val jobType: String
+    private val jobData: JobData,
+    private val filesAndFolderMap: FilesAndFolderMap,
+    override val jobId: UUID,
+    val client: Ds3Client,
+    private val jobType: String
 ) : JobData by jobData {
 
-    override var job: Ds3ClientHelpers.Job? = null
-        get() {
-            if (field == null) {
-                if (jobType == "GET") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
-                } else if (jobType == "PUT") {
-                    field = Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
-                }
-            }
-            jobData.job = field
-            return jobData.job
+    override val job: Ds3ClientHelpers.Job by lazy {
+        when (jobType) {
+            "GET" -> Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverReadJob(jobId)
+            "PUT" -> Ds3ClientHelpers.wrap(client, RETRY_TIME).recoverWriteJob(jobId)
+            else -> throw ConfigurationException("Was expecting GET or PUT, but got $jobType")
         }
+            }
 
     override var prefixMap: MutableMap<String, Path> = mutableMapOf()
         get() {

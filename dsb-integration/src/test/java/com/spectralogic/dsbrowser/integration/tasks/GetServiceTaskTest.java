@@ -15,12 +15,12 @@
 
 package com.spectralogic.dsbrowser.integration.tasks;
 
+import com.spectralogic.browser.gui.testUtil.LoggingServiceFake;
 import com.spectralogic.ds3client.Ds3Client;
 import com.spectralogic.ds3client.Ds3ClientBuilder;
 import com.spectralogic.ds3client.commands.spectrads3.DeleteBucketSpectraS3Request;
 import com.spectralogic.ds3client.helpers.Ds3ClientHelpers;
 import com.spectralogic.ds3client.models.ChecksumType;
-import com.spectralogic.dsbrowser.api.services.logging.LoggingService;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.Ds3Common;
 import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTableValue;
 import com.spectralogic.dsbrowser.gui.services.BuildInfoServiceImpl;
@@ -33,6 +33,7 @@ import com.spectralogic.dsbrowser.gui.services.tasks.CreateConnectionTask;
 import com.spectralogic.dsbrowser.gui.services.tasks.GetServiceTask;
 import com.spectralogic.dsbrowser.gui.util.ConfigProperties;
 import com.spectralogic.dsbrowser.gui.util.DateTimeUtils;
+import com.spectralogic.dsbrowser.gui.util.AlertService;
 import com.spectralogic.dsbrowser.integration.IntegrationHelpers;
 import com.spectralogic.dsbrowser.integration.TempStorageIds;
 import javafx.application.Platform;
@@ -40,6 +41,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.TreeItem;
+import javafx.stage.Window;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +59,7 @@ import static org.junit.Assert.fail;
 
 public class GetServiceTaskTest {
 
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang", new Locale(ConfigProperties.getInstance().getLanguage()));
     private final Workers workers = new Workers();
     private Session session;
     private boolean successFlag = false;
@@ -68,6 +71,9 @@ public class GetServiceTaskTest {
     private static TempStorageIds envStorageIds;
     private static UUID envDataPolicyId;
     private static final DateTimeUtils DTU = new DateTimeUtils(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    private final static AlertService ALERT_SERVICE = new AlertService(resourceBundle);
+    private final static CreateConnectionTask createConnectionTask = new CreateConnectionTask(ALERT_SERVICE, resourceBundle, buildInfoService);
+    private final static Window window = Mockito.mock(Window.class);
 
     @Before
     public void setUp() throws Exception {
@@ -84,7 +90,7 @@ public class GetServiceTaskTest {
                             client.getConnectionDetails().getCredentials().getKey()),
                     false,
                     false);
-            session = new CreateConnectionTask().createConnection(SessionModelService.setSessionModel(savedSession, false), resourceBundle, buildInfoService);
+            session = createConnectionTask.createConnection(SessionModelService.setSessionModel(savedSession, false), window);
 
             try {
                 envDataPolicyId = IntegrationHelpers.setupDataPolicy(TEST_ENV_NAME, false, ChecksumType.Type.MD5, client);
@@ -117,7 +123,7 @@ public class GetServiceTaskTest {
 
             final ObservableList<TreeItem<Ds3TreeTableValue>> observableList = FXCollections.observableArrayList();
             final GetServiceTask getServiceTask = new GetServiceTask(observableList, session, workers,
-                    Mockito.mock(Ds3Common.class), DTU, Mockito.mock(LoggingService.class));
+                    Mockito.mock(Ds3Common.class), DTU, new LoggingServiceFake());
             workers.execute(getServiceTask);
             getServiceTask.setOnSucceeded(event -> {
                 successFlag=true;
