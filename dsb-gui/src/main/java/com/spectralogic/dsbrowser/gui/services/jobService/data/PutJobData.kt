@@ -121,23 +121,30 @@ data class PutJobData(
         EmptyChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
 
     private fun pathToDs3Object(path: Path): Sequence<Pair<Ds3Object, Path>> {
-        return path.toFile().walk(FileWalkDirection.TOP_DOWN)
+        return path
+            .toFile()
+            .walk(FileWalkDirection.TOP_DOWN)
             .filter(::rejectEmptyDirectory)
             .filter(::rejectDeadLinks)
-            .map(::convertToBPDelimiter)
+            .map(::addSize)
+            .map(::convertToDs3Object)
             .map { Pair(it, path) }
     }
+
+    private fun addSize(file: File): Pair<File, Long> =
+        Pair(file,if (Files.isDirectory(file.toPath())) 0L else file.length())
 
     private fun rejectEmptyDirectory(file: File) =
         !(file.isDirectory && Files.list(file.toPath()).use { f -> f.findAny().isPresent })
 
-    private fun convertToBPDelimiter(file: File): Ds3Object {
+    private fun convertToDs3Object(fileParts: Pair<File, Long>): Ds3Object {
+        val (file, size) = fileParts
         val parent = file.toPath().parent
+        val pathBuilder = StringBuilder(targetDir)
         val localDelim = file.toPath().fileSystem.separator
-        val size = if (Files.isDirectory(file.toPath())) 0L else file.length()
-        val basePath: String = targetDir + parent.relativize(file.toPath()).toString().replace(localDelim, "/") +
-                if (file.isDirectory) { "/" } else { "" }
-        return Ds3Object(basePath, size)
+        pathBuilder.append(parent.relativize(file.toPath()).toString().replace(localDelim, "/"))
+        if (file.isDirectory) { pathBuilder.append("/") }
+        return Ds3Object(pathBuilder.toString(), size)
     }
 
     private fun rejectDeadLinks(file: File): Boolean {
