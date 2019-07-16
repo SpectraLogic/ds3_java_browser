@@ -41,7 +41,7 @@ import javafx.beans.property.BooleanProperty
 import java.io.File
 import java.lang.RuntimeException
 import java.nio.file.Files
-import java.nio.file.LinkOption
+import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.time.Instant
 import java.util.UUID
@@ -70,7 +70,7 @@ data class PutJobData(
     }
 
     override val job: Ds3ClientHelpers.Job by lazy {
-                val ds3Objects = items.map { dataToDs3Objects(it) }.flatMap { it.asIterable() }
+                val ds3Objects = items.map { pathToDs3Object(it.second) }.flatMap { it.asIterable() }
                 ds3Objects.map { pair: Pair<Ds3Object, Path> -> Pair<String, Path>(pair.first.name, pair.second) }
                     .forEach { prefixMap.put(it.first, it.second) }
                 if (ds3Objects.isEmpty()) {
@@ -120,29 +120,34 @@ data class PutJobData(
     override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder =
         EmptyChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
 
-    private fun dataToDs3Objects(item: Pair<String, Path>): Sequence<Pair<Ds3Object, Path>> {
-        val localDelim = item.second.fileSystem.separator
-        val parent = item.second.parent
-        val paths = item.second.toFile().walk(FileWalkDirection.TOP_DOWN)
-                    .filter { !(it.isDirectory && Files.list(it.toPath()).use { f -> f.findAny().isPresent }) }
-                    .filter {
-                     try {
-                        it.toPath().toRealPath()
-                        true
-                    } catch (e: java.nio.file.NoSuchFileException) {
-                        loggingService().logMessage("Could not resolve link " + it, LogType.ERROR)
-                                false
-                             }
-                         }
-                    .map {
-                        Ds3Object(if (it.isDirectory) {
-                            targetDir + parent.relativize(it.toPath()).toString().replace(localDelim, "/") + "/"
-                        } else {
-                            targetDir + parent.relativize(it.toPath()).toString().replace(localDelim, "/")
-                        }, if (Files.isDirectory(it.toPath())) 0L else it.length())
-                    }
-                .map { Pair(it, item.second) }
-        return paths
+    private fun pathToDs3Object(path: Path): Sequence<Pair<Ds3Object, Path>> {
+        return path.toFile().walk(FileWalkDirection.TOP_DOWN)
+            .filter(::rejectEmptyDirectory)
+            .filter(::rejectDeadLinks)
+            .map(::convertToBPDelimiter)
+            .map { Pair(it, path) }
+    }
+
+    private fun rejectEmptyDirectory(file: File) =
+        !(file.isDirectory && Files.list(file.toPath()).use { f -> f.findAny().isPresent })
+
+    private fun convertToBPDelimiter(file: File): Ds3Object {
+        val parent = file.toPath().parent
+        val localDelim = file.toPath().fileSystem.separator
+        val size = if (Files.isDirectory(file.toPath())) 0L else file.length()
+        val basePath: String = targetDir + parent.relativize(file.toPath()).toString().replace(localDelim, "/") +
+                if (file.isDirectory) { "/" } else { "" }
+        return Ds3Object(basePath, size)
+    }
+
+    private fun rejectDeadLinks(file: File): Boolean {
+        return try {
+            file.toPath().toRealPath()
+            true
+        } catch (e: NoSuchFileException) {
+            loggingService().logMessage("Could not resolve link " + file, LogType.ERROR)
+            false
+        }
     }
 
     override fun jobSize() = jobTaskElement.client.getActiveJobSpectraS3(GetActiveJobSpectraS3Request(job.jobId)).activeJobResult.originalSizeInBytes
