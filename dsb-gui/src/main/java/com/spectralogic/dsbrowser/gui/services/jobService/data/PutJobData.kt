@@ -76,7 +76,7 @@ data class PutJobData(
                 if (ds3Objects.isEmpty()) {
                     loggingService().logMessage("File list is empty, cannot create job", LogType.ERROR)
                     throw RuntimeException("File list is empty")
-                 }
+                }
                 val priority =
                     if (jobTaskElement.savedJobPrioritiesStore.jobSettings.putJobPriority.equals("Data Policy Default (no change)")) {
                         null
@@ -132,7 +132,7 @@ data class PutJobData(
     }
 
     private fun addSize(file: File): Pair<File, Long> =
-        Pair(file,if (Files.isDirectory(file.toPath())) 0L else file.length())
+        Pair(file, if (Files.isDirectory(file.toPath())) 0L else file.length())
 
     private fun rejectEmptyDirectory(file: File) =
         !(file.isDirectory && Files.list(file.toPath()).use { f -> f.findAny().isPresent })
