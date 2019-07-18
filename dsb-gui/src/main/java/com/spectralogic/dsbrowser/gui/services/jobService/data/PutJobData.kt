@@ -129,6 +129,7 @@ data class PutJobData(
             .map(::addSize)
             .map(::convertToDs3Object)
             .map { Pair(it, path) }
+            .distinct()
     }
 
     private fun addSize(file: File): Pair<File, Long> =
