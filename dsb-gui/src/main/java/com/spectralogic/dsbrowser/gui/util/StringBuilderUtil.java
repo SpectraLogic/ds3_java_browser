@@ -23,7 +23,11 @@ import java.util.ResourceBundle;
 
 import static com.spectralogic.dsbrowser.gui.util.StringConstants.*;
 
-public class StringBuilderUtil {
+public final class StringBuilderUtil {
+
+    private StringBuilderUtil() {
+        // pass
+    }
 
     private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("lang",
             new Locale(ConfigProperties.getInstance().getLanguage()));
@@ -206,16 +210,16 @@ public class StringBuilderUtil {
      ****************************************************/
 
     public static StringBuilder bucketFoundMessage(final String searchText, final String bucketName) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("bucketFound")).append(StringConstants.SPACE)
+        return new StringBuilder(resourceBundle.getString("bucketFound"))
+                .append(StringConstants.SPACE)
                 .append(searchText).append(StringConstants.SPACE)
                 .append(StringConstants.IE).append(StringConstants.SPACE)
                 .append(bucketName);
     }
 
     public static StringBuilder searchInBucketMessage(final String bucketName, final int size) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("found")).append(StringConstants.SPACE)
+        return new StringBuilder(resourceBundle.getString("found"))
+                .append(StringConstants.SPACE)
                 .append(size).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("items")).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("in")).append(StringConstants.SPACE)
@@ -225,22 +229,21 @@ public class StringBuilderUtil {
     }
 
     public static StringBuilder nObjectsFoundMessage(final int n) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("searchResults")).append(StringConstants.COLON).append(StringConstants.SPACE)
+        return new StringBuilder(resourceBundle.getString("searchResults"))
+                .append(StringConstants.COLON).append(StringConstants.SPACE)
                 .append(n).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("objectFound")).append(StringConstants.SPACE);
     }
 
     public static StringBuilder searchFailedMessage() {
-        return new StringBuilder().append(
-                resourceBundle.getString("searchFailed"))
+        return new StringBuilder(resourceBundle.getString("searchFailed"))
                 .append(StringConstants.COLON)
                 .append(StringConstants.SPACE);
     }
 
     public static StringBuilder getItemsCountInfoMessage(final long numberOfFolders, final long numberOfFiles) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("contains")).append(StringConstants.SPACE)
+        return new StringBuilder(resourceBundle.getString("contains"))
+                .append(StringConstants.SPACE)
                 .append(numberOfFolders).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("folders")).append(StringConstants.SPACE)
                 .append(numberOfFiles).append(StringConstants.SPACE)
@@ -249,29 +252,27 @@ public class StringBuilderUtil {
 
     public static StringBuilder getCapacityMessage(final long totalCapacity, final Ds3TreeTableValue.Type type) {
         if (type.equals(Ds3TreeTableValue.Type.Bucket)) {
-            return new StringBuilder()
-                    .append(resourceBundle.getString("bucket("))
+            return new StringBuilder(resourceBundle.getString("bucket("))
                     .append(FileSizeFormatKt.toByteRepresentation(totalCapacity))
                     .append(StringConstants.CLOSING_BRACE);
         } else {
-            return new StringBuilder()
-                    .append(resourceBundle.getString("folder("))
+            return new StringBuilder(resourceBundle.getString("folder("))
                     .append(FileSizeFormatKt.toByteRepresentation(totalCapacity))
                     .append(StringConstants.CLOSING_BRACE);
         }
     }
 
     public static StringBuilder getSelectedItemCountInfo(final int expandedItemCount, final int selectedItemCount) {
-        return new StringBuilder()
-                .append(expandedItemCount).append(StringConstants.SPACE)
+        return new StringBuilder(expandedItemCount)
+                .append(StringConstants.SPACE)
                 .append(resourceBundle.getString("items")).append(StringConstants.COMMA).append(StringConstants.SPACE)
                 .append(selectedItemCount).append(StringConstants.SPACE)
                 .append(resourceBundle.getString("itemsSelected"));
     }
 
     public static StringBuilder getJobCompleted(final long totalJobSize, final Ds3Client ds3Client, final String formattedString) {
-        return new StringBuilder()
-                .append(resourceBundle.getString("getJobSize")).append(StringConstants.SPACE)
+        return new StringBuilder(resourceBundle.getString("getJobSize"))
+                .append(StringConstants.SPACE)
                 .append(FileSizeFormatKt.toByteRepresentation(totalJobSize))
                 .append(resourceBundle.getString("getCompleted")).append(StringConstants.SPACE)
                 .append(ds3Client.getConnectionDetails().getEndpoint()).append(StringConstants.SPACE)
@@ -280,8 +281,8 @@ public class StringBuilderUtil {
     }
 
     public static StringBuilder getPaneItemsString(final int expandedItemCount, final int size) {
-        return new StringBuilder()
-                .append(expandedItemCount).append(SPACE)
+        return new StringBuilder(expandedItemCount)
+                .append(SPACE)
                 .append(resourceBundle.getString("items")).append(SPACE)
                 .append(size).append(SPACE)
                 .append(resourceBundle.getString("itemsSelected"));
