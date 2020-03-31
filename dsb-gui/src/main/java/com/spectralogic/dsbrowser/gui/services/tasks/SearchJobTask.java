@@ -83,7 +83,6 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
                                 if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
                                     loggingService.logMessage(StringBuilderUtil.searchInBucketMessage(bucketName, treeTableItems.size()).toString(),
                                             LogType.SUCCESS);
-
                                     return treeTableItems.stream();
                                 }
                             }
