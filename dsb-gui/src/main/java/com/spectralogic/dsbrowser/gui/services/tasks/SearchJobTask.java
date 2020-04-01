@@ -30,6 +30,7 @@ import com.spectralogic.dsbrowser.gui.components.ds3panel.ds3treetable.Ds3TreeTa
 import com.spectralogic.dsbrowser.gui.services.Workers;
 import com.spectralogic.dsbrowser.gui.services.sessionStore.Session;
 import com.spectralogic.dsbrowser.gui.util.*;
+import com.spectralogic.dsbrowser.util.GuavaCollectors;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     private final static Logger LOG = LoggerFactory.getLogger(SearchJobTask.class);
@@ -67,26 +69,27 @@ public class SearchJobTask extends Ds3Task<List<Ds3TreeTableItem>> {
     @Override
     protected List<Ds3TreeTableItem> call() throws Exception {
         try {
-            final List<Ds3TreeTableItem> list = new ArrayList<>();
-            searchableBuckets.forEach(bucket -> {
-                if (bucket.getName().contains(searchText)) {
-                    loggingService.logMessage(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucket.getName()).toString(), LogType.SUCCESS);
-                    final Ds3TreeTableValue value = new Ds3TreeTableValue(bucket.getName(), bucket.getName(), Ds3TreeTableValue.Type.Bucket,
-                            0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
-                    list.add(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, dateTimeUtils, loggingService));
-                } else {
-                    final List<DetailedS3Object> detailedDs3Objects = getDetailedDs3Objects(bucket.getName());
-                    if (Guard.isNotNullAndNotEmpty(detailedDs3Objects)) {
-                        final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucket.getName(), dateTimeUtils);
-                        if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
-                            list.addAll(treeTableItems);
-                            loggingService.logMessage(StringBuilderUtil.searchInBucketMessage(bucket.getName(), list.size()).toString(),
-                                    LogType.SUCCESS);
+            return searchableBuckets.parallelStream().map(Bucket::getName)
+                    .flatMap(bucketName -> {
+                        if (bucketName.contains(searchText)) {
+                            loggingService.logMessage(StringBuilderUtil.bucketFoundMessage("'" + searchText + "'", bucketName).toString(), LogType.SUCCESS);
+                            final Ds3TreeTableValue value = new Ds3TreeTableValue(bucketName, bucketName, Ds3TreeTableValue.Type.Bucket,
+                                    0, StringConstants.TWO_DASH, StringConstants.TWO_DASH, false, null);
+                            return Stream.of(new Ds3TreeTableItem(value.getName(), session, value, workers, ds3Common, dateTimeUtils, loggingService));
+                        } else {
+                            final List<DetailedS3Object> detailedDs3Objects = getDetailedDs3Objects(bucketName);
+                            if (Guard.isNotNullAndNotEmpty(detailedDs3Objects)) {
+                                final List<Ds3TreeTableItem> treeTableItems = buildTreeItems(detailedDs3Objects, bucketName, dateTimeUtils);
+                                if (Guard.isNotNullAndNotEmpty(treeTableItems)) {
+                                    loggingService.logMessage(StringBuilderUtil.searchInBucketMessage(bucketName, treeTableItems.size()).toString(),
+                                            LogType.SUCCESS);
+                                    return treeTableItems.stream();
+                                }
+                            }
+                            return Stream.empty();
                         }
-                    }
-                }
-            });
-            return list;
+                    })
+                    .collect(GuavaCollectors.immutableList());
         } catch (final Exception e) {
             LOG.error("Search failed", e);
             loggingService.logMessage(StringBuilderUtil.searchFailedMessage().append(e).toString(), LogType.ERROR);
