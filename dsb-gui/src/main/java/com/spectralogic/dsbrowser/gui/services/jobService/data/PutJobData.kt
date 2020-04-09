@@ -70,7 +70,7 @@ data class PutJobData(
     }
 
     override val job: Ds3ClientHelpers.Job by lazy {
-                val ds3Objects = items.map { pathToDs3Object(it.second) }.flatMap { it.asIterable() }
+                val ds3Objects = items.map { pathToDs3Object(it.second) }.flatten()
                 ds3Objects.map { pair: Pair<Ds3Object, Path> -> Pair<String, Path>(pair.first.name, pair.second) }
                     .forEach { prefixMap.put(it.first, it.second) }
                 if (ds3Objects.isEmpty()) {
@@ -120,16 +120,18 @@ data class PutJobData(
     override fun getObjectChannelBuilder(prefix: String): Ds3ClientHelpers.ObjectChannelBuilder =
         EmptyChannelBuilder(FileObjectPutter(prefixMap.get(prefix)!!.parent), prefixMap.get(prefix)!!)
 
-    private fun pathToDs3Object(path: Path): Sequence<Pair<Ds3Object, Path>> {
+    private fun pathToDs3Object(path: Path): List<Pair<Ds3Object, Path>> {
+        val parent = path.parent
         return path
             .toFile()
             .walk(FileWalkDirection.TOP_DOWN)
             .filter(::rejectEmptyDirectory)
             .filter(::rejectDeadLinks)
             .map(::addSize)
-            .map(::convertToDs3Object)
+            .map { convertToDs3Object(it, parent) }
             .map { Pair(it, path) }
             .distinct()
+            .toList()
     }
 
     private fun addSize(file: File): Pair<File, Long> =
@@ -138,12 +140,12 @@ data class PutJobData(
     private fun rejectEmptyDirectory(file: File) =
         !(file.isDirectory && Files.list(file.toPath()).use { f -> f.findAny().isPresent })
 
-    private fun convertToDs3Object(fileParts: Pair<File, Long>): Ds3Object {
+    private fun convertToDs3Object(fileParts: Pair<File, Long>, parent: Path): Ds3Object {
         val (file, size) = fileParts
-        val parent = file.toPath().parent
         val pathBuilder = StringBuilder(targetDir)
         val localDelim = file.toPath().fileSystem.separator
-        pathBuilder.append(parent.relativize(file.toPath()).toString().replace(localDelim, "/"))
+        val x = parent.relativize(file.toPath()).toString().replace(localDelim, "/")
+        pathBuilder.append(x)
         if (file.isDirectory) { pathBuilder.append("/") }
         return Ds3Object(pathBuilder.toString(), size)
     }
