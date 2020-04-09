@@ -144,8 +144,7 @@ data class PutJobData(
         val (file, size) = fileParts
         val pathBuilder = StringBuilder(targetDir)
         val localDelim = file.toPath().fileSystem.separator
-        val x = parent.relativize(file.toPath()).toString().replace(localDelim, "/")
-        pathBuilder.append(x)
+        pathBuilder.append(parent.relativize(file.toPath()).toString().replace(localDelim, "/"))
         if (file.isDirectory) { pathBuilder.append("/") }
         return Ds3Object(pathBuilder.toString(), size)
     }
