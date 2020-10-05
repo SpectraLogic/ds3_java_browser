@@ -86,6 +86,7 @@ ospackage {
     postInstall("tar xf /opt/eonbrowser/dsb-gui-${version}.tar -C /opt/eonbrowser/")
     postInstall("sed -i '2 i JAVA_HOME=/opt/eonbrowser/resources/jdk/jre' /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui")
     postInstall("ln -s  /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui /usr/local/bin/eonbrowser")
+    postInstall("chmod -R 755 /opt/eonbrowser")
     preUninstall('unlink /sbin/eonbrowser')
     preUninstall('unlink /usr/local/bin/eonbrowser')
     preUninstall('rm -rf /opt/eonbrowser/*')
@@ -101,12 +102,7 @@ task unzipCorretto(type: Copy) {
 }
 
 task rpm(type: Rpm, dependsOn: [assembleDist, unzipCorretto]) { }
-
-buildDeb {
-    requires('openjdk-8-jre')
-    requires('libopenjfx-java')
-    requires('openjfx')
-}
+task deb(type: Deb, dependsOn: [assembleDist, unzipCorretto]) { }
 
 task copyDependencies(type: Copy, dependsOn: [assemble]) {
     destinationDir libsDir

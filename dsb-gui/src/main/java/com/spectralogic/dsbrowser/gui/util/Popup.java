@@ -34,7 +34,7 @@ public class Popup {
         popup.setScene(popupScene);
         popup.setTitle(title);
         popup.setAlwaysOnTop(false);
-        popup.setResizable(resizeable);
+        popup.setResizable(true);
         popup.showAndWait();
     }
 
