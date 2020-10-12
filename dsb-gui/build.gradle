@@ -25,7 +25,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
-        classpath "com.netflix.nebula:gradle-ospackage-plugin:7.4.0"
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:8.4.1"
     }
 }
 
@@ -80,29 +80,29 @@ ospackage {
     from(distTar.outputs.files) {
         into '/opt/eonbrowser'
     }
+    from('build/unpacked/amazon-corretto-8.265.01.1-linux-x64') {
+        into '/opt/eonbrowser/resources/jdk'
+    }
     postInstall("tar xf /opt/eonbrowser/dsb-gui-${version}.tar -C /opt/eonbrowser/")
+    postInstall("sed -i '2 i JAVA_HOME=/opt/eonbrowser/resources/jdk/jre' /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui")
     postInstall("ln -s  /opt/eonbrowser/dsb-gui-${version}/bin/dsb-gui /usr/local/bin/eonbrowser")
+    postInstall("chmod -R 755 /opt/eonbrowser")
     preUninstall('unlink /sbin/eonbrowser')
     preUninstall('unlink /usr/local/bin/eonbrowser')
     preUninstall('rm -rf /opt/eonbrowser/*')
 
 }
 
-buildRpm {
-    requires('java-1.8.0-openjdk')
-    requires('openjfx')
-    requires('gtk+')
-    requires('gtk2')
-    requires('libXtst')
-    requires('libxslt')
-    requires('java-1.8.0-openjdk-openjfx')
+task unzipCorretto(type: Copy) {
+    def zipFile = file('amazon-corretto-8.265.01.1-linux-x64.zip')
+    def outputDir = file("${buildDir}/unpacked/")
+
+    from zipTree(zipFile)
+    into outputDir
 }
 
-buildDeb {
-    requires('openjdk-8-jre')
-    requires('libopenjfx-java')
-    requires('openjfx')
-}
+task rpm(type: Rpm, dependsOn: [assembleDist, unzipCorretto]) { }
+task deb(type: Deb, dependsOn: [assembleDist, unzipCorretto]) { }
 
 task copyDependencies(type: Copy, dependsOn: [assemble]) {
     destinationDir libsDir

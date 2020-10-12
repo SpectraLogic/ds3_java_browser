@@ -59,12 +59,12 @@ subprojects {
         compile "com.spectralogic.ds3:ds3-sdk:$bpclientVersion"
         compile "com.spectralogic.ds3:ds3-metadata:$bpclientVersion"
         compile 'com.airhacks:afterburner.fx:1.7.0'
-        compile 'org.controlsfx:controlsfx:8.40.15'
+        compile 'org.controlsfx:controlsfx:8.40.17'
         compile 'de.jensd:fontawesomefx:8.9'
         compile 'org.slf4j:slf4j-api:1.7.25'
         compile 'ch.qos.logback:logback-classic:1.2.3'
         compile 'ch.qos.logback:logback-core:1.2.3'
-        compile 'org.fxmisc.richtext:richtextfx:0.10.2'
+        compile 'org.fxmisc.richtext:richtextfx:0.10.5'
         compile 'net.java.dev.jna:jna-platform:5.4.0'
         compile 'net.java.dev.jna:jna:4.5.2'
         compile 'io.reactivex.rxjava2:rxjava:2.2.12'
@@ -94,7 +94,6 @@ subprojects {
     }
 }
 
-
 wrapper {
-    gradleVersion = '5.6.2'
+    gradleVersion = '6.6.1'
 }
