@@ -36,6 +36,10 @@ plugins {
 allprojects {
     group = 'com.spectralogic.dsbrowser'
     version = '5.0.12'
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
 }
 
 subprojects {
@@ -48,16 +52,13 @@ subprojects {
     sourceCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
-        maven {
-            url 'http://dl.bintray.com/spectralogic/ds3'
-        }
         mavenCentral()
         mavenLocal()
     }
 
     dependencies {
-        compile "com.spectralogic.ds3:ds3-sdk:$bpclientVersion"
-        compile "com.spectralogic.ds3:ds3-metadata:$bpclientVersion"
+        implementation "com.github.spectralogic.ds3_java_sdk:ds3-sdk:$bpclientVersion"
+        implementation "com.github.spectralogic.ds3_java_sdk:ds3-metadata:$bpclientVersion"
         compile 'com.airhacks:afterburner.fx:1.7.0'
         compile 'org.controlsfx:controlsfx:8.40.17'
         compile 'de.jensd:fontawesomefx:8.9'
